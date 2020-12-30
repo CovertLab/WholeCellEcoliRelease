@@ -128,7 +128,7 @@ def fitSimData_1(
 	# Set C-period
 	setCPeriod(sim_data)
 
-	cellSpecs = buildBasalCellSpecifications(
+	cell_specs = buildBasalCellSpecifications(
 		sim_data,
 		disable_ribosome_capacity_fitting,
 		disable_rnapoly_capacity_fitting
@@ -142,12 +142,12 @@ def fitSimData_1(
 
 	# Re-compute Km's
 	if sim_data.constants.endoRNase_cooperation:
-		sim_data.process.transcription.rna_data['Km_endoRNase'] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["basal"]["bulkContainer"])
+		sim_data.process.transcription.rna_data['Km_endoRNase'] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cell_specs["basal"]["bulkContainer"])
 
 	## Calculate and set maintenance values
 
 	# ----- Growth associated maintenance -----
-	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
+	fitMaintenanceCosts(sim_data, cell_specs["basal"]["bulkContainer"])
 
 	# NOTE: multiprocessing `fork` seems to work here even on macOS, so override the
 	# cpus() safety check for now. Be careful calling native libraries that
@@ -155,22 +155,22 @@ def fitSimData_1(
 	# See Issue #392.
 	cpus = parallelization.cpus(cpus, advice='mac override')
 
-	# Apply updates to cellSpecs from buildTfConditionCellSpecifications for each TF condition
+	# Apply updates to cell_specs from buildTfConditionCellSpecifications for each TF condition
 	conditions = list(sorted(sim_data.tf_to_active_inactive_conditions))
 	args = [(sim_data, tf, disable_ribosome_capacity_fitting, disable_rnapoly_capacity_fitting)
 		for tf in conditions]
-	apply_updates(buildTfConditionCellSpecifications, args, conditions, cellSpecs, cpus)
+	apply_updates(buildTfConditionCellSpecifications, args, conditions, cell_specs, cpus)
 
-	for conditionKey in cellSpecs:
+	for conditionKey in cell_specs:
 		if conditionKey == "basal":
 			continue
 
-		sim_data.process.transcription.rna_expression[conditionKey] = cellSpecs[conditionKey]["expression"]
-		sim_data.process.transcription.rna_synth_prob[conditionKey] = cellSpecs[conditionKey]["synthProb"]
+		sim_data.process.transcription.rna_expression[conditionKey] = cell_specs[conditionKey]["expression"]
+		sim_data.process.transcription.rna_synth_prob[conditionKey] = cell_specs[conditionKey]["synthProb"]
 
 	buildCombinedConditionCellSpecifications(
 		sim_data,
-		cellSpecs,
+		cell_specs,
 		variable_elongation_transcription,
 		variable_elongation_translation,
 		disable_ribosome_capacity_fitting,
@@ -185,34 +185,34 @@ def fitSimData_1(
 	sim_data.process.translation.ribosomeElongationRateDict = {}
 	sim_data.process.translation.ribosomeFractionActiveDict = {}
 
-	# Apply updates from fitCondition to cellSpecs for each fit condition
-	conditions = list(sorted(cellSpecs))
-	args = [(sim_data, cellSpecs[condition], condition)
+	# Apply updates from fitCondition to cell_specs for each fit condition
+	conditions = list(sorted(cell_specs))
+	args = [(sim_data, cell_specs[condition], condition)
 		for condition in conditions]
-	apply_updates(fitCondition, args, conditions, cellSpecs, cpus)
+	apply_updates(fitCondition, args, conditions, cell_specs, cpus)
 
-	for condition_label in sorted(cellSpecs):
+	for condition_label in sorted(cell_specs):
 		nutrients = sim_data.conditions[condition_label]["nutrients"]
 		if nutrients not in sim_data.translation_supply_rate:
-			sim_data.translation_supply_rate[nutrients] = cellSpecs[condition_label]["translation_aa_supply"]
+			sim_data.translation_supply_rate[nutrients] = cell_specs[condition_label]["translation_aa_supply"]
 
 	if VERBOSE > 0:
 		print('Fitting promoter binding')
 	# noinspection PyTypeChecker
-	rVector = fitPromoterBoundProbability(sim_data, cellSpecs)
+	rVector = fitPromoterBoundProbability(sim_data, cell_specs)
 	# noinspection PyTypeChecker
-	fitLigandConcentrations(sim_data, cellSpecs)
+	fitLigandConcentrations(sim_data, cell_specs)
 
 	# Adjust ppGpp regulated expression after conditions have been fit for physiological constraints
 	sim_data.process.transcription.adjust_polymerizing_ppgpp_expression(sim_data)
 
-	for condition_label in sorted(cellSpecs):
+	for condition_label in sorted(cell_specs):
 		condition = sim_data.conditions[condition_label]
 		nutrients = condition["nutrients"]
 
 		if VERBOSE > 0:
 			print("Updating mass in condition {}".format(condition_label))
-		spec = cellSpecs[condition_label]
+		spec = cell_specs[condition_label]
 
 		concDict = sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(nutrients)
 		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.condition_to_doubling_time[condition_label]))
@@ -369,8 +369,8 @@ def buildBasalCellSpecifications(
 	"""
 
 	# Create dictionary for basal condition
-	cellSpecs = {}
-	cellSpecs["basal"] = {
+	cell_specs = {}
+	cell_specs["basal"] = {
 		"concDict": sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients("minimal"),
 		"expression": sim_data.process.transcription.rna_expression["basal"].copy(),
 		"doubling_time": sim_data.condition_to_doubling_time["basal"],
@@ -379,19 +379,19 @@ def buildBasalCellSpecifications(
 	# Determine expression and synthesis probabilities
 	expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, _ = expressionConverge(
 		sim_data,
-		cellSpecs["basal"]["expression"],
-		cellSpecs["basal"]["concDict"],
-		cellSpecs["basal"]["doubling_time"],
+		cell_specs["basal"]["expression"],
+		cell_specs["basal"]["concDict"],
+		cell_specs["basal"]["doubling_time"],
 		disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
 		disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 		)
 
 	# Store calculated values
-	cellSpecs["basal"]["expression"] = expression
-	cellSpecs["basal"]["synthProb"] = synthProb
-	cellSpecs["basal"]["avgCellDryMassInit"] = avgCellDryMassInit
-	cellSpecs["basal"]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
-	cellSpecs["basal"]["bulkContainer"] = bulkContainer
+	cell_specs["basal"]["expression"] = expression
+	cell_specs["basal"]["synthProb"] = synthProb
+	cell_specs["basal"]["avgCellDryMassInit"] = avgCellDryMassInit
+	cell_specs["basal"]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
+	cell_specs["basal"]["bulkContainer"] = bulkContainer
 
 	# Modify sim_data mass
 	sim_data.mass.avg_cell_dry_mass_init = avgCellDryMassInit
@@ -400,10 +400,10 @@ def buildBasalCellSpecifications(
 	sim_data.mass.fitAvgSolubleTargetMolMass = fitAvgSolubleTargetMolMass
 
 	# Modify sim_data expression
-	sim_data.process.transcription.rna_expression["basal"][:] = cellSpecs["basal"]["expression"]
-	sim_data.process.transcription.rna_synth_prob["basal"][:] = cellSpecs["basal"]["synthProb"]
+	sim_data.process.transcription.rna_expression["basal"][:] = cell_specs["basal"]["expression"]
+	sim_data.process.transcription.rna_synth_prob["basal"][:] = cell_specs["basal"]["synthProb"]
 
-	return cellSpecs
+	return cell_specs
 
 @parallelization.full_traceback
 def buildTfConditionCellSpecifications(
@@ -450,7 +450,7 @@ def buildTfConditionCellSpecifications(
 			bulk molecules based on expression
 	"""
 
-	cellSpecs = {}
+	cell_specs = {}
 	for choice in ["__active", "__inactive"]:
 		conditionKey = tf + choice
 		conditionValue = sim_data.conditions[conditionKey]
@@ -478,7 +478,7 @@ def buildTfConditionCellSpecifications(
 		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.condition_to_doubling_time[conditionKey]))
 
 		# Create dictionary for the condition
-		cellSpecs[conditionKey] = {
+		cell_specs[conditionKey] = {
 			"concDict": concDict,
 			"expression": expression,
 			"doubling_time": sim_data.condition_to_doubling_time.get(
@@ -490,26 +490,26 @@ def buildTfConditionCellSpecifications(
 		# Determine expression and synthesis probabilities
 		expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
 			sim_data,
-			cellSpecs[conditionKey]["expression"],
-			cellSpecs[conditionKey]["concDict"],
-			cellSpecs[conditionKey]["doubling_time"],
+			cell_specs[conditionKey]["expression"],
+			cell_specs[conditionKey]["concDict"],
+			cell_specs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rna_data['Km_endoRNase'],
 			disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
 			disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 			)
 
 		# Store calculated values
-		cellSpecs[conditionKey]["expression"] = expression
-		cellSpecs[conditionKey]["synthProb"] = synthProb
-		cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
-		cellSpecs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
-		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
+		cell_specs[conditionKey]["expression"] = expression
+		cell_specs[conditionKey]["synthProb"] = synthProb
+		cell_specs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+		cell_specs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
+		cell_specs[conditionKey]["bulkContainer"] = bulkContainer
 
-	return cellSpecs
+	return cell_specs
 
 def buildCombinedConditionCellSpecifications(
 		sim_data,
-		cellSpecs,
+		cell_specs,
 		variable_elongation_transcription=False,
 		variable_elongation_translation=False,
 		disable_ribosome_capacity_fitting=False,
@@ -521,7 +521,7 @@ def buildCombinedConditionCellSpecifications(
 
 	Inputs
 	------
-	- cellSpecs {condition (str): dict} - information about each individual
+	- cell_specs {condition (str): dict} - information about each individual
 	transcription factor condition
 	- disable_ribosome_capacity_fitting (bool) - if True, ribosome expression
 	is not fit
@@ -537,7 +537,7 @@ def buildCombinedConditionCellSpecifications(
 
 	Modifies
 	--------
-	- cellSpecs dictionary for each combined condition
+	- cell_specs dictionary for each combined condition
 	- RNA expression and synthesis probabilities for each combined condition
 
 	Notes
@@ -573,7 +573,7 @@ def buildCombinedConditionCellSpecifications(
 		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.condition_to_doubling_time[conditionKey]))
 
 		# Create dictionary for the condition
-		cellSpecs[conditionKey] = {
+		cell_specs[conditionKey] = {
 			"concDict": concDict,
 			"expression": expression,
 			"doubling_time": sim_data.condition_to_doubling_time.get(
@@ -585,25 +585,25 @@ def buildCombinedConditionCellSpecifications(
 		# Determine expression and synthesis probabilities
 		expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
 			sim_data,
-			cellSpecs[conditionKey]["expression"],
-			cellSpecs[conditionKey]["concDict"],
-			cellSpecs[conditionKey]["doubling_time"],
+			cell_specs[conditionKey]["expression"],
+			cell_specs[conditionKey]["concDict"],
+			cell_specs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rna_data['Km_endoRNase'],
 			variable_elongation_transcription = variable_elongation_transcription,
 			variable_elongation_translation = variable_elongation_translation,
 			disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
 			disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting)
 
-		# Modify cellSpecs for calculated values
-		cellSpecs[conditionKey]["expression"] = expression
-		cellSpecs[conditionKey]["synthProb"] = synthProb
-		cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
-		cellSpecs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
-		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
+		# Modify cell_specs for calculated values
+		cell_specs[conditionKey]["expression"] = expression
+		cell_specs[conditionKey]["synthProb"] = synthProb
+		cell_specs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+		cell_specs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
+		cell_specs[conditionKey]["bulkContainer"] = bulkContainer
 
 		# Modify sim_data expression
-		sim_data.process.transcription.rna_expression[conditionKey] = cellSpecs[conditionKey]["expression"]
-		sim_data.process.transcription.rna_synth_prob[conditionKey] = cellSpecs[conditionKey]["synthProb"]
+		sim_data.process.transcription.rna_expression[conditionKey] = cell_specs[conditionKey]["expression"]
+		sim_data.process.transcription.rna_synth_prob[conditionKey] = cell_specs[conditionKey]["synthProb"]
 
 def expressionConverge(
 		sim_data,
@@ -2130,7 +2130,7 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 
 	return expression
 
-def fitPromoterBoundProbability(sim_data, cellSpecs):
+def fitPromoterBoundProbability(sim_data, cell_specs):
 	r"""
 	Calculates the probabilities (P) that each transcription factor will bind
 	to its target RNA. This function initially calculates these probabilities
@@ -2147,11 +2147,11 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	Requires
 	--------
 	- Bulk average counts of transcription factors and associated ligands
-	for each condition (in cellSpecs)
+	for each condition (in cell_specs)
 
 	Inputs
 	------
-	- cellSpecs {condition (str): dict} - information about each condition
+	- cell_specs {condition (str): dict} - information about each condition
 
 	Modifies
 	--------
@@ -2170,7 +2170,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	the parameters being fit.
 	"""
 
-	def build_vector_k(sim_data, cellSpecs):
+	def build_vector_k(sim_data, cell_specs):
 		"""
 		Construct vector k that contains existing fit transcription
 		probabilities of RNAs in each relevant condition, normalized by the
@@ -2215,7 +2215,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 					continue
 
 				# Get specific doubling time for this condition
-				tau = cellSpecs[condition]["doubling_time"].asNumber(units.min)
+				tau = cell_specs[condition]["doubling_time"].asNumber(units.min)
 
 				# Calculate average copy number of gene for this condition
 				n_avg_copy = sim_data.process.replication.get_average_copy_number(tau, rnaCoordinate)
@@ -2442,7 +2442,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return T
 
-	def build_matrix_H(sim_data, col_name_to_index, pPromoterBound, r, fixedTFs, cellSpecs):
+	def build_matrix_H(sim_data, col_name_to_index, pPromoterBound, r, fixedTFs, cell_specs):
 		r"""
 		Construct matrix H that contains values of vector r as elements.
 		Each row of the matrix is named "[RNA]__[condition]", where
@@ -2524,7 +2524,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 					hJ.append(H_col_name_to_index[col_name])
 
 					# Handle the case of the TF being knocked out (admittedly not the cleanest solution)
-					if cellSpecs[condition]["bulkAverageContainer"].count(tf + "[c]") == 0:
+					if cell_specs[condition]["bulkAverageContainer"].count(tf + "[c]") == 0:
 						hV.append(0)  # TF is knocked out in the given condition
 					else:
 						hV.append(rDict[rnaIdNoLoc + "__" + tf])  # Optimized r value for TF-RNA pair
@@ -2637,7 +2637,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			for tf in sorted(pPromoterBoundIdxs[condition]):
 				pPromoterBound[condition][tf] = p[pPromoterBoundIdxs[condition][tf]]
 
-	def updateSynthProb(sim_data, cellSpecs, kInfo, k):
+	def updateSynthProb(sim_data, cell_specs, kInfo, k):
 		"""
 		Updates RNA synthesis probabilities with fit values of P and R. The
 		expected average copy number of genes for the condition are multiplied
@@ -2673,7 +2673,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			rnaCoordinate = replication_coordinate[rna_idx]
 
 			# Get specific doubling time for this condition
-			tau = cellSpecs[condition]["doubling_time"].asNumber(units.min)
+			tau = cell_specs[condition]["doubling_time"].asNumber(units.min)
 
 			# Calculate average copy number of gene for this condition
 			n_avg_copy = sim_data.process.replication.get_average_copy_number(tau, rnaCoordinate)
@@ -2686,7 +2686,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			sim_data.process.transcription.rna_synth_prob[condition] /= sim_data.process.transcription.rna_synth_prob[condition].sum()
 
 	# Initialize pPromoterBound using mean TF and ligand concentrations
-	pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
+	pPromoterBound = calculatePromoterBoundProbability(sim_data, cell_specs)
 	pInit0 = None
 	lastNorm = np.inf
 
@@ -2700,7 +2700,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			fixedTFs.append(tf)
 
 	# Build vector of existing fit transcription probabilities
-	k, kInfo = build_vector_k(sim_data, cellSpecs)
+	k, kInfo = build_vector_k(sim_data, cell_specs)
 
 	# Repeat for a fixed maximum number of iterations
 	for i in range(PROMOTER_MAX_ITERATIONS):
@@ -2743,7 +2743,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		# Use optimal value of R to construct matrix H and vector Pdiff
 		H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, H_col_name_to_index = build_matrix_H(
-			sim_data, G_col_name_to_index, pPromoterBound, r, fixedTFs, cellSpecs)
+			sim_data, G_col_name_to_index, pPromoterBound, r, fixedTFs, cell_specs)
 		pdiff = build_matrix_pdiff(sim_data, H_col_name_to_index)
 
 		# On first iteration, save the value of the initial p
@@ -2813,12 +2813,12 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	# Update sim_data with fit bound probabilities and RNAP initiation
 	# probabilities computed from these bound probabilities
 	sim_data.pPromoterBound = pPromoterBound
-	updateSynthProb(sim_data, cellSpecs, kInfo, np.dot(H, p))
+	updateSynthProb(sim_data, cell_specs, kInfo, np.dot(H, p))
 
 	return r
 
 
-def fitLigandConcentrations(sim_data, cellSpecs):
+def fitLigandConcentrations(sim_data, cell_specs):
 	"""
 	Using the fit values of pPromoterBound, updates the set concentrations of
 	ligand metabolites and the kd's of the ligand-TF binding reactions.
@@ -2830,7 +2830,7 @@ def fitLigandConcentrations(sim_data, cellSpecs):
 
 	Inputs
 	------
-	- cellSpecs {condition (str): dict} - information about each condition
+	- cell_specs {condition (str): dict} - information about each condition
 
 	Modifies
 	--------
@@ -2866,15 +2866,15 @@ def fitLigandConcentrations(sim_data, cellSpecs):
 
 		# Calculate the concentrations of the metabolite under conditions where
 		# TF is active and inactive
-		activeCellVolume = (cellSpecs[activeKey]["avgCellDryMassInit"] /
+		activeCellVolume = (cell_specs[activeKey]["avgCellDryMassInit"] /
 			cellDensity / sim_data.mass.cell_dry_mass_fraction)
 		activeCountsToMolar = 1/(sim_data.constants.n_avogadro * activeCellVolume)
-		activeSignalConc = ((activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(metabolite))
+		activeSignalConc = ((activeCountsToMolar * cell_specs[activeKey]["bulkAverageContainer"].count(metabolite))
 			.asNumber(units.mol/units.L))
-		inactiveCellVolume = (cellSpecs[inactiveKey]["avgCellDryMassInit"] /
+		inactiveCellVolume = (cell_specs[inactiveKey]["avgCellDryMassInit"] /
 			cellDensity / sim_data.mass.cell_dry_mass_fraction)
 		inactiveCountsToMolar = 1/(sim_data.constants.n_avogadro * inactiveCellVolume)
-		inactiveSignalConc = ((inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite))
+		inactiveSignalConc = ((inactiveCountsToMolar * cell_specs[inactiveKey]["bulkAverageContainer"].count(metabolite))
 			.asNumber(units.mol/units.L))
 
 		# Update kd with fitted values of P and the bulk average concentrations
@@ -2913,7 +2913,7 @@ def fitLigandConcentrations(sim_data, cellSpecs):
 		sim_data.process.equilibrium.set_rev_rate(boundId + "[c]", kdNew * fwdRate)
 
 
-def calculatePromoterBoundProbability(sim_data, cellSpecs):
+def calculatePromoterBoundProbability(sim_data, cell_specs):
 	"""
 	Calculate the probability that a transcription factor is bound to its
 	associated promoter for all simulated growth conditions. The bulk
@@ -2923,7 +2923,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	Requires
 	--------
 	- Bulk average counts of transcription factors and associated ligands
-	for each condition (in cellSpecs)
+	for each condition (in cell_specs)
 
 	Returns
 	--------
@@ -2935,17 +2935,17 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	pPromoterBound = {}  # Initialize return value
 	cellDensity = sim_data.constants.cell_density
 
-	for conditionKey in sorted(cellSpecs):
+	for conditionKey in sorted(cell_specs):
 		pPromoterBound[conditionKey] = {}
 
-		cellVolume = cellSpecs[conditionKey]["avgCellDryMassInit"]/cellDensity/sim_data.mass.cell_dry_mass_fraction
+		cellVolume = cell_specs[conditionKey]["avgCellDryMassInit"]/cellDensity/sim_data.mass.cell_dry_mass_fraction
 		countsToMolar = 1/(sim_data.constants.n_avogadro * cellVolume)
 
 		for tf in sorted(sim_data.tf_to_active_inactive_conditions):
 			tfType = sim_data.process.transcription_regulation.tf_to_tf_type[tf]
 
 			if tfType == "0CS":
-				tfCount = cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
+				tfCount = cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
 
 				if tfCount > 0:
 					pPromoterBound[conditionKey][tf] = 1.  # If TF exists, the promoter is always bound to the TF
@@ -2960,8 +2960,8 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 				signalCoeff = sim_data.process.equilibrium.get_metabolite_coeff(boundId + "[c]")  # Stoichiometric coefficient of ligand
 
 				# Get bulk average concentrations of ligand and TF
-				signalConc = (countsToMolar*cellSpecs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol/units.L)
-				tfConc = (countsToMolar*cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol/units.L)
+				signalConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol/units.L)
+				tfConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol/units.L)
 
 				# If TF is active in its bound state
 				if tf == boundId:
@@ -2979,9 +2979,9 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 			elif tfType == "2CS":
 				# Get bulk average concentrations of active and inactive TF
-				activeTfConc = (countsToMolar*cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol/units.L)
+				activeTfConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol/units.L)
 				inactiveTf = sim_data.process.two_component_system.active_to_inactive_tf[tf + "[c]"]
-				inactiveTfConc = (countsToMolar*cellSpecs[conditionKey]["bulkAverageContainer"].count(inactiveTf)).asNumber(units.mol/units.L)
+				inactiveTfConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(inactiveTf)).asNumber(units.mol/units.L)
 
 				if activeTfConc == 0 and inactiveTfConc == 0:
 					pPromoterBound[conditionKey][tf] = 0.
