@@ -2,9 +2,7 @@
 Template for single analysis plots
 """
 
-from __future__ import absolute_import, division, print_function
-
-from six.moves import cPickle
+import pickle
 import os
 
 from matplotlib import pyplot as plt
@@ -18,9 +16,9 @@ from wholecell.io.tablereader import TableReader
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
-			sim_data = cPickle.load(f)
+			sim_data = pickle.load(f)
 		with open(validationDataFile, 'rb') as f:
-			validation_data = cPickle.load(f)
+			validation_data = pickle.load(f)
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
