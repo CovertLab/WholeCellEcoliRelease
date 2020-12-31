@@ -36,6 +36,17 @@ class RunParca(scriptBase.ScriptBase):
 		parser.add_argument('-c', '--cpus', type=int, default=1,
 			help='The number of CPU processes to use. Default = 1.')
 
+		parser.add_argument('--load-intermediate',
+			help='The function in the parca to load (skips functions that would'
+				 ' have run before the function). Must run with --save-intermediates first.')
+		parser.add_argument('--save-intermediates', action='store_true',
+			help='If set, saves sim_data and cell_specs at intermediate'
+			     ' function calls in the parca.')
+		parser.add_argument('--intermediates-directory',
+			help='Directory to save or load intermediate sim_data and cell_specs'
+			     ' results from if --load-intermediate or --save-intermediates'
+			     ' are set.')
+
 		self.define_parca_options(parser)
 		self.define_elongation_options(parser)
 
@@ -74,6 +85,9 @@ class RunParca(scriptBase.ScriptBase):
 			vars(args),
 			scriptBase.PARCA_KEYS,
 			debug=args.debug_parca,
+			load_intermediate=args.load_intermediate,
+			save_intermediates=args.save_intermediates,
+			intermediates_directory=args.intermediates_directory,
 			output_directory=kb_directory)
 
 		task = ParcaTask(**python_args)

@@ -7,10 +7,12 @@ TODO: functionalize so that values are not both set and returned from some metho
 
 from __future__ import absolute_import, division, print_function
 
+import functools
 import itertools
 import os
 import multiprocessing as mp
 import sys
+import time
 import traceback
 from typing import Callable, List
 
@@ -78,15 +80,10 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
+functions_run = []
 
-def fitSimData_1(
-		raw_data,
-		cpus=1,
-		debug=False,
-		variable_elongation_transcription=False,
-		variable_elongation_translation=False,
-		disable_ribosome_capacity_fitting=False,
-		disable_rnapoly_capacity_fitting=False):
+
+def fitSimData_1(raw_data, **kwargs):
 	"""
 	Fits parameters necessary for the simulation based on the knowledge base
 
@@ -108,11 +105,106 @@ def fitSimData_1(
 	"""
 
 	sim_data = SimulationDataEcoli()
+	cell_specs = {}
+
+	# Functions to modify sim_data and/or cell_specs
+	# Functions defined below should be wrapped by @save_state to allow saving
+	# and loading sim_data and cell_specs to skip certain functions while doing
+	# development for faster testing and iteration of later functions that
+	# might not need earlier functions to be rerun each time.
+	sim_data, cell_specs = initialize(sim_data, cell_specs, raw_data=raw_data, **kwargs)
+	sim_data, cell_specs = input_adjustments(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = basal_specs(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = tf_condition_specs(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = fit_condition(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = promoter_binding(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = set_conditions(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = final_adjustments(sim_data, cell_specs, **kwargs)
+
+	if sim_data is None:
+		raise ValueError('sim_data is not specified.  Check that the'
+			f' load_intermediate function ({kwargs.get("load_intermediate")})'
+			' is correct and matches a function to be run.')
+
+	return sim_data
+
+def save_state(func):
+	"""
+	Wrapper for functions called in fitSimData_1() to allow saving and loading
+	of sim_data and cell_specs at different points in the parameter calculation
+	pipeline.  This is useful for development in order to skip time intensive
+	steps that are not required to recalculate in order to work with the desired
+	stage of parameter calculation.
+
+	This wrapper expects arguments in the kwargs passed into a wrapped function:
+		save_intermediates (bool): if True, the state (sim_data and cell_specs)
+			will be saved to disk in intermediates_directory
+		intermediates_directory (str): path to the directory to save intermediate
+			sim_data and cell_specs files to
+		load_intermediate (str): the name of the function to load sim_data and
+			cell_specs from, functions prior to and including this will be
+			skipped but all following functions will run
+	"""
+
+	@functools.wraps(func)
+	def wrapper(*args, **kwargs):
+		func_name = func.__name__
+		load_intermediate = kwargs.get('load_intermediate')
+		intermediates_dir = kwargs.get('intermediates_directory', '')
+
+		# Files to save to or load from
+		sim_data_file = os.path.join(intermediates_dir, f'sim_data_{func_name}.cPickle')
+		cell_specs_file = os.path.join(intermediates_dir, f'cell_specs_{func_name}.cPickle')
+
+		# Run the wrapped function if the function to load is not specified or was already loaded
+		if load_intermediate is None or load_intermediate in functions_run:
+			start = time.time()
+			sim_data, cell_specs = func(*args, **kwargs)
+			end = time.time()
+			print(f'Ran {func_name} in {end - start:.0f} s')
+		# Load the saved results from the wrapped function if it is set to be loaded
+		elif load_intermediate == func_name:
+			if not os.path.exists(sim_data_file) or not os.path.exists(cell_specs_file):
+				raise IOError(f'Could not find intermediate files ({sim_data_file}'
+					f' or {cell_specs_file}) to load. Make sure to save intermediates'
+					' before trying to load them.')
+			with open(sim_data_file, 'rb') as f:
+				sim_data = cPickle.load(f)
+			with open(cell_specs_file, 'rb') as f:
+				cell_specs = cPickle.load(f)
+			print(f'Loaded sim_data and cell_specs for {func_name}')
+		# Skip running or loading if a later function will be loaded
+		else:
+			print(f'Skipped {func_name}')
+			sim_data = None
+			cell_specs = {}
+
+		# Save the current state of the parameter calculator after the function to disk
+		if kwargs.get('save_intermediates', False) and intermediates_dir != '':
+			os.makedirs(intermediates_dir, exist_ok=True)
+			with open(sim_data_file, 'wb') as f:
+				cPickle.dump(sim_data, f, protocol=cPickle.HIGHEST_PROTOCOL)
+			with open(cell_specs_file, 'wb') as f:
+				cPickle.dump(cell_specs, f, protocol=cPickle.HIGHEST_PROTOCOL)
+			print(f'Saved data for {func_name}')
+
+		# Record which functions have been run to know if the loaded function has run
+		functions_run.append(func_name)
+
+		return sim_data, cell_specs
+	return wrapper
+
+@save_state
+def initialize(sim_data, cell_specs, raw_data=None, **kwargs):
 	sim_data.initialize(
 		raw_data = raw_data,
 		basal_expression_condition = BASAL_EXPRESSION_CONDITION,
 		)
 
+	return sim_data, cell_specs
+
+@save_state
+def input_adjustments(sim_data, cell_specs, debug=False, **kwargs):
 	# Limit the number of conditions that are being fit so that execution time decreases
 	if debug:
 		print("Warning: Running the Parca in debug mode - not all conditions will be fit")
@@ -128,6 +220,12 @@ def fitSimData_1(
 	# Set C-period
 	setCPeriod(sim_data)
 
+	return sim_data, cell_specs
+
+@save_state
+def basal_specs(sim_data, cell_specs,
+		disable_ribosome_capacity_fitting=False, disable_rnapoly_capacity_fitting=False,
+		**kwargs):
 	cell_specs = buildBasalCellSpecifications(
 		sim_data,
 		disable_ribosome_capacity_fitting,
@@ -136,7 +234,7 @@ def fitSimData_1(
 
 	# Set expression based on ppGpp regulation from basal expression
 	sim_data.process.transcription.set_ppgpp_expression(sim_data)
-	# TODO (Travis): use ppGpp expression in condition fitting below
+	# TODO (Travis): use ppGpp expression in condition fitting
 
 	# Modify other properties
 
@@ -149,6 +247,13 @@ def fitSimData_1(
 	# ----- Growth associated maintenance -----
 	fitMaintenanceCosts(sim_data, cell_specs["basal"]["bulkContainer"])
 
+	return sim_data, cell_specs
+
+@save_state
+def tf_condition_specs(sim_data, cell_specs, cpus=1,
+		disable_ribosome_capacity_fitting=False, disable_rnapoly_capacity_fitting=False,
+		variable_elongation_transcription=False, variable_elongation_translation=False,
+		**kwargs):
 	# NOTE: multiprocessing `fork` seems to work here even on macOS, so override the
 	# cpus() safety check for now. Be careful calling native libraries that
 	# use threads and other resources which don't play well with `fork`.
@@ -176,15 +281,10 @@ def fitSimData_1(
 		disable_ribosome_capacity_fitting,
 		disable_rnapoly_capacity_fitting)
 
-	sim_data.process.transcription.rnaSynthProbFraction = {}
-	sim_data.process.transcription.rnapFractionActiveDict = {}
-	sim_data.process.transcription.rnaSynthProbRProtein = {}
-	sim_data.process.transcription.rnaSynthProbRnaPolymerase = {}
-	sim_data.process.transcription.rnaPolymeraseElongationRateDict = {}
-	sim_data.expectedDryMassIncreaseDict = {}
-	sim_data.process.translation.ribosomeElongationRateDict = {}
-	sim_data.process.translation.ribosomeFractionActiveDict = {}
+	return sim_data, cell_specs
 
+@save_state
+def fit_condition(sim_data, cell_specs, cpus=1, **kwargs):
 	# Apply updates from fitCondition to cell_specs for each fit condition
 	conditions = list(sorted(cell_specs))
 	args = [(sim_data, cell_specs[condition], condition)
@@ -196,6 +296,10 @@ def fitSimData_1(
 		if nutrients not in sim_data.translation_supply_rate:
 			sim_data.translation_supply_rate[nutrients] = cell_specs[condition_label]["translation_aa_supply"]
 
+	return sim_data, cell_specs
+
+@save_state
+def promoter_binding(sim_data, cell_specs, **kwargs):
 	if VERBOSE > 0:
 		print('Fitting promoter binding')
 	# noinspection PyTypeChecker
@@ -203,8 +307,20 @@ def fitSimData_1(
 	# noinspection PyTypeChecker
 	fitLigandConcentrations(sim_data, cell_specs)
 
-	# Adjust ppGpp regulated expression after conditions have been fit for physiological constraints
-	sim_data.process.transcription.adjust_polymerizing_ppgpp_expression(sim_data)
+	calculateRnapRecruitment(sim_data, rVector)
+
+	return sim_data, cell_specs
+
+@save_state
+def set_conditions(sim_data, cell_specs, **kwargs):
+	sim_data.process.transcription.rnaSynthProbFraction = {}
+	sim_data.process.transcription.rnapFractionActiveDict = {}
+	sim_data.process.transcription.rnaSynthProbRProtein = {}
+	sim_data.process.transcription.rnaSynthProbRnaPolymerase = {}
+	sim_data.process.transcription.rnaPolymeraseElongationRateDict = {}
+	sim_data.expectedDryMassIncreaseDict = {}
+	sim_data.process.translation.ribosomeElongationRateDict = {}
+	sim_data.process.translation.ribosomeFractionActiveDict = {}
 
 	for condition_label in sorted(cell_specs):
 		condition = sim_data.conditions[condition_label]
@@ -266,10 +382,17 @@ def fitSimData_1(
 				frac = sim_data.growth_rate_parameters.get_fraction_active_ribosome(spec["doubling_time"])
 				sim_data.process.translation.ribosomeFractionActiveDict[nutrients] = frac
 
-	calculateRnapRecruitment(sim_data, rVector)
+	return sim_data, cell_specs
+
+@save_state
+def final_adjustments(sim_data, cell_specs, **kwargs):
+	# Adjust ppGpp regulated expression after conditions have been fit for physiological constraints
+	sim_data.process.transcription.adjust_polymerizing_ppgpp_expression(sim_data)
+
+	# Set supply constants for amino acids based on condition supply requirements
 	sim_data.process.metabolism.set_supply_constants(sim_data)
 
-	return sim_data
+	return sim_data, cell_specs
 
 def apply_updates(func, args, labels, dest, cpus):
 	# type: (Callable[..., dict], List[tuple], List[str], dict, int) -> None

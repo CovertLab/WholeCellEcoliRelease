@@ -26,6 +26,9 @@ class ParcaTask(FiretaskBase):
 		'ribosome_fitting',
 		'rnapoly_fitting']
 	optional_params = [
+		'load_intermediate',
+		'save_intermediates',
+		'intermediates_directory',
 		'cpus',
 		'debug',
 		'variable_elongation_transcription',
@@ -47,6 +50,7 @@ class ParcaTask(FiretaskBase):
 			kb_directory, constants.SERIALIZED_RAW_VALIDATION_DATA)
 		validation_data_file = os.path.join(
 			kb_directory, constants.SERIALIZED_VALIDATION_DATA)
+		intermediates_dir = self.get('intermediates_directory') if self.get('intermediates_directory') else kb_directory
 
 		tasks = [
 			InitRawDataTask(
@@ -57,6 +61,9 @@ class ParcaTask(FiretaskBase):
 				output_data=sim_data_file,
 				output_metrics_data=metrics_data_file,
 				cached=False,
+				load_intermediate=self.get('load_intermediate', None),
+				save_intermediates=self.get('save_intermediates', False),
+				intermediates_directory=intermediates_dir,
 				cpus=self.get('cpus', 1),
 				debug=self.get('debug', False),
 				variable_elongation_transcription=self._get_default('variable_elongation_transcription'),

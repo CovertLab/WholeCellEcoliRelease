@@ -30,6 +30,9 @@ class FitSimDataTask(FiretaskBase):
 		"output_metrics_data",
 	]
 	optional_params = [
+		'load_intermediate',
+		'save_intermediates',
+		'intermediates_directory',
 		"cached_data",
 		"sim_out_dir",
 		'variable_elongation_transcription',
@@ -62,6 +65,9 @@ class FitSimDataTask(FiretaskBase):
 
 		sim_data = fitSimData_1(
 			raw_data, cpus=cpus, debug=self["debug"],
+			load_intermediate=self.get('load_intermediate', None),
+			save_intermediates=self.get('save_intermediates', False),
+			intermediates_directory=self.get('intermediates_directory', ''),
 			variable_elongation_transcription=self._get_default('variable_elongation_transcription'),
 			variable_elongation_translation=self._get_default('variable_elongation_translation'),
 			disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
