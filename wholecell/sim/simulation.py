@@ -45,7 +45,6 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	logToShell = True,
 	logToDisk = False,
 	outputDir = None,
-	overwriteExistingFiles = False,
 	logToDiskEvery = 1,
 	simData = None,
 	inheritedStatePath = None,
@@ -221,14 +220,14 @@ class Simulation():
 
 		if self._logToShell:
 			self.loggers["Shell"] = wholecell.loggers.shell.Shell(
-				self._shellColumnHeaders
+				self._shellColumnHeaders,
+				self._outputDir if self._logToDisk else None,
 				)
 
 		if self._logToDisk:
 			self.loggers["Disk"] = wholecell.loggers.disk.Disk(
 				self._outputDir,
-				self._overwriteExistingFiles,
-				self._logToDiskEvery
+				logEvery=self._logToDiskEvery,
 				)
 
 	# Run simulation

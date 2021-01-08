@@ -6,11 +6,13 @@ Shell
 Prints a very brief summary of a whole-cell simulation to standard output
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
 import datetime
-import sys
 import numpy as np
+import os
+import sys
+from typing import Iterable, Optional
 
 from six.moves import range, zip
 
@@ -21,12 +23,29 @@ from wholecell.utils.py3 import monotonic_seconds
 SPACER = "  "
 
 class Shell(wholecell.loggers.logger.Logger):
-	""" Shell """
+	"""
+	Displays a simple summary of the simulation state to the shell as the
+	simulation progresses.  Optionally saves the output in a log file.
+	Logged values are added to columnSpecs by calling registerLoggedQuantity()
+	in a Listener class.
+	"""
 
-	def __init__(self, columnHeaders):
+	def __init__(self,
+			columnHeaders: Iterable[str],
+			output_dir: Optional[str] = None,
+			):
+		"""
+		Args:
+			columnHeaders: header IDs for values added to columnSpecs to
+				display at each time step
+			output_dir: if not None, will also save the output to a log file
+				in this directory in addition to logging to the shell
+		"""
+
 		self.iterFreq = 1
 		self.headerFreq = 50
 
+		# Can also be populated by Listener classes calling registerLoggedQuantity()
 		self.columnSpecs = [
 			{"header": "Time (s)", "target": "Simulation", "property": "time", "length": 8, "format": ".2f", "sum": False},
 			]
@@ -40,6 +59,10 @@ class Shell(wholecell.loggers.logger.Logger):
 		self.nLines = -1
 		self.startTime = monotonic_seconds()
 		self.startSimTime = 0
+
+		self.log_file = None
+		if output_dir:
+			self.log_file = open(os.path.join(output_dir, 'shell.log'), 'w')
 
 
 	def initialize(self, sim):
@@ -68,11 +91,11 @@ class Shell(wholecell.loggers.logger.Logger):
 
 	def printHeaders(self):
 		if self.nLines > 0:
-			sys.stdout.write(self._headerBoundary)
+			self.write(self._headerBoundary)
 
-		sys.stdout.write(self._header)
+		self.write(self._header)
 
-		sys.stdout.write(self._headerBoundary)
+		self.write(self._headerBoundary)
 
 
 	def _buildHeader(self):
@@ -147,7 +170,7 @@ class Shell(wholecell.loggers.logger.Logger):
 			column = self.columns[iColumn]
 
 			if iColumn > 0:
-				sys.stdout.write(SPACER)
+				self.write(SPACER)
 
 			if column["target"] == "Simulation":
 				target = sim
@@ -169,25 +192,30 @@ class Shell(wholecell.loggers.logger.Logger):
 			if column["sum"]:
 				value = np.sum(value)
 
-			sys.stdout.write(("%" + str(column["length"]) + column["format"]) % value)
+			self.write(("%" + str(column["length"]) + column["format"]) % value)
 
-		sys.stdout.write("\n")
+		self.write("\n")
 
 
 	def finalize(self, sim):
 		# Print summary
-		sys.stdout.write("\n")
-		sys.stdout.write("Simulation finished:\n")
+		self.write("\n")
+		self.write("Simulation finished:\n")
 
 		simTime = sim.time()
 		simLength = simTime - self.startSimTime
 		runtime = monotonic_seconds() - self.startTime
 
-		sys.stdout.write(" - Sim length: {}\n".format(hms(simLength)))
-		sys.stdout.write(" - Sim end time: {}\n".format(hms(simTime)))
-		sys.stdout.write(" - Runtime: {}\n".format(hms(runtime)))
+		self.write(" - Sim length: {}\n".format(hms(simLength)))
+		self.write(" - Sim end time: {}\n".format(hms(simTime)))
+		self.write(" - Runtime: {}\n".format(hms(runtime)))
 
-		sys.stdout.write("\n")
+		self.write("\n")
+
+	def write(self, text):
+		sys.stdout.write(text)
+		if self.log_file:
+			self.log_file.write(text)
 
 def hms(seconds):
 	"""Format a time interval of seconds as [days] h:mm:ss."""

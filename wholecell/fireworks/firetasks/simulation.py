@@ -52,7 +52,6 @@ class SimulationTask(FiretaskBase):
 		options["simData"] = sim_data
 		options["outputDir"] = self["output_directory"]
 		options["logToDisk"] = True
-		options["overwriteExistingFiles"] = False
 
 		options["seed"] = int(self._get_default("seed"))
 		options["timeline"] = self._get_default("timeline")

@@ -53,7 +53,6 @@ class SimulationDaughterTask(FiretaskBase):
 		options["simData"] = sim_data
 		options["outputDir"] = self["output_directory"]
 		options["logToDisk"] = True
-		options["overwriteExistingFiles"] = False
 		options["inheritedStatePath"] = self["inherited_state_path"]
 
 		options["seed"] = int(self._get_default("seed"))
