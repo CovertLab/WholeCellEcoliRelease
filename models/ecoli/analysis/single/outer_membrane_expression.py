@@ -68,7 +68,7 @@ outer_mem_proteins = {
 
 	# LPS transport
 	'CPLX0-7704[i]': 'LPS ABC transporter (lipid A-core flippase)',
-	'CPLX0-7992[s]': 'LPS transport system',
+	'CPLX0-7992[i]': 'LPS transport system',
 	'ABC-53-CPLX[i]': 'lptB2-F-G',
 	'CPLX0-7628[e]': 'lptE-D',
 	'YHBN-MONOMER[e]': 'lptA',
