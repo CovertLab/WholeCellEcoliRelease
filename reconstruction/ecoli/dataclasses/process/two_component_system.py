@@ -29,24 +29,24 @@ class TwoComponentSystem(object):
 		sim_data.molecule_groups.twoComponentSystems = raw_data.two_component_systems
 
 		# Build the abstractions needed for two component systems
-		molecules = []
-		moleculeTypes = []
+		molecules = []  # list of all molecules involved in two component system
+		moleculeTypes = []  # the type of each molecule (metabolite, protein monomer, protein complex, etc.)
 
-		ratesFwd = []
-		ratesRev = []
-		rxnIds = []
+		ratesFwd = []  # rate of reaction fwd
+		ratesRev = []  # rate of reaction reverse (most/all are 0 in flat file)
+		rxnIds = []  # ID tied to each rxn equation
 
-		stoichMatrixI = []
-		stoichMatrixJ = []
-		stoichMatrixV = []
+		stoichMatrixI = []  # Molecule indices
+		stoichMatrixJ = []  # Reaction indices
+		stoichMatrixV = []  # Stoichometric coefficients
 
-		stoichMatrixMass = []
+		stoichMatrixMass = []  # molecular mass of molecules in stoichMatrixI
 
-		independentMolecules = []
-		independent_molecule_indexes = []
-		independentToDependentMolecules = {}
+		independentMolecules = []  # list of all specific independent molecule names
+		independent_molecule_indexes = []  # index of each of the independent molecules
+		independentToDependentMolecules = {}  # holds the phosphorylated version of the independent molecules
 
-		activeToInactiveTF = {} #convention: active TF is the DNA-binding form
+		activeToInactiveTF = {}  # convention: active TF is the DNA-binding form (active form is phosphorylated version of RR)
 
 		# Build template reactions
 		signalingTemplate = {
@@ -65,6 +65,7 @@ class TwoComponentSystem(object):
 		reactionTemplate = {}
 		for reactionIndex, reaction in enumerate(raw_data.two_component_system_templates):
 			reactionTemplate[str(reaction["id"])] = reaction
+
 
 		# Build stoichiometry matrix
 		for systemIndex, system in enumerate(raw_data.two_component_systems):
@@ -148,9 +149,9 @@ class TwoComponentSystem(object):
 					stoichMatrixMass.append(molecularMass)
 
 		# TODO(jerry): Move most of the rest to a subroutine for __init__ and __setstate__?
-		self._stoichMatrixI = np.array(stoichMatrixI)
-		self._stoichMatrixJ = np.array(stoichMatrixJ)
-		self._stoichMatrixV = np.array(stoichMatrixV)
+		self._stoichMatrixI = np.array(stoichMatrixI)  # array of molecule indices
+		self._stoichMatrixJ = np.array(stoichMatrixJ)  # array of reaction indices
+		self._stoichMatrixV = np.array(stoichMatrixV)  # arrary of stoichometric coefficients
 
 		self.molecule_names = np.array(molecules, dtype='U')
 		self.molecule_types = np.array(moleculeTypes, dtype='U')
@@ -165,6 +166,7 @@ class TwoComponentSystem(object):
 		self.independent_molecules_atp_index = np.where(self.independent_molecules == "ATP[c]")[0][0]
 
 		self.complex_to_monomer = self._buildComplexToMonomer(raw_data.modified_proteins, self.molecule_names)
+
 
 		# Mass balance matrix
 		self._stoich_matrix_mass = np.array(stoichMatrixMass)
@@ -210,10 +212,17 @@ class TwoComponentSystem(object):
 		'''
 		D = {}
 		for row in modifiedFormsMonomers:
-			if str(row["id"]) in tcsMolecules:
-				D[str(row["id"])] = {}
+			# tags on the molecule compartment found in tcsMolecules
+			molecule_and_location = f"{row['id']}[{row['compartment']}]"
+			if molecule_and_location in tcsMolecules:
+				D[molecule_and_location] = {}
 				for subunit in row["subunits"]:
-					D[str(row["id"])][str(subunit["monomer"])] = float(subunit["stoichiometry"])
+					# We only care about mapping to protein monomers for now
+					# and PI[c] stoichiometry is off for some complexes so we
+					# can skip it for now (see #975)
+					if subunit['monomer'] == 'PI[c]':
+						continue
+					D[molecule_and_location][str(subunit["monomer"])] = float(subunit["stoichiometry"])
 
 		return D
 
@@ -661,3 +670,5 @@ class TwoComponentSystem(object):
 		with argument order for solve_ivp.
 		"""
 		return self._stoich_matrix.dot(self._rates_jacobian[1](y, t))
+
+
