@@ -83,12 +83,14 @@ class Metabolism(wholecell.processes.process.Process):
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
 		# Molecules with concentration updates for listener
+		self.linked_metabolites = sim_data.process.metabolism.linked_metabolites
 		doubling_time = self.nutrientToDoublingTime.get(
 			environment.current_media_id,
 			self.nutrientToDoublingTime["minimal"])
 		update_molecules = list(self.model.getBiomassAsConcentrations(doubling_time).keys())
 		if self.use_trna_charging:
 			update_molecules += [aa for aa in self.aa_names if aa not in self.aa_targets_not_updated]
+			update_molecules += list(self.linked_metabolites.keys())
 		if self.include_ppgpp:
 			update_molecules += [self.model.ppgpp_id]
 		self.conc_update_molecules = sorted(update_molecules)
@@ -235,7 +237,13 @@ class Metabolism(wholecell.processes.process.Process):
 					continue
 				self.aa_targets[aa] = counts
 
-		return {aa: counts * counts_to_molar for aa, counts in self.aa_targets.items()}
+		conc_updates = {aa: counts * counts_to_molar for aa, counts in self.aa_targets.items()}
+
+		# Update linked metabolites that will follow an amino acid
+		for met, link in self.linked_metabolites.items():
+			conc_updates[met] = conc_updates.get(link['lead'], 0 * counts_to_molar) * link['ratio']
+
+		return conc_updates
 
 class FluxBalanceAnalysisModel(object):
 	"""

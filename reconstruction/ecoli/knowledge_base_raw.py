@@ -31,6 +31,7 @@ LIST_OF_DICT_FILENAMES = (
 	"fold_changes_removed.tsv",
 	"genes.tsv",
 	"growth_rate_dependent_parameters.tsv",
+	"linked_metabolites.tsv",
 	"metabolic_reactions.tsv",
 	"metabolic_reactions_removed.tsv",
 	"metabolism_kinetics.tsv",

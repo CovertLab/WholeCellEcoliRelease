@@ -55,6 +55,7 @@ class Metabolism(object):
 	def __init__(self, raw_data, sim_data):
 		self._set_solver_values(sim_data.constants)
 		self._build_biomass(raw_data, sim_data)
+		self._build_linked_metabolites(raw_data, sim_data)
 		self._build_metabolism(raw_data, sim_data)
 		self._build_ppgpp_reactions(raw_data, sim_data)
 		self._build_transport_reactions(raw_data, sim_data)
@@ -239,6 +240,27 @@ class Metabolism(object):
 		self.conc_dict = self.concentration_updates.concentrations_based_on_nutrients("minimal")
 		self.nutrients_to_internal_conc = {}
 		self.nutrients_to_internal_conc["minimal"] = self.conc_dict.copy()
+
+	def _build_linked_metabolites(self, raw_data, sim_data):
+		"""
+		Calculates ratio between linked metabolites to keep it constant
+		throughout a simulation.
+
+		Attributes set:
+			linked_metabolites (Dict[str, Dict[str, Any]]): mapping from a
+				linked metabolite to its lead metabolite and concentration
+				ratio to be maintained with the following keys:
+					'lead' (str): metabolite to link the concentration to
+					'ratio' (float): ratio to multiply the lead concentration by
+		"""
+
+		self.linked_metabolites = {}
+		for row in raw_data.linked_metabolites:
+			lead = row['Lead metabolite']
+			linked = row['Linked metabolite']
+			ratio = units.strip_empty_units(self.conc_dict[lead] / self.conc_dict[linked])
+
+			self.linked_metabolites[linked] = {'lead': lead, 'ratio': ratio}
 
 	def _build_metabolism(self, raw_data, sim_data):
 		"""
