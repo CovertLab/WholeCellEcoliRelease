@@ -44,6 +44,7 @@ TF_GENE_FILE = 'tf_genes.tsv'
 # EcoCyc regulation
 ECOCYC_DIR = os.path.join(DATA_DIR, 'ecocyc')
 ECOCYC_REGULATION_FILE = os.path.join(ECOCYC_DIR, 'regulation.tsv')
+LEU_LRP_REGULATION_FILE = os.path.join(ECOCYC_DIR, 'leu-lrp-regulation.tsv')
 
 # Sequencing related
 WCM_FILE = os.path.join(DATA_DIR, 'wcm_fold_changes.tsv')
@@ -317,6 +318,28 @@ def load_ecocyc_tf_gene_interactions(
     """
 
     tf_genes = {}  # type: Dict[str, Dict[str, int]]
+    positive = '+'
+    negative = '-'
+    unknown = 'NIL'
+
+    # Load Leu-Lrp regulation to differentiate from just Lrp regulation.
+    # Leu-Lrp will have roughly the opposite effect of Lrp but they are not
+    # distinct transcription factors in ECOCYC_REGULATION_FILE.
+    leu_lrp_regulation = {}
+    with open(LEU_LRP_REGULATION_FILE) as f:
+        reader = csv.reader(f, delimiter='\t')
+        for line in reader:
+            if line[0].startswith('#'):
+                continue
+
+            if line[1] == 'x' and line[2] == 'x':
+                reg = unknown
+            elif line[1] == 'x':
+                reg = positive
+            else:
+                reg = negative
+
+            leu_lrp_regulation[line[0]] = reg
 
     with open(ECOCYC_REGULATION_FILE) as f:
         reader = csv.reader(f, delimiter='\t')
@@ -334,7 +357,17 @@ def load_ecocyc_tf_gene_interactions(
             # Extract data from the line
             tf, gene = re.findall('(.*) [-\+]*> (.*)', line[common_name_idx])[0]
             effect = line[dir_idx]
-            add_tf_gene_data(tf_genes, tf, gene, effect, '+', '-', 'NIL', split, verbose)
+
+            # Handle special case for Leu-Lrp vs just Lrp regulation
+            if tf == 'lrp':
+                if gene in leu_lrp_regulation:
+                    effect = leu_lrp_regulation[gene]
+                elif effect == positive:
+                    effect = negative
+                elif effect == negative:
+                    effect = positive
+
+            add_tf_gene_data(tf_genes, tf, gene, effect, positive, negative, unknown, split, verbose)
 
     return tf_genes
 

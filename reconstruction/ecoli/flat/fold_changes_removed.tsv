@@ -1,3 +1,2 @@
 "TF"	"Target"	"_comments"
 "crp"	"cyaA"	"Disabled because of negative feedback in acetate - cyaA -> cAMP -> cAMP-crp"
-"lrp"	"alaS"	"Disabled because of unstable amino acid feedback. High levels of Leu lead to inhibition of alaS and lower rates of translation, leading to even higher amino acid levels and less translation."
