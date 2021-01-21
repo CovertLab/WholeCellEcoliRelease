@@ -404,6 +404,25 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	node.read_dynamics(dynamics, dynamics_units)
 
 
+def read_tf_binding_dynamics(sim_data, node, node_id, columns, indexes, volume):
+	"""
+	Reads dynamics data for TF binding nodes from a simulation output.
+	"""
+
+	tf_id, _ = node_id.split("-bound")
+	tf_idx = indexes["TranscriptionFactors"][tf_id]
+
+	dynamics = {
+		'bound TFs': columns[("RnaSynthProb", "n_bound_TF_per_TU")][
+			:, :, tf_idx].sum(axis=1),
+		}
+	dynamics_units = {
+		'bound TFs': COUNT_UNITS,
+		}
+
+	node.read_dynamics(dynamics, dynamics_units)
+
+
 def read_charging_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	Reads dynamics data for charging nodes from a simulation output.
@@ -436,5 +455,6 @@ TYPE_TO_READER_FUNCTION = {
 	"Metabolism": read_metabolism_dynamics,
 	"Transport": read_metabolism_dynamics,
 	"Regulation": read_regulation_dynamics,
+	"TF Binding": read_tf_binding_dynamics,
 	"Charging": read_charging_dynamics,
 	}

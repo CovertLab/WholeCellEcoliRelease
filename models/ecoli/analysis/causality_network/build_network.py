@@ -932,6 +932,20 @@ class BuildNetwork(object):
 
 		# Loop through all TFs
 		for tf_id in tf_ids:
+			# Add TF bound to DNA
+			bound_tf_id = f'{tf_id}-bound'
+			tf_node = Node()
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'TF Binding',
+				'node_id': bound_tf_id,
+				'name': bound_tf_id,
+				'location': 'c',
+				}
+			tf_node.read_attributes(**attr)
+			self.node_list.append(tf_node)
+			self._append_edge("Regulation", tf_id + "[c]", bound_tf_id)
+
 			# Get IDs of RNAs that are regulated by the TF
 			regulated_rna_ids = rna_ids[TF_to_TU_idx[tf_id]]
 
@@ -957,7 +971,7 @@ class BuildNetwork(object):
 				self.node_list.append(regulation_node)
 
 				# Add edge from TF to this regulation node
-				self._append_edge("Regulation", tf_id + "[c]", reg_id)
+				self._append_edge("Regulation", bound_tf_id, reg_id)
 
 				# Add edge from this regulation node to the gene
 				self._append_edge("Regulation", reg_id, gene_id)
