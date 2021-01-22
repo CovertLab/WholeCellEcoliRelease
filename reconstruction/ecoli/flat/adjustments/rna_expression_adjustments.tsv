@@ -1,0 +1,9 @@
+# Adjustments to get protein expression for certain enzymes required for metabolism				
+"name"	"value"	"units"	"_source"	"_comments"
+"EG11493_RNA[c]"	10		"fit_sim_data_1.py"	"pabC, aminodeoxychorismate lyase"
+"EG12438_RNA[c]"	10		"fit_sim_data_1.py"	"menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase"
+"EG12298_RNA[c]"	10		"fit_sim_data_1.py"	"yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability"
+"EG11672_RNA[c]"	10		"fit_sim_data_1.py"	"atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability"
+"EG10238_RNA[c]"	10		"fit_sim_data_1.py"	"dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication"
+"EG11673_RNA[c]"	10		"fit_sim_data_1.py"	"folB, dihydroneopterin aldolase; needed for growth (METHYLENE-THF) in acetate condition"
+"EG10808_RNA[c]"	4		"fit_sim_data_1.py"	"pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model"

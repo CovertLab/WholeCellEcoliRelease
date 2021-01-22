@@ -38,14 +38,6 @@ REVERSE_TAG = ' (reverse)'
 REVERSE_REACTION_ID = '{{}}{}'.format(REVERSE_TAG)
 ENZYME_REACTION_ID = '{}__{}'
 
-# Manually added concentration fold changes expected in media conditions
-# relative to basal. Added in addition to the loaded flat file.
-RELATIVE_CHANGES = {
-	'minimal_minus_oxygen': {
-		'CAMP[c]': 3.7,  # Unden, Duchenne. DOI: 10.1007/BF00415284 (Table 1, 2)
-		},
-	}
-
 VERBOSE = False
 
 
@@ -216,7 +208,7 @@ class Metabolism(object):
 				relative_changes[col][met_id] = value
 
 		## Add manually curated values for other media
-		for media, data in RELATIVE_CHANGES.items():
+		for media, data in sim_data.adjustments.relative_metabolite_concentrations_changes.items():
 			if media not in relative_changes:
 				relative_changes[media] = {}
 			for met, change in data.items():
