@@ -45,6 +45,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		self.pPromoterBound = np.zeros(self.n_TF, np.float64)
 		self.nPromoterBound = np.zeros(self.n_TF, np.float64)
 		self.nActualBound = np.zeros(self.n_TF, np.float64)
+		self.n_available_promoters = np.zeros(self.n_TF, np.float64)
 
 		# This array gets flattened at tableAppend(). Resulting array should
 		# be reshaped before use.
@@ -78,6 +79,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			'pPromoterBound': 'tf_ids',
 			'nPromoterBound': 'tf_ids',
 			'nActualBound': 'tf_ids',
+			'n_available_promoters': 'tf_ids',
 			'n_bound_TF_per_TU': 'rnaIds'}
 
 		tableWriter.writeAttributes(
@@ -101,6 +103,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			pPromoterBound = self.pPromoterBound,
 			nPromoterBound = self.nPromoterBound,
 			nActualBound = self.nActualBound,
+			n_available_promoters = self.n_available_promoters,
 			n_bound_TF_per_TU = self.n_bound_TF_per_TU,
 			bound_TF_indexes = self.bound_TF_indexes,
 			bound_TF_coordinates = self.bound_TF_coordinates,

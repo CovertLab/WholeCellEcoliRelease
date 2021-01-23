@@ -41,6 +41,9 @@ class TranscriptionRegulation(object):
 		self.tf_to_tf_type = {
 			x["active TF"]: x["TF type"]
 			for x in raw_data.condition.tf_condition}
+		self.tf_to_gene_id = {
+			x["active TF"]: x["TF"]
+			for x in raw_data.condition.tf_condition}
 
 	def p_promoter_bound_tf(self, tfActive, tfInactive):
 		"""
