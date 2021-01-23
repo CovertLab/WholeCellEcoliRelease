@@ -24,3 +24,4 @@
 "dcuR"	"PHOSPHO-DCUR"	"minimal_succinate"	{}	"minimal"	{}	"2CS"
 "narL"	"PHOSPHO-NARL"	"minimal_plus_nitrate"	{}	"minimal"	{}	"2CS"
 "crp"	"CPLX0-226"	"minimal_acetate"	{}	"minimal"	{}	"1CS"
+"lrhA"	"EG12123-MONOMER"	"minimal"	{}	"minimal_plus_amino_acids"	{}	"0CS"
