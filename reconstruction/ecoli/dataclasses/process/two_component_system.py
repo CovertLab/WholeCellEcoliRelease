@@ -23,6 +23,10 @@ from wholecell.utils import units
 from six.moves import range, zip
 
 
+# Alternative methods to try (in order of priority) when solving ODEs to the next time step
+IVP_METHODS = ['LSODA', 'BDF']
+
+
 class TwoComponentSystem(object):
 	def __init__(self, raw_data, sim_data):
 		# Store two component system raw data for use in analysis
@@ -380,7 +384,7 @@ class TwoComponentSystem(object):
 
 	def molecules_to_next_time_step(self, moleculeCounts, cellVolume,
 			nAvogadro, timeStepSec, random_state, method="LSODA",
-			min_time_step=None, jit=True):
+			min_time_step=None, jit=True, methods_tried=None):
 		"""
 		Calculates the changes in the counts of molecules in the next timestep
 		by solving an initial value ODE problem.
@@ -397,6 +401,8 @@ class TwoComponentSystem(object):
 				it is below min_time_step if negative counts are encountered
 			jit (bool): if True, use the jit compiled version of derivatives
 				functions
+			methods_tried (Optional[Set[str]]): methods for the solver that have
+				already been tried
 
 		Returns:
 			moleculesNeeded (1d ndarray, ints): counts of molecules that need
@@ -430,12 +436,21 @@ class TwoComponentSystem(object):
 				return self.molecules_to_next_time_step(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2, random_state,
 					method=method, min_time_step=min_time_step, jit=jit)
-			elif method != 'LSODA':
-				# Try with different method for better stability
-				print('Warning: switching to LSODA method in TCS')
+
+			# Try with different method for better stability
+			if methods_tried is None:
+				methods_tried = set()
+			methods_tried.add(method)
+			for new_method in IVP_METHODS:
+				# Skip methods that have already been tried
+				if new_method in methods_tried:
+					continue
+
+				print(f'Warning: switching to {new_method} method in TCS')
 				return self.molecules_to_next_time_step(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec, random_state,
-					method='LSODA', min_time_step=min_time_step, jit=jit)
+					method=new_method, min_time_step=min_time_step, jit=jit,
+					methods_tried=methods_tried)
 			else:
 				raise Exception(
 					"Solution to ODE for two-component systems has negative values."
