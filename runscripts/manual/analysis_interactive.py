@@ -6,8 +6,7 @@ datasets and graph types.
 
 TODO:
 	- default column option? - start with time as x (select from command line)
-	- add plotting options - log scale
-	- add reducing options - mean across samples, downsampling
+	- add reducing options - downsampling
 	- access sim_data/validation_data arrays
 	- select multiple y datasets
 	- add multigen/cohort/variant selection options
@@ -38,17 +37,21 @@ PORT = 8050
 # Options from drop down menu
 PLOT_OPTIONS = {
 	'line': {'function': go.Scatter},
-	'scatter': {'function': go.Scatter, 'plot_options': {'mode': 'markers'}},
-	'bar': {'function': go.Bar, 'layout_options': {'barmode': 'stack'}},
+	'bar': {'function': go.Bar, 'layout_options': {'barmode': 'stack'}},  # this could use more testing
 	}
 
 # Object IDs
 GRAPH_ID = 'graph'
 PLOT_SELECTION = 'plot-selector'
-X_DATA_SELECTION_ID = 'x data:'
-Y_DATA_SELECTION_ID = 'y data:'
+DATA_SELECTION_ID = 'Data selection:'
+X_DATA_OPTIONS_ID = 'x-data-options'
+Y_DATA_OPTIONS_ID = 'y-data-options'
+ADD_X_ID = 'Update x'
+ADD_Y_ID = 'Update y'
+BUTTON_VALUE_TEMPLATE = '{} value'
 SEPARATOR = '<>'
 VALUE_JOIN = f'{{}}{SEPARATOR}{{}}'
+DATA_OPTIONS = ['mean', 'normalized', 'log']
 
 
 def get_vals(d: Dict, k: Union[str, List[str]]):
@@ -114,7 +117,7 @@ def create_app(data_structure: Dict) -> dash.Dash:
 			id_: str,
 			defaults: Optional[Set[str]] = None,
 			multi: bool = False,
-			) -> Tuple[html.Div, dash.dependencies.Input]:
+			) -> Tuple[html.Div, dash.dependencies.State]:
 		"""
 		Create div to hold drop down menus for data selection.
 
@@ -132,6 +135,10 @@ def create_app(data_structure: Dict) -> dash.Dash:
 			div: div containing all drop down menus
 			value: value for the bottom drop down menu for the path to data
 				selected
+
+		TODO:
+			- get multi selection working
+			- handle initialization for x and y separately
 		"""
 
 		def get_selection_options(
@@ -181,7 +188,6 @@ def create_app(data_structure: Dict) -> dash.Dash:
 							value = VALUE_JOIN.format(parent_value, current)
 
 			return options, value
-
 
 		def add_children(
 				children: List,
@@ -265,14 +271,13 @@ def create_app(data_structure: Dict) -> dash.Dash:
 		children, n_added = add_children(children, id_, id_, value, data_structure, defaults)
 
 		div = html.Div(children=children)
-		input_value = dash.dependencies.Input(f'{id_}{n_added}', 'value')
+		input_value = dash.dependencies.State(f'{id_}{n_added}', 'value')
 
 		return div, input_value
 
 	# Create webpage layout
 	app = dash.Dash()
-	x_div, x_input = data_selection(app, data_structure, X_DATA_SELECTION_ID, defaults={'Main', 'time'})
-	y_div, y_input = data_selection(app, data_structure, Y_DATA_SELECTION_ID, multi=False)  # TODO: get multi selection working
+	input_div, input_value = data_selection(app, data_structure, DATA_SELECTION_ID, defaults={'Main', 'time'})
 	app.layout = html.Div(children=[
 		html.H1('Whole-cell simulation explorer'),
 		html.Div(children=[
@@ -285,19 +290,70 @@ def create_app(data_structure: Dict) -> dash.Dash:
 					} for o in PLOT_OPTIONS],
 				value=next(iter(PLOT_OPTIONS)),
 				),
-			x_div,
-			y_div,
+			input_div,
+			html.Div(children=[
+				html.Plaintext('x data options: '),
+				dcc.Checklist(
+					id=X_DATA_OPTIONS_ID,
+					options=[{
+						'label': o,  # display name
+						'value': o,  # value passed through callback, must be str
+						} for o in DATA_OPTIONS],
+					value=[],
+					),
+				]),
+			html.Div(children=[
+				html.Plaintext('y data options: '),
+				dcc.Checklist(
+					id=Y_DATA_OPTIONS_ID,
+					options=[{
+						'label': o,  # display name
+						'value': o,  # value passed through callback, must be str
+						} for o in DATA_OPTIONS],
+					value=[],
+					),
+				]),
+			html.Div(children=[
+				html.Button(ADD_X_ID, id=ADD_X_ID),
+				html.Button(ADD_Y_ID, id=ADD_Y_ID),
+				]),
+			html.Div(children=[
+				html.Plaintext('x: ', id=BUTTON_VALUE_TEMPLATE.format(ADD_X_ID)),
+				html.Plaintext('y: ', id=BUTTON_VALUE_TEMPLATE.format(ADD_Y_ID)),
+				]),
 			]),
 		dcc.Graph(id=GRAPH_ID),
 		])
+
+	# Only update axis values on button click
+	for button in [ADD_X_ID, ADD_Y_ID]:
+		@app.callback(
+			[
+				dash.dependencies.Output(button, 'value'),
+				dash.dependencies.Output(BUTTON_VALUE_TEMPLATE.format(button), 'children'),
+			],
+			dash.dependencies.Input(button, 'n_clicks'),  # needed for callback trigger
+			[
+				input_value,
+				dash.dependencies.State(BUTTON_VALUE_TEMPLATE.format(button), 'children'),
+			])
+		def update_axis(n_clicks, val, previous):
+			new_text = ' '.join(previous.split(' ')[:1] + val.split(SEPARATOR))
+			return val, new_text
 
 	# Register callback to update plot when selections change
 	# First arg for Output/Input selects the page object
 	# Second arg for Output/Input sets or gets a kwarg from the dcc function
 	@app.callback(
 		dash.dependencies.Output(GRAPH_ID, 'figure'),
-		[dash.dependencies.Input(PLOT_SELECTION, 'value'), x_input, y_input])
-	def update_graph(plot_id: str, x_input: str, y_input: str) -> Dict:
+		[
+			dash.dependencies.Input(PLOT_SELECTION, 'value'),
+			dash.dependencies.Input(ADD_X_ID, 'value'),
+			dash.dependencies.Input(ADD_Y_ID, 'value'),
+			dash.dependencies.Input(X_DATA_OPTIONS_ID, 'value'),
+			dash.dependencies.Input(Y_DATA_OPTIONS_ID, 'value'),
+		])
+	def update_graph(plot_id: str, x_input: str, y_input: str, x_options: List[str], y_options: List[str]) -> Dict:
 		"""
 		Update the plot based on selection changes.
 
@@ -307,10 +363,24 @@ def create_app(data_structure: Dict) -> dash.Dash:
 				two values (all separated by SEPARATOR) for x data
 			y_input: directory path to simOut with listener and column as last
 				two values (all separated by SEPARATOR) for y data
+			x_options: options from check boxes to apply transformations to the
+				x data
+			y_options: options from check boxes to apply transformations to the
+				y data
 
 		Returns:
 			plotly figure dict
 		"""
+
+		def adjust_data(data, options):
+			if data.shape[1] > 1:
+				if 'normalized' in options:
+					data /= data[1, :]  # use 1 as first index since a lot of listeners start at 0 for first entry
+				if 'mean' in options:
+					data = data.mean(0).reshape(1, -1)  # need to keep as 2D array
+				if 'log' in options:
+					data = np.log10(data)
+			return data
 
 		if x_input is None or y_input is None:
 			return {}
@@ -318,13 +388,22 @@ def create_app(data_structure: Dict) -> dash.Dash:
 		x_data, x_labels = load_listener(x_input)
 		y_data, y_labels = load_listener(y_input)
 
+		x_data = adjust_data(x_data, x_options)
+		y_data = adjust_data(y_data, y_options)
+
 		plot = PLOT_OPTIONS[plot_id]
 		plot_options = plot.get('plot_options', {})
 		layout_options = plot.get('layout_options', {})
-		traces = [
-			plot['function'](x=x_data[:, 0], y=y_data[:, idx], name=col, **plot_options)
-			for idx, col in enumerate(y_labels)
-			]
+		if x_data.shape == y_data.shape:
+			traces = [
+				plot['function'](x=x_data[:, idx], y=y_data[:, idx], name=col, **plot_options)
+				for idx, col in enumerate(y_labels)
+				]
+		else:
+			traces = [
+				plot['function'](x=x_data[:, 0], y=y_data[:, idx], name=col, **plot_options)
+				for idx, col in enumerate(y_labels)
+				]
 
 		# Dict used to update 'figure' for dcc.Graph object GRAPH_ID
 		return {
