@@ -23,7 +23,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get the expected degradation rates from KB
 		sim_data = cPickle.load(open(simDataFile, 'rb'))
-		mRNA_ids = sim_data.process.transcription.rna_data['id']
 		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
 		expected_degradation_rate_constants = np.array(
 			sim_data.process.transcription.rna_data['deg_rate'][isMRna].asNumber()
@@ -31,7 +30,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get length of simulation
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
-		sim_length = main_reader.readColumn('time')[-1]
+		sim_time = main_reader.readColumn('time')
+		sim_length = sim_time[-1] - sim_time[0]
 
 		# Read counts of mRNAs
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
