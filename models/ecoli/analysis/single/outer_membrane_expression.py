@@ -125,7 +125,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax3 = fig.add_axes([0.93, 0.12, 0.02, 0.28])
 		plt.colorbar(image, cax=ax3)
 
-		plt.tight_layout()
+		plt.subplots_adjust(left=0.4, right=0.75)
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
 

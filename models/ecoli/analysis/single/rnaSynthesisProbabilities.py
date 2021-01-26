@@ -82,7 +82,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			ax1.set_title(title)
 			ax1.set_xlim([time[0], time[-1]])
-			ax1.set_ylim([0, synth_prob.max()*1.2])
+			self.set_ylim(ax1, 0, synth_prob.max()*1.2)
+
 			ax1.set_xlabel("Time [s]")
 			ax1.set_ylabel("Transcription probability")
 			ax1.legend(loc=2)
