@@ -2,3 +2,4 @@
 "crp"	"cyaA"	"Disabled because of negative feedback in acetate - cyaA -> cAMP -> cAMP-crp"
 "bglJ"	"leuO"	"Remove feedback loop between bglJ <-> leuO"
 "leuO"	"bglJ"	"Remove feedback loop between bglJ <-> leuO"
+"fnr"	"arcA"	"Remove to get expression of arcA"
