@@ -411,6 +411,7 @@ def create_app(data_structure: Dict) -> dash.Dash:
 			'layout': go.Layout(
 				xaxis_title=x_input.split(SEPARATOR)[-1],
 				yaxis_title=y_input.split(SEPARATOR)[-1],
+				hovermode='closest',
 				**layout_options),
 			}
 
