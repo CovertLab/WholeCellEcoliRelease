@@ -126,6 +126,8 @@ class SimulationDataEcoli(object):
 			gene_not_found = set()
 			tf_not_found = set()
 			for row in getattr(raw_data, fc_file):
+				FC = row['log2 FC mean']
+
 				# Skip fold changes that have been removed
 				if (row['TF'], row['Target']) in removed_fcs:
 					continue
@@ -134,8 +136,8 @@ class SimulationDataEcoli(object):
 				if row['Regulation_direct'] != '' and row['Regulation_direct'] > 2:
 					continue
 
-				# Skip autoregulation
-				if row['TF'] == row['Target']:
+				# Skip positive autoregulation
+				if row['TF'] == row['Target'] and FC > 0:
 					continue
 
 				try:
@@ -154,7 +156,6 @@ class SimulationDataEcoli(object):
 					self.tf_to_fold_change[tf] = {}
 					self.tf_to_direction[tf] = {}
 
-				FC = row['log2 FC mean']
 				self.tf_to_direction[tf][target] = np.sign(FC)
 				self.tf_to_fold_change[tf][target] = 2**FC
 
