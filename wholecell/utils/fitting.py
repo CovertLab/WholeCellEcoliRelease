@@ -114,6 +114,10 @@ def masses_and_counts_for_homeostatic_target(
 
 	cell_volume = dry_mass_of_non_small_molecules / (cell_density - total_small_mol_mass_conc)
 
+	if cell_volume.asNumber() < 0:
+		raise ValueError('Could not achieve concentration targets with the expected dry mass.'
+			' Check for any unusually high concentrations.')
+
 	# Calculate and return the counts of molecules and their associated masses
 
 	mols = cell_volume * concentrations
