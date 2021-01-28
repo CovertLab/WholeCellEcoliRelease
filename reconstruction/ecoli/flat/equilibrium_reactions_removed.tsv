@@ -3,5 +3,6 @@
 "CPLX0-7670_RXN"
 "CPLX0-8026_RXN"
 "CPLX0-8027_RXN"
+"CPLX0-8076_RXN"	"ArgR-Arg complex. Not included in EcoCyc. Prevents formation of 6ArgR-Arg complex which is a TF"
 "MONOMER-51-PROPIONYL-COA_RXN"
 "MONOMER0-163_RXN"
