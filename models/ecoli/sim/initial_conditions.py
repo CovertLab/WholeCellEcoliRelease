@@ -599,7 +599,7 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 
 		# Calculate the number of promoters that should be bound
 		n_to_bind = int(stochasticRound(
-			randomState, n_available_promoters * pPromoterBound))
+			randomState, np.full(n_available_promoters, pPromoterBound)).sum())
 
 		bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
 		if n_to_bind > 0:

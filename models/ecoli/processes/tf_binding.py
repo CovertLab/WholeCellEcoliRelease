@@ -142,7 +142,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 			# Calculate the number of promoters that should be bound
 			n_to_bind = int(min(stochasticRound(
-				self.randomState, n_available_promoters*pPromoterBound),
+				self.randomState, np.full(n_available_promoters, pPromoterBound)).sum(),
 				n_available_active_tfs))
 
 			bound_locs = np.zeros(n_available_promoters, dtype=np.bool)

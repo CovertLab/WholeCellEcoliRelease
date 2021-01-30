@@ -3029,23 +3029,44 @@ def calculatePromoterBoundProbability(sim_data, cell_specs):
 
 	pPromoterBound = {}  # Initialize return value
 	cellDensity = sim_data.constants.cell_density
+	init_to_average = sim_data.mass.avg_cell_to_initial_cell_conversion_factor
+
+	# Matrix to determine number of promoters each TF can bind to in a given condition
+	rna_data = sim_data.process.transcription.rna_data
+	tf_idx = {tf: i for i, tf in enumerate(sim_data.tf_to_active_inactive_conditions)}
+	rna_idx = {rna[:-3]: i for i, rna in enumerate(rna_data['id'])}
+	regulation_i = []
+	regulation_j = []
+	regulation_v = []
+	for tf, rnas in sim_data.tf_to_fold_change.items():
+		if tf not in tf_idx:
+			continue
+
+		for rna in rnas:
+			regulation_i.append(tf_idx[tf])
+			regulation_j.append(rna_idx[rna])
+			regulation_v.append(1)
+	regulation = scipy.sparse.csr_matrix(
+		(regulation_v, (regulation_i, regulation_j)),
+		shape=(len(tf_idx), len(rna_idx)))
+	rna_coords = rna_data['replication_coordinate']
 
 	for conditionKey in sorted(cell_specs):
 		pPromoterBound[conditionKey] = {}
+		tau = sim_data.condition_to_doubling_time[conditionKey].asNumber(units.min)
+		n_avg_copy = sim_data.process.replication.get_average_copy_number(tau, rna_coords)
+		n_promoter_targets = regulation.dot(n_avg_copy)
 
 		cellVolume = cell_specs[conditionKey]["avgCellDryMassInit"]/cellDensity/sim_data.mass.cell_dry_mass_fraction
 		countsToMolar = 1/(sim_data.constants.n_avogadro * cellVolume)
 
 		for tf in sorted(sim_data.tf_to_active_inactive_conditions):
 			tfType = sim_data.process.transcription_regulation.tf_to_tf_type[tf]
-
+			tf_counts = cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
+			tf_targets = n_promoter_targets[tf_idx[tf]]
+			limited_tf_counts = min(1, tf_counts * init_to_average / tf_targets)
 			if tfType == "0CS":
-				tfCount = cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
-
-				if tfCount > 0:
-					pPromoterBound[conditionKey][tf] = 1.  # If TF exists, the promoter is always bound to the TF
-				else:
-					pPromoterBound[conditionKey][tf] = 0.
+				pPromoterBound[conditionKey][tf] = limited_tf_counts  # If TF exists, the promoter is always bound to the TF
 
 			elif tfType == "1CS":
 				boundId = sim_data.process.transcription_regulation.active_to_bound[tf]  # ID of TF bound to ligand
@@ -3056,32 +3077,32 @@ def calculatePromoterBoundProbability(sim_data, cell_specs):
 
 				# Get bulk average concentrations of ligand and TF
 				signalConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol/units.L)
-				tfConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol/units.L)
+				tfConc = (countsToMolar*tf_counts).asNumber(units.mol/units.L)
 
 				# If TF is active in its bound state
 				if tf == boundId:
 					if tfConc > 0:
-						pPromoterBound[conditionKey][tf] = sim_data.process.transcription_regulation.p_promoter_bound_SKd(signalConc, kd, signalCoeff)
+						pPromoterBound[conditionKey][tf] = limited_tf_counts * sim_data.process.transcription_regulation.p_promoter_bound_SKd(signalConc, kd, signalCoeff)
 					else:
 						pPromoterBound[conditionKey][tf] = 0.
 
 				# If TF is active in its unbound state
 				else:
 					if tfConc > 0:
-						pPromoterBound[conditionKey][tf] = 1. - sim_data.process.transcription_regulation.p_promoter_bound_SKd(signalConc, kd, signalCoeff)
+						pPromoterBound[conditionKey][tf] = 1. - limited_tf_counts * sim_data.process.transcription_regulation.p_promoter_bound_SKd(signalConc, kd, signalCoeff)
 					else:
 						pPromoterBound[conditionKey][tf] = 0.
 
 			elif tfType == "2CS":
 				# Get bulk average concentrations of active and inactive TF
-				activeTfConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol/units.L)
+				activeTfConc = (countsToMolar*tf_counts).asNumber(units.mol/units.L)
 				inactiveTf = sim_data.process.two_component_system.active_to_inactive_tf[tf + "[c]"]
 				inactiveTfConc = (countsToMolar*cell_specs[conditionKey]["bulkAverageContainer"].count(inactiveTf)).asNumber(units.mol/units.L)
 
 				if activeTfConc == 0 and inactiveTfConc == 0:
 					pPromoterBound[conditionKey][tf] = 0.
 				else:
-					pPromoterBound[conditionKey][tf] = activeTfConc/(activeTfConc + inactiveTfConc)
+					pPromoterBound[conditionKey][tf] = limited_tf_counts * activeTfConc/(activeTfConc + inactiveTfConc)
 
 	return pPromoterBound
 
