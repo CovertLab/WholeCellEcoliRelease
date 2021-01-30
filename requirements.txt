@@ -72,6 +72,7 @@ mock==4.0.2
 numba==0.50.1
 pandas==1.0.5
 Pillow==7.2.0
+plotly==4.14.1
 pymongo==3.10.1
 pytest==5.4.3
 pytest-cov==2.10.0
@@ -146,7 +147,6 @@ pexpect==4.8.0
 pickleshare==0.7.5
 Pint==0.14
 pipdeptree==1.0.0
-plotly==4.14.1
 pluggy==0.13.1
 prompt-toolkit==3.0.5
 protobuf==3.12.2
