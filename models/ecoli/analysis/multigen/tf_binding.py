@@ -14,7 +14,7 @@ import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
+from wholecell.analysis.analysis_tools import exportFigure, read_stacked_bulk_molecules, read_stacked_columns
 from wholecell.io.tablereader import TableReader
 
 
@@ -93,42 +93,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				inactive_ids.append(tf + '[c]')
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
+		cell_paths = ap.get_cells()
 
-		times = []
-		all_active_counts = []
-		all_inactive_counts = []
-		all_bound_counts = []
-		all_promoter_counts = []
-		for sim_dir in ap.get_cells():
-			simOutDir = os.path.join(sim_dir, 'simOut')
-
-			# Listeners used
-			main_reader = TableReader(os.path.join(simOutDir, 'Main'))
-			rna_synth_prob_reader = TableReader(os.path.join(simOutDir, 'RnaSynthProb'))
-
-			# Load data
-			time = main_reader.readColumn('time')
-
-			## Free counts
-			active_counts, inactive_counts = read_bulk_molecule_counts(simOutDir, (active_ids, inactive_ids))
-
-			## Bound counts
-			bound_counts = rna_synth_prob_reader.readColumn('nActualBound')
-			promoter_counts = rna_synth_prob_reader.readColumn('n_available_promoters')
-
-			# Append current gen values to running list
-			times.append(time)
-			all_active_counts.append(active_counts)
-			all_inactive_counts.append(inactive_counts)
-			all_bound_counts.append(bound_counts)
-			all_promoter_counts.append(promoter_counts)
-
-		n_tfs = len(tf_ids)
-		times = np.hstack(times) / 60
-		active_counts = np.vstack(all_active_counts).T
-		inactive_counts = np.vstack(all_inactive_counts).T
-		bound_counts = np.vstack(all_bound_counts).T
-		promoter_counts = np.vstack(all_promoter_counts).T
+		# Read data for all cells
+		times = read_stacked_columns(cell_paths, 'Main', 'time') / 60
+		bound_counts = read_stacked_columns(cell_paths, 'RnaSynthProb', 'nActualBound')
+		promoter_counts = read_stacked_columns(cell_paths, 'RnaSynthProb', 'n_available_promoters')
+		active_counts, inactive_counts = read_stacked_bulk_molecules(cell_paths, (active_ids, inactive_ids))
 
 		plt.figure(figsize=(20, 30))
 
@@ -137,7 +108,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		n_0cs = 0
 		n_1cs = 0
 		n_2cs = 0
-		for i, (tf_id, active, bound, inactive, promoters) in enumerate(zip(tf_ids, active_counts, bound_counts, inactive_counts, promoter_counts)):
+		for i, (tf_id, active, bound, inactive, promoters) in enumerate(zip(tf_ids, active_counts.T, bound_counts.T, inactive_counts.T, promoter_counts.T)):
 			if tf_type[tf_id] == '0CS':
 				inactive = None  # Used dummy counts in arrays above because no inactive form
 				n_0cs += 1

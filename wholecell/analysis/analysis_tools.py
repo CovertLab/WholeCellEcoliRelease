@@ -2,10 +2,10 @@
 Analysis script toolbox functions
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
 import os
-from typing import Iterator, Sequence, Tuple, Union
+from typing import Iterator, List, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -117,6 +117,23 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=Fa
 		plt.savefig(os.path.join(plotOutDir, SVG_DIR, plotOutFileName + '.svg'), transparent=transparent)
 		plt.savefig(os.path.join(plotOutDir, LOW_RES_DIR, plotOutFileName + '.png'), dpi=dpi, transparent=transparent)
 
+def _check_bulk_inputs(mol_names: Union[Tuple[Sequence[str], ...], Sequence[str]]) -> Tuple[Sequence[str], ...]:
+	"""
+	Use to check and adjust mol_names inputs for functions that read bulk
+	molecules to get consistent argument handling in both functions.
+	"""
+
+	# Wrap an array in a tuple to ensure correct dimensions
+	if not isinstance(mol_names, tuple):
+		mol_names = (mol_names,)
+
+	# Check for string instead of array since it will cause mol_indices lookup to fail
+	for names in mol_names:
+		if isinstance(names, ANY_STRING):
+			raise Exception('mol_names tuple must contain arrays not strings like {!r}'.format(names))
+
+	return mol_names
+
 def read_bulk_molecule_counts(sim_out_dir, mol_names):
 	# type: (str, Union[Tuple[Sequence[str], ...], Sequence[str]]) -> Iterator[np.ndarray]
 	'''
@@ -150,14 +167,7 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 	is used for those tables.
 	'''
 
-	# Wrap an array in a tuple to ensure correct dimensions
-	if not isinstance(mol_names, tuple):
-		mol_names = (mol_names,)
-
-	# Check for string instead of array since it will cause mol_indices lookup to fail
-	for names in mol_names:
-		if isinstance(names, ANY_STRING):
-			raise Exception('mol_names tuple must contain arrays not strings like {!r}'.format(names))
+	mol_names = _check_bulk_inputs(mol_names)
 
 	bulk_reader = TableReader(os.path.join(sim_out_dir, 'BulkMolecules'))
 
@@ -173,3 +183,65 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 		counts = bulk_counts[:, start_slice:start_slice + length].squeeze()
 		start_slice += length
 		yield counts
+
+def read_stacked_bulk_molecules(
+		cell_paths: np.ndarray,
+		mol_names: Union[Tuple[Sequence[str], ...], Sequence[str]],
+		) -> List[np.ndarray]:
+	"""
+	Reads bulk molecule counts from multiple cells and assembles each group
+	into a single array.
+
+	Args:
+		cell_paths: paths to all cells to read data from (directories should
+			contain a simOut/ subdirectory), typically the return from
+			AnalysisPaths.get_cells()
+		mol_names: tuple of list-likes of strings or a list-like of strings
+			that name molecules to read the counts for. A single array will be
+			converted to a tuple for processing.
+
+	Returns:
+		stacked data (n time points) if single molecule or
+			(n time points, m molecules) if multiple molecules for each group
+			in mol_names
+	"""
+
+	mol_names = _check_bulk_inputs(mol_names)
+
+	data = [[] for _ in mol_names]  # type: List[List[np.ndarray]]
+	for sim_dir in cell_paths:
+		sim_out_dir = os.path.join(sim_dir, 'simOut')
+		for i, counts in enumerate(read_bulk_molecule_counts(sim_out_dir, mol_names)):
+			data[i].append(counts)
+
+	# Use vstack for 2D or hstack for 1D to get proper dimension alignments
+	return [np.vstack(d) if len(d[0].shape) > 1 else np.hstack(d) for d in data]
+
+def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str) -> np.ndarray:
+	"""
+	Reads column data from multiple cells and assembles into a single array.
+
+	Args:
+		cell_paths: paths to all cells to read data from (directories should
+			contain a simOut/ subdirectory), typically the return from
+			AnalysisPaths.get_cells()
+		table: name of the table to read data from
+		column: name of the column to read data from
+
+	Returns:
+		stacked data (n time points, m subcolumns)
+
+	TODO:
+		add common processing options:
+		- mean per cell cycle
+		- remove first time point
+		- normalize to a time point
+	"""
+
+	data = []
+	for sim_dir in cell_paths:
+		sim_out_dir = os.path.join(sim_dir, 'simOut')
+		reader = TableReader(os.path.join(sim_out_dir, table))
+		data.append(reader.readColumn2D(column))
+
+	return np.vstack(data)
