@@ -88,7 +88,20 @@ To simulate one or more cell generations with optional variants:
 python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
 ```
 
-To run the analysis plots on the simulation output in a given `sim_dir`
+To interactively select from the data that is saved during a simulation for visualization:
+
+```bash
+python runscripts/manual/analysis_interactive.py [-h] [--verbose] [sim_dir]
+```
+
+Running the command without any arguments will populate drop down menus for
+each set of simulations in `out/` where you can select the desired
+variant/seed/generation/daughter and view the available values that are saved
+during simulations.  Some simple data processing options are available.  This
+interface mainly lets you select time traces or create scatter plots that can
+be used to compare different variants, generations, etc.
+
+To run predefined analysis plots on the simulation output in a given `sim_dir`
 (use the `-h` parameter to get complete help on the command line options):
 
 ```bash

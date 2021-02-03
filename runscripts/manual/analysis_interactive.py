@@ -322,7 +322,7 @@ def create_app(data_structure: Dict) -> dash.Dash:
 				html.Plaintext('y: ', id=BUTTON_VALUE_TEMPLATE.format(ADD_Y_ID)),
 				]),
 			]),
-		dcc.Graph(id=GRAPH_ID),
+		dcc.Graph(id=GRAPH_ID, style={'height': '600px'}),
 		])
 
 	# Only update axis values on button click
@@ -444,7 +444,7 @@ class AnalysisInteractive(scriptBase.ScriptBase):
 		if len(variant_dirs):
 			experiments[path] = {d: {} for d in variant_dirs}
 		else:
-			for directory in os.listdir(path):
+			for directory in sorted(os.listdir(path)):
 				sim_path = os.path.join(path, directory)
 				if not os.path.isdir(sim_path):
 					continue
