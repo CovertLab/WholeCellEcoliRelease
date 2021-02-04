@@ -68,6 +68,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			units.nt / units.s)))
 		self.make_elongation_rates = sim_data.process.replication.make_elongation_rates
 
+		# Sim options
+		self.mechanistic_replisome = sim._mechanistic_replisome
 
 	def calculateRequest(self):
 		# Get total count of existing oriC's
@@ -159,12 +161,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Initiate replication only when
 		# 1) The cell has reached the critical mass per oriC
-		# 2) There are enough replisome subunits to assemble two replisomes per
-		# existing OriC.
+		# 2) If mechanistic replisome option is on, there are enough replisome
+		# subunits to assemble two replisomes per existing OriC.
 		# Note that we assume asynchronous initiation does not happen.
-		initiate_replication = (self.criticalMassPerOriC >= 1.0 and
-			np.all(n_replisome_trimers == 6*n_oriC) and
-			np.all(n_replisome_monomers == 2*n_oriC))
+		initiate_replication = self.criticalMassPerOriC >= 1.0 and (
+			not self.mechanistic_replisome or (np.all(n_replisome_trimers == 6*n_oriC) and
+			np.all(n_replisome_monomers == 2*n_oriC)))
 
 		# If all conditions are met, initiate a round of replication on every
 		# origin of replication
@@ -223,8 +225,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.chromosome_domains.attrIs(child_domains=child_domains)
 
 			# Decrement counts of replisome subunits
-			self.replisome_trimers.countsDec(6*n_oriC)
-			self.replisome_monomers.countsDec(2*n_oriC)
+			if self.mechanistic_replisome:
+				self.replisome_trimers.countsDec(6*n_oriC)
+				self.replisome_monomers.countsDec(2*n_oriC)
 
 		# Write data from this module to a listener
 		self.writeToListener("ReplicationData", "criticalMassPerOriC",
@@ -374,8 +377,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					domain_index = domain_index_full_chroms)
 
 			# Increment counts of replisome subunits
-			self.replisome_trimers.countsInc(3*replisomes_to_delete.sum())
-			self.replisome_monomers.countsInc(replisomes_to_delete.sum())
+			if self.mechanistic_replisome:
+				self.replisome_trimers.countsInc(3*replisomes_to_delete.sum())
+				self.replisome_monomers.countsInc(replisomes_to_delete.sum())
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
 		return inputTimeStep <= self.max_time_step

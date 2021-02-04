@@ -43,6 +43,7 @@ METADATA_KEYS = (
 	'trna_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
+	'mechanistic_replisome',
 	)
 
 PARCA_KEYS = (
@@ -68,6 +69,7 @@ SIM_KEYS = (
 	'trna_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
+	'mechanistic_replisome',
 	'raise_on_time_limit',
 	'log_to_shell',
 	)
@@ -458,6 +460,9 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 			help='if true, ppGpp concentration is determined with kinetic equations.')
 		add_bool_option('superhelical_density', 'superhelical_density',
 			help='if true, dynamically calculate superhelical densities of each DNA segment')
+		add_bool_option('mechanistic_replisome', 'mechanistic_replisome',
+			help='if true, replisome initiation is mechanistic (requires'
+				 ' appropriate number of subunits to initiate)')
 		add_bool_option('raise_on_time_limit', 'raise_on_time_limit',
 			help='if true, the simulation raises an error if the time limit'
 				 ' (--length-sec) is reached before division.')

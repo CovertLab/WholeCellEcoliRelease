@@ -88,6 +88,8 @@ Modeling options:
 		with kinetic equations
 	SUPERHELICAL_DENSITY (int, "0"): if nonzero, dynamically compute
 		superhelical densities of each DNA fragment
+	MECHANISTIC_REPLISOME (int, "1"): if nonzero, replisome initiation is
+		mechanistic (requires appropriate number of subunits to initiate)
 
 Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
@@ -253,6 +255,7 @@ TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMU
 TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
 SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_SIMULATION_KWARGS["superhelical_density"])))
+MECHANISTIC_REPLISOME = bool(int(get_environment("MECHANISTIC_REPLISOME", DEFAULT_SIMULATION_KWARGS["mechanistic_replisome"])))
 RAISE_ON_TIME_LIMIT = bool(int(get_environment("RAISE_ON_TIME_LIMIT", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])))
 N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
 SEED = int(get_environment("SEED", "0"))
@@ -342,6 +345,7 @@ metadata = {
 	"trna_charging": TRNA_CHARGING,
 	"ppgpp_regulation": PPGPP_REGULATION,
 	"superhelical_density": SUPERHELICAL_DENSITY,
+	"mechanistic_replisome": MECHANISTIC_REPLISOME,
 	}
 
 metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
@@ -697,6 +701,7 @@ for i in VARIANTS_TO_RUN:
 							trna_charging = TRNA_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
 							superhelical_density = SUPERHELICAL_DENSITY,
+							mechanistic_replisome = MECHANISTIC_REPLISOME,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
@@ -728,6 +733,7 @@ for i in VARIANTS_TO_RUN:
 							trna_charging = TRNA_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
 							superhelical_density = SUPERHELICAL_DENSITY,
+							mechanistic_replisome = MECHANISTIC_REPLISOME,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
