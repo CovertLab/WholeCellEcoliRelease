@@ -653,6 +653,9 @@ def buildCombinedConditionCellSpecifications(
 		for tf in sim_data.condition_active_tfs[conditionKey]:
 			for gene, fc in sim_data.tf_to_fold_change[tf].items():
 				fcData[gene] = fcData.get(gene, 1) * fc
+		for tf in sim_data.condition_inactive_tfs[conditionKey]:
+			for gene, fc in sim_data.tf_to_fold_change[tf].items():
+				fcData[gene] = fcData.get(gene, 1) / fc
 
 		expression = expressionFromConditionAndFoldChange(
 			sim_data.process.transcription.rna_data["id"],

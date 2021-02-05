@@ -1,6 +1,10 @@
-"condition"	"nutrients"	"genotype perturbations"	"doubling time (units.min)"	"active TFs"
-"basal"	"minimal"	{}	44.0	[]
-"no_oxygen"	"minimal_minus_oxygen"	{}	100.0	["FNR-4FE-4S-CPLX", "PHOSPHO-ARCA", "CPLX0-226"]
-"with_aa"	"minimal_plus_amino_acids"	{}	25.0	["CPLX-125", "MONOMER0-162", "CPLX0-7671", "CPLX0-228", "MONOMER0-155"]
-"acetate"	"minimal_acetate"	{}	136.0	["CPLX0-226"]
-"succinate"	"minimal_succinate"	{}	82.0	["CPLX0-226", "PHOSPHO-DCUR"]
+# active TFs should be TFs that are inactive in basal condition and active in the specified condition
+# inactive TFs should be TFs that are active in basal condition and inactive in the specified condition
+# TFs in a condition that are the same as basal (inactive/active) should not be included here
+# Basal should not have any active or inactive TFs specified
+"condition"	"nutrients"	"genotype perturbations"	"doubling time (units.min)"	"active TFs"	"inactive TFs"
+"basal"	"minimal"	{}	44.0	[]	[]
+"no_oxygen"	"minimal_minus_oxygen"	{}	100.0	["FNR-4FE-4S-CPLX", "PHOSPHO-ARCA", "CPLX0-226"]	[]
+"with_aa"	"minimal_plus_amino_acids"	{}	25.0	["CPLX-125", "MONOMER0-162", "CPLX0-228", "MONOMER0-155"]	["CPLX0-7669", "PUTA-CPLX", "EG12123-MONOMER"]
+"acetate"	"minimal_acetate"	{}	136.0	["CPLX0-226"]	[]
+"succinate"	"minimal_succinate"	{}	82.0	["CPLX0-226", "PHOSPHO-DCUR"]	[]

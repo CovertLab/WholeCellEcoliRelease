@@ -195,6 +195,7 @@ class SimulationDataEcoli(object):
 		self.conditions = {}
 		self.condition_to_doubling_time = {}
 		self.condition_active_tfs = {}
+		self.condition_inactive_tfs = {}
 		self.ordered_conditions = []  # order for variant to run
 		for row in raw_data.condition.condition_defs:
 			condition = row["condition"]
@@ -204,6 +205,7 @@ class SimulationDataEcoli(object):
 			self.conditions[condition]["perturbations"] = row["genotype perturbations"]
 			self.condition_to_doubling_time[condition] = row['doubling time']
 			self.condition_active_tfs[condition] = row['active TFs']
+			self.condition_inactive_tfs[condition] = row['inactive TFs']
 
 		# Populate nutrientToDoubling for each set of combined conditions
 		self.nutrient_to_doubling_time = {}

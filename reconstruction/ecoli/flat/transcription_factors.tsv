@@ -201,7 +201,7 @@
 "ygeH"	"G7472"			"G7472-MONOMER"	"G7472-MONOMER"	
 "ygeK"	"G7475"			"G7475-MONOMER"	"G7475-MONOMER"	"Predicted"
 "ygeV"	"G7488"			"G7488-MONOMER"	"G7488-MONOMER"	
-"argP"	"EG10490"	"CPLX0-7671, CPLX0-7669"			"CPLX0-7671, CPLX0-7669"	"Dimer is an active conformation and, one metabolite (arginine) also induce another active conformation"
+"argP"	"EG10490"	"CPLX0-7669, CPLX0-7671"			"CPLX0-7669, CPLX0-7671"	"Dimer is an active conformation and, one metabolite (arginine) also induce another active conformation"
 "ygfI"	"G7518"			"G7518-MONOMER"	"G7518-MONOMER"	
 "yggD"	"EG11162"			"EG11162-MONOMER"	"EG11162-MONOMER"	
 "glcC"	"G7546"	"MONOMER0-562"			"MONOMER0-562"	

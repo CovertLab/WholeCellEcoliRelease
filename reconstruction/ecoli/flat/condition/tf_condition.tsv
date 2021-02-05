@@ -3,7 +3,7 @@
 "TF"	"active TF"	"active nutrients"	"active genotype perturbations"	"inactive nutrients"	"inactive genotype perturbations"	"TF type"
 "trpR"	"CPLX-125"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "argR"	"CPLX0-228"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
-"argP"	"CPLX0-7671"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
+"argP"	"CPLX0-7669"	"minimal"	{}	"minimal_plus_amino_acids"	{}	"1CS"
 "lrp"	"MONOMER0-155"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "tyrR"	"MONOMER0-162"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "putA"	"PUTA-CPLX"	"minimal"	{}	"minimal_plus_amino_acids"	{}	"1CS"
