@@ -20,12 +20,20 @@ class TranscriptionRegulation(object):
 		# Build dictionary mapping RNA targets to its regulators
 		self.target_tf = {}
 
+		# RNA IDs for stable RNA should be removed for now until better amino
+		# acid regulation in incorporated or else growth can be unstable
+		stable_rna = {x['id'] for x in raw_data.rnas if x['type'] in {'rRNA', 'tRNA'}}
+
 		for tf in sorted(sim_data.tf_to_fold_change):
 			targets = sim_data.tf_to_fold_change[tf]
 			targetsToRemove = []
 
 			for target in targets:
 				if target not in self.target_tf:
+					if target in stable_rna:
+						targetsToRemove.append(target)
+						continue
+
 					self.target_tf[target] = []
 
 				self.target_tf[target].append(tf)
