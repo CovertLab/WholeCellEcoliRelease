@@ -24,9 +24,12 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		with open(sim_data_file, 'rb') as f:
 			sim_data = pickle.load(f)
 
+		# sim_data classes used
 		t_reg = sim_data.process.transcription_regulation
 		transcription = sim_data.process.transcription
 		replication = sim_data.process.replication
+
+		## Normal expression
 		tf_to_gene_id = t_reg.tf_to_gene_id
 		tf_ids = [tf_to_gene_id[tf] for tf in t_reg.tf_ids]
 		basal_prob = t_reg.basal_prob
@@ -37,6 +40,10 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		gene_ids = transcription.rna_data['gene_id']
 		gene_to_symbol = {d['name']: d['symbol'] for d in replication.gene_data}
 		rna_expression = transcription.rna_expression['basal']
+
+		## ppGpp expression
+		ppgpp_conc = sim_data.growth_rate_parameters.get_ppGpp_conc(sim_data.condition_to_doubling_time['basal'])
+		ppgpp_prob = transcription.synth_prob_from_ppgpp(ppgpp_conc, replication.get_average_copy_number)
 
 		# Calculate statistics
 		n_basal = len(basal_prob)
@@ -52,13 +59,14 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		tf_sorted_j = reg_j[tf_sort]
 		tf_sorted_v = reg_v[tf_sort]
 
-		plt.figure(figsize=(6, 12))
-		gs = gridspec.GridSpec(nrows=3, ncols=1)
+		plt.figure(figsize=(12, 12))
+		gs = gridspec.GridSpec(nrows=3, ncols=2)
 
 		# Plot sorted basal probabilities
-		ax = plt.subplot(gs[0, :])
-		ax.bar(range(len(basal_prob)), sorted(basal_prob))
-		ax.set_yscale('symlog', linthreshy=np.min(basal_prob[basal_prob > 0]))
+		min_basal = np.min(basal_prob[basal_prob > 0])
+		ax = plt.subplot(gs[0, 0])
+		ax.fill_between(range(len(basal_prob)), sorted(basal_prob))
+		ax.set_yscale('symlog', linthreshy=min_basal)
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
 		ax.tick_params(labelsize=6, bottom=False, labelbottom=False)
@@ -66,9 +74,32 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		ax.set_ylabel('Basal prob')
 		ax.set_title(f'{n_0_basal}/{n_basal} ({100*frac_0_basal:.1f}%) at 0', fontsize=10)
 
+		# Plot sorted basal probabilities for ppGpp
+		min_ppgpp = np.min(ppgpp_prob[ppgpp_prob > 0])
+		ax = plt.subplot(gs[1, 0])
+		ax.fill_between(range(len(ppgpp_prob)), sorted(ppgpp_prob))
+		ax.set_yscale('symlog', linthreshy=min_ppgpp)
+		ax.spines['top'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		ax.tick_params(labelsize=6, bottom=False, labelbottom=False)
+		ax.set_xlabel('Sorted genes')
+		ax.set_ylabel('ppGpp basal prob')
+		ax.set_title(f'{n_0_basal}/{n_basal} ({100*frac_0_basal:.1f}%) at 0', fontsize=10)
+
+		# Compare basal and ppGpp probabilities
+		min_val = min(min_basal, min_ppgpp)
+		ax = plt.subplot(gs[2, 0])
+		ax.plot(basal_prob, ppgpp_prob, 'o', alpha=0.5)
+		ax.set_xscale('symlog', linthreshx=min_val)
+		ax.set_yscale('symlog', linthreshy=min_val)
+		ax.spines['top'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		ax.set_xlabel('Basal prob')
+		ax.set_ylabel('ppGpp basal prob')
+
 		# Plot delta probabilities grouped by genes
-		ax = plt.subplot(gs[1, :])
-		ax.bar(range(len(reg_v)), sorted(reg_v))
+		ax = plt.subplot(gs[0, 1])
+		ax.fill_between(range(len(reg_v)), sorted(reg_v))
 		ax.set_yscale('symlog', linthreshy=np.min(np.abs(reg_v[np.abs(reg_v) > 0])))
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
@@ -78,11 +109,11 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		ax.set_title(f'{n_0_delta}/{n_delta} ({100*frac_0_delta:.1f}%) at 0', fontsize=10)
 
 		# Plot delta probabilities grouped by transcription factors
-		ax = plt.subplot(gs[2, :])
+		ax = plt.subplot(gs[1, 1])
 		ticks = np.array([0] + list(np.where(tf_sorted_j[:-1] != tf_sorted_j[1:])[0] + 1) + [len(tf_sorted_j)])
 		tf_x = (ticks[1:] + ticks[:-1]) / 2
 		for begin, end in zip(ticks[:-1], ticks[1:]):
-			ax.bar(range(begin, end), sorted(tf_sorted_v[begin:end]))
+			ax.fill_between(range(begin, end), sorted(tf_sorted_v[begin:end]))
 		ax.set_yscale('symlog', linthreshy=np.min(np.abs(reg_v[np.abs(reg_v) > 0])))
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
@@ -102,12 +133,13 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		# Save data to tsv files for easy lookup
 		with open(os.path.join(plot_out_dir, f'{plot_out_filename}_basal.tsv'), 'w') as f:
 			writer = csv.writer(f, delimiter='\t')
-			writer.writerow(['RNA', 'Gene symbol', 'Basal prob', 'Expression'])
+			writer.writerow(['RNA', 'Gene symbol', 'Basal prob', 'ppGpp basal prob', 'Expression'])
 			for idx in np.argsort(basal_prob):
 				writer.writerow([
 					rna_ids[idx],
 					gene_to_symbol[gene_ids[idx]],
 					basal_prob[idx],
+					ppgpp_prob[idx],
 					rna_expression[idx],
 					])
 
