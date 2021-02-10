@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function
 import functools
 import itertools
 import os
-import multiprocessing as mp
 import sys
 import time
 import traceback
@@ -27,6 +26,7 @@ from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils import filepath, parallelization, units
 from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
+from wholecell.utils import parallelization
 
 
 # Fitting parameters
@@ -62,7 +62,7 @@ def fitSimData_1(raw_data, **kwargs):
 	Inputs:
 		raw_data (KnowledgeBaseEcoli) - knowledge base consisting of the
 			necessary raw data
-		cpus (int) - number of processes to use (if >1 uses multiprocessing)
+		cpus (int) - number of processes to use (if > 1, use multiprocessing)
 		debug (bool) - if True, fit only one arbitrarily-chosen transcription
 			factor in order to speed up a debug cycle (should not be used for
 			an actual simulation)
@@ -226,11 +226,8 @@ def tf_condition_specs(sim_data, cell_specs, cpus=1,
 		disable_ribosome_capacity_fitting=False, disable_rnapoly_capacity_fitting=False,
 		variable_elongation_transcription=False, variable_elongation_translation=False,
 		**kwargs):
-	# NOTE: multiprocessing `fork` seems to work here even on macOS, so override the
-	# cpus() safety check for now. Be careful calling native libraries that
-	# use threads and other resources which don't play well with `fork`.
-	# See Issue #392.
-	cpus = parallelization.cpus(cpus, advice='mac override')
+	# Limit the number of CPUs before printing it to stdout.
+	cpus = parallelization.cpus(cpus)
 
 	# Apply updates to cell_specs from buildTfConditionCellSpecifications for each TF condition
 	conditions = list(sorted(sim_data.tf_to_active_inactive_conditions))
@@ -385,7 +382,7 @@ def apply_updates(func, args, labels, dest, cpus):
 		print("Starting {} Parca processes".format(cpus))
 
 		# Apply args to func
-		pool = mp.Pool(processes=cpus)
+		pool = parallelization.pool(cpus)
 		results = {
 			label: pool.apply_async(func, a)
 			for label, a in zip(labels, args)
@@ -500,7 +497,6 @@ def buildBasalCellSpecifications(
 
 	return cell_specs
 
-@parallelization.full_traceback
 def buildTfConditionCellSpecifications(
 		sim_data,
 		tf,
@@ -796,7 +792,6 @@ def expressionConverge(
 
 	return expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
 
-@parallelization.full_traceback
 def fitCondition(sim_data, spec, condition):
 	"""
 	Takes a given condition and returns the predicted bulk average, bulk deviation,

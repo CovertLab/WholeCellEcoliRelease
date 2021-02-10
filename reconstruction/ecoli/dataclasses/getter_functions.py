@@ -199,7 +199,7 @@ class GetterFunctions(object):
 			)
 
 		self._mass_units = units.g / units.mol
-		self._compartment_tag = re.compile(r'\[[a-z]\]')
+		self._compartment_tag = re.compile(r'\[[a-z]]')
 
 		# Build dictionary of total masses of each molecule
 		self._all_total_masses = {

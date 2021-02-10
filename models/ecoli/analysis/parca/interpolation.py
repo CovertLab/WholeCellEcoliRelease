@@ -2,13 +2,11 @@
 Plots for interpolation functions.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
+import pickle
 
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
-from six.moves import cPickle
 import numpy as np
 
 from models.ecoli.analysis import parcaAnalysisPlot
@@ -31,9 +29,9 @@ def get_raw(data, x_col, y_col, factor=1):
 class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 	def do_plot(self, input_dir, plot_out_dir, plot_out_filename, sim_data_file, validation_data_file, metadata):
 		with open(os.path.join(input_dir, constants.SERIALIZED_RAW_DATA), 'rb') as f:
-			raw_data = cPickle.load(f)
+			raw_data = pickle.load(f)
 		with open(sim_data_file, 'rb') as f:
-			sim_data = cPickle.load(f)
+			sim_data = pickle.load(f)
 		growth = sim_data.growth_rate_parameters
 		mass = sim_data.mass
 
@@ -95,6 +93,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			values = []
 			unit = None
 			for dt in units.min * doubling_time_range:
+				# noinspection PyBroadException
 				try:
 					value = fun(dt)
 					if key:

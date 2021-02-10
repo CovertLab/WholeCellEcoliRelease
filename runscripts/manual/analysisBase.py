@@ -5,8 +5,7 @@ Run with '-h' for command line help.
 Set PYTHONPATH when running this.
 """
 
-from __future__ import absolute_import, division, print_function
-
+import abc
 import argparse
 import os
 import sys
@@ -16,8 +15,7 @@ from models.ecoli.analysis.analysisPlot import AnalysisPlot
 from wholecell.utils import constants, data, scriptBase, parallelization, filepath
 
 
-# noinspection PyAbstractClass
-class AnalysisBase(scriptBase.ScriptBase):
+class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 	"""Abstract base class for scripts that manually run analysis plots in an
 	existing sim_dir: Defines a `sim_dir` command line parameter and sets some
 	derived args.

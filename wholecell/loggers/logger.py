@@ -1,17 +1,13 @@
-#!/usr/bin/env python
-
 """
 Logger
 
 Abstract class which defines the interface loggers expose to the simulation
 """
 
-from __future__ import absolute_import, division, print_function
-
 import abc
-import six
 
-class Logger(six.with_metaclass(abc.ABCMeta, object)):
+
+class Logger(metaclass=abc.ABCMeta):
 	""" Logger """
 
 	@abc.abstractmethod

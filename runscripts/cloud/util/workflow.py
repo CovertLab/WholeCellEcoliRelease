@@ -118,7 +118,7 @@ def validate_gcs_bucket(bucket_name):
 		["gsutil", "ls", "-b", "gs://" + bucket_name],  # bucket list!
 		stdout=subprocess.PIPE,
 		stderr=subprocess.PIPE,
-		universal_newlines=True,
+		encoding='utf-8',
 		timeout=60)
 	if completion.returncode:
 		message = _to_create_bucket(

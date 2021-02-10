@@ -10,7 +10,6 @@ import abc
 from collections import OrderedDict
 import datetime
 import importlib
-import multiprocessing as mp
 import os
 import sys
 import time
@@ -146,18 +145,12 @@ class AnalysisBase(FiretaskBase):
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
 		self['metadata'] = data.expand_keyed_env_vars(self['metadata'])
 
-		# TODO(jerry): Restructure the code to `exec` the analyses using their
-		# command line interpreters rather than `fork` them via mp.Pool(), to
-		# work around Issue #392 with `fork`. For this to call the command line
-		# code, it should not run analyses via this firetask.
-		# Meanwhile, parallelization.cpus() returns 1 on macOS unless the
-		# caller overrides that safety check.
 		cpus = parallelization.cpus(self.get("cpus", 1))
 		pool = None
 		results = {}
 
 		if cpus > 1:
-			pool = mp.Pool(processes=cpus)
+			pool = parallelization.pool(cpus)
 
 		exceptionFileList = []
 		for f in fileList:

@@ -4,13 +4,14 @@
 NCA methods to use to solve E = AP given E and specified network connections in A.
 """
 
-import multiprocessing
-from typing import Callable, Dict, List, Optional, Set, Tuple, cast
+from typing import Callable, cast, Dict, List, Set, Tuple
 
 import numpy as np
 import scipy.linalg
 import scipy.optimize
 import swiglpk as glp
+
+from wholecell.utils import parallelization
 
 
 # Function names of the different NCA methods that have been implemented below
@@ -564,7 +565,7 @@ def iterative_sub_nca(
 
         cpus = min(cpus, len(E_divided))
         if cpus > 1:
-            pool = multiprocessing.Pool(processes=cpus)
+            pool = parallelization.pool(cpus)
             results = [
                 pool.apply_async(method, (E, A), kwds=kwargs)
                 for E, A in zip(E_divided, A_divided)

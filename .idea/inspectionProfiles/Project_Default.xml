@@ -7,9 +7,10 @@
     <inspection_tool class="PyCompatibilityInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ourVersions">
         <value>
-          <list size="2">
+          <list size="3">
             <item index="0" class="java.lang.String" itemvalue="3.8" />
             <item index="1" class="java.lang.String" itemvalue="3.9" />
+            <item index="2" class="java.lang.String" itemvalue="3.10" />
           </list>
         </value>
       </option>
@@ -32,8 +33,8 @@
         </option>
       </scope>
     </inspection_tool>
-    <inspection_tool class="PyShadowingNamesInspection" enabled="true" level="WEAK WARNING" enabled_by_default="false">
-      <scope name="NOT pyi files" level="WEAK WARNING" enabled="true" />
+    <inspection_tool class="PyShadowingNamesInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false">
+      <scope name="NOT pyi files" level="WEAK WARNING" enabled="false" />
     </inspection_tool>
     <inspection_tool class="PySingleQuotedDocstringInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="PyUnboundLocalVariableInspection" enabled="true" level="WARNING" enabled_by_default="false">

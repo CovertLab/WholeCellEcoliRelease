@@ -9,7 +9,6 @@ from __future__ import absolute_import, division, print_function
 
 from functools import reduce
 import io
-from multiprocessing import Pool
 import operator
 import os
 import re
@@ -201,7 +200,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if len(param_ids) != total_params:
 			raise ValueError('Number of adjusted parameters and list of ids do not match.')
 
-		pool = Pool(processes=parallelization.cpus())
+		pool = parallelization.pool()
 		args = zip(
 			variants,
 			[total_params] * n_variants,

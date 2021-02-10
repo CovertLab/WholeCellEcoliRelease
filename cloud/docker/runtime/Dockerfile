@@ -38,7 +38,7 @@ ARG NO_AVX2=0
 ENV NO_AVX2="$NO_AVX2"
 
 # Install openblas (must be 0.3.5+) for numpy, scipy, and Theano.
-ENV OPENBLAS_LABEL=v0.3.10
+ENV OPENBLAS_LABEL=v0.3.13
 RUN (mkdir -p openblas && cd openblas \
     && curl -SL https://github.com/xianyi/OpenBLAS/archive/${OPENBLAS_LABEL}.tar.gz | tar -xz \
     && cd OpenBLAS* \
@@ -68,7 +68,7 @@ RUN (b1="" \
     && if [ -f ~/.numpy-site.cfg ] ; then b1="--no-binary=numpy,scipy"; fi \
     && echo "Installing pips with $b1" \
     && pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir numpy==1.19.2 $b1 \
+    && pip install --no-cache-dir numpy==1.19.5 $b1 \
     && pip install --no-cache-dir -r requirements.txt $b1 \
     && umask 000 && mkdir -p /.theano)
 

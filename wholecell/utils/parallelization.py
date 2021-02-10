@@ -1,36 +1,10 @@
 '''Parallelization utilities.'''
 
-from __future__ import absolute_import, division, print_function
-
-import functools
 import multiprocessing as mp
 import os
-import sys
-import traceback
 
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
-from six.moves import map
 
-
-def full_traceback(func):
-	# type: (Callable) -> Callable
-	"""
-	Decorator to use on a function used for multiprocessing tasks
-	(eg apply_async) in order to capture the full stack trace for any errors
-	that arise during execution.
-
-	NOTE: no longer needed in python3 as the traceback is properly handled
-	"""
-
-	@functools.wraps(func)
-	def wrapper(*args, **kwargs):
-		try:
-			return func(*args, **kwargs)
-		except Exception as e:
-			msg = '{} in wrapped function {}\n\nOriginal {}'.format(
-				type(e).__name__, func.__name__, traceback.format_exc())
-			raise RuntimeError(msg)
-	return wrapper if sys.version_info[0] < 3 else func
 
 def is_macos():
 	# type: () -> bool
@@ -38,20 +12,12 @@ def is_macos():
 	return os.uname()[0].lower() == 'darwin'
 
 
-def cpus(requested_num_processes=None, **kwargs):
-	# type: (Optional[int], **str) -> int
-	"""Return the usable number of worker processes via `fork` (e.g. with
-	`multiprocessing.Pool`), up to `requested_num_processes` (default: the max
-	as reported by `multiprocessing.cpu_count()`) considering macOS and SLURM
-	limitations. `1` means do the work in-process rather than forking
-	subprocesses.
-
-	On macOS: This returns 1 due to problems where `fork` can segfault or fail
-	to parallelize -- unless the caller overrides that safety check. See
-	Issue #392.
-
-	TODO(jerry): Test if Python 3's `multiprocessing` "spawn" mode fixes the
-		`fork` problems.
+def cpus(requested_num_processes=None):
+	# type: (Optional[int]) -> int
+	"""Return the usable number of worker processes for a multiprocessing Pool,
+	up to `requested_num_processes` (default = max available), considering SLURM
+	and any other environment-specific limitations.
+	`1` means do all work in-process rather than forking subprocesses.
 
 	On SLURM: This reads the environment variable 'SLURM_CPUS_PER_TASK'
 	containing the number of CPUs requested per task but since that's only set
@@ -79,17 +45,13 @@ def cpus(requested_num_processes=None, **kwargs):
 
 	Args:
 		requested_num_processes: the requested number of worker
-			processes; pass None or 0 to default to the max available
-		kwargs: go ahead and pass in `advice='mac override'` to
-			override the safety check if you're confident that `fork`ed
-			processes parallelize OK in this caller on macOS; otherwise this
-			function will return 1 on macOS
-	Returns:
-		num_cpus: the usable number of worker processes via `fork` (e.g.
-			with `multiprocessing.Pool`) as limited by the hardware, macOS,
-			SLURM, and `requested_num_processes`.
+			processes; None or 0 means return the max usable number
 
-			==> 1 means DO NOT `fork` PROCESSES. (Try `exec`?)
+	Returns:
+		num_cpus: the usable number of worker processes for a Pool, as limited
+			by the hardware, OS, SLURM, and `requested_num_processes`.
+
+			==> 1 means DO NOT CREATE WORKER SUBPROCESSES.
 
 	See also `pool()`.
 
@@ -97,10 +59,7 @@ def cpus(requested_num_processes=None, **kwargs):
 
 	See https://github.com/CovertLab/wcEcoli/issues/392
 	"""
-	if is_macos() and kwargs.get('advice') != 'mac override':
-		os_cpus = 1
-	else:
-		os_cpus = mp.cpu_count()
+	os_cpus = mp.cpu_count()
 
 	value = os.environ.get('SLURM_CPUS_PER_TASK',
 		os.environ.get('SLURM_JOB_CPUS_PER_NODE',
@@ -122,13 +81,19 @@ def cpus(requested_num_processes=None, **kwargs):
 def pool(num_processes=None):
 	# type: (Optional[int]) -> Union[mp.pool.Pool, InlinePool]
 	"""Return an `InlinePool` if `cpus(num_processes) == 1`, else a
-	`multiprocessing.Pool(cpus(num_processes))`, as suitable for the current
-	runtime environment. See `cpus()` on figuring the number of usable
-	processes and `InlinePool` about why running in-process is important.
+	multiprocessing `Pool(cpus(num_processes))`, as suitable for the current
+	runtime environment.
+
+	This uses the 'spawn' process start method to create a fresh python
+	interpreter process, avoiding threading problems and cross-platform
+	inconsistencies.
+
+	See `cpus()` on figuring the number of usable processes.
+	See `InlinePool` about why running in-process is important.
 	"""
 	usable = cpus(num_processes)
 
-	return mp.Pool(processes=usable) if usable > 1 else InlinePool()
+	return mp.get_context('spawn').Pool(processes=usable) if usable > 1 else InlinePool()
 
 
 class InlinePool(object):

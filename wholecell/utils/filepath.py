@@ -104,7 +104,7 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT, env=None):
 		stderr=subprocess.PIPE,
 		check=True,
 		env=env,
-		universal_newlines=True,
+		encoding='utf-8',
 		timeout=timeout)
 	if trim:
 		return out.stdout.rstrip(), out.stderr.rstrip()

@@ -30,7 +30,8 @@
 #
 ## Install numpy (if it's the first time) then all the packages listed in this file (see
 ## docs/create-pyenv.md about whether to add `--no-binary numpy,scipy` to these steps):
-#   pip install numpy==1.19.2
+## [When updating numpy here also update it below, in Dockerfile, and in docs/*.]
+#   pip install numpy==1.19.5
 #   pip install -r requirements.txt && pyenv rehash
 
 # Installers
@@ -49,8 +50,8 @@ wheel>=0.34.2
 # pytest-cov is for `pytest --cov`.
 #
 # TODO: Periodically unfreeze, update, test, and refreeze.
-numpy==1.19.2
-scipy==1.5.2
+numpy==1.19.5
+scipy==1.5.4
 
 biopython==1.77
 bokeh==1.4.0

@@ -1226,9 +1226,9 @@ class Metabolism(object):
 
 		# Get mapping from IDs to IDs without compartments
 		substrates_tagged_to_no_tag = {
-			mol_id: re.sub("\[.*\]", "", mol_id) for mol_id in substrates}
+			mol_id: re.sub(r"\[.*]", "", mol_id) for mol_id in substrates}
 		products_tagged_to_no_tag = {
-			mol_id: re.sub("\[.*\]", "", mol_id) for mol_id in products}
+			mol_id: re.sub(r"\[.*]", "", mol_id) for mol_id in products}
 
 		overlap_no_tag = (
 			set(substrates_tagged_to_no_tag.values())

@@ -130,7 +130,7 @@ COMPARTMENTS = {
 	}
 
 def molecule_compartment(molecule):
-	match = re.match(r'.+\[(.)\]$', molecule)
+	match = re.match(r'.+\[(.)]$', molecule)
 	if match:
 		return COMPARTMENTS.get(match.groups()[0])
 

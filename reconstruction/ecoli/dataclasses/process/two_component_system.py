@@ -8,19 +8,16 @@ moleculesToNextTimeStep()
 	Consider relocating (since it's useful for both the parca and simulation)
 """
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 import scipy
+import scipy.integrate
 import re
 
-import six
 import sympy as sp
 
 from wholecell.utils import build_ode
 from wholecell.utils import data
 from wholecell.utils import units
-from six.moves import range, zip
 
 
 # Alternative methods to try (in order of priority) when solving ODEs to the next time step
@@ -271,7 +268,7 @@ class TwoComponentSystem(object):
 		Columns: complexes
 		Values: monomer stoichiometry
 		'''
-		ids_complexes = six.viewkeys(self.complex_to_monomer)
+		ids_complexes = self.complex_to_monomer.keys()
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
 		stoichMatrixMonomersV = []

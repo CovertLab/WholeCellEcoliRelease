@@ -10,20 +10,17 @@ TODO: Other shared code to simplify the subclasses, e.g. instantiate an
 AnalysisPaths (except for SingleAnalysisPlot subclasses), etc.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import abc
 import os
 
 import matplotlib as mp
-import six
 
 from matplotlib import pyplot as plt
 from wholecell.utils import memory_debug, parallelization
 from wholecell.utils import filepath as fp
 
 
-class AnalysisPlot(six.with_metaclass(abc.ABCMeta, object)):
+class AnalysisPlot(metaclass=abc.ABCMeta):
 	"""Abstract Base Class for analysis plots.
 
 	Each analysis class must override do_plot().

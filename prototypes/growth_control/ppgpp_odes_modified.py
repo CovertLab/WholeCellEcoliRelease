@@ -13,7 +13,6 @@ from __future__ import absolute_import, division, print_function
 
 import argparse
 import io
-import multiprocessing as mp
 import os
 
 from matplotlib import pyplot as plt
@@ -24,6 +23,7 @@ from six.moves import range, zip
 
 from wholecell.io import tsv
 from wholecell.utils.py3 import monotonic_seconds
+from wholecell.utils import parallelization
 
 
 file_location = os.path.dirname(os.path.realpath(__file__))
@@ -355,7 +355,7 @@ if __name__ == '__main__':
 					for factor in variations]
 
 				if args.parallel:
-					pool = mp.Pool(processes=mp.cpu_count())
+					pool = parallelization.pool()
 					results = [pool.apply_async(simulate, sa) for sa in sim_args]
 					pool.close()
 					pool.join()

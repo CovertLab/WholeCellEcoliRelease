@@ -13,12 +13,14 @@ import os
 import scipy
 import sys
 
+from wholecell.utils import parallelization
+
 
 def subtitle(module):
 	"""Print a section subtitle with the module's name and version."""
 	print()
-	print("{} {}".format(getattr(module, '__name__', 'A module'),
-						 getattr(module, '__version__', '')))
+	print(f"Module: {getattr(module, '__name__', '(no name)')}"
+		  f" {getattr(module, '__version__', '')}")
 
 def print_dictionary(name, a_dict, select_keys):
 	"""Print select keys from a dict, as available, in order, one per line."""
@@ -30,13 +32,14 @@ def print_dictionary(name, a_dict, select_keys):
 def main():
 	subtitle(multiprocessing)
 	print("multiprocessing.cpu_count(): {}".format(multiprocessing.cpu_count()))
+	print(f'parallelization.cpus(): {parallelization.cpus()}')
 
 	subtitle(np)
 	np.show_config()
 
 	subtitle(os)
 	print_dictionary("os.environ", os.environ, [
-		'BOOST_NUMPY_LIB', 'HOME', 'LIBRARY_PATH', 'PI_HOME', 'PYENV_ROOT',
+		'OPENBLAS_NUM_THREADS', 'HOME', 'LIBRARY_PATH', 'PI_HOME', 'PYENV_ROOT',
 		'PYTHONPATH', 'SHERLOCK'])
 	print("os.getcwd(): {}".format(os.getcwd()))
 	print("os.uname(): {}".format(os.uname()))

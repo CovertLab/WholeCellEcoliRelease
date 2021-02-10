@@ -355,7 +355,7 @@ def load_ecocyc_tf_gene_interactions(
                 continue
 
             # Extract data from the line
-            tf, gene = re.findall('(.*) [-\+]*> (.*)', line[common_name_idx])[0]
+            tf, gene = re.findall('(.*) [-+]*> (.*)', line[common_name_idx])[0]
             effect = line[dir_idx]
 
             # Handle special case for Leu-Lrp vs just Lrp regulation

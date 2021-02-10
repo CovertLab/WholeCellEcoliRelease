@@ -7,8 +7,6 @@ Run with '-h' for command line help.
 Set PYTHONPATH when running this.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import abc
 import argparse
 import datetime
@@ -20,9 +18,6 @@ import pprint as pp
 import time
 import traceback
 from typing import Any, Callable, Iterable, List, Optional, Tuple
-
-import six
-from six.moves import range, zip
 
 import wholecell.utils.filepath as fp
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
@@ -147,7 +142,7 @@ def dashize(underscore):
 	return re.sub(r'_+', r'-', underscore)
 
 
-class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
+class ScriptBase(metaclass=abc.ABCMeta):
 	"""Abstract base class for scripts. This defines a template where
 	`description()` describes the script,
 	`define_parameters()` defines its command line parameters,

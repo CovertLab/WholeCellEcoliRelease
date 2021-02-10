@@ -8,11 +8,12 @@ to log/ and uses the default output location for NCA results.
 
 import argparse
 import csv
-import multiprocessing
 import os
 import re
 import subprocess
 from typing import List
+
+from wholecell.utils import parallelization
 
 
 FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))
@@ -132,7 +133,7 @@ if __name__ == '__main__':
 			for i in range(2**len(OPTIONS))
 			]
 
-		pool = multiprocessing.Pool(args.cpus)
+		pool = parallelization.pool(args.cpus)
 		results = [pool.apply_async(solve_nca, args) for args in all_args]
 		pool.close()
 		pool.join()

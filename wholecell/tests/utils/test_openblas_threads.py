@@ -33,7 +33,7 @@ class Test_openblas_threads(unittest.TestCase):
 	def test_openblas(self):
 		"""Compare a dot product running with various numbers of OpenBLAS threads."""
 		products = []
-		thread_range = list(range(1, parallelization.cpus(advice='mac override') + 1)) + ['']
+		thread_range = list(range(1, parallelization.cpus() + 1)) + ['']
 		print('{:>7} {:>26} {:>26}'.format('THREADS', 'DOT PRODUCT', 'DIFF FROM 1 THREAD'))
 
 		for num_threads in thread_range:

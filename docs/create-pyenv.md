@@ -181,14 +181,14 @@ virtualenv.
    installation errors.
 
    ```shell script
-   pip install numpy==1.19.2  # see requirements.txt for the right version
+   pip install numpy==1.19.5  # see requirements.txt for the right version
    ```
 
    **NOTE:** If you installed OpenBLAS and created `~/.numpy-site.cfg`, use this command
    instead so pip will compile numpy from source code using `~/.numpy-site.cfg`:
 
    ```shell script
-   pip install numpy==1.19.2 --no-binary numpy  # see requirements.txt for the right version
+   pip install numpy==1.19.5 --no-binary numpy  # see requirements.txt for the right version
    ```
 
 1. Install the packages listed in `requirements.txt`.

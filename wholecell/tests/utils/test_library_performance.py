@@ -16,34 +16,12 @@ discovered as a test method:
 	python -m unittest -v wholecell.tests.utils.test_library_performance.Test_library_performance.multitest_dot
 """
 
-from __future__ import absolute_import, division, print_function
-
-import resource
+import time
 import unittest
 
 import numpy as np
 import scipy.integrate
-from six.moves import range
 
-from wholecell.utils.py3 import monotonic_seconds
-
-
-def clock2():
-	"""
-	clock2() -> (ru_utime, ru_stime)
-
-	Return the TOTAL (USER, SYSTEM CPU) time in floating point seconds
-	since the start of the process, excluding any child processes. The
-	data comes from resource.getrusage() so it avoids the wraparound
-	problems in time.clock().
-
-	FYI: getrusage() also returns memory usage data.
-
-	Cf. IPython %time magic github.com/ipython/ipython -
-	IPython/core/magics/execution.py
-	"""
-	usage = resource.getrusage(resource.RUSAGE_SELF)
-	return usage.ru_utime, usage.ru_stime
 
 def _format_time(timespan, precision=3):
 	"""
@@ -85,20 +63,13 @@ def time_it(code_to_measure, title='Measured'):
 	github.com/ipython/ipython - IPython/core/magics/execution.py time()
 	"""
 	# time execution
-	elapsed_start = monotonic_seconds()
-	(start_user, start_sys) = clock2()
+	elapsed_start = time.monotonic()
 	code_to_measure()
-	(end_user, end_sys) = clock2()
-	elapsed_end = monotonic_seconds()
+	elapsed_end = time.monotonic()
 
 	elapsed_time = elapsed_end - elapsed_start
-	cpu_user = end_user - start_user
-	cpu_sys = end_sys - start_sys
-	cpu_total = cpu_user + cpu_sys
 
-	print("\n%s CPU time: user %s + sys %s = %s; Elapsed: %s"
-		  % (title, _format_time(cpu_user), _format_time(cpu_sys),
-			 _format_time(cpu_total), _format_time(elapsed_time)))
+	print(f'\n{title} Elapsed: {_format_time(elapsed_time)}')
 	return elapsed_time
 
 
