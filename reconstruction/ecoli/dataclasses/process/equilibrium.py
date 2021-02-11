@@ -339,10 +339,19 @@ class Equilibrium(object):
 			derivatives_jacobian = self.derivatives_jacobian
 
 		# Note: odeint has issues solving with a long time step so need to use solve_ivp
-		sol = integrate.solve_ivp(
-			derivatives, [0, time_limit], y_init,
-			method="LSODA", t_eval=[0, time_limit],
-			jac=derivatives_jacobian)
+		for method in ['LSODA', 'BDF']:
+			try:
+				sol = integrate.solve_ivp(
+					derivatives, [0, time_limit], y_init,
+					method=method, t_eval=[0, time_limit],
+					jac=derivatives_jacobian)
+				break
+			except ValueError as e:
+				print(f'Warning: switching solver method in equilibrium, {e!r}')
+		else:
+			raise RuntimeError('Could not solve ODEs in equilibrium to SS.'
+				' Try adjusting time step or changing methods.')
+
 		y = sol.y.T
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
