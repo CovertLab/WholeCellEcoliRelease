@@ -35,6 +35,11 @@ class MetabolismDebug(scriptBase.ScriptBase):
 			help='The daughter number (int). The value will get formatted as'
 				 ' a subdirectory name like "000000". Default = 0.')
 
+		# Sim options
+		self.define_parameter_bool(parser, 'ppgpp_regulation',
+			default_key='ppgpp_regulation',
+			help='set if sims were run with ppgpp_regulation')
+
 		# Debug options
 		parser.add_argument('--validation', type=int, default=1,
 			help='Number of time steps to run for validation. If < 0, will run all.')
@@ -101,7 +106,7 @@ class MetabolismDebug(scriptBase.ScriptBase):
 
 	def new_model(self):
 		"""Create new model."""
-		return FluxBalanceAnalysisModel(self.sim_data)
+		return FluxBalanceAnalysisModel(self.sim_data, include_ppgpp=self.include_ppgpp)
 
 	def solve_timestep(self, model, timestep):
 		# type: (FluxBalanceAnalysisModel, int) -> None
@@ -240,6 +245,7 @@ class MetabolismDebug(scriptBase.ScriptBase):
 	def run(self, args):
 		# type: (argparse.Namespace) -> None
 
+		self.include_ppgpp = not args.ppgpp_regulation
 		self.load_data(args.sim_data_file, args.sim_out_dir)
 		self.validation(args.validation)
 		if args.produce_met:
