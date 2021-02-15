@@ -152,7 +152,7 @@ def save_state(func):
 			cell_specs = {}
 
 		# Save the current state of the parameter calculator after the function to disk
-		if kwargs.get('save_intermediates', False) and intermediates_dir != '':
+		if kwargs.get('save_intermediates', False) and intermediates_dir != '' and sim_data is not None:
 			os.makedirs(intermediates_dir, exist_ok=True)
 			with open(sim_data_file, 'wb') as f:
 				cPickle.dump(sim_data, f, protocol=cPickle.HIGHEST_PROTOCOL)
