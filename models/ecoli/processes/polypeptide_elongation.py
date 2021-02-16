@@ -48,6 +48,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.endWeight = translation.translation_end_weight
 		self.variable_elongation = sim._variable_elongation_translation
 		self.make_elongation_rates = translation.make_elongation_rates
+		self.next_aa_pad = translation.next_aa_pad
 
 		self.ribosomeElongationRate = float(sim_data.growth_rate_parameters.ribosomeElongationRate.asNumber(units.aa / units.s))
 
@@ -169,11 +170,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			'protein_index', 'peptide_length', 'pos_on_mRNA'
 			)
 
-		sequences = buildSequences(
+		all_sequences = buildSequences(
 			self.proteinSequences,
 			protein_indexes,
 			peptide_lengths,
-			self.elongation_rates)
+			self.elongation_rates + self.next_aa_pad)
+		sequences = all_sequences[:, :-self.next_aa_pad].copy()
 
 		if sequences.size == 0:
 			return
@@ -197,6 +199,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		sequence_elongations = result.sequenceElongation
 		aas_used = result.monomerUsages
 		nElongations = result.nReactions
+
+		next_amino_acid = all_sequences[np.arange(len(sequence_elongations)), sequence_elongations]
+		next_amino_acid_count = np.bincount(next_amino_acid[next_amino_acid != polymerize.PAD_VALUE], minlength=21)
 
 		# Update masses of ribosomes attached to polymerizing polypeptides
 		added_protein_mass = computeMassIncrease(
@@ -248,7 +253,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# MODEL SPECIFIC: evolve
 		# TODO: use something other than a class attribute to pass aa diff to metabolism
-		net_charged, self.aa_count_diff = self.elongation_model.evolve(total_aa_counts, aas_used, nElongations, nInitialized)
+		net_charged, self.aa_count_diff = self.elongation_model.evolve(
+			total_aa_counts, aas_used, next_amino_acid_count, nElongations, nInitialized)
 
 		# GTP hydrolysis is carried out in Metabolism process for growth
 		# associated maintenance. This is set here for metabolism to use.
@@ -310,7 +316,7 @@ class BaseElongationModel(object):
 	def final_amino_acids(self, total_aa_counts):
 		return total_aa_counts
 
-	def evolve(self, total_aa_counts, aas_used, nElongations, nInitialized):
+	def evolve(self, total_aa_counts, aas_used, next_amino_acid_count, nElongations, nInitialized):
 		# Update counts of amino acids and water to reflect polymerization reactions
 		self.process.aas.countsDec(aas_used)
 		self.water.countInc(nElongations - nInitialized)
@@ -487,7 +493,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 	def final_amino_acids(self, total_aa_counts):
 		return np.fmin(total_aa_counts, self.aa_counts_for_translation)
 
-	def evolve(self, total_aa_counts, aas_used, nElongations, nInitialized):
+	def evolve(self, total_aa_counts, aas_used, next_amino_acid_count, nElongations, nInitialized):
 		# Get tRNA counts
 		uncharged_trna = self.uncharged_trna.counts()
 		charged_trna = self.charged_trna.counts()
@@ -524,7 +530,10 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			rela_conc = self.counts_to_molar * self.rela.total_count()
 			spot_conc = self.counts_to_molar * self.spot.total_count()
 
-			f = aas_used / aas_used.sum()
+			# Need to include the next amino acid the ribosome sees for certain
+			# cases where elongation does not occur, otherwise f will be NaN
+			aa_at_ribosome = aas_used + next_amino_acid_count
+			f = aa_at_ribosome / aa_at_ribosome.sum()
 			limits = self.ppgpp_reaction_metabolites.counts()
 			delta_metabolites, ppgpp_syn, ppgpp_deg, rela_syn, spot_syn, spot_deg = self.ppgpp_metabolite_changes(
 				uncharged_trna_conc, charged_trna_conc,	ribosome_conc, f, rela_conc,

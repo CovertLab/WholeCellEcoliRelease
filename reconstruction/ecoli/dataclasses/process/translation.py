@@ -22,6 +22,7 @@ class Translation(object):
 
 	def __init__(self, raw_data, sim_data):
 		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
+		self.next_aa_pad = 1  # Need an extra amino acid in sequences lengths to find next one
 
 		self._build_monomer_data(raw_data, sim_data)
 		self._build_translation(raw_data, sim_data)
@@ -156,7 +157,7 @@ class Translation(object):
 		max_len = np.int64(
 			self.monomer_data["length"].asNumber().max()
 			+ self.max_time_step * sim_data.constants.ribosome_elongation_rate_max.asNumber(units.aa / units.s)
-			)
+			) + self.next_aa_pad
 
 		self.translation_sequences = np.full((len(sequences), max_len), polymerize.PAD_VALUE, dtype=np.int8)
 		aa_ids_single_letter = six.viewkeys(sim_data.amino_acid_code_to_id_ordered)
