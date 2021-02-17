@@ -449,6 +449,9 @@ class Simulation():
 				if (maxTimeStep - minTimeStep) / minTimeStep <= 1e-2:
 					break
 			else:
+				if minTimeStep > 0 and (maxTimeStep - minTimeStep) / minTimeStep <= 1e-2:
+					candidateTimeStep = minTimeStep
+					break
 				maxTimeStep = candidateTimeStep
 			candidateTimeStep = minTimeStep + (maxTimeStep - minTimeStep) / 2.
 		else:

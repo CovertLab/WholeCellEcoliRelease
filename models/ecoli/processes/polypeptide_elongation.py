@@ -278,7 +278,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "processElongationRate", self.ribosomeElongationRate / self.timeStepSec())
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
-		return inputTimeStep <= self.max_time_step
+		model_specific = self.elongation_model.isTimeStepShortEnough(inputTimeStep, timeStepSafetyFraction)
+		max_time_step = inputTimeStep <= self.max_time_step
+		return model_specific and max_time_step
 
 
 class BaseElongationModel(object):
@@ -323,6 +325,9 @@ class BaseElongationModel(object):
 		net_charged = np.zeros(len(self.uncharged_trna_names))
 
 		return net_charged, {}
+
+	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
+		return True
 
 class TranslationSupplyElongationModel(BaseElongationModel):
 	"""
@@ -402,7 +407,18 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.aa_supply_scaling = metabolism.aa_supply_scaling
 		self.aa_environment = self.process.environmentView([aa[:-3] for aa in self.aaNames])
 
+		# Manage unstable charging with too long time step by setting
+		# time_step_short_enough to False during updates. Other variables
+		# manage when to trigger an adjustment and how quickly the time step
+		# increases after being reduced
+		self.time_step_short_enough = True
+		self.max_time_step = self.process.max_time_step
+		self.time_step_increase = 1.01
+		self.max_amino_acid_adjustment = 0.05
+
 	def request(self, aasInSequences):
+		self.max_time_step = min(self.process.max_time_step, self.max_time_step * self.time_step_increase)
+
 		# Conversion from counts to molarity
 		cell_mass = self.process.readFromListener("Mass", "cellMass") * units.fg
 		cell_volume = cell_mass / self.cellDensity
@@ -557,6 +573,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# and current DCW and AA used to charge tRNA to update the concentration target
 		# in metabolism during the next time step
 		aa_diff = self.process.aa_supply - np.dot(self.process.aa_from_trna, total_charging_reactions)
+		if np.any(np.abs(aa_diff / self.process.aas.total_counts()) > self.max_amino_acid_adjustment):
+			self.time_step_short_enough = False
 
 		return net_charged, {aa: diff for aa, diff in zip(self.aaNames, aa_diff)}
 
@@ -831,3 +849,18 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			raise ValueError('Failed to meet molecule limits with ppGpp reactions.')
 
 		return delta_metabolites, n_syn_reactions, n_deg_reactions, v_rela_syn, v_spot_syn, v_deg
+
+	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
+		short_enough = True
+
+		# Needs to be less than the max time step to prevent oscillatory behavior
+		if inputTimeStep > self.max_time_step:
+			short_enough = False
+
+		# Decrease the max time step to get more stable charging
+		if not self.time_step_short_enough:
+			self.max_time_step = inputTimeStep / 2
+			self.time_step_short_enough = True
+			short_enough = False
+
+		return short_enough
