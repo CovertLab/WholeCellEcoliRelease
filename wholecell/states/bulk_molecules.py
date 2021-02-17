@@ -289,9 +289,13 @@ def calculatePartition(processPriorities, countsRequested, counts, random_state)
 		# Distribute fractional counts to ensure full allocation of excess
 		# request molecules
 		remainders = fractional_requests % 1
+		options = np.arange(remainders.shape[1])
 		for idx, remainder in enumerate(remainders):
-			count = int(np.round(remainder.sum()))
-			fractional_requests[idx, :] += random_state.multinomial(count, remainder)
+			total_remainder = remainder.sum()
+			count = int(np.round(total_remainder))
+			if count > 0:
+				allocated_indices = random_state.choice(options, size=count, p=remainder/total_remainder, replace=False)
+				fractional_requests[idx, allocated_indices] += 1
 		requests[excess_request_mask, :] = fractional_requests
 
 		allocations = requests.astype(np.int64)
