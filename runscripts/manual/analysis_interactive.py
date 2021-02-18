@@ -85,7 +85,7 @@ def load_listener(selection: str) -> Tuple[np.ndarray, List[str]]:
 	column = split[-1]
 
 	reader = TableReader(os.path.join(path, listener))
-	data = reader.readColumn2D(column)
+	data = reader.readColumn(column, squeeze=False)
 
 	# Read subcolumn attributes
 	try:

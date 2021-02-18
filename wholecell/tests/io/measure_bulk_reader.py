@@ -58,7 +58,7 @@ def test_old(reader, column, indices):
 	'''
 
 	return test_method(
-		lambda : reader.readColumn2D(column)[:, indices],
+		lambda : reader.readColumn(column, squeeze=False)[:, indices],
 		'Old method, read all + select subcolumns')
 
 def test_old_full(reader, column, indices):
@@ -73,7 +73,7 @@ def test_old_full(reader, column, indices):
 	'''
 
 	return test_method(
-		lambda : reader.readColumn2D(column),
+		lambda : reader.readColumn(column, squeeze=False),
 		'Old method, read all')
 
 def test_new_block(reader, column, indices):
@@ -88,7 +88,7 @@ def test_new_block(reader, column, indices):
 	'''
 
 	return test_method(
-		lambda : reader.readColumn2D(column, indices),
+		lambda : reader.readColumn(column, indices, squeeze=False),
 		'New method, read subcolumns')
 
 def test_functions(functions, text, reader, column, indices):

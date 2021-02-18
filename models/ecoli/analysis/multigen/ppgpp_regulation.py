@@ -28,7 +28,7 @@ def read_data(cell_paths, table, column):
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
 		reader = TableReader(os.path.join(sim_out_dir, table))
-		sim_columns.append(reader.readColumn2D(column))
+		sim_columns.append(reader.readColumn(column, squeeze=False))
 
 	return np.vstack(sim_columns)
 

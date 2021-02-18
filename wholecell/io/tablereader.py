@@ -153,15 +153,16 @@ class TableReader(object):
 		return self._attributes[name]
 
 
-	def readColumn2D(self, name, indices=None):
-		# type: (str, Any) -> np.ndarray
+	def readColumn(self, name, indices=None, squeeze=True):
+		# type: (str, Any, bool) -> np.ndarray
 		"""
 		Load a full column (all rows). Each row entry is a 1-D NumPy array of
-		subcolumns, so the result is a 2-D array row x subcolumn. In the case
-		of fixed-length columns, this method can optionally read just a
-		vertical slice of all those arrays -- the subcolumns at the given
-		`indices`. For variable-length columns, np.nan is used as a filler
-		value for the empty entries of each row.
+		subcolumns, so the initial result is a 2-D array row x subcolumn, which
+		is optionally squeezed to arrays with lower dimensions if squeeze=True.
+		In the case of fixed-length columns, this method can optionally read
+		just a vertical slice of all those arrays -- the subcolumns at the
+		given `indices`. For variable-length columns, np.nan is used as a
+		filler value for the empty entries of each row.
 
 		The current approach collects up the compressed blocks, allocates the
 		result array, then unpacks entries into it, keeping each decompressed
@@ -185,9 +186,15 @@ class TableReader(object):
 				NOTE: The speed benefit might only be realized if the file is
 				in the disk cache (i.e. the file has been recently read), which
 				should typically be the case. This will still save RAM.
+			squeeze: If True, the resulting NumPy array is squeezed into a 0D,
+				1D, or 2D array, depending on the number of rows and subcolumns
+				it has.
+				1 row x 1 subcolumn => 0D.
+				n rows x 1 subcolumn or 1 row x m subcolumns => 1D.
+				n rows x m subcolumns => 2D.
 
 		Returns:
-			ndarray: a writable 2-D NumPy array (row x subcolumn).
+			ndarray: A writable 0D, 1D, or 2D array.
 
 		TODO (jerry): Bring back the code to block-read `indices` of the data
 			from uncompressed tables or after decompression, via seek + read or
@@ -232,6 +239,10 @@ class TableReader(object):
 			if variable_length and indices is not None:
 				raise VariableLengthColumnError(
 					'Attempted to access subcolumns of a variable-length column {}.'.format(name))
+
+			# Variable-length columns should not be squeezed.
+			if variable_length:
+				squeeze = False
 
 			if header.compression_type == tw.COMPRESSION_TYPE_ZLIB:
 				decompressor = lambda data_bytes: zlib.decompress(data_bytes)  # type: Callable[[bytes], bytes]
@@ -306,31 +317,11 @@ class TableReader(object):
 
 			result[row : (row + last_num_rows)] = last_entries
 
+		# Squeeze if flag is set to True
+		if squeeze:
+			result = result.squeeze()
+
 		return result
-
-
-	def readColumn(self, name, indices=None):
-		# type: (str, Any) -> np.ndarray
-		'''
-		Read a column via readColumn2D() then squeeze() the resulting
-		NumPy array into a 0D, 1D, or 2D array, depending on the number
-		of rows and subcolumns it has.
-
-		1 row x 1 subcolumn => 0D.
-
-		n rows x 1 subcolumn or 1 row x m subcolumns => 1D.
-
-		n rows x m subcolumns => 2D.
-
-		Args:
-			name: the column name.
-			indices: The subcolumn indices to select from each
-				entry, or None to read in all data. See readColumn2D().
-
-		Returns:
-			ndarray: A writable 0D, 1D, or 2D array.
-		'''
-		return self.readColumn2D(name, indices).squeeze()
 
 
 	def readSubcolumn(self, column, subcolumn_name):
@@ -353,7 +344,7 @@ class TableReader(object):
 		subcol_name_map = self.readAttribute(SUBCOLUMNS_KEY)
 		subcols = self.readAttribute(subcol_name_map[column])
 		index = subcols.index(subcolumn_name)
-		return self.readColumn2D(column, [index])[:, 0]
+		return self.readColumn(column, [index], squeeze=False)[:, 0]
 
 
 	def allAttributeNames(self):

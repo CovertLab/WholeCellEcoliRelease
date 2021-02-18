@@ -184,7 +184,7 @@ def measure_tables(basepath, table_columns):
 	for table, columns in table_columns:
 		reader = TableReader(os.path.join(basepath, table))
 		for column in columns:
-			array = reader.readColumn2D(column)
+			array = reader.readColumn(column, squeeze=False)
 			# TODO(jerry): ...
 
 def time_decompressor(bytestrings, level):
@@ -217,7 +217,7 @@ def measure_block_subranges(array, table_name='', column_name=''):
 
 def measure_performance_metrics(sim_out_dir, table_name, column_name):
 	reader = TableReader(os.path.join(sim_out_dir, table_name))
-	array = reader.readColumn2D(column_name)
+	array = reader.readColumn(column_name, squeeze=False)
 	print('')
 	array2 = measure_block_subranges(array, table_name, column_name)
 	print('')

@@ -100,10 +100,11 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		reader.close()
 
-	def test_readColumn2D(self):
-		'''Test readColumn2D() vs. readColumn() array squeezing.
-		readColumn2D() should always return a 2D array.
-		readColumn() may return a 0D, 1D, or 2D array, depending on the data.
+	def test_readColumn_squeeze(self):
+		'''Test the squeeze option of readColumn().
+		If squeeze=False, readColumn() should always return a 2D array.
+		If squeeze=True, readColumn() may return a 0D, 1D, or 2D array,
+		depending on the data.
 		Cases: {1, 2} rows x {scalar, 1-element, 1D, 2D} x {None, 1, 2} indices.
 		TODO(jerry): Test 0 rows?
 		'''
@@ -123,26 +124,26 @@ class Test_TableReader_Writer(unittest.TestCase):
 		writer.append(**data)
 		writer.close()
 
-		# --- Read 1 row with readColumn2D() ---
+		# --- Read 1 row with squeeze=False ---
 		reader = TableReader(self.table_path)
-		self.assertEqual(2, reader.readColumn2D('scalar').ndim)
-		self.assertEqual(2, reader.readColumn2D('1_element').ndim)
-		self.assertEqual(2, reader.readColumn2D('1D').ndim)
-		self.assertEqual(2, reader.readColumn2D('2D').ndim)
+		self.assertEqual(2, reader.readColumn('scalar', squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1_element', squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1D', squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('2D', squeeze=False).ndim)
 
-		self.assertEqual(2, reader.readColumn2D('scalar', index1).ndim)
-		self.assertEqual(2, reader.readColumn2D('1_element', index1).ndim)
-		self.assertEqual(2, reader.readColumn2D('1D', index1).ndim)
-		self.assertEqual(2, reader.readColumn2D('2D', index1).ndim)
+		self.assertEqual(2, reader.readColumn('scalar', index1, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1_element', index1, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1D', index1, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('2D', index1, squeeze=False).ndim)
 
 		with self.assertRaises(IndexError):
-			self.assertEqual(2, reader.readColumn2D('scalar', index2).ndim)
+			self.assertEqual(2, reader.readColumn('scalar', index2, squeeze=False).ndim)
 		with self.assertRaises(IndexError):
-			self.assertEqual(2, reader.readColumn2D('1_element', index2).ndim)
-		self.assertEqual(2, reader.readColumn2D('1D', index2).ndim)
-		self.assertEqual(2, reader.readColumn2D('2D', index2).ndim)
+			self.assertEqual(2, reader.readColumn('1_element', index2, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1D', index2, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('2D', index2, squeeze=False).ndim)
 
-		# --- Read 1 row with readColumn() ---
+		# --- Read 1 row with squeeze=True ---
 		self.assertEqual(0, reader.readColumn('scalar').ndim)
 		self.assertEqual(0, reader.readColumn('1_element').ndim)
 		self.assertEqual(1, reader.readColumn('1D').ndim)
@@ -157,8 +158,8 @@ class Test_TableReader_Writer(unittest.TestCase):
 		self.assertEqual(1, reader.readColumn('2D', index2).ndim)
 
 		# Test that the reader returns writeable arrays.
-		reader.readColumn2D('2D')[0, 0] = 0
-		reader.readColumn2D('2D', index2)[0, 0] = 0
+		reader.readColumn('2D', squeeze=False)[0, 0] = 0
+		reader.readColumn('2D', index2, squeeze=False)[0, 0] = 0
 
 		# === Write 2 rows ===
 		table2_path = os.path.join(self.test_dir, 'Segundo')
@@ -167,22 +168,22 @@ class Test_TableReader_Writer(unittest.TestCase):
 		writer.append(**data)
 		writer.close()
 
-		# --- Read 2 rows with readColumn2D() ---
+		# --- Read 2 rows with squeeze=False ---
 		reader = TableReader(table2_path)
-		self.assertEqual(2, reader.readColumn2D('scalar').ndim)
-		self.assertEqual(2, reader.readColumn2D('1_element').ndim)
-		self.assertEqual(2, reader.readColumn2D('1D').ndim)
-		self.assertEqual(2, reader.readColumn2D('2D').ndim)
+		self.assertEqual(2, reader.readColumn('scalar', squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1_element', squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1D', squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('2D', squeeze=False).ndim)
 
-		self.assertEqual(2, reader.readColumn2D('scalar', index1).ndim)
-		self.assertEqual(2, reader.readColumn2D('1_element', index1).ndim)
-		self.assertEqual(2, reader.readColumn2D('1D', index1).ndim)
-		self.assertEqual(2, reader.readColumn2D('2D', index1).ndim)
+		self.assertEqual(2, reader.readColumn('scalar', index1, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1_element', index1, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('1D', index1, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('2D', index1, squeeze=False).ndim)
 
-		self.assertEqual(2, reader.readColumn2D('1D', index2).ndim)
-		self.assertEqual(2, reader.readColumn2D('2D', index2).ndim)
+		self.assertEqual(2, reader.readColumn('1D', index2, squeeze=False).ndim)
+		self.assertEqual(2, reader.readColumn('2D', index2, squeeze=False).ndim)
 
-		# --- Read 2 rows with readColumn() ---
+		# --- Read 2 rows with squeeze=True ---
 		self.assertEqual(1, reader.readColumn('scalar').ndim)
 		self.assertEqual(1, reader.readColumn('1_element').ndim)
 		self.assertEqual(2, reader.readColumn('1D').ndim)
@@ -319,7 +320,7 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		# --- Read ---
 		reader = TableReader(self.table_path)
-		actual = reader.readColumn2D('val')
+		actual = reader.readColumn('val', squeeze=False)
 		self.assertEqual(2, actual.ndim)
 		self.assertEqual((3, 1), actual.shape)
 		npt.assert_array_equal(np.zeros((3, 1)), actual)
@@ -342,8 +343,8 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		# --- Read ---
 		reader = TableReader(self.table_path)
-		actual_ints = reader.readColumn2D('ManyInts')
-		actual_floats = reader.readColumn2D('ManyFloats')
+		actual_ints = reader.readColumn('ManyInts', squeeze=False)
+		actual_floats = reader.readColumn('ManyFloats', squeeze=False)
 		npt.assert_array_equal(np.vstack(5 * [ints]), actual_ints)
 		npt.assert_array_equal(np.vstack(5 * [floats]), actual_floats)
 
@@ -364,8 +365,8 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		# --- Read ---
 		reader = TableReader(self.table_path)
-		actual_ints = reader.readColumn2D('ManyInts')
-		actual_floats = reader.readColumn2D('ManyFloats')
+		actual_ints = reader.readColumn('ManyInts', squeeze=False)
+		actual_floats = reader.readColumn('ManyFloats', squeeze=False)
 		npt.assert_array_equal(np.vstack(rows * [ints]), actual_ints)
 		npt.assert_array_equal(np.vstack(rows * [floats]), actual_floats)
 
@@ -392,6 +393,30 @@ class Test_TableReader_Writer(unittest.TestCase):
 		# Subcolumns cannot be accessed for variable-length columns
 		with self.assertRaises(VariableLengthColumnError):
 			reader.readColumn(VARIABLE_LENGTH_COLUMN_NAME, indices=1)
+
+	def test_variable_length_columns_with_max_row_length_one(self):
+		'''
+		Test variable-length columns with a maximum row length of one. The
+		returned array should not be squeezed and should be 2-dimensional.
+		'''
+		self.make_test_dir()
+
+		# --- Write ---
+		writer = TableWriter(self.table_path)
+		writer.set_variable_length_columns(VARIABLE_LENGTH_COLUMN_NAME)
+		writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: np.arange(1, dtype=np.int32)})
+		writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: []})
+		writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: np.arange(1, dtype=np.int32)})
+		writer.close()
+
+		# --- Read ---
+		reader = TableReader(self.table_path)
+		variable_column = reader.readColumn(VARIABLE_LENGTH_COLUMN_NAME)
+
+		npt.assert_array_equal(
+			np.array([[0], [np.nan], [0]]),
+			variable_column)
+		self.assertEqual(2, variable_column.ndim)
 
 	def test_long_variable_length_columns(self):
 		'''Test long variable-length columns that span multiple blocks.'''

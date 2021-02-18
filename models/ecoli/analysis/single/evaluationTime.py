@@ -48,14 +48,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		logger_names = evaluationTime.readAttribute("logger_names")
 
 		clock_times = evaluationTime.readColumn("clock_time")
-		update_queries = evaluationTime.readColumn2D("update_queries_times")
-		partition = evaluationTime.readColumn2D("partition_times")
-		merge = evaluationTime.readColumn2D("merge_times")
-		calculate_mass = evaluationTime.readColumn2D("calculate_mass_times")
-		calculate_request = evaluationTime.readColumn2D("calculate_request_times")
-		evolve_state = evaluationTime.readColumn2D("evolve_state_times")
-		update = evaluationTime.readColumn2D("update_times")
-		append = evaluationTime.readColumn2D("append_times")
+		update_queries = evaluationTime.readColumn("update_queries_times")
+		partition = evaluationTime.readColumn("partition_times")
+		merge = evaluationTime.readColumn("merge_times")
+		calculate_mass = evaluationTime.readColumn("calculate_mass_times")
+		calculate_request = evaluationTime.readColumn("calculate_request_times")
+		evolve_state = evaluationTime.readColumn("evolve_state_times")
+		update = evaluationTime.readColumn("update_times")
+		append = evaluationTime.readColumn("append_times")
 
 		initialTime = mainReader.readAttribute("initialTime")
 		time = (mainReader.readColumn("time") - initialTime) / 60  # min

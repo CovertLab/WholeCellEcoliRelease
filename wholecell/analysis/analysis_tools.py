@@ -176,7 +176,7 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 
 	lengths = [len(names) for names in mol_names]
 	indices = np.hstack([[mol_indices[mol] for mol in names] for names in mol_names])
-	bulk_counts = bulk_reader.readColumn2D('counts', indices)
+	bulk_counts = bulk_reader.readColumn('counts', indices, squeeze=False)
 
 	start_slice = 0
 	for length in lengths:
@@ -242,6 +242,6 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str) -> np.
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
 		reader = TableReader(os.path.join(sim_out_dir, table))
-		data.append(reader.readColumn2D(column))
+		data.append(reader.readColumn(column, squeeze=False))
 
 	return np.vstack(data)

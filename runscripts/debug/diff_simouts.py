@@ -117,8 +117,8 @@ def diff_subdirs(subdir, simout_dir1, simout_dir2):
 
 	# Diff the Table Columns.
 	for key in column_names1 | column_names2:
-		column1 = table1.readColumn2D(key) if key in column_names1 else Repr('<absent column>')
-		column2 = table2.readColumn2D(key) if key in column_names2 else Repr('<absent column>')
+		column1 = table1.readColumn(key, squeeze=False) if key in column_names1 else Repr('<absent column>')
+		column2 = table2.readColumn(key, squeeze=False) if key in column_names2 else Repr('<absent column>')
 		if is_repr(column1) or is_repr(column2):
 			description = (column1, column2)
 		else:
