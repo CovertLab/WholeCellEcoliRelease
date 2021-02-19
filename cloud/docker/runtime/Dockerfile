@@ -22,10 +22,25 @@ RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc \
 RUN apt-get update \
     && apt-get install -y swig gfortran llvm cmake nano
 
-# Option `--build-arg NO_AVX2=1` controls OpenBLAS' use of AVX2 vector instructions:
+# Option `--build-arg COMPILE_BLAS=1` makes this Dockerfile compile OpenBLAS and
+# also compile numpy and scipy from source code so they link to this OpenBLAS.
+# That can add 2 hours to the build time on Google Cloud Build and it might
+# produce more consistent results.
+ARG COMPILE_BLAS=0
+ENV COMPILE_BLAS="$COMPILE_BLAS"
+
+RUN if [ "${COMPILE_BLAS}" != 0 ]; then \
+    (echo "[openblas]" \
+    && echo "libraries = openblas" \
+    && echo "library_dirs = /usr/lib" \
+    && echo "include_dirs = /usr/include") > ~/.numpy-site.cfg; \
+    fi
+
+# If COMPILE_BLAS=1 then option `--build-arg NO_AVX2=1` compiles OpenBLAS' to
+# not use AVX2 vector instructions:
 #
-# * NO_AVX2=1 is needed to build properly in Docker-for-Mac due to a Docker bug,
-#   but it computes slightly different results.
+# * NO_AVX2=1 is needed to compile OpenBLAS in Docker-for-Mac due to a Docker
+#   bug, but it computes slightly different results.
 # * NO_AVX2=0 gets more consistent results and reportedly runs 20-30% faster
 #   (although it only saves ~7% in a cell sim). Use this when building in
 #   Docker-for-Linux. The built Images seem to run fine on Mac.
@@ -39,21 +54,15 @@ ENV NO_AVX2="$NO_AVX2"
 
 # Install openblas (must be 0.3.5+) for numpy, scipy, and Theano.
 ENV OPENBLAS_LABEL=v0.3.13
-RUN (mkdir -p openblas && cd openblas \
+RUN if [ -f ~/.numpy-site.cfg ]; then \
+    (mkdir -p openblas && cd openblas \
     && curl -SL https://github.com/xianyi/OpenBLAS/archive/${OPENBLAS_LABEL}.tar.gz | tar -xz \
     && cd OpenBLAS* \
     && echo "Compiling OpenBLAS ${OPENBLAS_LABEL} with NO_AVX2=${NO_AVX2}" \
     && make "NO_AVX2=${NO_AVX2}" FC=gfortran \
     && make "NO_AVX2=${NO_AVX2}" PREFIX=/usr install) \
-    && rm -r openblas
-
-# Build numpy and scipy from source (`--no-binary`) to link them to this
-# OpenBLAS. This can add 50 minutes to the build time to get more consistent
-# results and go faster at run time.
-RUN (echo "[openblas]" \
-    && echo "libraries = openblas" \
-    && echo "library_dirs = /usr/lib" \
-    && echo "include_dirs = /usr/include") > ~/.numpy-site.cfg
+    && rm -r openblas; \
+    fi
 
 # This gets more consistent results from openblas.
 ENV OPENBLAS_NUM_THREADS=1
@@ -66,7 +75,7 @@ ENV OPENBLAS_NUM_THREADS=1
 COPY requirements.txt /
 RUN (b1="" \
     && if [ -f ~/.numpy-site.cfg ] ; then b1="--no-binary=numpy,scipy"; fi \
-    && echo "Installing pips with $b1" \
+    && echo "Installing pips with '$b1'" \
     && pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir numpy==1.19.5 $b1 \
     && pip install --no-cache-dir -r requirements.txt $b1 \

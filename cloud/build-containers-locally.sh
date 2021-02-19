@@ -7,12 +7,12 @@
 
 set -eu
 
-# On macOS, build with `NO_AVX2=1` to avoid the OpenBLAS 0.3.6+ self-test failures
-# and bad results when building and running in Docker Desktop on macOS. This
-# heuristic won't help if you build an image on Linux then run it on macOS.
-# See the Dockerfile.
+# To avoid OpenBLAS self-test failures when compiling it in Docker Desktop on
+# macOS, build the Image with `COMPILE_BLAS=0` (=> don't compile OpenBLAS) or
+# with `NO_AVX2=1` (=> compile it to not use AVX2 vector instructions).
+COMPILE_BLAS=0
 if [ "$(uname -s)" == Darwin ]; then NO_AVX2=1; else NO_AVX2=0; fi
-echo NO_AVX2=$NO_AVX2
+echo COMPILE_BLAS=$COMPILE_BLAS, NO_AVX2=$NO_AVX2
 
 WCM_RUNTIME=${USER}-wcm-runtime
 WCM_CODE=${USER}-wcm-code
@@ -22,7 +22,9 @@ TIMESTAMP=$(date '+%Y%m%d.%H%M%S')
 
 # Docker image #1: The Python runtime environment.
 docker build -f cloud/docker/runtime/Dockerfile -t "${WCM_RUNTIME}" \
-  --build-arg NO_AVX2=$NO_AVX2 .
+  --build-arg COMPILE_BLAS=$COMPILE_BLAS \
+  --build-arg NO_AVX2=$NO_AVX2 \
+  .
 
 # Docker image #2: The Whole Cell Model code on the runtime environment.
 # See this Dockerfile for usage instructions.
