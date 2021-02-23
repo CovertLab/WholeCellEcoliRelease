@@ -142,28 +142,24 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			ax1.plot(time.asNumber(units.min), timeStep.asNumber(units.s), linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax1.set_xlim([-5, max(time.asNumber(units.min))])
-				ax1.set_ylim([0, 1])
 			ax1.set_ylabel("Length of\ntime step (s)")
 
 			# ax2: Plot cell volume
 			ax2.plot(time.asNumber(units.min), cellVolume.asNumber(units.L), linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax2.set_xlim([-5, max(time.asNumber(units.min))])
-				ax2.set_ylim([0, 3e-15])
 			ax2.set_ylabel("Cell volume\n(L)")
 
 			# ax3: Plot total ribosome counts
 			ax3.plot(time.asNumber(units.min), totalRibosomeCounts, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax3.set_xlim([-5, max(time.asNumber(units.min))])
-				ax3.set_ylim([10000, 35000])
 			ax3.set_ylabel("Total ribosome\ncount")
 
 			# ax4: Plot total ribosome concentrations
 			ax4.plot(time.asNumber(units.min), totalRibosomeConcentration.asNumber(units.mmol / units.L), linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax4.set_xlim([-5, max(time.asNumber(units.min))])
-				ax4.set_ylim([0.019, 0.023])
 			ax4.set_ylabel("[Total ribosome]\n(mM)")
 
 			# ax5: Plot active ribosome counts
@@ -173,7 +169,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax5.plot(time.asNumber(units.min), activeRibosomeCounts, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax5.set_xlim([-5, max(time.asNumber(units.min))])
-				ax5.set_ylim([10000, 30000])
 			ax5.set_ylabel("Active ribosome\ncount")
 
 			# ax6: Plot active ribosome concentrations
@@ -183,7 +178,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax6.plot(time.asNumber(units.min), activeRibosomeConcentration.asNumber(units.mmol / units.L), linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax6.set_xlim([-5, max(time.asNumber(units.min))])
-				ax6.set_ylim([0.0, 0.023])
 			ax6.set_ylabel("[Active ribosome]\n(mM)")
 
 			# ax7: Plot molar fraction of active ribosomes
@@ -193,7 +187,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax7.plot(time.asNumber(units.min), molarFractionActive, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax7.set_xlim([-5, max(time.asNumber(units.min))])
-				ax7.set_ylim([0.7, 1])
 			ax7.set_ylabel("Molar fraction\nactive ribosomes")
 
 			# ax8: Plot mass fraction of active ribosomes
@@ -203,49 +196,42 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax8.plot(time.asNumber(units.min), massFractionActive, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax8.set_xlim([-5, max(time.asNumber(units.min))])
-				ax8.set_ylim([0.7, 1])
 			ax8.set_ylabel("Mass fraction\nactive ribosomes")
 
 			# ax9: Plot number of activations
 			ax9.plot(time.asNumber(units.min), didInitialize, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax9.set_xlim([-5, max(time.asNumber(units.min))])
-				ax9.set_ylim([0, 2000])
 			ax9.set_ylabel("Activations\nper timestep")
 
 			# ax10: Plot number of deactivations (terminated translations)
 			ax10.plot(time.asNumber(units.min), didTerminate, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax10.set_xlim([-5, max(time.asNumber(units.min))])
-				ax10.set_ylim([0, 2000])
 			ax10.set_ylabel("Deactivations\nper timestep")
 
 			# ax11: Plot number of activations per time * volume
 			ax11.plot(time.asNumber(units.min), didInitialize / (timeStep.asNumber(units.s) * cellVolume.asNumber(units.L)), linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax11.set_xlim([-5, max(time.asNumber(units.min))])
-				ax11.set_ylim([0, 1.2e18])
 			ax11.set_ylabel("Activations\nper time*volume")
 
 			# ax12: Plot number of deactivations per time * volume
 			ax12.plot(time.asNumber(units.min), didTerminate / (timeStep.asNumber(units.s) * cellVolume.asNumber(units.L)), linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax12.set_xlim([-5, max(time.asNumber(units.min))])
-				ax12.set_ylim([0, 1.2e18])
 			ax12.set_ylabel("Deactivations\nper time*volume")
 
 			# ax13: Plot number of amino acids translated in each timestep
 			ax13.plot(time.asNumber(units.min), actualElongations, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax13.set_xlim([-5, max(time.asNumber(units.min))])
-				# ax13.set_ylim([0])
 			ax13.set_ylabel("AA translated")
 
 			# ax14: Plot effective ribosome elongation rate for each timestep
 			ax14.plot(time.asNumber(units.min), effectiveElongationRate, linestyle='-')
 			if gen == ap.n_generation - 1:
 				ax14.set_xlim([-5, max(time.asNumber(units.min))])
-				ax14.set_ylim([10, 22])
 			ax14.set_ylabel("Effective\nelongation rate")
 
 		fig.subplots_adjust(hspace = 0.5, wspace = 0.3)
