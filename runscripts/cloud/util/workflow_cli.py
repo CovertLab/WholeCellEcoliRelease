@@ -12,6 +12,8 @@ from wholecell.utils import scriptBase
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
+GCE_VM_MACHINE_TYPE = 'custom-1-5120'  # N1 VM with 1 CPU and 5 GB RAM
+
 
 class WorkflowCLI(scriptBase.ScriptBase):
 	"""Abstract base class for a Command Line Interface to build a workflow."""
@@ -57,6 +59,12 @@ class WorkflowCLI(scriptBase.ScriptBase):
 				 ' launchpad DB server.')
 		self.define_option(parser, 'workers', int, default=1, flag='w',
 			help='The number of worker nodes to launch.')
+		self.define_option(parser, 'machine_type', str,
+			default=GCE_VM_MACHINE_TYPE,
+			help='GCE (Compute Engine) worker VM machine-type to launch.'
+				 ' E.g. "n1-standard-1" for 1st generation machine with 1 CPU'
+				 ' and 3.75 GB RAM or "custom-1-5120" for a custom 1st gen'
+				 ' machine with 1 CPU and 5 GB RAM.')
 		parser.add_argument('--dump', action='store_true',
 			help='Dump the built workflow to a YAML file for review *instead*'
 				 ' of sending it to a launchpad DB server. This is useful'
@@ -102,8 +110,11 @@ class WorkflowCLI(scriptBase.ScriptBase):
 		if args.dump:
 			self.wf.write()
 		else:
+			gce_options = {'machine-type': args.machine_type}
 			self.wf.send_to_lpad(
-				worker_count=args.workers, lpad_filename=args.launchpad_filename)
+				worker_count=args.workers,
+				lpad_filename=args.launchpad_filename,
+				gce_options=gce_options)
 
 	def run(self, args):
 		# type: (argparse.Namespace) -> None

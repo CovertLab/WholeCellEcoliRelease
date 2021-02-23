@@ -13,6 +13,7 @@ import subprocess
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from borealis import gce
+from borealis.util import gcp
 from borealis.docker_task import DockerTask
 from fireworks import FiretaskBase, Firework, LaunchPad
 from fireworks import Workflow as FwWorkflow
@@ -80,21 +81,23 @@ def _copy_path_list(value, internal_prefix, is_output=False):
 
 def _to_create_bucket(prefix):
 	# type: (str) -> str
-	return ('{0}'
-			' Create your own Google Cloud Storage bucket if needed. This aids'
-			' usage tracking, cleanup, and ACLs.'
-			' Pick a name like "sisyphus-{2}", the same Region used with'
-			' Compute Engine (run `gcloud info` for info), Standard storage'
-			' class, and default access control. The name has to be globally'
-			' unique across EVERY GCS PROJECT IN THE WORLD so we\'re using'
-			' "sisyphus-" as a distinguishing prefix.'
-			' BEWARE that the name is publicly visible so don\'t include login'
-			' IDs, email addresses, project names, project numbers, or'
-			' personally identifiable information (PII).'
-			' Then store the bucket name in an environment variable in your'
-			' shell profile and update your current shell, e.g.'
-			' `export {1}="sisyphus-{2}"`.'
-				.format(prefix, STORAGE_ROOT_ENV_VAR, os.environ['USER']))
+	bucket_name = 'sisyphus-' + os.environ['USER']
+	region = gcp.gcloud_get_config('compute/region')
+	return (f'{prefix}'
+			f' Create your own Google Cloud Storage bucket to aid usage'
+			f' tracking, cleanup, and ACLs.'
+			f' Pick a name like "{bucket_name}", THE SAME REGION ({region})'
+			f' used with Compute Engine (run `gcloud info` for more info),'
+			f' Standard storage'
+			f' class, and default access control. The name has to be globally'
+			f' unique across EVERY GCS PROJECT IN THE WORLD so we\'re using'
+			f' "sisyphus-" as a distinguishing prefix.'
+			f' BEWARE that the name is publicly visible so don\'t include login'
+			f' IDs, email addresses, project names, project numbers, or'
+			f' personally identifiable information (PII).'
+			f' Then store the bucket name in an environment variable in your'
+			f' shell profile and update your current shell, e.g.'
+			f' `export {STORAGE_ROOT_ENV_VAR}="{bucket_name}"`.')
 
 def bucket_from_path(storage_path):
 	# type: (str) -> str
@@ -416,9 +419,12 @@ class Workflow(object):
 		wf = FwWorkflow(fireworks, name=self.name, metadata=self.properties)
 		return wf
 
-	def launch_fireworkers(self, count, config):
-		# type: (int, dict) -> None
-		"""Launch the requested number of fireworker nodes (GCE VMs)."""
+	def launch_fireworkers(self, count, config, gce_options=None):
+		# type: (int, Dict[str, Any], Optional[Dict[str, Any]]) -> None
+		"""Launch the requested number of fireworker nodes (GCE VMs) with
+		(db, username, password) metadata from config and GCE VM options from
+		gce_options.
+		"""
 		def copy_key(src, key, dest):
 			# type: (dict, str, dict) -> None
 			"""Copy a keyed value from src to dest dicts unless the value is
@@ -433,6 +439,7 @@ class Workflow(object):
 		options = {
 			'image-family': 'fireworker',
 			'description': 'FireWorks worker VM for user/ID {}'.format(self.name)}
+		options.update(gce_options or {})
 
 		metadata = {'db': db_name}
 		copy_key(config, 'username', metadata)
@@ -441,10 +448,12 @@ class Workflow(object):
 		engine = gce.ComputeEngine(prefix)
 		engine.create(count=count, command_options=options, **metadata)
 
-	def send_to_lpad(self, worker_count=4, lpad_filename=DEFAULT_LPAD_YAML):
-		# type: (int, str) -> FwWorkflow
+	def send_to_lpad(self, worker_count=4, lpad_filename=DEFAULT_LPAD_YAML,
+					 gce_options=None):
+		# type: (int, str, Optional[Dict[str, Any]]) -> FwWorkflow
 		"""Build this workflow for FireWorks, upload it to the given or
-		default LaunchPad, launch workers, and return the built workflow.
+		default LaunchPad, launch workers with the given GCE VM options, and
+		return the built workflow.
 		"""
 		# TODO(jerry): Add an option to pass in the LaunchPad config as a dict.
 		with open(lpad_filename) as f:
@@ -473,7 +482,7 @@ class Workflow(object):
 				'Caused by: ' + str(e)))
 
 		# Launch the workers after the successful upload.
-		self.launch_fireworkers(worker_count, config)
+		self.launch_fireworkers(worker_count, config, gce_options=gce_options)
 
 		return wf
 

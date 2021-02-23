@@ -35,6 +35,8 @@ from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
 DOCKER_IMAGE = 'gcr.io/{}/{}-wcm-code'
 
+GCE_VM_MACHINE_TYPE = 'custom-1-5120'  # N1 VM with 1 CPU and 5 GB RAM
+
 
 class WcmWorkflow(Workflow):
 	"""A Workflow builder for the Whole Cell Model."""
@@ -387,6 +389,18 @@ class RunWcm(scriptBase.ScriptBase):
 				DEFAULT_LPAD_YAML))
 		parser.add_argument('-w', '--workers', type=int,
 			help='The number of worker nodes to launch, with a smart default.')
+		self.define_option(parser, 'machine_type', str,
+			default=GCE_VM_MACHINE_TYPE,
+			help='GCE (Compute Engine) worker VM machine-type to launch.'
+				 ' E.g. "n1-standard-1" for 1st generation machine with 1 CPU'
+				 ' and 3.75 GB RAM, "n2-standard-2" for 2nd gen machine with'
+				 ' 2 CPUs and 8 GB RAM, "custom-1-5120" for a custom 1st gen'
+				 ' machine with 1 CPU and 5 GB RAM, or "n2-custom-2-5120" for'
+				 ' 2nd gen machine with 2 CPUs and 5 GB RAM.'
+				 ' See https://cloud.google.com/compute/docs/machine-types,'
+				 ' https://cloud.google.com/compute/vm-instance-pricing, and'
+				 ' https://cloud.google.com/compute/docs/instances/'
+				 'creating-instance-with-custom-machine-type ')
 
 		# Parca
 		self.define_parca_options(parser, run_parca_option=True)
@@ -434,8 +448,11 @@ class RunWcm(scriptBase.ScriptBase):
 		if args.dump:
 			wf.write()
 		else:
+			gce_options = {'machine-type': args.machine_type}
 			wf.send_to_lpad(
-				worker_count=args.workers, lpad_filename=args.launchpad_filename)
+				worker_count=args.workers,
+				lpad_filename=args.launchpad_filename,
+				gce_options=gce_options)
 
 
 if __name__ == '__main__':
