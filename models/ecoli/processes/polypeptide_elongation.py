@@ -520,16 +520,18 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		aa_for_charging = total_aa_counts - aas_used
 		n_aa_charged = np.fmin(aa_for_charging, np.dot(self.process.aa_from_trna, uncharged_trna))
 		n_trna_charged = self.distribution_from_aa(n_aa_charged, uncharged_trna, True)
-		net_charged = n_trna_charged - charged_trna
 
 		## Reactions that are charged and elongated in same time step
-		charged_and_elongated = self.distribution_from_aa(aas_used, total_trna)
-		total_charging_reactions = charged_and_elongated + net_charged
+		total_uncharging_reactions = self.distribution_from_aa(aas_used, total_trna)
+		trna_to_uncharge = np.fmin(charged_trna, total_uncharging_reactions)
+		charged_and_elongated = total_uncharging_reactions - trna_to_uncharge
+		total_charging_reactions = charged_and_elongated + n_trna_charged
+		net_charged = total_charging_reactions - total_uncharging_reactions
 		self.charging_molecules.countsInc(np.dot(self.charging_stoich_matrix, total_charging_reactions))
 
 		## Account for uncharging of tRNA during elongation
-		self.charged_trna.countsDec(charged_and_elongated)
-		self.uncharged_trna.countsInc(charged_and_elongated)
+		self.charged_trna.countsDec(total_uncharging_reactions)
+		self.uncharged_trna.countsInc(total_uncharging_reactions)
 
 		# Create ppGpp
 		## Concentrations of interest
