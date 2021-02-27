@@ -68,8 +68,8 @@ class RunParca(scriptBase.ScriptBase):
 
 		# Write the metadata file.
 		metadata = {
-			'git_hash': fp.run_cmdline("git rev-parse HEAD") or '--',
-			'git_branch': fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
+			'git_hash': fp.git_hash(),
+			'git_branch': fp.git_branch(),
 			'description': args.description,
 			'time': args.time,
 			'python': sys.version.splitlines()[0],

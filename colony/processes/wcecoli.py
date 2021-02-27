@@ -152,8 +152,8 @@ def ecoli_boot_config(agent_config):
 
 	# Write a metadata file to aid analysis plots.
 	metadata = {
-		"git_hash":           fp.run_cmdline("git rev-parse HEAD"),
-		"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
+		"git_hash":           fp.git_hash(),
+		"git_branch":         fp.git_branch(),
 		"description":        "an Ecoli Cell Agent",
 		"time":               fp.timestamp(),
 		"python":             sys.version.splitlines()[0],

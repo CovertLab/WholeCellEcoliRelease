@@ -12,6 +12,10 @@ __pycache__
 .DS_Store?
 ._*
 
+# git source info to copy into Docker Images #
+##############################################
+/source-info/
+
 # VIM temp files #
 ##################
 *.swp

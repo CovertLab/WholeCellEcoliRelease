@@ -93,8 +93,8 @@ class RunSimulation(scriptBase.ScriptBase):
 		metadata = data.select_keys(
 			vars(args),
 			scriptBase.METADATA_KEYS,
-			git_hash=fp.run_cmdline("git rev-parse HEAD") or '--',
-			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
+			git_hash=fp.git_hash(),
+			git_branch=fp.git_branch(),
 			description=description,
 			time=timestamp,
 			python=sys.version.splitlines()[0],

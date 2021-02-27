@@ -140,24 +140,50 @@ class Task(object):
 			inputs=(), outputs=(), storage_prefix='', internal_prefix='',
 			timeout=0, store_log=True):
 		# type: (str, str, Iterable[str], Iterable[str], Iterable[str], str, str, int, bool) -> None
-		"""Construct a Workflow Task.
+		"""Construct a "DockerTask" Workflow Firetask.
 
-		The inputs and outputs are absolute paths internal to the worker's
-		Docker container. The corresponding storage paths will get constructed
-		by rebasing each path from internal_prefix to storage_prefix.
+		Fireworks can run other Firetasks but DockerTask is especially handy for
+		Google Cloud workflows since it pulls a Docker Image containing the
+		payload code, copies input and output files from/to Google Cloud Storage
+		(GCS), implements timeouts, and sends console output to cloud logs.
 
-		Each path indicates a directory tree of files to fetch or store (rather
-		than a single file) iff it ends with '/'.
+		The Workflow builder uses `inputs` and `outputs` to derive Task-to-Task
+		dependencies.
 
-		Outputs will get written to GCS if the task completes normally. An
-		output path that starts with '>' will capture stdout + stderr (if the
-		task completes normally), while the rest of the path gets rebased to
-		provide the storage path.
+		Args:
+			name: The task name. It must be unique within the workflow.
+			image: The Docker Image name to load as a Container.
+			command: The shell command to run in the Container.
+			inputs: The absolute pathnames (internal to the Docker Container)
+				for the input files and directories to fetch from GCS.
 
-		An output path that starts with '>>' will capture a log of stdout +
-		stderr + other log messages like elapsed time and task exit code, even
-		if the task fails. This is useful for debugging. Just set
-		store_log=True (the default) to save this log.
+				Their corresponding GCS storage paths will get constructed by
+				rebasing each path from internal_prefix to storage_prefix.
+
+				Each path indicates a directory tree of files (rather than a
+				single file) iff it ends with '/'.
+			outputs: The absolute pathnames (internal to the Docker Container)
+				for the output files and directories to store to GCS.
+
+				Output pathnames get rebased and treated as directories like
+				input pathnames.
+
+				Outputs will get written to GCS if the task completes normally.
+
+				'>': An output path that starts with '>' will capture stdout +
+				stderr (if the task completes normally). The rest of the path
+				gets rebased to provide the storage pathname.
+
+				'>>': An output path that starts with '>>' will capture a log of
+				stdout + stderr + other log messages like elapsed time and the
+				task exit code, and it gets written to GCS even if the task
+				fails. This is useful for debugging. See `store_log`.
+			storage_prefix: The GCS path prefix for the inputs and outputs.
+			internal_prefix: The path prefix within the container that
+				corresponds to storage_prefix.
+			timeout: How many seconds to let the Docker task run.
+				0 => DEFAULT_TIMEOUT.
+			store_log: If True, save a '>>' log file to the logs/ dir.
 		"""
 		assert name, 'Every task needs a name'
 		assert image, 'Every task needs a Docker image name'

@@ -75,28 +75,32 @@ class WcmWorkflow(Workflow):
 		"""Construct a remote GCS storage path within the bucket."""
 		return pp.join(self.storage_prefix, *path_elements)
 
-	def add_python_task(self, firetask, python_args, name='', inputs=(),
-			outputs=(), timeout=0):
-		# type: (Type[FiretaskBase], Dict[str, Any], str, Iterable[str], Iterable[str], int) -> Task
-		"""Add a Python task to the workflow and return it. Store its
-		stdout + stderr as storage_prefix/logs/name.log .
-		Turn on Python '-u' so it doesn't buffer output for long time.
-		"""
-		# TODO(jerry): An option to emit a task that runs `firetask` directly
-		#  rather than via a command line in a Docker image. That requires
-		#  running the firetask with access to the wcEcoli code and the file
-		#  system. You wouldn't do that on GCE unless there's an NFS mount for
-		#  the wcEcoli code and data.
+	def add_shell_task(self, name='', inputs=(), outputs=(), command=(), timeout=0):
+		# type: (str, Iterable[str], Iterable[str], Iterable[str], int) -> Task
+		"""Add a shell command task to the workflow and return it."""
 		return self.add_task(Task(
 			name=name,
 			image=self.image,
-			command=['python', '-u', '-m', 'wholecell.fireworks.runTask',
-					firetask.__name__, json.dumps(python_args)],
+			command=command,
 			inputs=inputs,
 			outputs=outputs,
 			storage_prefix=self.storage_prefix,
 			internal_prefix=self.internal_prefix,
 			timeout=timeout))
+
+	def add_python_task(self, firetask, python_args, name='', inputs=(),
+			outputs=(), timeout=0):
+		# type: (Type[FiretaskBase], Dict[str, Any], str, Iterable[str], Iterable[str], int) -> Task
+		"""Add a Python Firetask to the workflow and return it.
+		Turn on Python '-u' so it doesn't buffer output for long time.
+		"""
+		return self.add_shell_task(
+			name=name,
+			command=['python', '-u', '-m', 'wholecell.fireworks.runTask',
+					 firetask.__name__, json.dumps(python_args)],
+			inputs=inputs,
+			outputs=outputs,
+			timeout=timeout)
 
 	# noinspection PyUnusedLocal
 	def build(self, args):
@@ -119,12 +123,16 @@ class WcmWorkflow(Workflow):
 		if args['workers'] is None:
 			args['workers'] = variant_count * args['init_sims']
 
-		# Collect metadata. Analysis Firetasks will expand the _keyed $VARs
-		# from (Docker Image) environment variables to update the regular dict
-		# entries. Outside the Docker Image, the initial dict entries are good.
+		# Collect metadata for the workflow to record in metadata.json.
+		# The git info of the running sim code might differ from the current git
+		# info of this workflow builder. Since the Docker Image doesn't include
+		# the git repo, the Image builder records git info into $IMAGE_... env
+		# variables. Analysis Firetasks will call data.expand_keyed_env_vars()
+		# to expand those _keyed $VARs and update the un-_keyed dict entries.
+		# When run outside a Docker Image, the initial dict values are good.
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
-		git_hash = fp.run_cmdline("git rev-parse HEAD")
-		git_branch = fp.run_cmdline("git symbolic-ref --short HEAD")
+		git_hash = fp.git_hash()
+		git_branch = fp.git_branch()
 		metadata = data.select_keys(
 			args,
 			scriptBase.METADATA_KEYS,
@@ -148,6 +156,16 @@ class WcmWorkflow(Workflow):
 			inputs=[],
 			outputs=[metadata_file],
 			timeout=90)
+
+		diff_source_file = self.internal(
+			pp.sep, 'wcEcoli', 'source-info', constants.GIT_DIFF_FILE)
+		diff_dest_file = self.internal('metadata', constants.GIT_DIFF_FILE)
+		copy_diff_task = self.add_shell_task(
+			name='copy_git_diff',
+			inputs=[metadata_file],  # this task requires the metadata/ dir
+			outputs=[diff_dest_file],
+			command=['cp', diff_source_file, diff_dest_file],
+			timeout=10)
 
 		if args['run_parca']:
 			python_args = data.select_keys(

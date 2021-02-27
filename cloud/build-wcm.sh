@@ -21,6 +21,9 @@ GIT_HASH=$(git rev-parse HEAD)
 GIT_BRANCH=$(git symbolic-ref --short HEAD)
 TIMESTAMP=$(date '+%Y%m%d.%H%M%S')
 
+mkdir -p source-info
+git diff HEAD > source-info/git_diff.txt
+
 echo "=== Cloud-building WCM code Docker Image ${WCM_CODE} on ${WCM_RUNTIME} ==="
 echo "=== git hash ${GIT_HASH}, git branch ${GIT_BRANCH} ==="
 
@@ -28,3 +31,5 @@ echo "=== git hash ${GIT_HASH}, git branch ${GIT_BRANCH} ==="
 # Dockerfile to run.
 gcloud builds submit --timeout=15m --config config-build-2-wcm-code.json \
     --substitutions="_WCM_RUNTIME=${WCM_RUNTIME},_WCM_CODE=${WCM_CODE},_GIT_HASH=${GIT_HASH},_GIT_BRANCH=${GIT_BRANCH},_TIMESTAMP=${TIMESTAMP}"
+
+rm source-info/git_diff.txt

@@ -119,9 +119,9 @@ def run_cmd(tokens, trim=True, timeout=TIMEOUT, env=None):
 	return run_cmd2(tokens, trim=trim, timeout=timeout, env=env)[0]
 
 
-def run_cmdline(line, trim=True, timeout=TIMEOUT):
-	# type: (str, bool, Optional[int]) -> Optional[str]
-	"""Run a shell command-line string and return its output, or None if it
+def run_cmdline(line, trim=True, timeout=TIMEOUT, fallback=None):
+	# type: (str, bool, Optional[int], Optional[str]) -> Optional[str]
+	"""Run a shell command-line string then return its output or fallback if it
 	failed. This does not expand filename patterns or environment variables or
 	do other shell processing steps like quoting.
 
@@ -130,14 +130,33 @@ def run_cmdline(line, trim=True, timeout=TIMEOUT):
 		trim: Whether to trim off trailing whitespace. This is useful
 			because the subprocess output usually ends with a newline.
 		timeout: timeout in seconds; None for no timeout.
+		fallback: Return this if the subprocess fails, e.g. trying to run git
+			in a Docker Image that has no git repo.
 	Returns:
 		The command's output string, or None if it couldn't even run.
 	"""
 	try:
 		return run_cmd(tokens=line.split(), trim=trim, timeout=timeout)
 	except (OSError, subprocess.SubprocessError) as e:
-		print('failed to run command line {}: {}'.format(line, e))
-		return None
+		if fallback is None:
+			print('failed to run command line {}: {}'.format(line, e))
+		return fallback
+
+
+def git_hash():
+	"""Return the source code git hash, or the environment variable
+	$IMAGE_GIT_HASH if there's no git repo (in a Docker Image), or else '--'.
+	"""
+	return run_cmdline("git rev-parse HEAD",
+					   fallback=os.environ.get("IMAGE_GIT_HASH", '--'))
+
+
+def git_branch():
+	"""Return the source code git branch name, or the environment variable
+	$IMAGE_GIT_BRANCH if there's no git repo (in a Docker Image), or '--'.
+	"""
+	return run_cmdline("git symbolic-ref --short HEAD",
+					   fallback=os.environ.get("IMAGE_GIT_BRANCH", '--'))
 
 def write_file(filename, content):
 	# type: (str, String) -> None
