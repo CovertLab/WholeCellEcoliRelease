@@ -8,6 +8,7 @@ TODO: handle ppGpp and DksA-ppGpp regulation separately
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+import scipy
 from scipy import interpolate
 import sympy as sp
 from typing import cast
@@ -797,6 +798,13 @@ class Transcription(object):
 			exp_free (ndarray[float]): expression for each gene when RNAP
 				is not bound to ppGpp, adjusted for necessary RNAP and ribosome
 				expression, normalized to 1
+
+		Note:
+			See docs/processes/transcription_regulation.pdf for a description
+			of the math used in this section.
+
+		TODO:
+			fit for all conditions and not just those specified below?
 		"""
 
 		# Fraction RNAP bound to ppGpp in different conditions
@@ -805,31 +813,86 @@ class Transcription(object):
 		ppgpp_basal = sim_data.growth_rate_parameters.get_ppGpp_conc(
 			sim_data.condition_to_doubling_time['basal'])
 		ppgpp_anaerobic = sim_data.growth_rate_parameters.get_ppGpp_conc(
-			sim_data.condition_to_doubling_time['basal'])
+			sim_data.condition_to_doubling_time['no_oxygen'])
 		f_ppgpp_aa = self.fraction_rnap_bound_ppgpp(ppgpp_aa)
 		f_ppgpp_basal = self.fraction_rnap_bound_ppgpp(ppgpp_basal)
 		f_ppgpp_anaerobic = self.fraction_rnap_bound_ppgpp(ppgpp_anaerobic)
 
+		# Adjustments for TFs
+		tf_adjustments = {}
+		delta_prob = sim_data.process.transcription_regulation.get_delta_prob_matrix()
+		for condition in ['with_aa', 'basal', 'no_oxygen']:
+			p_promoter_bound = np.array([
+				sim_data.pPromoterBound[condition][tf]
+				for tf in sim_data.process.transcription_regulation.tf_ids
+				])
+			delta = delta_prob @ p_promoter_bound
+			tf_adjustments[condition] = delta / sim_data.process.transcription.rna_synth_prob[condition]
+
 		# Solve least squares fit for expression of each component of RNAP and ribosomes
+		self._normalize_ppgpp_expression()  # Need to normalize first to get correct scale
 		adjusted_mask = self.rna_data['is_RNAP'] | self.rna_data['is_ribosomal_protein'] | self.rna_data['is_rRNA']
 		F = np.array([[1- f_ppgpp_aa, f_ppgpp_aa], [1 - f_ppgpp_basal, f_ppgpp_basal], [1 - f_ppgpp_anaerobic, f_ppgpp_anaerobic]])
 		Flst = np.linalg.inv(F.T.dot(F)).dot(F.T)
 		expression = np.array([
-			self.rna_expression['with_aa'],
-			self.rna_expression['basal'],
-			self.rna_expression['no_oxygen']])
+			self.rna_expression['with_aa'] * (1 - tf_adjustments['with_aa']),
+			self.rna_expression['basal'] * (1 - tf_adjustments['basal']),
+			self.rna_expression['no_oxygen'] * (1 - tf_adjustments['no_oxygen'])])
 		adjusted_free, adjusted_ppgpp = Flst.dot(expression)
 		self.exp_free[adjusted_mask] = adjusted_free[adjusted_mask]
 		self.exp_ppgpp[adjusted_mask] = adjusted_ppgpp[adjusted_mask]
+		self._normalize_ppgpp_expression()
 
-		# Rescale expression of genes that are not regulated so expression sums to 1
-		ppgpp_regulated = np.array([g[:-3] in self.ppgpp_regulated_genes for g in self.rna_data['id']])
-		scale_free_by = (1 - self.exp_free[ppgpp_regulated].sum()) / self.exp_free[~ppgpp_regulated].sum()
-		self.exp_free[~ppgpp_regulated] *= scale_free_by
-		assert(scale_free_by > 0)
-		scale_ppgpp_by = (1 - self.exp_ppgpp[ppgpp_regulated].sum()) / self.exp_ppgpp[~ppgpp_regulated].sum()
-		self.exp_ppgpp[~ppgpp_regulated] *= scale_ppgpp_by
-		assert(scale_ppgpp_by > 0)
+	def adjust_ppgpp_expression_for_tfs(self, sim_data):
+		"""
+		Adjusts ppGpp regulated expression to get expression with and without
+		ppGpp regulation to match in basal condition and taking into account
+		the effect transcription factors will have.
+
+		TODO:
+			Should this not adjust polymerizing genes (adjusted_mask in
+				adjust_polymerizing_ppgpp_expression) since they have already
+				been adjusted for transcription factor effects?
+		"""
+
+		condition = 'basal'
+
+		# Current (unnormalized) probabilities from ppGpp regulation
+		ppgpp_conc = sim_data.growth_rate_parameters.get_ppGpp_conc(
+			sim_data.condition_to_doubling_time[condition])
+		old_prob, factor = self.synth_prob_from_ppgpp(ppgpp_conc,
+			sim_data.process.replication.get_average_copy_number)
+
+		# Calculate the average expected effect of TFs in basal condition
+		delta_prob = sim_data.process.transcription_regulation.get_delta_prob_matrix()
+		p_promoter_bound = np.array([
+			sim_data.pPromoterBound[condition][tf]
+			for tf in sim_data.process.transcription_regulation.tf_ids
+			])
+		delta = delta_prob @ p_promoter_bound
+
+		# Calculate the required probability to match expression without ppGpp
+		new_prob = normalize(self.rna_expression[condition] * factor) - delta
+		new_prob[new_prob < 0] = 0
+		new_prob = normalize(new_prob)
+
+		# Determine adjustments to the current ppGpp expression to scale
+		# to the expected expression
+		adjustment = new_prob / old_prob
+		adjustment[~np.isfinite(adjustment)] = 1
+
+		# Scale free and bound expression and renormalize ppGpp regulated expression
+		self.exp_free *= adjustment
+		self.exp_ppgpp *= adjustment
+		self._normalize_ppgpp_expression()
+
+	def _normalize_ppgpp_expression(self):
+		"""
+		Normalize both free and ppGpp bound expression values to 1.
+		"""
+
+		self.exp_free /= self.exp_free.sum()
+		self.exp_ppgpp /= self.exp_ppgpp.sum()
 
 	def fraction_rnap_bound_ppgpp(self, ppgpp):
 		"""
@@ -875,7 +938,8 @@ class Transcription(object):
 				number given a doubling time and gene replication coordinate
 
 		Returns
-			ndarray[float]: normalized synthesis probability for each gene
+			prob (ndarray[float]): normalized synthesis probability for each gene
+			factor (ndarray[float]): factor to adjust expression to probability for each gene
 
 		Note:
 			copy_number should be sim_data.process.replication.get_average_copy_number
@@ -890,7 +954,10 @@ class Transcription(object):
 		growth = max(cast(float, y), 0.0)
 		tau = np.log(2) / growth / 60
 		loss = growth + self.rna_data['deg_rate'].asNumber(1 / units.s)
-
 		n_avg_copy = copy_number(tau, self.rna_data['replication_coordinate'])
 
-		return normalize((self.exp_free * (1 - f_ppgpp) + self.exp_ppgpp * f_ppgpp) * loss / n_avg_copy)
+		# Return values
+		factor = loss / n_avg_copy
+		prob = normalize((self.exp_free * (1 - f_ppgpp) + self.exp_ppgpp * f_ppgpp) * factor)
+
+		return prob, factor

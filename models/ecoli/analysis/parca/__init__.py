@@ -7,6 +7,7 @@ ACTIVE = [
 	'fold_changes.py',
 	'interpolation.py',
 	'metabolite_concentrations.py',
+	'ppgpp_expression.py',
 	'tf_target.py',
 ]
 

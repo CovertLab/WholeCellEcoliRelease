@@ -199,13 +199,18 @@ exp_{ppGpp, j}
 \end{bmatrix}
 =
 \begin{bmatrix}
-exp_{rich, j} \\
-exp_{basal, j} \\
-exp_{anaerobic, j}
+exp_{rich, j} - tf_{rich, j} \\
+exp_{basal, j} - tf_{basal, j}  \\
+exp_{anaerobic, j} - tf_{anaerobic, j}
 \end{bmatrix}
 \end{gather}
 
-\noindent where $f_{rich}$, $f_{basal}$ and $f_{anaerobic}$ are the fractions of RNA polymerase bound to ppGpp in different conditions, $exp_{free, j}$ and $exp_{ppGpp, j}$ are the gene specific expression values for free and ppGpp bound RNA polymerases and $exp_{rich, j}$, $exp_{basal, j}$ and $exp_{anaerobic, j}$ are adjusted expression values for genes of interest in each of the conditions.  Solving with least squares provides the following solution:
+\noindent where $f_{rich}$, $f_{basal}$ and $f_{anaerobic}$ are the fractions of RNA polymerase bound to ppGpp in different conditions, $exp_{free, j}$ and $exp_{ppGpp, j}$ are the gene specific expression values for free and ppGpp bound RNA polymerases, $exp_{rich, j}$, $exp_{basal, j}$ and $exp_{anaerobic, j}$ are adjusted expression values for genes of interest in each of the conditions and $tf_{condition, j}$ is the contribution to expression that is expected to be controlled by transcription factors as defined below:
+\begin{equation}
+tf_{condition, j} = \frac{exp_{condition, j} \cdot \Delta r_{condition, j}}{p_{condition, j}}
+\end{equation}
+
+\noindent where $\Delta r_{condition, j}$ is the change in probability expected from the average transcription factor binding in the condition as described above and $p_{condition, j}$ is the expected synthesis probability in the condition (not considering ppGpp regulation).  This calculation assumes that the ratio between expression and synthesis probability will be constant for each gene, which can be used to convert the expected change in synthesis probability from transcription factors to an expected change in expression.  Finally, solving with least squares provides the following solution:
 \begin{equation}
 \hat{r} = (F^TF)^{-1}F^Te
 \end{equation}

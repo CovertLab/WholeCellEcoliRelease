@@ -170,8 +170,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 	# again (look at the calcProteinCounts function)
 
 	if ppgpp_regulation:
-		ppgpp = sim_data.growth_rate_parameters.get_ppGpp_conc(sim_data.condition_to_doubling_time[sim_data.condition])
-		rnaExpression = sim_data.process.transcription.expression_from_ppgpp(ppgpp)
+		rnaExpression = sim_data.calculate_ppgpp_expression(sim_data.condition)
 	else:
 		rnaExpression = sim_data.process.transcription.rna_expression[sim_data.condition]
 
@@ -204,8 +203,7 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulatio
 	rnaMass = massCoeff * sim_data.mass.get_component_masses(sim_data.condition_to_doubling_time[sim_data.condition])["rnaMass"] / sim_data.mass.avg_cell_to_initial_cell_conversion_factor
 
 	if ppgpp_regulation:
-		ppgpp = sim_data.growth_rate_parameters.get_ppGpp_conc(sim_data.condition_to_doubling_time[sim_data.condition])
-		rnaExpression = sim_data.process.transcription.expression_from_ppgpp(ppgpp)
+		rnaExpression = sim_data.calculate_ppgpp_expression(sim_data.condition)
 	else:
 		rnaExpression = normalize(sim_data.process.transcription.rna_expression[sim_data.condition])
 
@@ -662,10 +660,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Parameters for rnaSynthProb
 	basal_prob = sim_data.process.transcription_regulation.basal_prob
 	n_TUs = len(basal_prob)
-	delta_prob = sim_data.process.transcription_regulation.delta_prob
-	delta_prob_matrix = scipy.sparse.csr_matrix(
-		(delta_prob['deltaV'], (delta_prob['deltaI'], delta_prob['deltaJ'])),
-		shape=delta_prob['shape']).toarray()
+	delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True)
 
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection("promoter")

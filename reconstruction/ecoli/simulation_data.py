@@ -5,11 +5,12 @@ Raw data processed into forms convenient for whole-cell modeling
 
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
 import collections
 
 import numpy as np
+import scipy
 
 # Data classes
 from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions
@@ -23,6 +24,7 @@ from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growth_rate_dependent_parameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 from reconstruction.ecoli.dataclasses.adjustments import Adjustments
+from wholecell.utils.fitting import normalize
 
 
 VERBOSE = False
@@ -75,6 +77,7 @@ class SimulationDataEcoli(object):
 		self.relation = Relation(raw_data, self)
 
 		self.translation_supply_rate = {}
+		self.pPromoterBound = {}
 
 
 	def _add_molecular_weight_keys(self, raw_data):
@@ -228,3 +231,31 @@ class SimulationDataEcoli(object):
 				self.conditions[condition]['nutrients'] = nutrients
 				self.conditions[condition]['perturbations'] = self.tf_to_active_inactive_conditions[tf]['{} genotype perturbations'.format(status)]
 				self.condition_to_doubling_time[condition] = self.nutrient_to_doubling_time.get(nutrients, basal_dt)
+
+	def calculate_ppgpp_expression(self, condition: str):
+		"""
+		Calculates the expected expression of RNA based on ppGpp regulation
+		in a given condition and the expected transcription factor effects in
+		that condition.
+
+		Relies on other values that are calculated in the fitting process so
+		should only be called after the parca has been run.
+
+		Args:
+			condition: label for the desired condition to calculate the average
+				expression for (eg. 'basal', 'with_aa', etc)
+		"""
+
+		ppgpp = self.growth_rate_parameters.get_ppGpp_conc(
+			self.condition_to_doubling_time[condition])
+		delta_prob = self.process.transcription_regulation.get_delta_prob_matrix()
+		p_promoter_bound = np.array([
+			self.pPromoterBound[condition][tf]
+			for tf in self.process.transcription_regulation.tf_ids
+			])
+		delta = delta_prob @ p_promoter_bound
+		prob, factor = self.process.transcription.synth_prob_from_ppgpp(
+			ppgpp, self.process.replication.get_average_copy_number)
+		rna_expression = (prob + delta) / factor
+		rna_expression[rna_expression < 0] = 0
+		return normalize(rna_expression)

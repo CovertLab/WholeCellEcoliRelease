@@ -3,7 +3,7 @@ SimulationData for transcription regulation
 
 """
 
-from __future__ import absolute_import, division, print_function
+import scipy
 
 
 class TranscriptionRegulation(object):
@@ -20,20 +20,12 @@ class TranscriptionRegulation(object):
 		# Build dictionary mapping RNA targets to its regulators
 		self.target_tf = {}
 
-		# RNA IDs for stable RNA should be removed for now until better amino
-		# acid regulation in incorporated or else growth can be unstable
-		stable_rna = {x['id'] for x in raw_data.rnas if x['type'] in {'rRNA', 'tRNA'}}
-
 		for tf in sorted(sim_data.tf_to_fold_change):
 			targets = sim_data.tf_to_fold_change[tf]
 			targetsToRemove = []
 
 			for target in targets:
 				if target not in self.target_tf:
-					if target in stable_rna:
-						targetsToRemove.append(target)
-						continue
-
 					self.target_tf[target] = []
 
 				self.target_tf[target].append(tf)
@@ -65,6 +57,17 @@ class TranscriptionRegulation(object):
 		promoter.
 		"""
 		return float(signal)**power / (float(signal)**power + float(Kd))
+
+	def get_delta_prob_matrix(self, dense=False):
+		delta_prob = scipy.sparse.csr_matrix(
+			(self.delta_prob['deltaV'],
+			(self.delta_prob['deltaI'], self.delta_prob['deltaJ'])),
+			shape=self.delta_prob['shape'])
+
+		if dense:
+			delta_prob = delta_prob.toarray()
+
+		return delta_prob
 
 	def _build_lookups(self, raw_data):
 		"""

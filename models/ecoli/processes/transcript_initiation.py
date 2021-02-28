@@ -43,12 +43,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Initialize matrices used to calculate synthesis probabilities
 		self.basal_prob = sim_data.process.transcription_regulation.basal_prob
 		self.n_TUs = len(self.basal_prob)
-		delta_prob = sim_data.process.transcription_regulation.delta_prob
-		self.delta_prob_matrix = scipy.sparse.csr_matrix(
-			(delta_prob['deltaV'],
-			(delta_prob['deltaI'], delta_prob['deltaJ'])),
-			shape=delta_prob['shape']
-			).toarray()
+		self.delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True)
 
 		# Determine changes from genetic perturbations
 		self.genetic_perturbations = {}
@@ -122,7 +117,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				cell_volume = cell_mass / self.cell_density
 				counts_to_molar = 1 / (self.n_avogadro * cell_volume)
 				ppgpp_conc = self.ppgpp.total_count() * counts_to_molar
-				basal_prob = self.synth_prob(ppgpp_conc, self.copy_number)
+				basal_prob, _ = self.synth_prob(ppgpp_conc, self.copy_number)
 			else:
 				basal_prob = self.basal_prob
 

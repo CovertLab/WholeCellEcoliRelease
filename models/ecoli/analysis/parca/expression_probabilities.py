@@ -43,7 +43,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 
 		## ppGpp expression
 		ppgpp_conc = sim_data.growth_rate_parameters.get_ppGpp_conc(sim_data.condition_to_doubling_time['basal'])
-		ppgpp_prob = transcription.synth_prob_from_ppgpp(ppgpp_conc, replication.get_average_copy_number)
+		ppgpp_prob, _ = transcription.synth_prob_from_ppgpp(ppgpp_conc, replication.get_average_copy_number)
 
 		# Calculate statistics
 		n_basal = len(basal_prob)
