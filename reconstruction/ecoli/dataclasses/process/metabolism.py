@@ -31,6 +31,7 @@ ECOLI_PH = 7.2
 KINETIC_CONSTRAINT_CONC_UNITS = units.umol / units.L
 K_CAT_UNITS = 1 / units.s
 METABOLITE_CONCENTRATION_UNITS = units.mol / units.L
+DRY_MASS_UNITS = units.fg
 
 USE_ALL_CONSTRAINTS = False  # False will remove defined constraints from objective
 
@@ -51,6 +52,7 @@ class Metabolism(object):
 		self._build_metabolism(raw_data, sim_data)
 		self._build_ppgpp_reactions(raw_data, sim_data)
 		self._build_transport_reactions(raw_data, sim_data)
+		self._build_amino_acid_pathways(raw_data, sim_data)
 
 	def _set_solver_values(self, constants):
 		"""
@@ -405,6 +407,40 @@ class Metabolism(object):
 
 		self.transport_reactions = transport_reactions
 
+	def _build_amino_acid_pathways(self, raw_data, sim_data):
+		"""
+		Creates mapping between enzymes and amino acid pathways with
+		allosteric inhibition feedback from the amino acid.
+
+		Attributes set:
+			aa_synthesis_pathways (Dict[str, Dict]): data for allosteric
+				inhibition of amino acid pathways indexed by amino acid ID with
+				location tag and nested dictionary with the following keys:
+					'enzymes' (str): limiting/regulated enzyme ID in synthesis
+						pathway with location tag
+					'kcat_data' (units.Unum): kcat associated with enzyme
+						reaction with units of 1/time
+					'ki' (Tuple[units.Unum, units.Unum]]): lower and upper
+						limits of KI associated with enzyme reaction with units
+						of mol/volume
+		"""
+
+		self.aa_synthesis_pathways = {}
+
+		for row in raw_data.amino_acid_pathways:
+			data = {}
+			data['enzymes'] = row['Enzymes']
+			data['kcat_data'] = row['kcat'] if row['kcat'] else 0 / units.s
+			if row['KI, lower bound'] and row['KI, lower bound']:
+				data['ki'] = (row['KI, lower bound'], row['KI, upper bound'])
+			else:
+				data['ki'] = None
+			data['upstream'] = row['Upstream amino acid']
+			data['km, upstream'] = row['KM, upstream']
+			data['km, reverse'] = row['KM, reverse']
+			data['downstream'] = row['Downstream amino acids']
+			self.aa_synthesis_pathways[row['Amino acid']] = data
+
 	def get_kinetic_constraints(self, enzymes, substrates):
 		# type: (units.Unum, units.Unum) -> units.Unum
 		'''
@@ -473,9 +509,14 @@ class Metabolism(object):
 
 		return externalMoleculeLevels, newObjective
 
-	def set_supply_constants(self, sim_data):
+	def set_phenomological_supply_constants(self, sim_data):
 		"""
-		Sets constants to determine amino acid supply during translation.
+		Sets constants to determine amino acid supply during translation.  Used
+		with aa_supply_scaling() during simulations but supply can
+		alternatively be determined mechanistically.  This approach may require
+		manually adjusting constants (fraction_supply_inhibited and
+		fraction_supply_exported) but has less variability related to gene
+		expression and regulation.
 
 		Args:
 			sim_data (SimulationData object)
@@ -489,16 +530,12 @@ class Metabolism(object):
 				a base synthesis rate
 			fraction_import_rate (ndarray[float]): fraction of AA supply that
 				comes from AA import if nutrients are present
-			base_aa_conc (ndarray[float]): expected AA conc in basal condition
-				(in units of METABOLITE_CONCENTRATION_UNITS)
 
 		Assumptions:
 			- Each internal amino acid concentration in 'minimal_plus_amino_acids'
 			media is not lower than in 'minimal' media
 
 		TODO (Travis):
-			Base on measured KI and KM values.
-			Add impact from synthesis enzymes and transporters.
 			Better handling of concentration assumption
 		"""
 
@@ -554,6 +591,224 @@ class Metabolism(object):
 		supply_scaling = aa_supply + aa_import + aa_synthesis - aa_export
 
 		return supply_scaling
+
+	def set_mechanistic_supply_constants(self, sim_data, cell_specs):
+		"""
+		Sets constants to determine amino acid supply during translation.  Used
+		with amino_acid_synthesis() and amino_acid_import() during simulations
+		but supply can alternatively be determined phenomologically.  This
+		approach is more detailed and should better respond to environmental
+		changes and perturbations but has more variability related to gene
+		expression and regulation.
+
+		Args:
+			sim_data (SimulationData object)
+			cell_specs (Dict[str, Dict])
+
+		Sets class attributes:
+			aa_enzymes (np.ndarray[str]): enzyme ID with location tag for each
+				enzyme that can catalyze an amino acid pathway with
+				self.enzyme_to_amino_acid mapping these to each amino acid
+			aa_kcats (np.ndarray[float]): kcat value for each synthesis pathway
+				in units of K_CAT_UNITS, ordered by amino acid molecule group
+			aa_kis (np.ndarray[float]): KI value for each synthesis pathway
+				in units of METABOLITE_CONCENTRATION_UNITS, ordered by amino
+				acid molecule group. Will be inf if there is no inhibitory
+				control.
+			aa_upstream_kms (np.ndarray[float]): KM value associated with the
+				amino acid that feeds into each synthesis pathway in units of
+				METABOLITE_CONCENTRATION_UNITS, ordered by amino acid molecule
+				group. Will be 0 if there is no upstream amino acid considered.
+			aa_reverse_kms (np.ndarray[float]): KM value associated with the
+				amino acid in each synthesis pathway in units of
+				METABOLITE_CONCENTRATION_UNITS, ordered by amino acid molecule
+				group. Will be inf if the synthesis pathway is not reversible.
+			aa_upstream_mapping (np.ndarray[int]): index of the upstream amino
+				acid that feeds into each synthesis pathway, ordered by amino
+				acid molecule group
+			enzyme_to_amino_acid (np.ndarray[float]): relationship mapping from
+				aa_enzymes to amino acids (n enzymes, m amino acids).  Will
+				contain a 1 if the enzyme associated with the row can catalyze
+				the pathway for the amino acid associated with the column
+			aa_supply_balance (np.ndarray[float]): relationship mapping from
+				upstream amino acids to downstream amino acids (n upstream,
+				m downstream).  Will contain a -1 if the amino acid associated
+				with the row is required for synthesis of the amino acid
+				associated with the column
+			specific_import_rates (np.ndarray[float]): import rates expected
+				in rich media conditions for each amino acid normalized by dry
+				cell mass in units of (1 / (K_CAT_UNITS * DRY_MASS_UNITS),
+				ordered by amino acid molecule group
+
+		Assumptions:
+			- Only one reaction is limiting in an amino acid pathway (typically
+			the first and one with KI)
+			- kcat applies to forward and reverse reaction and multiple enzymes
+			catalyzing the same pathway will have the same kcat and saturation
+			terms
+
+		TODO:
+			Tie import rates to transporter expression and external concentrations
+			Handle different kcats (or enzymes) for reverse reactions
+			Search for new kcat/KM values in literature or use metabolism_kinetics.tsv
+			Consider multiple reaction steps
+		"""
+
+		aa_ids = sim_data.molecule_groups.amino_acids
+		conc = self.concentration_updates.concentrations_based_on_nutrients
+
+		# Allosteric inhibition constants to match required supply rate
+		rates = (
+			sim_data.translation_supply_rate['minimal']
+			* sim_data.mass.avg_cell_dry_mass_init * sim_data.constants.n_avogadro
+			)
+		supply = {
+			aa: rate
+			for aa, rate in zip(sim_data.molecule_groups.amino_acids, rates)
+			}
+		aa_enzymes = []
+		aa_kcats = []
+		aa_kis = []
+		upstream_aas = []
+		downstream_aas = []
+		aa_upstream_kms = []
+		aa_reverse_kms = []
+		enzyme_to_aa = []
+		minimal_conc = conc('minimal')
+		for aa in aa_ids:
+			data = self.aa_synthesis_pathways[aa]
+			enzymes = data['enzymes']
+			enzyme_counts = cell_specs['basal']['bulkAverageContainer'].counts(enzymes).sum()
+			aa_conc = minimal_conc[aa]
+			if data['ki'] is None:
+				ki = np.inf * units.mol / units.L
+			else:
+				# Get largest dynamic range possible given the range of measured KIs
+				lower_limit, upper_limit = data['ki']
+				if aa_conc < lower_limit:
+					ki = lower_limit
+				elif aa_conc > upper_limit:
+					ki = upper_limit
+				else:
+					ki = aa_conc
+			upstream_aa = data['upstream'] if data['upstream'] else aa
+			km_conc = minimal_conc[upstream_aa]
+			km = data['km, upstream'] if data['km, upstream'] else 0. * units.mol/units.L
+			km_reverse = data['km, reverse'] if data['km, reverse'] else np.inf * units.mol/units.L
+			total_supply = supply[aa]
+			for downstream in data['downstream']:
+				total_supply += supply[downstream]
+
+			# Calculate kcat value to ensure sufficient supply to double
+			kcat = total_supply / (enzyme_counts * (1 / (1 + aa_conc / ki) / (1 + km / km_conc) - 1 / (1 + km_reverse / aa_conc)))
+			data['kcat'] = kcat
+
+			aa_enzymes += enzymes
+			aa_kcats.append(kcat.asNumber(K_CAT_UNITS))
+			aa_kis.append(ki.asNumber(METABOLITE_CONCENTRATION_UNITS))
+			upstream_aas.append(upstream_aa)
+			downstream_aas.append(data['downstream'])
+			aa_upstream_kms.append(km.asNumber(METABOLITE_CONCENTRATION_UNITS))
+			aa_reverse_kms.append(km_reverse.asNumber(METABOLITE_CONCENTRATION_UNITS))
+			enzyme_to_aa += [aa] * len(enzymes)
+
+		self.aa_enzymes = np.unique(aa_enzymes)
+		self.aa_kcats = np.array(aa_kcats)
+		self.aa_kis = np.array(aa_kis)
+		self.aa_upstream_kms = np.array(aa_upstream_kms)
+		self.aa_reverse_kms = np.array(aa_reverse_kms)
+
+		# Convert aa_conc to array with upstream aa_conc via indexing (aa_conc[self.aa_upstream_mapping])
+		aa_to_index = {aa: i for i, aa in enumerate(aa_ids)}
+		self.aa_upstream_mapping = np.array([aa_to_index[aa] for aa in upstream_aas])
+
+		# Convert enzyme counts to an amino acid basis via dot product (counts @ self.enzyme_to_amino_acid)
+		self.enzyme_to_amino_acid = np.zeros((len(self.aa_enzymes), len(aa_ids)))
+		enzyme_mapping = {e: i for i, e in enumerate(self.aa_enzymes)}
+		aa_mapping = {a: i for i, a in enumerate(aa_ids)}
+		for enzyme, aa in zip(aa_enzymes, enzyme_to_aa):
+			self.enzyme_to_amino_acid[enzyme_mapping[enzyme], aa_mapping[aa]] = 1
+
+		# Convert individual supply calculations to overall supply based on dependencies
+		# via dot product (self.aa_supply_balance @ supply)
+		# TODO: check for loops (eg ser dependent on glt, glt dependent on ser)
+		self.aa_supply_balance = np.eye(len(aa_ids))
+		for i, downstream in enumerate(downstream_aas):
+			for aa in downstream:
+				self.aa_supply_balance[i, aa_to_index[aa]] = -1
+
+		# Calculate import rates to match supply in amino acid conditions
+		with_aa_rates = (
+			sim_data.translation_supply_rate['minimal_plus_amino_acids']
+			* cell_specs['with_aa']['avgCellDryMassInit'] * sim_data.constants.n_avogadro
+			).asNumber(K_CAT_UNITS)
+		with_aa_supply = {
+			aa: rate
+			for aa, rate in zip(sim_data.molecule_groups.amino_acids, with_aa_rates)
+			}
+		enzyme_counts = cell_specs['with_aa']['bulkAverageContainer'].counts(self.aa_enzymes)
+		aa_conc = units.mol / units.L * np.array([
+			conc('minimal_plus_amino_acids')[aa].asNumber(units.mol/units.L)
+			for aa in aa_ids
+			])
+		supply = np.array([with_aa_supply[aa] for aa in aa_ids])
+		synthesis, _, _ = self.amino_acid_synthesis(enzyme_counts, aa_conc)
+		self.specific_import_rates = (supply - synthesis) / cell_specs['with_aa']['avgCellDryMassInit'].asNumber(DRY_MASS_UNITS)
+
+		# Check calculations that could end up negative
+		neg_idx = np.where(self.aa_kcats < 0)[0]
+		if len(neg_idx):
+			aas = ', '.join([aa_ids[idx] for idx in neg_idx])
+			raise ValueError(f'kcat value was determined to be negative for {aas}.'
+				' Check input parameters like KM and KI or the concentration.')
+		neg_idx = np.where(self.specific_import_rates < 0)[0]
+		if len(neg_idx):
+			aas = ', '.join([aa_ids[idx] for idx in neg_idx])
+			raise ValueError(f'Import rate was determined to be negative for {aas}.'
+				' Check input parameters like supply and synthesis or enzyme expression.')
+
+	def amino_acid_synthesis(self, enzyme_counts: np.ndarray, aa_conc: units.Unum):
+		"""
+		Calculate the net rate of synthesis for amino acid pathways (can be
+		negative with reverse reactions).
+
+		Args:
+			enzyme_counts: counts for each enzyme accounted for in pathways
+			aa_conc: concentrations of each amino acid with mol/volume units
+
+		Returns:
+			synthesis: net rate of synthesis for each amino acid pathway.
+				array is unitless but represents counts of amino acid per second
+		"""
+
+		# Convert to appropraite arrays
+		aa_conc = aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS)
+		counts_per_aa = enzyme_counts @ self.enzyme_to_amino_acid
+		upstream_conc = aa_conc[self.aa_upstream_mapping]
+
+		# Determine saturation fraction for reactions
+		forward_fraction = 1 / (1 + aa_conc / self.aa_kis) / (1 + self.aa_upstream_kms / upstream_conc)
+		reverse_fraction = 1 / (1 + self.aa_reverse_kms / aa_conc)
+		fraction = forward_fraction - reverse_fraction
+
+		# Calculate synthesis rate
+		synthesis = self.aa_supply_balance @ (self.aa_kcats * counts_per_aa * fraction)
+		return synthesis, counts_per_aa, fraction
+
+	def amino_acid_import(self, aa_in_media: np.ndarray, dry_mass: units.Unum):
+		"""
+		Calculate the rate of amino acid uptake.
+
+		Args:
+			aa_in_media: bool for each amino acid being present in current media
+			dry_mass: current dry mass of the cell, with mass units
+
+		Returns:
+			rate of uptake for each amino acid. array is unitless but
+				represents counts of amino acid per second
+		"""
+
+		return aa_in_media * self.specific_import_rates * dry_mass.asNumber(DRY_MASS_UNITS)
 
 	@staticmethod
 	def extract_reactions(raw_data, sim_data):

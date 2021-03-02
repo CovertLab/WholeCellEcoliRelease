@@ -3,3 +3,4 @@
 "bglJ"	"leuO"	"Remove feedback loop between bglJ <-> leuO"
 "leuO"	"bglJ"	"Remove feedback loop between bglJ <-> leuO"
 "fnr"	"arcA"	"Remove to get expression of arcA"
+"leuO"	"leuA"	"Remove for more steady expression of LeuA - need better control of LeuO expression"

@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
 	"aa_conc.py",
+	"aa_supply.py",
 	"biosynthesisProductionDynamics.py",
 	"carRegulation.py",
 	"cellCycleLength.py",
@@ -53,6 +54,7 @@ TAGS = {
 	'ACTIVE': ACTIVE,   # all active analyses in this category
 	'CORE': [           # the default list to run in development
 		"aa_conc.py",
+		"aa_supply.py",
 		"cellCycleLength.py",
 		"massFractionSummary.py",
 		"massFractionToUnity.py",
@@ -63,11 +65,13 @@ TAGS = {
 		"cellCycleLength.py",
 		],
 	'ENVIRONMENT_SHIFT': [
+		"aa_supply.py",
 		"environmental_shift_fluxes.py",  # TODO(jerry): include this?
 		"massShift.py",
 		],
 	'GROWTH': [
 		"aa_conc.py",
+		"aa_supply.py",
 		"cellCycleLength.py",
 		"charging_molecules.py",
 		"growthAffectingPolymerases.py",
@@ -75,6 +79,7 @@ TAGS = {
 		"ppgpp_regulation.py",
 		],
 	'METABOLISM': [
+		"aa_supply.py",
 		"aa_conc.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
@@ -100,6 +105,7 @@ TAGS = {
 		"rna_decay_03_high.py",
 		],
 	'REGULATION': [
+		"aa_supply.py",
 		"biosynthesisProductionDynamics.py",
 		"carRegulation.py",
 		"tf_binding.py",
@@ -121,6 +127,7 @@ TAGS = {
 		"translationFrequency.py",
 		],
 	'TRANSLATION': [
+		"aa_supply.py",
 		"charging_molecules.py",
 		"proteinFoldChangeVsTranslationEff.py",  # TODO(jerry): include this?
 		"ribosomeProduction.py",

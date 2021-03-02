@@ -35,6 +35,7 @@ class SimulationTask(FiretaskBase):
 		"ppgpp_regulation",
 		"superhelical_density",
 		"mechanistic_replisome",
+		"mechanistic_aa_supply",
 		"raise_on_time_limit"]
 
 	def _get_default(self, key, default_key=''):
@@ -73,6 +74,7 @@ class SimulationTask(FiretaskBase):
 		options["ppgpp_regulation"] = self._get_default("ppgpp_regulation")
 		options["superhelical_density"] = self._get_default("superhelical_density")
 		options["mechanistic_replisome"] = self._get_default("mechanistic_replisome")
+		options["mechanistic_aa_supply"] = self._get_default("mechanistic_aa_supply")
 		options["raise_on_time_limit"] = self._get_default("raise_on_time_limit")
 
 		sim = EcoliSimulation(**options)

@@ -39,6 +39,7 @@ METADATA_KEYS = (
 	'ppgpp_regulation',
 	'superhelical_density',
 	'mechanistic_replisome',
+	'mechanistic_aa_supply',
 	)
 
 PARCA_KEYS = (
@@ -65,6 +66,7 @@ SIM_KEYS = (
 	'ppgpp_regulation',
 	'superhelical_density',
 	'mechanistic_replisome',
+	'mechanistic_aa_supply',
 	'raise_on_time_limit',
 	'log_to_shell',
 	)
@@ -458,6 +460,9 @@ class ScriptBase(metaclass=abc.ABCMeta):
 		add_bool_option('mechanistic_replisome', 'mechanistic_replisome',
 			help='if true, replisome initiation is mechanistic (requires'
 				 ' appropriate number of subunits to initiate)')
+		add_bool_option('mechanistic_aa_supply', 'mechanistic_aa_supply',
+			help='if true, amino acid supply is mechanistic (depends on'
+				 ' concentrations of enzymes and amino acids)')
 		add_bool_option('raise_on_time_limit', 'raise_on_time_limit',
 			help='if true, the simulation raises an error if the time limit'
 				 ' (--length-sec) is reached before division.')

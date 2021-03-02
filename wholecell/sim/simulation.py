@@ -40,6 +40,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	ppgpp_regulation = False,
 	superhelical_density = False,
 	mechanistic_replisome = True,
+	mechanistic_aa_supply = False,
 	timeStepSafetyFraction = 1.3,
 	maxTimeStep = MAX_TIME_STEP,
 	updateTimeStepFreq = 5,

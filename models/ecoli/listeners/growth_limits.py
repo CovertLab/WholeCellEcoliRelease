@@ -61,6 +61,12 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.spot_syn = 0.
 		self.spot_deg = 0.
 
+		n_aa_supplied = len(self.aaIds)
+		self.aa_supply = np.zeros(n_aa_supplied, np.float64)
+		self.aa_supply_enzymes = np.zeros(n_aa_supplied, np.int)
+		self.aa_supply_aa_conc = np.zeros(n_aa_supplied, np.float64)
+		self.aa_supply_fraction = np.zeros(n_aa_supplied, np.float64)
+
 	def update(self):
 		pass
 
@@ -70,14 +76,17 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			'aaRequestSize': 'aaIds',
 			'aaAllocated': 'aaIds',
 			'aasUsed': 'aaIds',
-
 			'fraction_trna_charged': 'uncharged_trna_ids',
 			'net_charged': 'uncharged_trna_ids',
-
 			'ntpPoolSize': 'ntpIds',
 			'ntpRequestSize': 'ntpIds',
 			'ntpAllocated': 'ntpIds',
-			'ntpUsed': 'ntpIds'}
+			'ntpUsed': 'ntpIds',
+			'aa_supply': 'aaIds',
+			'aa_supply_enzymes': 'aaIds',
+			'aa_supply_aa_conc': 'aaIds',
+			'aa_supply_fraction': 'aaIds',
+			}
 
 		tableWriter.writeAttributes(
 			aaIds = self.aaIds,
@@ -103,4 +112,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			rela_syn = self.rela_syn,
 			spot_syn = self.spot_syn,
 			spot_deg = self.spot_deg,
+			aa_supply = self.aa_supply,
+			aa_supply_enzymes = self.aa_supply_enzymes,
+			aa_supply_aa_conc = self.aa_supply_aa_conc,
+			aa_supply_fraction = self.aa_supply_fraction,
 			)

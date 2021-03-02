@@ -17,6 +17,7 @@ from wholecell.utils import units  # used by eval()
 
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
+	"amino_acid_pathways.tsv",
 	"biomass.tsv",
 	"compartments.tsv",
 	"complexation_reactions.tsv",
