@@ -40,6 +40,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.endWeight = sim_data.process.transcription.transcription_end_weight
 		self.replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.chromosome_length = self.replichore_lengths.sum()
+		self.n_fragment_bases = len(sim_data.molecule_groups.polymerized_ntps)
+		self.recycle_stalled_elongation = sim._recycle_stalled_elongation
 
 		# ID Groups of rRNAs
 		self.idx_16S_rRNA = np.where(sim_data.process.transcription.rna_data['is_16S_rRNA'])[0]
@@ -58,6 +60,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.inactive_RNAPs = self.bulkMoleculeView("APORNAP-CPLX[c]")
 		self.variable_elongation = sim._variable_elongation_transcription
 		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates
+		self.fragmentBases = self.bulkMoleculesView(sim_data.molecule_groups.polymerized_ntps)
 
 
 	def calculateRequest(self):
@@ -147,6 +150,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		sequence_elongations = result.sequenceElongation
 		ntps_used = result.monomerUsages
+		did_stall_mask = result.sequences_limited_elongation
 
 		# Calculate changes in mass associated with polymerization
 		added_mass = computeMassIncrease(sequences, sequence_elongations,
@@ -247,7 +251,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Remove RNAPs that have finished transcription
 		self.active_RNAPs.delByIndexes(
-			np.where(did_terminate_mask[partial_RNA_to_RNAP_mapping]))
+			np.where(did_terminate_mask[partial_RNA_to_RNAP_mapping])[0])
 
 		n_terminated = did_terminate_mask.sum()
 		n_initialized = did_initialize.sum()
@@ -262,6 +266,38 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.bulk_RNAs.countsInc(n_new_bulk_RNAs)
 		self.inactive_RNAPs.countInc(n_terminated)
 		self.ppi.countInc(n_elongations - n_initialized)
+
+		# Handle stalled elongation
+		n_total_stalled = did_stall_mask.sum()
+		if self.recycle_stalled_elongation and (n_total_stalled > 0):
+			# Remove RNAPs that were bound to stalled elongation transcripts
+			# and increment counts of inactive RNAPs
+			self.active_RNAPs.delByIndexes(
+				np.where(did_stall_mask[partial_RNA_to_RNAP_mapping])[0])
+			self.inactive_RNAPs.countInc(n_total_stalled)
+
+			# Remove partial transcripts from stalled elongation
+			self.RNAs.delByIndexes(
+				partial_transcript_indexes[did_stall_mask])
+			stalled_sequence_lengths = updated_transcript_lengths[did_stall_mask]
+			n_initiated_sequences = np.count_nonzero(stalled_sequence_lengths)
+
+			if n_initiated_sequences > 0:
+				# Get the full sequence of stalled transcripts
+				stalled_sequences = buildSequences(
+						self.rnaSequences,
+						TU_index_partial_RNAs[did_stall_mask],
+						np.zeros(n_total_stalled, dtype=np.int64),
+						np.full(n_total_stalled, updated_transcript_lengths.max()))
+
+				# Count the number of fragment bases in these transcripts up until the stalled length
+				base_counts = np.zeros(self.n_fragment_bases, dtype=np.int64)
+				for sl, seq in zip(stalled_sequence_lengths, stalled_sequences):
+					base_counts += np.bincount(seq[:sl], minlength=self.n_fragment_bases)
+
+				# Increment counts of fragment NTPs and phosphates
+				self.fragmentBases.countsInc(base_counts)
+				self.ppi.countInc(n_initiated_sequences)
 
 		# Write outputs to listeners
 		self.writeToListener(
@@ -278,6 +314,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.writeToListener(
 			"RnapData", "terminationLoss",
 			(terminal_lengths - length_partial_RNAs)[did_terminate_mask].sum())
+		self.writeToListener("RnapData", "didStall", n_total_stalled)
 
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):

@@ -172,6 +172,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
 		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
+		self.sequencesStalled = np.full(self._nSequences, False)
 
 	# Iteration subroutines
 
@@ -361,6 +362,10 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		'''
 
 		self._clamp_elongation_to_sequence_length()
+		# sequences_limited_elongation: ndarray of bool, shape (num_sequences,),
+		#	mask indicating whether the sequences were actually elongated to the
+		#	max lengths expected from the current step
+		self.sequences_limited_elongation = (self.sequenceElongation != self._sequenceLengths)
 
 	def _clamp_elongation_to_sequence_length(self):
 		'''

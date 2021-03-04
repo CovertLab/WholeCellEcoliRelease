@@ -38,6 +38,7 @@ METADATA_KEYS = (
 	'trna_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
+	'recycle_stalled_elongation',
 	'mechanistic_replisome',
 	'mechanistic_aa_supply',
 	)
@@ -65,6 +66,7 @@ SIM_KEYS = (
 	'trna_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
+	'recycle_stalled_elongation',
 	'mechanistic_replisome',
 	'mechanistic_aa_supply',
 	'raise_on_time_limit',
@@ -457,6 +459,9 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			help='if true, ppGpp concentration is determined with kinetic equations.')
 		add_bool_option('superhelical_density', 'superhelical_density',
 			help='if true, dynamically calculate superhelical densities of each DNA segment')
+		add_bool_option('recycle_stalled_elongation', 'recycle_stalled_elongation',
+						help='if true, recycle RNAP and fragment bases when transcription'
+							 'elongation is stalled in ntp-limiting conditions')
 		add_bool_option('mechanistic_replisome', 'mechanistic_replisome',
 			help='if true, replisome initiation is mechanistic (requires'
 				 ' appropriate number of subunits to initiate)')

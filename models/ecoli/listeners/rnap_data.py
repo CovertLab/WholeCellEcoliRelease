@@ -41,6 +41,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.didInitialize = 0
 		self.terminationLoss = 0
 		self.rnaInitEvent = np.zeros(self.nRnaSpecies, np.int64)
+		self.didStall = 0
 
 		# Collisions with replisomes
 		self.n_total_collisions = 0
@@ -120,6 +121,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 			actualElongations = self.actualElongations,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
+			didStall = self.didStall,
 			terminationLoss = self.terminationLoss,
 			rnaInitEvent = self.rnaInitEvent,
 			n_total_collisions=self.n_total_collisions,

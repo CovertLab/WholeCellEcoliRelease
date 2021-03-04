@@ -35,6 +35,7 @@ class SimulationDaughterTask(FiretaskBase):
 		"trna_charging",
 		"ppgpp_regulation",
 		"superhelical_density",
+		"recycle_stalled_elongation",
 		"mechanistic_replisome",
 		"mechanistic_aa_supply",
 		"raise_on_time_limit"]
@@ -75,6 +76,7 @@ class SimulationDaughterTask(FiretaskBase):
 		options["trna_charging"] = self._get_default("trna_charging")
 		options["ppgpp_regulation"] = self._get_default("ppgpp_regulation")
 		options["superhelical_density"] = self._get_default("superhelical_density")
+		options["recycle_stalled_elongation"] = self._get_default("recycle_stalled_elongation")
 		options["mechanistic_replisome"] = self._get_default("mechanistic_replisome")
 		options["mechanistic_aa_supply"] = self._get_default("mechanistic_aa_supply")
 		options["raise_on_time_limit"] = self._get_default("raise_on_time_limit")

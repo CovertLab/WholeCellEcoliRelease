@@ -88,6 +88,8 @@ Modeling options:
 		with kinetic equations
 	SUPERHELICAL_DENSITY (int, "0"): if nonzero, dynamically compute
 		superhelical densities of each DNA fragment
+	RECYCLE_STALLED_ELONGATION (int "0"): if nonzero, recycle RNAP and fragment
+		bases when transcription elongation is stalled in ntp-limiting conditions
 	MECHANISTIC_REPLISOME (int, "1"): if nonzero, replisome initiation is
 		mechanistic (requires appropriate number of subunits to initiate)
 	MECHANISTIC_AA_SUPPLY (int, "0"): if nonzero, amino acid supply is
@@ -257,6 +259,7 @@ TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMU
 TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
 SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_SIMULATION_KWARGS["superhelical_density"])))
+RECYCLE_STALLED_ELONGATION = bool(int(get_environment("RECYCLE_STALLED_ELONGATION", DEFAULT_SIMULATION_KWARGS["recycle_stalled_elongation"])))
 MECHANISTIC_REPLISOME = bool(int(get_environment("MECHANISTIC_REPLISOME", DEFAULT_SIMULATION_KWARGS["mechanistic_replisome"])))
 MECHANISTIC_AA_SUPPLY = bool(int(get_environment("MECHANISTIC_AA_SUPPLY", DEFAULT_SIMULATION_KWARGS["mechanistic_aa_supply"])))
 RAISE_ON_TIME_LIMIT = bool(int(get_environment("RAISE_ON_TIME_LIMIT", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])))
@@ -348,6 +351,7 @@ metadata = {
 	"trna_charging": TRNA_CHARGING,
 	"ppgpp_regulation": PPGPP_REGULATION,
 	"superhelical_density": SUPERHELICAL_DENSITY,
+	"recycle_stalled_elongation": RECYCLE_STALLED_ELONGATION,
 	"mechanistic_replisome": MECHANISTIC_REPLISOME,
 	"mechanistic_aa_supply": MECHANISTIC_AA_SUPPLY,
 	}
@@ -705,6 +709,7 @@ for i in VARIANTS_TO_RUN:
 							trna_charging = TRNA_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
 							superhelical_density = SUPERHELICAL_DENSITY,
+							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
 							mechanistic_replisome = MECHANISTIC_REPLISOME,
 							mechanistic_aa_supply = MECHANISTIC_AA_SUPPLY,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
@@ -738,6 +743,7 @@ for i in VARIANTS_TO_RUN:
 							trna_charging = TRNA_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
 							superhelical_density = SUPERHELICAL_DENSITY,
+							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
 							mechanistic_replisome = MECHANISTIC_REPLISOME,
 							mechanistic_aa_supply = MECHANISTIC_AA_SUPPLY,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,

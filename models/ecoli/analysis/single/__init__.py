@@ -59,6 +59,7 @@ ACTIVE = [
 	"rnaSynthesisProbabilities.py",
 	"rnapCapacity.py",
 	"rnapCounts.py",
+	"rnap_stalled.py",
 	"rnaseCounts.py",
 	"superhelical_density.py",
 	"surface_area_comparison.py",
