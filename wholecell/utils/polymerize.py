@@ -172,7 +172,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
 		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
-		self.sequencesStalled = np.full(self._nSequences, False)
+		self.sequences_limited_elongation = np.full(self._nSequences, False)
 
 	# Iteration subroutines
 
