@@ -53,6 +53,7 @@ LIST_OF_DICT_FILENAMES = (
 	"secretions.tsv",
 	"sequence_motifs.tsv",
 	"transcription_factors.tsv",
+	"transcriptional_attenuation.tsv",
 	"tf_one_component_bound.tsv",
 	"translation_efficiency.tsv",
 	"two_component_systems.tsv",

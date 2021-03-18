@@ -22,19 +22,29 @@ class TranscriptElongationListener(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(TranscriptElongationListener, self).initialize(sim, sim_data)
 
+		# Attributes
+		self.rnaIds = sim_data.process.transcription.rna_data['id']
+		self.attenuated_rnas = self.rnaIds[sim_data.process.transcription.attenuated_rna_indices]
+		n_attenuated = len(self.attenuated_rnas)
+
+		# Columns
 		self.countRnaSynthesized = np.zeros(sim_data.process.transcription.rna_data.fullArray().size, np.int64)
 		self.countNTPsUSed = 0
-		self.rnaIds = sim_data.process.transcription.rna_data['id']
-
+		self.attenuation_probability = np.zeros(n_attenuated)
+		self.counts_attenuated = np.zeros(n_attenuated, np.int64)
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
-			'countRnaSynthesized': 'rnaIds'}
+			'countRnaSynthesized': 'rnaIds',
+			'attenuation_probability': 'attenuated_rnas',
+			'counts_attenuated': 'attenuated_rnas',
+		}
 
 		tableWriter.writeAttributes( # TODO: reconsider attribute names
 			countRnaSynthesized = self.countUnits,
 			countNTPsUSed = self.countUnits,
 			rnaIds = list(self.rnaIds),
+			attenuated_rnas = list(self.attenuated_rnas),
 			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
@@ -43,4 +53,6 @@ class TranscriptElongationListener(wholecell.listeners.listener.Listener):
 			simulationStep = self.simulationStep(),
 			countRnaSynthesized = self.countRnaSynthesized,
 			countNTPsUSed = self.countNTPsUSed,
+			attenuation_probability = self.attenuation_probability,
+			counts_attenuated = self.counts_attenuated,
 			)

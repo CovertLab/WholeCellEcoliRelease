@@ -3,6 +3,9 @@
 """
 Compare basal and delta probabilities of expression from two different sim_data
 objects. Requires the path to the simulation directory for two sims as args.
+
+TODO:
+	include tRNA attenuation basal_prob adjustments?
 """
 
 import argparse

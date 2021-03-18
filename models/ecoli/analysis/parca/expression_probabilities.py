@@ -5,6 +5,9 @@ ones have low expression or regulation.  Note that some genes will have 0 basal
 probability and some TF-gene pairs will have 0 delta probability, which might
 be unexpected.  Also saves tsv files to check which genes and TF-gene pairs
 are at 0.
+
+TODO:
+	include tRNA attenuation basal_prob adjustments and compare?
 """
 
 import csv

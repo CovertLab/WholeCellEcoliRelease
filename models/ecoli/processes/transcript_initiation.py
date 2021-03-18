@@ -41,7 +41,12 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates
 
 		# Initialize matrices used to calculate synthesis probabilities
-		self.basal_prob = sim_data.process.transcription_regulation.basal_prob
+		self.basal_prob = sim_data.process.transcription_regulation.basal_prob.copy()
+		self.trna_attenuation = sim._trna_attenuation
+		if self.trna_attenuation:
+			self.attenuated_rna_indices = sim_data.process.transcription.attenuated_rna_indices
+			self.attenuation_adjustments = sim_data.process.transcription.attenuation_basal_prob_adjustments
+			self.basal_prob[self.attenuated_rna_indices] += self.attenuation_adjustments
 		self.n_TUs = len(self.basal_prob)
 		self.delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True)
 
@@ -118,6 +123,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				counts_to_molar = 1 / (self.n_avogadro * cell_volume)
 				ppgpp_conc = self.ppgpp.total_count() * counts_to_molar
 				basal_prob, _ = self.synth_prob(ppgpp_conc, self.copy_number)
+				if self.trna_attenuation:
+					basal_prob[self.attenuated_rna_indices] += self.attenuation_adjustments
 			else:
 				basal_prob = self.basal_prob
 

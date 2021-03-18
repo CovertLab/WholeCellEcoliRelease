@@ -42,6 +42,7 @@ class Transcription(object):
 		self._build_rna_data(raw_data, sim_data)
 		self._build_transcription(raw_data, sim_data)
 		self._build_charged_trna(raw_data, sim_data)
+		self._build_attenuation(raw_data, sim_data)
 		self._build_elongation_rates(raw_data, sim_data)
 
 	def __getstate__(self):
@@ -620,6 +621,95 @@ class Transcription(object):
 		out[self._stoich_matrix_i, self._stoich_matrix_j] = self._stoich_matrix_v
 
 		return out
+
+	def _build_attenuation(self, raw_data, sim_data):
+		"""
+		Load fold changes related to transcriptional attenuation.
+		"""
+
+		# Load data from file
+		aa_trnas = []
+		attenuated_rnas = []
+		fold_changes = []
+		gene_to_rna = {g['symbol']: g['rna_id'] for g in raw_data.genes}
+		for row in raw_data.transcriptional_attenuation:
+			trna_aa = row['tRNA'].split('-')[1].upper() + '[c]'
+			gene = row['Target']
+			rna = gene_to_rna[gene] + '[c]'
+
+			aa_trnas.append(trna_aa)
+			attenuated_rnas.append(rna)
+			fold_changes.append(2**row['log2 FC'])
+
+		self.attenuated_rna_ids = np.unique(attenuated_rnas)
+
+		# Convert data to matrix mapping tRNA to genes with a fold change
+		trna_to_row = {t: i for i, t in enumerate(sim_data.molecule_groups.amino_acids)}
+		rna_to_col = {r: i for i, r in enumerate(self.attenuated_rna_ids)}
+		n_aas = len(sim_data.molecule_groups.amino_acids)
+		n_rnas = len(self.attenuated_rna_ids)
+		self._attenuation_fold_changes = np.ones((n_aas, n_rnas))
+		for trna, rna, fc in zip(aa_trnas, attenuated_rnas, fold_changes):
+			i = trna_to_row[trna]
+			j = rna_to_col[rna]
+			self._attenuation_fold_changes[i, j] = fc
+
+		# Attenuated RNA index mapping
+		rna_to_index = {r: i for i, r in enumerate(self.rna_data['id'])}
+		self.attenuated_rna_indices = np.array([rna_to_index[r] for r in self.attenuated_rna_ids])
+
+		# Specify location in gene where attenuation will occur
+		# Currently just assumes before a transcript begins elongation (position < 1)
+		# TODO: base this on specific locations for each gene
+		locations = np.ones(len(self.attenuated_rna_indices))
+		self.attenuation_location = {idx: loc for idx, loc in zip(self.attenuated_rna_indices, locations)}
+
+	def calculate_attenuation(self, sim_data, cell_specs):
+		"""
+		Calculate constants for each attenuated gene.
+
+		TODO:
+			Calculate estimate charged tRNA concentration to use instead of all tRNA
+		"""
+
+		def get_trna_conc(condition):
+			spec = cell_specs[condition]
+			uncharged_trna_ids = self.rna_data['id'][self.rna_data['is_tRNA']]
+			counts = spec['bulkAverageContainer'].counts(uncharged_trna_ids)
+			volume = (spec['avgCellDryMassInit'] / sim_data.constants.cell_density
+				/ sim_data.mass.cell_dry_mass_fraction)
+			# Order of operations for conc (counts last) is to get units to work well
+			conc = (1 / sim_data.constants.n_avogadro / volume * counts)
+			return conc
+
+		k_units = units.umol / units.L
+		trna_conc = self.aa_from_trna @ get_trna_conc('with_aa').asNumber(k_units)
+
+		# Calculate constant for stop probability
+		self.attenuation_k = np.zeros_like(self._attenuation_fold_changes)
+		for i, j in zip(*np.where(self._attenuation_fold_changes != 1)):
+			k = trna_conc[i] / np.log(self._attenuation_fold_changes[i, j])
+			self.attenuation_k[i, j] = 1/k
+		self.attenuation_k = 1 / k_units * self.attenuation_k
+
+		# Adjust basal synthesis probabilities to account for less synthesis
+		# due to attenuation
+		condition = 'basal'
+		basal_prob = sim_data.process.transcription_regulation.basal_prob
+		delta_prob = sim_data.process.transcription_regulation.get_delta_prob_matrix()
+		p_promoter_bound = np.array([
+			sim_data.pPromoterBound[condition][tf]
+			for tf in sim_data.process.transcription_regulation.tf_ids
+			])
+		delta = delta_prob @ p_promoter_bound
+		basal_stop_prob = self.get_attenuation_stop_probabilities(get_trna_conc(condition))
+		basal_synth_prob = (basal_prob + delta)[self.attenuated_rna_indices]
+		self.attenuation_basal_prob_adjustments = basal_synth_prob * (1 / (1 - basal_stop_prob) - 1)
+
+	def get_attenuation_stop_probabilities(self, trna_conc):
+		trna_by_aa = units.matmul(self.aa_from_trna, trna_conc)
+		stop_prob = 1 - np.exp(units.strip_empty_units(trna_by_aa @ self.attenuation_k))
+		return stop_prob
 
 	def _build_elongation_rates(self, raw_data, sim_data):
 		self.max_elongation_rate = sim_data.constants.RNAP_elongation_rate_max

@@ -94,6 +94,8 @@ Modeling options:
 		mechanistic (requires appropriate number of subunits to initiate)
 	MECHANISTIC_AA_SUPPLY (int, "0"): if nonzero, amino acid supply is
 		mechanistic (depends on concentrations of enzymes and amino acids)
+	TRNA_ATTENUATION (int, "0"): if nonzero, transcriptional attenuation by
+		charged tRNA is enabled
 
 Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
@@ -262,6 +264,7 @@ SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_
 RECYCLE_STALLED_ELONGATION = bool(int(get_environment("RECYCLE_STALLED_ELONGATION", DEFAULT_SIMULATION_KWARGS["recycle_stalled_elongation"])))
 MECHANISTIC_REPLISOME = bool(int(get_environment("MECHANISTIC_REPLISOME", DEFAULT_SIMULATION_KWARGS["mechanistic_replisome"])))
 MECHANISTIC_AA_SUPPLY = bool(int(get_environment("MECHANISTIC_AA_SUPPLY", DEFAULT_SIMULATION_KWARGS["mechanistic_aa_supply"])))
+TRNA_ATTENUATION = bool(int(get_environment("TRNA_ATTENUATION", DEFAULT_SIMULATION_KWARGS["trna_attenuation"])))
 RAISE_ON_TIME_LIMIT = bool(int(get_environment("RAISE_ON_TIME_LIMIT", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])))
 N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
 SEED = int(get_environment("SEED", "0"))
@@ -354,6 +357,7 @@ metadata = {
 	"recycle_stalled_elongation": RECYCLE_STALLED_ELONGATION,
 	"mechanistic_replisome": MECHANISTIC_REPLISOME,
 	"mechanistic_aa_supply": MECHANISTIC_AA_SUPPLY,
+	"trna_attenuation": TRNA_ATTENUATION,
 	}
 
 metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
@@ -712,6 +716,7 @@ for i in VARIANTS_TO_RUN:
 							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
 							mechanistic_replisome = MECHANISTIC_REPLISOME,
 							mechanistic_aa_supply = MECHANISTIC_AA_SUPPLY,
+							trna_attenuation = TRNA_ATTENUATION,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
@@ -746,6 +751,7 @@ for i in VARIANTS_TO_RUN:
 							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
 							mechanistic_replisome = MECHANISTIC_REPLISOME,
 							mechanistic_aa_supply = MECHANISTIC_AA_SUPPLY,
+							trna_attenuation = TRNA_ATTENUATION,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,

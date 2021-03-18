@@ -49,7 +49,7 @@ def calcInitialConditions(sim, sim_data):
 	initializeBulkMolecules(bulkMolCntr, sim_data, media_id,
 		randomState, massCoeff, sim._ppgpp_regulation)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data,
-		randomState, sim._superhelical_density)
+		randomState, sim._superhelical_density, sim._trna_attenuation)
 
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
@@ -76,7 +76,8 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState
 	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
-def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState, superhelical_density):
+def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
+		superhelical_density, trna_attenuation):
 	# Initialize counts of full chromosomes
 	initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data)
 
@@ -87,7 +88,7 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 	# Initialize active RNAPs and unique molecule representations of RNAs
-	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState, trna_attenuation)
 
 	# Initialize linking numbers of chromosomal segments
 	if superhelical_density:
@@ -628,7 +629,8 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 	promoters.add_submass_by_array(mass_diffs)
 
 
-def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
+		trna_attenuation=False):
 	"""
 	Activate RNA polymerases as unique molecules, and distribute them along
 	length of genes, while decreasing counts of unactivated RNA polymerases
@@ -659,6 +661,8 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Parameters for rnaSynthProb
 	basal_prob = sim_data.process.transcription_regulation.basal_prob
+	if trna_attenuation:
+		basal_prob[sim_data.process.transcription.attenuated_rna_indices] += sim_data.process.transcription.attenuation_basal_prob_adjustments
 	n_TUs = len(basal_prob)
 	delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True)
 
