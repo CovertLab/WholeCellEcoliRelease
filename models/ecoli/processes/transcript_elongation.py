@@ -176,7 +176,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			ntpCounts,
 			reactionLimit,
 			self.randomState,
-			self.elongation_rates[TU_index_partial_RNAs][rna_to_elongate])
+			self.elongation_rates[TU_index_partial_RNAs][rna_to_elongate],
+			self.variable_elongation)
 
 		sequence_elongations = np.zeros_like(length_partial_RNAs)
 		sequence_elongations[rna_to_elongate] = result.sequenceElongation

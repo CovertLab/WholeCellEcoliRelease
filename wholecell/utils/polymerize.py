@@ -55,7 +55,10 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			indicating how far the sequences proceeded,
 		monomerUsages: ndarray of integer, shape (num_monomers,) counting how
 			many monomers of each type got used,
-		nReactions: total number of reactions (monomers used).
+		nReactions: total number of reactions (monomers used),
+		sequences_limited_elongation: ndarray of bool, shape (num_sequences,),
+			mask indicating whether the sequences were actually elongated to the
+			max lengths expected from the current step.
 	"""
 
 	PAD_VALUE = -1
@@ -78,6 +81,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._monomerLimits = monomerLimits
 		self._reactionLimit = reactionLimit
 		self._randomState = randomState
+		self._raw_elongation_rates = elongation_rates
 		self.elongation_rates = elongation_rates / np.max(elongation_rates)
 		self.variable_elongation = variable_elongation
 
@@ -365,7 +369,10 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		# sequences_limited_elongation: ndarray of bool, shape (num_sequences,),
 		#	mask indicating whether the sequences were actually elongated to the
 		#	max lengths expected from the current step
-		self.sequences_limited_elongation = (self.sequenceElongation != self._sequenceLengths)
+		self.sequences_limited_elongation = (
+			np.minimum(self._raw_elongation_rates, self._sequenceLength)
+			!= self.sequenceElongation
+			)
 
 	def _clamp_elongation_to_sequence_length(self):
 		'''

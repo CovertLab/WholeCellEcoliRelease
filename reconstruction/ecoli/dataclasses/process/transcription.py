@@ -712,7 +712,7 @@ class Transcription(object):
 		return stop_prob
 
 	def _build_elongation_rates(self, raw_data, sim_data):
-		self.max_elongation_rate = sim_data.constants.RNAP_elongation_rate_max
+		self.max_elongation_rate = sim_data.constants.RNAP_elongation_rate_max.asNumber(units.nt / units.s)
 		self.rRNA_indexes = np.where(self.rna_data['is_rRNA'])[0]
 
 	def make_elongation_rates(self, random, base, time_step, variable_elongation=False):
