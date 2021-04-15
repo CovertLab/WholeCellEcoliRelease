@@ -57,6 +57,7 @@ SIM_KEYS = (
 	'timestep_safety_frac',
 	'timestep_max',
 	'timestep_update_freq',
+	'log_to_disk_every',
 	'jit',
 	'mass_distribution',
 	'growth_rate_noise',
@@ -435,6 +436,8 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			help='the maximum time step, in seconds')
 		add_option('timestep_update_freq', 'updateTimeStepFreq', int,
 			help='frequency at which the time step is updated')
+		add_option('log_to_disk_every', 'logToDiskEvery', int,
+			help='frequency at which sim outputs are written to disk')
 
 		add_bool_option('jit', 'jit',
 			help='If true, jit compiled functions are used for certain'
