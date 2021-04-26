@@ -12,14 +12,16 @@ from wholecell.utils import scriptBase
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
-GCE_VM_MACHINE_TYPE = 'custom-1-5120'  # N1 VM with 1 CPU and 5 GB RAM
+#: 'custom-1-5120' selects a GCE N1 VM with 1 CPU and 5 GB RAM.
+#: N1's max RAM per CPU is 6656 MB = 6.5 GB.
+GCE_VM_MACHINE_TYPE = 'custom-1-5120'
 
 
 class WorkflowCLI(scriptBase.ScriptBase):
 	"""Abstract base class for a Command Line Interface to build a workflow."""
 
 	# Subclasses can override these:
-	DOCKER_IMAGE = 'python:3.8.5'
+	DOCKER_IMAGE = 'python:3.8.9'
 	DEFAULT_TIMEOUT = Task.DEFAULT_TIMEOUT  # in seconds
 
 	def __init__(self, internal_prefix='/tmp'):

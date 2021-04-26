@@ -28,6 +28,7 @@ from wholecell.fireworks.firetasks import (
 from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
+from runscripts.cloud.util import workflow_cli
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
@@ -35,7 +36,7 @@ from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
 DOCKER_IMAGE = 'gcr.io/{}/{}-wcm-code'
 
-GCE_VM_MACHINE_TYPE = 'custom-1-5120'  # N1 VM with 1 CPU and 5 GB RAM
+GCE_VM_MACHINE_TYPE = workflow_cli.GCE_VM_MACHINE_TYPE
 
 
 class WcmWorkflow(Workflow):

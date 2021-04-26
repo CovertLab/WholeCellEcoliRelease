@@ -107,6 +107,17 @@ class TestWorkflow(WorkflowCLI):
 			timeout=8,
 			command=['python', '-u', '-c', code])
 
+		# Push the task (in Docker) to run out of memory (OOM) with 8GiB of data.
+		# Spread it across multiple allocations so Python doesn't just punt.
+		code = (
+			"data = [bytearray(1024 * 1024 * 1024) for _ in range(8)]\n"
+			"print(len(data), len(data[0]), data[0][-1])\n"
+		)
+		self.add_task(
+			name='expected_out_of_memory',
+			timeout=15,
+			command=['python', '-u', '-c', code])
+
 
 if __name__ == '__main__':
 	TestWorkflow().cli()

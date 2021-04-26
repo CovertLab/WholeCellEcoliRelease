@@ -11,6 +11,7 @@ import posixpath
 import re
 import subprocess
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
+import urllib.parse
 
 from borealis import gce
 from borealis.util import gcp
@@ -33,7 +34,8 @@ STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 # file, either directly or via an ssh port forwarding tunnel like
 # runscripts/cloud/mongo-ssh.sh
 DEFAULT_LPAD_YAML = 'my_launchpad.yaml'
-DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
+DEFAULT_FIREWORKS_DATABASE = 'fireworks'  # in LaunchPad's constructor but it's broken in uri_mode
+DEFAULT_FIREWORKER_LAUNCHPAD_HOST = 'mongo2'
 
 
 def _keyify(paths, fn=lambda path: path):
@@ -98,6 +100,15 @@ def _to_create_bucket(prefix):
 			f' Then store the bucket name in an environment variable in your'
 			f' shell profile and update your current shell, e.g.'
 			f' `export {STORAGE_ROOT_ENV_VAR}="{bucket_name}"`.')
+
+def _sanitize_uri(host: str, uri_mode: Optional[bool] = True) -> str:
+	"""Sanitize password, params, query, and fragment out of the Launchpad 'host'."""
+	if uri_mode:
+		p1 = urllib.parse.urlparse(host)
+		p2 = (p1.scheme, p1.netloc.split(':')[-1].split('@')[-1], p1.path, '', '', '')
+		return urllib.parse.urlunparse(p2)
+
+	return host
 
 def bucket_from_path(storage_path):
 	# type: (str) -> str
@@ -448,8 +459,8 @@ class Workflow(object):
 	def launch_fireworkers(self, count, config, gce_options=None):
 		# type: (int, Dict[str, Any], Optional[Dict[str, Any]]) -> None
 		"""Launch the requested number of fireworker nodes (GCE VMs) with
-		(db, username, password) metadata from config and GCE VM options from
-		gce_options.
+		(host, uri_mode, db name, username, password) metadata from config and
+		GCE VM options from gce_options.
 		"""
 		def copy_key(src, key, dest):
 			# type: (dict, str, dict) -> None
@@ -460,16 +471,28 @@ class Workflow(object):
 			if val is not None:
 				dest[key] = val
 
-		db_name = config.get('name', DEFAULT_FIREWORKS_DATABASE)
+		db_name = config['name']
 		prefix = 'fireworker-{}'.format(db_name)
 		options = {
 			'image-family': 'fireworker',
-			'description': 'FireWorks worker VM for user/ID {}'.format(self.name)}
+			'network-interface': 'no-address',  # no External IP
+			'description': f'FireWorks worker VM for user/ID {self.name}'}
 		options.update(gce_options or {})
 
+		# Tell the Fireworkers how to contact the Launchpad DB.
 		metadata = {'db': db_name}
+		copy_key(config, 'host', metadata)
+		copy_key(config, 'uri_mode', metadata)
 		copy_key(config, 'username', metadata)
 		copy_key(config, 'password', metadata)
+
+		info = ''
+		if "host" in metadata:
+			db_host = _sanitize_uri(
+				metadata['host'], uri_mode=metadata.get('uri_mode'))
+			info = f' to connect to MongoDB at {db_host}'
+		self.log_info(f'\nCreating {count} GCE Fireworker '
+					  f'{"VM" if count == 1 else "VMs"}{info}')
 
 		engine = gce.ComputeEngine(prefix)
 		engine.create(count=count, command_options=options, **metadata)
@@ -480,35 +503,52 @@ class Workflow(object):
 		"""Build this workflow for FireWorks, upload it to the given or
 		default LaunchPad, launch workers with the given GCE VM options, and
 		return the built workflow.
+
+		ASSUMES: When uploading to Launchpad host=localhost (and not in
+		uri_mode) and launching GCE Fireworkers, they'll need to know to
+		connect to the host without the tunnel, so assume it's our GCE MongoDB
+		host. This matters only to GCE Fireworkers, not when you'll run
+		`fireworker` locally. If this assumption becomes an issue, use uri_mode
+		in the YAML file or add a field for the GCE-relative host.
 		"""
-		# TODO(jerry): Add an option to pass in the LaunchPad config as a dict.
 		with open(lpad_filename) as f:
-			config = yaml.safe_load(f)
+			yml = yaml.YAML(typ='safe')
+			config = yml.load(f)
 			lpad = LaunchPad(**config)
 
+		# (See the "ASSUMES" comment above about 'localhost'.)
+		config['host'] = (DEFAULT_FIREWORKER_LAUNCHPAD_HOST
+						  if lpad.host == 'localhost' else lpad.host)
 		if lpad.uri_mode:
-			raise ValueError(
-				"The launchpad yaml file '{}' uses URI mode, which makes its"
-				" 'name', 'username', and 'password' fields unusable. Please fix"
-				" that, and prefer a GCE MongoDB server which shouldn't need URI"
-				" mode.".format(lpad_filename))
-		if not config.get('name', 'OK'):
-			raise ValueError(
-				"The launchpad yaml file '{}' has a bad 'name' field like `null`."
-				" An absent 'name' field would be OK; defaulting to '{}'."
-					.format(lpad_filename, DEFAULT_FIREWORKS_DATABASE))
+			config['name'] = config['host'].split('/')[-1].split('?')[0]
+		else:
+			config['name'] = lpad.name or DEFAULT_FIREWORKS_DATABASE
 
 		wf = self.build_workflow()
+
 		try:
+			self.log_info(
+				f'\nSending the workflow to the Launchpad DB {config["name"]},'
+				f' connecting to MongoDB at'
+				f' {_sanitize_uri(lpad.host, lpad.uri_mode)}')
 			lpad.add_wf(wf)
 		except ValueError as e:
 			raise_with_traceback(RuntimeError(
 				'You might need to set up port forwarding to the MongoDB'
 				' server. See `runscripts/cloud/mongo-ssh.sh`.\n'
-				'Caused by: ' + str(e)))
+				f'Caused by: {e!r}'))
 
 		# Launch the workers after the successful upload.
-		self.launch_fireworkers(worker_count, config, gce_options=gce_options)
+		try:
+			self.launch_fireworkers(worker_count, config, gce_options=gce_options)
+		except Exception:
+			print('\nNOTE: The workflow was uploaded to the Launchpad DB but'
+				  ' creating Fireworker VMs raised an exception. You could use'
+				  ' the `gce` command to create Fireworkers, or maybe run'
+				  ' `lpad reset` to erase the workflow and start over.\n'
+				  '    |\n'
+				  '    V')
+			raise
 
 		return wf
 
@@ -522,4 +562,5 @@ class Workflow(object):
 		fw_wf = self.build_workflow()
 
 		with open(filename, 'w') as f:
-			yaml.safe_dump(fw_wf.to_dict(), f)
+			yml = yaml.YAML(typ='safe')
+			yml.dump(fw_wf.to_dict(), f)

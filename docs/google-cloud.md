@@ -76,21 +76,28 @@ on running FireWorks workflows in Google Cloud including **Team Setup** and
 
 Also see [Borealis: How to run a workflow](https://github.com/CovertLab/borealis#how-to-run-a-workflow).
 
+**Note:** The script `cloud/build.sh` runs both step 1 and step 2.
+
 1. Build your `"$USER-wcm-runtime"` Docker Image:
 
    ```shell script
    cloud/build-runtime.sh
    ```
 
-   This builds a Docker Image containing Python, binary libraries, and pip packages
-   build the equivalent of
+   This builds a Docker Image containing Python, binary libraries, and pip packages,
+   building the equivalent of
    [Creating the "pyenv" runtime environment](create-pyenv.md) for worker nodes.  
+
    It does not contain your Python source code in the project.  
-   This step takes about an hour but the heavy lifting happens in a Google server.  
-   Repeat this step whenever the Python executable or libraries change (i.e. when
-   you'd update your local pyenv virtualenv) and you want to run it in Google Cloud. If
-   the result is the same, the Docker cache might save some time and the Cloud Registry
-   will stick with the existing Docker Image.  
+   This step takes about 20 minutes, but the heavy lifting happens in a Google server.
+
+   Rerun `cloud/build-runtime.sh` whenever the Python executable or libraries change (i.e. when
+   you'd update your local pyenv virtualenv) and you want to run it in Google Cloud.
+   To use a new `wcm-runtime`, you'll need to build a new `wcm-code` on top of it.
+
+   This builds a fresh Docker Image as defined by the files
+   `cloud/docker/runtime/Dockerfile` and `requirements.txt` in your current git
+   working directory.
 
 1. Build your `"$USER-wcm-code"` Docker Image to deploy your Whole Cell Model code:
 
@@ -99,20 +106,22 @@ Also see [Borealis: How to run a workflow](https://github.com/CovertLab/borealis
    ```
 
    This builds a Docker Image starting from `"$USER-wcm-runtime"`, adding the
-   Python source code in your git working directory and compiling its Cython code.  
-   This step only takes a few minutes.  
-   Your code does not need to be checked into git, but consider running `pytest`,
-   `runscripts/debug/mypy.sh`, and some manual runscripts first. You can run a partial
+   Python source code in your current git working directory and compiling its Cython code.  
+   This step only takes a few minutes.
+
+   (Your code does not need to be checked into git but consider testing it with `pytest`,
+   `runscripts/debug/mypy.sh`, and some manual runscripts first. You can quickly run a partial
    sim generation via  
-   `python runscripts/manual/runSim.py --length-sec 120 --no-jit`  
-   Repeat this step whenever the `"$USER-wcm-runtime"` Image changes or your
+   `python runscripts/manual/runSim.py --length-sec 120 --no-jit`)
+
+   Rerun `cloud/build-wcm.sh` whenever the `"$USER-wcm-runtime"` Image changes or your
    Python source code changes that you want to run in Google Cloud.  
-   Cloud Firetasks that start running after you build this Image will pick it up,
-   including Firetasks that were already queued to run. You can update your code
+   Cloud Firetasks that start running after you build an Image will "pull" it and use it,
+   even Firetasks that were already queued to run. You can do this to update your code
    then use `lpad` commands to restart failed tasks and resume paused tasks.  
    The full Docker Image path is `gcr.io/$PROJECT/$USER-wcm-code`, where
    `$PROJECT` is the Google Cloud project name and `$USER` is your local username.
-   You can "pull" and run it locally.
+   You can also "pull" this Image and run it locally.
 
 1. Open an ssh tunnel to the project's MongoDB "LaunchPad" server in Google Compute Engine:
 
@@ -122,7 +131,7 @@ Also see [Borealis: How to run a workflow](https://github.com/CovertLab/borealis
 
    You only need this connection while you're uploading Fireworks workflows,
    examining them with commands like `lpad get_fws`, viewing workflow state via
-   `lpad webgui`, and otherwise accessing the LaunchPad. It's fine to leave this
+   `lpad webgui`, or otherwise accessing the LaunchPad. It's fine to leave this
    connection open for days. It's also fine to close this connection while a
    workflow continues to run.
 
@@ -135,12 +144,13 @@ Also see [Borealis: How to run a workflow](https://github.com/CovertLab/borealis
    lpad reset
    ```
 
-   The simplest way to use Fireworks is to `reset` the LaunchPad each time before
-   uploading a workflow (instructions below). But there are more ways to do it,
+   The simplest way to use Fireworks is to `reset` the LaunchPad like this before
+   uploading a workflow (instructions below). But there are more patterns of
+   Fireworks use,
    e.g. you can let workflows accumulate in the database, rerun them later, or
    delete or archive specific workflows.
 
-   **Tip:** If you `reset` often enough, you might like this technique to breeze
+   **Tip:** If you `reset` often enough, you might like this way to breeze
    past its confirmation step:
 
    ```shell script
@@ -159,13 +169,14 @@ Also see [Borealis: How to run a workflow](https://github.com/CovertLab/borealis
    * The `--workers` option sets the number of worker nodes to launch to run this
    workflow, otherwise `wcm.py` will use a heuristic. Use `--workers 0` (or `-w0`)
    if you don't want to launch worker nodes yet.
-   * Use the `gce` command to launch (more) workers when you want. This is especially
-   useful after a task failure if the workers timed out and shut down by the time
-   you upload a fixed `"$USER-wcm-runtime"` Docker Image.
    * Use the `--dump` option to dump the workflow definition as a YAML file for
    review _instead of_ uploading it to the LaunchPad.
-   * After `wcm.py` uploads the workflow, you can quit the `mongo-ssh.sh` tunnel
+   * After `wcm.py` uploads the workflow, you can close the `mongo-ssh.sh` ssh tunnel
    or leave it open for interactive commands like `lpad get_fws`.
+   * Use the `gce` command to launch (more) workers when you want.  
+     **Tip:** Launching workers via the `gce` command is especially
+     useful after a task failure if the workers timed out and shut down by the time
+     you upload a fixed `"$USER-wcm-runtime"` Docker Image.
 
 
 ## Watch it run
@@ -180,28 +191,24 @@ pin "Compute Engine" (GCE), "Logging" (Stackdriver), and "Storage" (GCS) to the 
 for quick access.
 * You can rearrange and hide the "cards" on the console's home page.
 
-**Optional:** Set up a chart to display worker node CPU utilization.
-(_"Worker nodes"_ are the Compute Engine virtual machines that run the "real
-work" firetasks of the simulation and analysis.)
+**Optional:** Set up a chart to display CPU utilization.
 
-  1. Move the "Compute Engine" card to top dead center position.
+  1. Move the "Compute Engine" card to top center position.
   1. In this card's `⋮` menu, click `Add Chart`.
-  1. Title it `Worker load`.
+  1. Title it `CPU usage`.
   1. Add Metric type `instance/cpu/utilization` with
-  filter `metric.labels.instance_name = starts_with("fireworker")`.
-  1. Add Metric type `instance/disk/read_bytes_count` with the same filter,
-  group by `resource.label.project_id`, aggregate `Sum`.
-  1. Add Metric type `instance/disk/write_bytes_count` with the same filter,
-  group by `resource.label.project_id`, aggregate `Sum`.
+     filter `resource.type = "gce_instance"`.
   1. Click `Save`.
 
+To make a chart for just Fireworkers, user a filter like
+`metric.labels.instance_name = starts_with("fireworker")`.
 
 
 ### Monitor
 
 * Use your web browser bookmark to open the [Google Cloud Platform
 console](https://console.cloud.google.com/home/dashboard)
-home page. Use the `☰` menu to navigate to the other pages.
+home page. Use the `☰` menu or more bookmarks to navigate to the other pages.
 
 * Open the [Compute Engine — VM instances](https://console.cloud.google.com/compute/instances)
 page to see the list of running Compute Engine VM instances.
@@ -213,19 +220,12 @@ page to see the list of running Compute Engine VM instances.
    Use `wcm.py` or `gce.py` to launch worker nodes.
    * "mongo-prime" is running MongoDB for the FireWorks LaunchPad.
 
-* Open the [Logging — Logs Viewer](https://console.cloud.google.com/logs/viewer)
+* Open the [Google Cloud Logs Explorer](https://console.cloud.google.com/logs/)
 page to view the logs from the project's GCE VM instances.
 
-   * The ▷ (Run) button at the top starts streaming the logs (akin to `tail -f` following).
-   * The page has several filtering tools.
-     * A good place to start is to set the resource menu to
-   `GCE VM Instance` and the log level to `Info`.
-     * Log level `Debug` will include the detail workings of the workers
-     and their Firetask console output lines.
-     * You can filter the log to your worker nodes via an advanced filter like
-     `resource.labels.instance_id:"fireworker-USER-"` or to a single node like
-     `resource.labels.instance_id="fireworker-USER-2"`, inserting your `$USER` name.
-   * Each firetask writes a log file to the `logs/` part of the output directory. See below.
+   * The "Stream logs" button at the top starts streaming the logs (akin to `tail -f` following).
+   * See [Debugging](#Debugging) for tips on filtering the logs.
+   * Each firetask writes a log file to the `logs/` output subdirectory. See [Debugging](#Debugging).
 
 * Open the [Storage — Browser](https://console.cloud.google.com/storage/browser)
 page to browse the files created by the workflow.
@@ -233,7 +233,7 @@ page to browse the files created by the workflow.
    * `wcm.py` directs the workflow's output files to the storage bucket you picked, above,
    and a subdirectory named `WCM/$TIMESTAMP/` or `WCM/$TIMESTAMP__description/`.
    * Its `logs/` subdirectory contains a log file for each Firetask run, whether
-   successful or not, but only as they end.
+   successful or not, but each log file doesn't get stored until the Firetask ends.
 
 
 ## Download the outputs
@@ -301,21 +301,30 @@ click `ADD KEY` > `Create new key` > `JSON` > `CREATE`, and put the downloaded f
 
 ## Debugging
 
-Use the [Logs Viewer](https://console.cloud.google.com/logs/query) to watch workflows
+Use the [Logs Explorer](https://console.cloud.google.com/logs/) to watch workflows
 run with error messages and other information from the servers involved.
-The Logs Viewer supports filtering and searching.
 
-See the [outputs](#Download-the-outputs) for the `logs/` files from the workflow firetasks.
-To help with debugging, each firetask logs its task specification, console output, and
-details on how it ended, e.g. by timeout. If you rerun firetasks (e.g.
-`lpad rerun_fws -i 10,12`), each run will write a separate log file.
+(Set a Logs query like `resource.labels.instance_id:"fireworker" severity>=INFO` to
+see just the big picture of Fireworkers and Firetasks starting and stopping.
+The `:` means "starts with."  
+Expand the log level to `severity>=DEBUG` to include task stdout and stderr lines.  
+If coworkers are also running workflows, you can filter to just your own
+Fireworkers using a query like
+`resource.labels.instance_id:"fireworker-USER-"`,
+inserting your $USER name.)
+
+See the [Download the outputs](#Download-the-outputs) for ways to download the
+`logs/*.log` files of the firetask  runs. If you rerun firetasks (e.g.
+`lpad rerun_fws -i 10,12`), each run will write another log file.
 
 After mounting the GCS storage bucket via **gcsfuse** or downloading its `logs/` files,
 you can quickly check on completed firetask runs:
 
 ```shell script
-grep TASK: logs/*   # see which ones were SUCCESSFUL and which ones FAILED
-grep FAILED logs/*  # see which ones FAILED
+grep TASK: logs/*           # see SUCCESSFUL and FAILED runs
+grep -h TASK: logs/*        # suppress the filenames for easier scanning through them
+grep '[A-Z]* TASK:' logs/*  # make the "SUCCESSFUL" and "FAILED" part stand out more
+grep FAILED logs/*          # see only the FAILED runs
 ```
 
 Use FireWorks `lpad` commands to view the state of your Firetasks. See

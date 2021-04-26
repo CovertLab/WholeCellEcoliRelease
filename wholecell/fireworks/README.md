@@ -79,7 +79,7 @@ it also needs a queue-adapter file, `my_qadapter.yaml`.
    for each one.
    To use a launchpad config filename besides the default
    `my_launchpad.yaml`, pass it as a command option like
-   `lpad -l gce_launchpad.yaml webgui -s`.
+   `lpad -l gce_launchpad.yaml webgui`.
 
 1. If you need a queue-adapter to run FireWorks workers on Sherlock, write
    `my_qadapter.yaml` from the template

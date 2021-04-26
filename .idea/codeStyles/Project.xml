@@ -5,8 +5,8 @@
         <option name="USE_TAB_CHARACTER" value="true" />
       </value>
     </option>
-    <option name="RIGHT_MARGIN" value="79" />
-    <option name="SOFT_MARGINS" value="79" />
+    <option name="RIGHT_MARGIN" value="100" />
+    <option name="SOFT_MARGINS" value="80" />
     <Python>
       <option name="ALIGN_COLLECTIONS_AND_COMPREHENSIONS" value="false" />
       <option name="ALIGN_MULTILINE_IMPORTS" value="false" />
