@@ -55,10 +55,10 @@ RUN make clean compile
 ENV PYTHONPATH=/wcEcoli
 
 # Since this build runs as root, set permissions so running the container as
-# another user will work: Theano needs to write into the data dir it uses when
+# another user will work: Aesara needs to write into the data dir it uses when
 # running as a user with no home dir, and Parca needs to write into the
 # /wcEcoli/fixtures/ dir.
-RUN (umask 000 && mkdir -p /.theano /wcEcoli/fixtures)
+RUN (umask 000 && mkdir -p /.aesara /wcEcoli/fixtures)
 
 # Show a welcome message with tips on wcEcoli.
 # Copy .bashrc into / for users w/o home dirs such as `docker run --user ...`

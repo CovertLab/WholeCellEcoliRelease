@@ -52,7 +52,7 @@ RUN if [ "${COMPILE_BLAS}" != 0 ]; then \
 ARG NO_AVX2=0
 ENV NO_AVX2="$NO_AVX2"
 
-# Install openblas (must be 0.3.5+) for numpy, scipy, and Theano.
+# Install openblas (must be 0.3.5+) for numpy, scipy, and Aesara.
 ENV OPENBLAS_LABEL=v0.3.13
 RUN if [ -f ~/.numpy-site.cfg ]; then \
     (mkdir -p openblas && cd openblas \
@@ -68,7 +68,7 @@ RUN if [ -f ~/.numpy-site.cfg ]; then \
 ENV OPENBLAS_NUM_THREADS=1
 
 # Install all the pips within one Docker layer, don't cache the downloads, and
-# enable Theano to write into the data dir it gets when running as a user with
+# enable Aesara to write into the data dir it gets when running as a user with
 # no home dir. (That happens because DockerTask runs tasks inside the Docker
 # container with the uid:gid of the user outside the container to get
 # read/write/delete access to the tasks's output files.)
@@ -79,6 +79,6 @@ RUN (b1="" \
     && pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir numpy==1.19.5 $b1 \
     && pip install --no-cache-dir -r requirements.txt $b1 \
-    && umask 000 && mkdir -p /.theano)
+    && umask 000 && mkdir -p /.aesara)
 
 CMD ["/bin/bash"]

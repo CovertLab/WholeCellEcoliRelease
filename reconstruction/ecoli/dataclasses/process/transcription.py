@@ -917,6 +917,8 @@ class Transcription(object):
 				for tf in sim_data.process.transcription_regulation.tf_ids
 				])
 			delta = delta_prob @ p_promoter_bound
+			# TODO(jerry): Handle the NaN or Infinity values from this line then
+			#  use `with np.errstate(invalid='ignore'):` to suppress its warnings.
 			tf_adjustments[condition] = delta / sim_data.process.transcription.rna_synth_prob[condition]
 
 		# Solve least squares fit for expression of each component of RNAP and ribosomes
@@ -968,7 +970,8 @@ class Transcription(object):
 
 		# Determine adjustments to the current ppGpp expression to scale
 		# to the expected expression
-		adjustment = new_prob / old_prob
+		with np.errstate(invalid='ignore'):
+			adjustment = new_prob / old_prob
 		adjustment[~np.isfinite(adjustment)] = 1
 
 		# Scale free and bound expression and renormalize ppGpp regulated expression

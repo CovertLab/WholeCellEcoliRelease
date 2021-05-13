@@ -43,7 +43,7 @@ Image.
 1. Use your package manager to install the needed libraries
 \[see the `requirements.txt` file for the latest list] or compile them from source.
 
-   Theano will use the `openblas` library installed in this step.
+   Aesara will use the `openblas` library installed in this step.
    You can optionally install numpy and scipy to also use it.
 
    **On macOS**
@@ -240,10 +240,10 @@ especially when called from multiple processes.
     runscripts/debug/time_libraries.sh
     ```
 
-1. Test Theano:
+1. Test Aesara:
 
       ```bash
-      python -c 'import theano; print(theano.config.blas.ldflags)'
+      python -c 'import aesara; print([aesara.config.blas.ldflags, aesara.config.device, aesara.config.floatX])'
       ```
 
    It should print something like

@@ -2,12 +2,12 @@
 SimulationData for rna decay process
 """
 
-from __future__ import absolute_import, division, print_function
-
 from wholecell.utils import units
+
+import aesara.tensor as T
+from aesara import function, gradient
 import numpy as np
-import theano.tensor as T
-import theano
+
 
 class RnaDecay(object):
 	""" RnaDecay """
@@ -16,6 +16,7 @@ class RnaDecay(object):
 		self._buildRnaDecayData(raw_data, sim_data)
 
 	def _buildRnaDecayData(self, raw_data, sim_data):
+		_ = sim_data  # unused
 		self.endoRNase_ids = [x["endoRnase"] for x in raw_data.endoRNases]
 		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRNases])
 		self.stats_fit = {
@@ -89,7 +90,7 @@ class RnaDecay(object):
 		The root finder, provided with L, will attempt to make each element of L as close to zero
 		as possible, and therefore minimize both R and Rneg.
 
-		The third-party package Theano is used to create the functions and find an analytic
+		The third-party package Aesara (formerly Theano) creates the functions and finds an analytic
 		expression for the Jacobian.
 
 		Parameters
@@ -136,16 +137,11 @@ class RnaDecay(object):
 		TODO (John): Why is this needed?  It seems redundant.
 		TODO (John): How do we know this weight is sufficient?
 
-		All of the outputs are Theano functions, and take a 1-D array of Michaelis-Menten constants
+		All of the outputs are Aesara functions, and take a 1-D array of Michaelis-Menten constants
 		as their sole inputs.  All of the functions return a 1-D array, with the exception of the
 		Jacobians, which return matrices.
 
 		TODO (John): Remove the redundant outputs.
-
-		TODO (John): Look into removing Theano, since it is no longer maintained.  We could use
-		another package with similar functionality (analytic differentiation on algebraic
-		functions), or replace the Theano operations with hand-computed solutions (difficult, as
-		the Jacobian is probably very complicated).
 
 		TODO (John): Consider redesigning this as an objective minimization problem rather than a
 		root finding problem.
@@ -178,16 +174,16 @@ class RnaDecay(object):
 		LossFunction = T.log(T.exp(residual) + T.exp(alpha * regularization)) - T.log(2)
 		LossFunction_aux = T.log(T.exp(residual_aux) + T.exp(alpha * regularization)) - T.log(2)
 
-		J = theano.gradient.jacobian(LossFunction, km)
-		J_aux = theano.gradient.jacobian(LossFunction_aux, km)
-		Jacob = theano.function([km], J)
-		Jacob_aux = theano.function([km], J_aux)
-		L = theano.function([km], LossFunction)
-		L_aux = theano.function([km], LossFunction_aux)
-		Rneg = theano.function([km], regularizationNegativeNumbers)
-		R = theano.function([km], residual)
-		Lp = theano.function([km], J)
-		Lp_aux = theano.function([km], J_aux)
-		R_aux = theano.function([km], residual_aux)
+		J = gradient.jacobian(LossFunction, km)
+		J_aux = gradient.jacobian(LossFunction_aux, km)
+		Jacob = function([km], J)
+		Jacob_aux = function([km], J_aux)
+		L = function([km], LossFunction)
+		L_aux = function([km], LossFunction_aux)
+		Rneg = function([km], regularizationNegativeNumbers)
+		R = function([km], residual)
+		Lp = function([km], J)
+		Lp_aux = function([km], J_aux)
+		R_aux = function([km], residual_aux)
 
 		return L, Rneg, R, Lp, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux

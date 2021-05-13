@@ -658,7 +658,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 
 			v_charging = (self.kS * synthetase_conc * uncharged_trna_conc * aa_conc / (self.KMaa * self.KMtf)
 				/ (1 + uncharged_trna_conc/self.KMtf + aa_conc/self.KMaa + uncharged_trna_conc*aa_conc/self.KMtf/self.KMaa))
-			numerator_ribosome = 1 + np.sum(f * (self.krta / charged_trna_conc + uncharged_trna_conc / charged_trna_conc * self.krta / self.krtf))
+			with np.errstate(divide='ignore'):
+				numerator_ribosome = 1 + np.sum(f * (self.krta / charged_trna_conc + uncharged_trna_conc / charged_trna_conc * self.krta / self.krtf))
 			v_rib = self.maxRibosomeElongationRate * ribosome_conc / numerator_ribosome
 
 			# Handle case when f is 0 and charged_trna_conc is 0
@@ -732,7 +733,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 
 		# Determine the fraction each tRNA species makes up out of all tRNA of the
 		# associated amino acid
-		f_trna = n_trna / np.dot(np.dot(self.process.aa_from_trna, n_trna), self.process.aa_from_trna)
+		with np.errstate(invalid='ignore'):
+			f_trna = n_trna / np.dot(np.dot(self.process.aa_from_trna, n_trna), self.process.aa_from_trna)
 		f_trna[~np.isfinite(f_trna)] = 0
 
 		trna_counts = np.zeros(f_trna.shape, np.int64)
