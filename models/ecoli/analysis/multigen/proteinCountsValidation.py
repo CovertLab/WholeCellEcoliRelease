@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
+from wholecell.utils.protein_counts import get_simulated_validation_counts
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
@@ -22,8 +23,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-		ids_translation = sim_data.process.translation.monomer_data["id"].tolist()
-		schmidt_idx = [ids_translation.index(x) for x in validation_data.protein.schmidt2015Data["monomerId"].tolist()]
+		monomer_ids = sim_data.process.translation.monomer_data["id"]
+		schmidt_ids = validation_data.protein.schmidt2015Data["monomerId"]
 
 		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
@@ -41,9 +42,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			simOutDir = os.path.join(simDir, "simOut")
 
-			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
-			avgCounts = monomerCounts.readColumn("monomerCounts").mean(axis=0)
-			sim_schmidt_counts = avgCounts[schmidt_idx]
+			monomer_counts_reader = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			monomer_counts = monomer_counts_reader.readColumn("monomerCounts")
+
+			sim_schmidt_counts, val_schmidt_counts = get_simulated_validation_counts(
+				schmidt_counts, monomer_counts, schmidt_ids, monomer_ids)
 
 			sim_schmidt_counts_multigen.append(sim_schmidt_counts)
 
@@ -51,11 +54,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		axis = plt.subplot(1,1,1)
 
-		axis.plot(np.log10(schmidt_counts + 1), np.log10(sim_schmidt_counts_multigen + 1), 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
+		axis.plot(np.log10(val_schmidt_counts + 1), np.log10(sim_schmidt_counts_multigen + 1), 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
 		# print(pearsonr( np.log10(sim_schmidt_counts_mulitgen + 1), np.log10(schmidtCounts + 1) )[0])
 
 		maxLine = np.ceil(
-						max((np.log10(schmidt_counts + 1)).max(),
+						max((np.log10(val_schmidt_counts + 1)).max(),
 						(np.log10(sim_schmidt_counts_multigen + 1)).max())
 					)
 		plt.plot([0, maxLine], [0, maxLine], '-k')

@@ -27,24 +27,23 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_monomer_ids = sim_data.process.translation.monomer_data["id"]
 		wisniewski_ids = validation_data.protein.wisniewski2014Data["monomerId"]
 		schmidt_ids = validation_data.protein.schmidt2015Data["monomerId"]
+		wisniewski_counts = validation_data.protein.wisniewski2014Data["avgCounts"]
+		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
 		monomer_counts_reader = TableReader(os.path.join(simOutDir, "MonomerCounts"))
 		monomer_counts = monomer_counts_reader.readColumn("monomerCounts")
 
-		sim_wisniewski_counts = get_simulated_validation_counts(
-			monomer_counts, wisniewski_ids, sim_monomer_ids)
-		sim_schmidt_counts = get_simulated_validation_counts(
-			monomer_counts, schmidt_ids, sim_monomer_ids)
-
-		wisniewski_counts = validation_data.protein.wisniewski2014Data["avgCounts"]
-		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
+		sim_wisniewski_counts, val_wisniewski_counts = get_simulated_validation_counts(
+			wisniewski_counts, monomer_counts, wisniewski_ids, sim_monomer_ids)
+		sim_schmidt_counts, val_schmidt_counts = get_simulated_validation_counts(
+			schmidt_counts, monomer_counts, schmidt_ids, sim_monomer_ids)
 
 		# noinspection PyTypeChecker
 		fig, ax = plt.subplots(2, sharey=True, figsize=(8.5, 11))
 
 		# Wisniewski Counts
 		ax[0].scatter(
-			np.log10(wisniewski_counts + 1),
+			np.log10(val_wisniewski_counts + 1),
 			np.log10(sim_wisniewski_counts + 1),
 			c='w', edgecolor='k', alpha=.7
 		)
@@ -53,13 +52,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"Pearson r: %0.2f" %
 			pearsonr(
 				np.log10(sim_wisniewski_counts + 1),
-				np.log10(wisniewski_counts + 1)
+				np.log10(val_wisniewski_counts + 1)
 			)[0]
 		)
 
 		# Schmidt Counts
 		ax[1].scatter(
-			np.log10(schmidt_counts + 1),
+			np.log10(val_schmidt_counts + 1),
 			np.log10(sim_schmidt_counts + 1),
 			c='w', edgecolor='k', alpha=.7
 		)
@@ -67,7 +66,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax[1].set_title(
 			"Pearson r: %0.2f" %
 			pearsonr(
-				np.log10(sim_schmidt_counts + 1), np.log10(schmidt_counts + 1)
+				np.log10(sim_schmidt_counts + 1), np.log10(val_schmidt_counts + 1)
 			)[0]
 		)
 

@@ -104,15 +104,15 @@ PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
 
 # Equilibrium complexes that are formed from deactivated equilibrium reactions,
 # but are reactants in a complexation reaction
-EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]",
-	"CPLX0-7677[c]", "MONOMER0-1781[c]", "CPLX0-7702[c]"]
+EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7701[c]", "CPLX0-7677[c]",
+	"MONOMER0-1781[c]", "CPLX0-7702[c]"]
 
 # Metabolites that are used as ligands in equilibrium, but do not participate
 # in any metabolic reactions
-METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
+METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]"]
 
 # Molecules in 2CS (two component system) reactions that are not proteins
-NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
+NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "Pi[c]",
 	"PROTON[c]", "PHOSPHO-PHOB[c]"]
 
 COMPARTMENTS = {
@@ -197,6 +197,7 @@ class BuildNetwork(object):
 		self._add_metabolism_and_metabolites()
 		self._add_equilibrium()
 		self._add_regulation()
+		self._remove_hanging_edges()
 
 		# Check for network sanity (optional)
 		if self.check_sanity:
@@ -988,6 +989,25 @@ class BuildNetwork(object):
 		if len(duplicate_ids) > 0:
 			raise ValueError("%d node IDs have duplicates: %s"
 				% (len(duplicate_ids), duplicate_ids))
+
+
+	def _remove_hanging_edges(self):
+		# type: () -> None
+		"""
+		Remove edges that are not connected to existing nodes.
+		"""
+		# Get set of all node IDs
+		node_ids = {node.node_id for node in self.node_list}
+		disconnected_edge_indexes = []
+
+		# Find edges whose source and destination nodes are not defined
+		for index, edge in enumerate(self.edge_list):
+			if edge.src_id not in node_ids or edge.dst_id not in node_ids:
+				disconnected_edge_indexes.append(index)
+
+		# Remove these edges
+		for index in disconnected_edge_indexes[::-1]:
+			self.edge_list.pop(index)
 
 
 	def _append_edge(self, type_, src, dst, stoichiometry=""):

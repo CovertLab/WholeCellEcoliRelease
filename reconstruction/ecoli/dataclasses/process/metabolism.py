@@ -11,6 +11,7 @@ TODO:
 from __future__ import absolute_import, division, print_function
 
 from copy import copy
+import itertools
 import re
 from typing import Any, cast, Dict, Iterable, List, Optional, Set, Tuple, Union
 
@@ -18,6 +19,7 @@ import numpy as np
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
+from reconstruction.ecoli.dataclasses.getter_functions import UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 # NOTE: Importing SimulationDataEcoli would make a circular reference so use Any.
 #from reconstruction.ecoli.simulation_data import SimulationDataEcoli
@@ -25,7 +27,7 @@ from wholecell.utils import units
 import six
 from six.moves import range, zip
 
-
+# TODO (ggsun): Add these values as raw data files
 PPI_CONCENTRATION = 0.5e-3  # M, multiple sources
 ECOLI_PH = 7.2
 KINETIC_CONSTRAINT_CONC_UNITS = units.umol / units.L
@@ -40,6 +42,10 @@ REVERSE_REACTION_ID = '{{}}{}'.format(REVERSE_TAG)
 ENZYME_REACTION_ID = '{}__{}'
 
 VERBOSE = False
+
+
+class InvalidReactionDirectionError(Exception):
+	pass
 
 
 class Metabolism(object):
@@ -114,7 +120,7 @@ class Metabolism(object):
 
 		for row in raw_data.metabolite_concentrations:
 			metabolite_id = row['Metabolite']
-			if not sim_data.getter.check_valid_molecule(metabolite_id):
+			if not sim_data.getter.is_valid_molecule(metabolite_id):
 				if VERBOSE:
 					print('Metabolite concentration for unknown molecule: {}'
 						.format(metabolite_id))
@@ -180,7 +186,7 @@ class Metabolism(object):
 		metaboliteIDs.append(sim_data.molecule_ids.ppi)
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
-		metaboliteIDs.append("PI[c]")
+		metaboliteIDs.append("Pi[c]")
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
 		# include metabolites that are part of biomass
@@ -223,6 +229,7 @@ class Metabolism(object):
 			raise ValueError('Multiple concentrations for metabolite(s): {}'.format(', '.join(unique_ids[counts > 1])))
 
 		# TODO (Travis): only pass raw_data and sim_data and create functions to load absolute and relative concentrations
+		all_metabolite_ids = {met['id'] for met in raw_data.metabolites}
 		self.concentration_updates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)
@@ -230,6 +237,7 @@ class Metabolism(object):
 			relative_changes,
 			raw_data.equilibrium_reactions,
 			sim_data.external_state.exchange_dict,
+			all_metabolite_ids
 		)
 		self.conc_dict = self.concentration_updates.concentrations_based_on_nutrients("minimal")
 		self.nutrients_to_internal_conc = {}
@@ -323,7 +331,8 @@ class Metabolism(object):
 
 		# Properties for FBA reconstruction
 		self.reaction_stoich = reaction_stoich
-		self.maintenance_reaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1, }
+		# TODO (ggsun): add this as a raw .tsv file
+		self.maintenance_reaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1, }
 
 		# Properties for catalysis matrix (to set hard bounds)
 		self.reaction_catalysts = catalysts
@@ -830,6 +839,15 @@ class Metabolism(object):
 				enzyme catalysts for each reaction with known catalysts, likely
 				a subset of reactions in stoich
 		"""
+		compartment_ids_to_abbreviations = {
+			comp['id']: comp['abbrev'] for comp in raw_data.compartments
+			}
+		compartment_ids_to_abbreviations.update(
+			UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS)
+
+		valid_directions = {'L2R', 'R2L', 'BOTH'}
+		forward_directions = {'L2R', 'BOTH'}
+		reverse_directions = {'R2L', 'BOTH'}
 
 		# Initialize variables to store reaction information
 		reaction_stoich = {}
@@ -837,50 +855,75 @@ class Metabolism(object):
 		reaction_catalysts = {}
 
 		# Get IDs of reactions that should be removed
-		removed_reaction_ids = {
+		removed_metabolic_reaction_ids = {
 			rxn['id'] for rxn in cast(Any, raw_data).metabolic_reactions_removed}
 
 		# Load and parse reaction information from raw_data
-		for reaction in cast(Any, raw_data).metabolic_reactions:
+		# TODO (ggsun): Two files will later be merged
+		for reaction in itertools.chain(
+				cast(Any, raw_data).metabolic_reactions,
+				cast(Any, raw_data).protein_modification_reactions):
 			reaction_id = reaction["id"]
 
 			# Skip removed reactions
-			if reaction_id in removed_reaction_ids:
+			if reaction_id in removed_metabolic_reaction_ids:
 				continue
 
 			stoich = reaction["stoichiometry"]
-			reversible = reaction["is_reversible"]
+			direction = reaction["direction"]
 
 			if len(stoich) <= 1:
 				raise Exception("Invalid biochemical reaction: {}, {}".format(reaction_id, stoich))
 
-			reaction_stoich[reaction_id] = stoich
+			if direction not in valid_directions:
+				raise InvalidReactionDirectionError(
+					f'The direction {direction} given for reaction {reaction_id} is invalid.')
 
+			forward = direction in forward_directions
+			reverse = direction in reverse_directions
+
+			def convert_compartment_tags(met_id):
+				new_met_id = met_id
+
+				for comp_id, comp_abbrev in compartment_ids_to_abbreviations.items():
+					new_met_id = new_met_id.replace(
+						f'[{comp_id}]', f'[{comp_abbrev}]')
+
+				return new_met_id
+
+			# TODO (ggsun): Add complexes formed by complexing given enzymes
 			catalysts_for_this_rxn = []
 			for catalyst in reaction["catalyzed_by"]:
-				try:
+				if sim_data.getter.is_valid_molecule(catalyst):
 					catalysts_with_loc = catalyst + sim_data.getter.get_compartment_tag(catalyst)
 					catalysts_for_this_rxn.append(catalysts_with_loc)
 				# If we don't have the catalyst in our reconstruction, drop it
-				except KeyError:
+				else:
 					if VERBOSE:
-						print('Skipping catalyst {} for {} since it is not in the model'
-							.format(catalyst, reaction_id))
+						print(
+							'Skipping catalyst {} for {} since it is not in the model'
+							.format(catalyst, reaction_id)
+							)
 
-			if len(catalysts_for_this_rxn) > 0:
-				reaction_catalysts[reaction_id] = catalysts_for_this_rxn
+			if forward:
+				reaction_stoich[reaction_id] = {
+					convert_compartment_tags(moleculeID): stoichCoeff
+					for moleculeID, stoichCoeff in stoich.items()
+					}
+				if len(catalysts_for_this_rxn) > 0:
+					reaction_catalysts[reaction_id] = catalysts_for_this_rxn
 
-			# Add the reverse reaction
-			if reversible:
+			if reverse:
 				reverse_reaction_id = REVERSE_REACTION_ID.format(reaction_id)
 				reaction_stoich[reverse_reaction_id] = {
-					moleculeID: -stoichCoeff
-					for moleculeID, stoichCoeff in six.viewitems(reaction_stoich[reaction_id])
+					convert_compartment_tags(moleculeID): -stoichCoeff
+					for moleculeID, stoichCoeff in stoich.items()
 					}
-
-				reversible_reactions.append(reaction_id)
 				if len(catalysts_for_this_rxn) > 0:
-					reaction_catalysts[reverse_reaction_id] = list(reaction_catalysts[reaction_id])
+					reaction_catalysts[reverse_reaction_id] = list(catalysts_for_this_rxn)
+
+			if forward and reverse:
+				reversible_reactions.append(reaction_id)
 
 		return reaction_stoich, reversible_reactions, reaction_catalysts
 
@@ -1331,6 +1374,7 @@ class Metabolism(object):
 		# Split out reactions that are kinetically constrained and that have
 		# more than one enzyme that catalyzes the reaction
 		for (rxn, enzyme), constraint in constraints.items():
+
 			if n_catalysts[rxn] > 1:
 				# Create new reaction name with enzyme appended to the end
 				if rxn.endswith(REVERSE_TAG):
@@ -1347,6 +1391,7 @@ class Metabolism(object):
 				# Remove enzyme from old reaction and remove old reaction if no
 				# more enzyme catalysts
 				rxn_catalysts[rxn].pop(rxn_catalysts[rxn].index(enzyme))
+
 				if len(rxn_catalysts[rxn]) == 0:
 					stoich.pop(rxn)
 					rxn_catalysts.pop(rxn)
@@ -1510,11 +1555,12 @@ class Metabolism(object):
 
 # Class used to update metabolite concentrations based on the current nutrient conditions
 class ConcentrationUpdates(object):
-	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict):
+	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict, all_metabolite_ids):
 		self.units = units.getUnit(list(concDict.values())[0])
 		self.default_concentrations_dict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 		self.exchange_fluxes = self._exchange_flux_present(exchange_data_dict)
 		self.relative_changes = relative_changes
+		self._all_metabolite_ids = all_metabolite_ids
 
 		# factor of internal amino acid increase if amino acids present in nutrients
 		self.molecule_scale_factors = {
@@ -1610,7 +1656,9 @@ class ConcentrationUpdates(object):
 			if len(reaction["stoichiometry"]) != 3:
 				continue
 
-			moleculeName = [x["molecule"] for x in reaction["stoichiometry"] if x["type"] == "metabolite"][0]
+			moleculeName = [
+				mol_id for mol_id in reaction["stoichiometry"].keys()
+				if mol_id in self._all_metabolite_ids][0]
 			amountToSet = 1e-4
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * self.units
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * self.units

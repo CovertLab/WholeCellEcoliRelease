@@ -1,7 +1,7 @@
 "name"	"value"	"units"	"_source"	"_comments"
 "gtp_per_translation"	4.2			
-"oriC_center"	3923882	"units.nt"	"Ecocyc"
-"terC_center"	1607192	"units.nt"	"Ecocyc"	
+"oriC_center"	3925860	"units.nt"	"EcoCyc, rounded average of two oriC boundaries"
+"terC_center"	1605046	"units.nt"	"EcoCyc, (oriC_center) - (genome_size/2)"
 "cell_density"	1100	"units.g/units.L"	"Baldwin et al."	"from Baldwin WW, Myer R, Powell N, Anderson E, Koch AL. Buoyant density of Escherichia coli is determined solely by the osmolarity of the culture medium. Arch Microbiol. 1995 Aug164(2):155-7 p.156 fig.3 & fig.2 (retrieved from Bionumbers)"
 "growth_associated_maintenance"	59.81	"units.mmol / units.g"	"Feist"	
 "non_growth_associated_maintenance"	8.39	"units.mmol / units.g / units.h"	"Feist"	

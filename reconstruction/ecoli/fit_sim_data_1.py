@@ -190,6 +190,7 @@ def input_adjustments(sim_data, cell_specs, debug=False, **kwargs):
 	setRNADegRates(sim_data)
 	setProteinDegRates(sim_data)
 
+	# TODO (ggsun): Make this part of dataclasses/process/replication.py?
 	# Set C-period
 	setCPeriod(sim_data)
 
@@ -1259,7 +1260,7 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 	ids_protein = sim_data.process.translation.monomer_data["id"]
 	total_mass_protein = sim_data.mass.get_component_masses(doubling_time)["proteinMass"] / sim_data.mass.avg_cell_to_initial_cell_conversion_factor
 	individual_masses_protein = sim_data.process.translation.monomer_data["mw"] / sim_data.constants.n_avogadro
-	distribution_transcripts_by_protein = normalize(expression[sim_data.relation.rna_index_to_monomer_mapping])
+	distribution_transcripts_by_protein = normalize(expression[sim_data.relation.RNA_to_monomer_mapping])
 	translation_efficiencies_by_protein = normalize(sim_data.process.translation.translation_efficiencies_by_monomer)
 
 	degradationRates = sim_data.process.translation.monomer_data['deg_rate']
@@ -1618,18 +1619,13 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 		normalize(view_RNA.counts())
 		)
 
-	# Update mRNA expression to reflect monomer counts
-	assert np.all(
-		sim_data.process.translation.monomer_data['rna_id'][sim_data.relation.monomer_index_to_rna_mapping] == sim_data.process.transcription.rna_data["id"][sim_data.process.transcription.rna_data['is_mRNA']]
-		), "Cannot properly map monomer ids to RNA ids" # TODO: move to KB tests
-
 	mRnaExpressionView = rnaExpressionContainer.countsView(sim_data.process.transcription.rna_data["id"][sim_data.process.transcription.rna_data['is_mRNA']])
 	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * mRNADistributionFromProtein(
 			normalize(counts_protein), translation_efficienciesByProtein, netLossRate_protein
-			)[sim_data.relation.monomer_index_to_rna_mapping]
+			).dot(sim_data.relation.monomer_to_mRNA_mapping())
 		)
 
 	expression = rnaExpressionContainer.counts()
@@ -1830,18 +1826,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 		allMoleculesView.countsIs(0)
 
-		# randomState = np.random.RandomState(seed)
-
-		# rnaView.countsIs(randomState.multinomial(
-		# 	totalCount_RNA,
-		# 	distribution_RNA
-		# 	))
-
-		# proteinView.countsIs(randomState.multinomial(
-		# 	totalCount_protein,
-		# 	distribution_protein
-		# 	))
-
 		rnaView.countsIs(totalCount_RNA * distribution_RNA)
 
 		proteinView.countsIs(totalCount_protein * distribution_protein)
@@ -1890,9 +1874,9 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 			_, moleculeCountChanges = sim_data.process.two_component_system.molecules_to_ss(
 				twoComponentSystemMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
-				sim_data.constants.n_avogadro.asNumber(1 / units.mmol),
-				1e6,
+				sim_data.constants.n_avogadro.asNumber(1 / units.mmol)
 				)
+
 			twoComponentSystemMoleculesView.countsInc(moleculeCountChanges)
 
 			metDiffs = metabolitesView.counts() - metCounts.asNumber().round()
@@ -2217,6 +2201,7 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 		compartment_key = key + "[c]"
 		if compartment_key in condPerturbations:
 			continue
+
 		rnaIdxs.append(np.where(rnaIds == compartment_key)[0][0])
 		fcs.append(tfFCs[key])
 
@@ -2885,7 +2870,8 @@ def fitPromoterBoundProbability(sim_data, cell_specs):
 		constraint_p = [
 			0 <= PROMOTER_SCALING * P, PROMOTER_SCALING * P <= PROMOTER_SCALING,
 			np.diag(D) @ (PROMOTER_SCALING * P) == PROMOTER_SCALING * Drhs,
-			pdiff @ (PROMOTER_SCALING * P) >= PROMOTER_SCALING * PROMOTER_PDIFF_THRESHOLD]
+			pdiff @ (PROMOTER_SCALING * P) >= PROMOTER_SCALING * PROMOTER_PDIFF_THRESHOLD,
+			]
 
 		# Solve optimization problem
 		prob_p = Problem(objective_p, constraint_p)
@@ -2992,11 +2978,11 @@ def fitLigandConcentrations(sim_data, cell_specs):
 			if 1 - p_active < 1e-9:
 				kdNew = kd  # Concentration of metabolite-bound TF is negligible
 			else:
-				kdNew = (activeSignalConc**metaboliteCoeff) * p_active/(1 - p_active)
+				kdNew = ((activeSignalConc**metaboliteCoeff) * p_active/(1 - p_active))**(1/metaboliteCoeff)
 
 			# Reset metabolite concentration with fitted P and kd
 			sim_data.process.metabolism.concentration_updates.molecule_set_amounts[metabolite] = (
-				(kdNew*(1 - p_inactive)/p_inactive)**(1./metaboliteCoeff)*(units.mol/units.L))
+				(kdNew**metaboliteCoeff*(1 - p_inactive)/p_inactive)**(1./metaboliteCoeff)*(units.mol/units.L))
 
 		else:
 			if p_active == 1:
@@ -3005,11 +2991,11 @@ def fitLigandConcentrations(sim_data, cell_specs):
 			if p_inactive < 1e-9:
 				kdNew = kd  # Concentration of metabolite-bound TF is negligible
 			else:
-				kdNew = (inactiveSignalConc**metaboliteCoeff) * (1 - p_inactive)/p_inactive
+				kdNew = ((inactiveSignalConc**metaboliteCoeff) * (1 - p_inactive)/p_inactive)**(1/metaboliteCoeff)
 
 			# Reset metabolite concentration with fitted P and kd
 			sim_data.process.metabolism.concentration_updates.molecule_set_amounts[metabolite] = (
-				(kdNew*p_active/(1 - p_active))**(1./metaboliteCoeff)*(units.mol/units.L))
+				(kdNew**metaboliteCoeff*p_active/(1 - p_active))**(1./metaboliteCoeff)*(units.mol/units.L))
 
 		# Fit reverse rate in line with fitted kd
 		sim_data.process.equilibrium.set_rev_rate(boundId + "[c]", kdNew * fwdRate)
@@ -3110,6 +3096,18 @@ def calculatePromoterBoundProbability(sim_data, cell_specs):
 					pPromoterBound[conditionKey][tf] = 0.
 				else:
 					pPromoterBound[conditionKey][tf] = limited_tf_counts * activeTfConc/(activeTfConc + inactiveTfConc)
+
+	# Check for any inconsistencies that could lead to feasbility issues when fitting
+	for condition in pPromoterBound:
+		if 'inactive' in condition:
+			tf = condition.split('__')[0]
+			active_p = pPromoterBound[f'{tf}__active'][tf]
+			inactive_p = pPromoterBound[f'{tf}__inactive'][tf]
+
+			if inactive_p >= active_p:
+				print('Warning: active condition does not have higher binding'
+					f' probability than inactive condition for {tf}'
+					f' ({active_p:.3f} vs {inactive_p:.3f}).')
 
 	return pPromoterBound
 

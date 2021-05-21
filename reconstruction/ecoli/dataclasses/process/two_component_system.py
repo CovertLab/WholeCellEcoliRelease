@@ -177,7 +177,7 @@ class TwoComponentSystem(object):
 		massBalanceArray = self.mass_balance()
 
 		# The stoichometric matrix should balance out to numerical zero.
-		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
+		assert np.max(np.absolute(massBalanceArray)) < 1e-9
 
 		# Map active TF to inactive TF
 		self.active_to_inactive_tf = activeToInactiveTF
@@ -367,7 +367,7 @@ class TwoComponentSystem(object):
 		dy = self.stoich_matrix().dot(rates)
 
 		# Metabolism will keep these molecules at steady state
-		constantMolecules = ["ATP[c]", "ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]
+		constantMolecules = ["ATP[c]", "ADP[c]", "Pi[c]", "WATER[c]", "PROTON[c]"]
 		for molecule in constantMolecules:
 			moleculeIdx = np.where(self.molecule_names == molecule)[0][0]
 			dy[moleculeIdx] = sp.S.Zero
@@ -516,7 +516,7 @@ class TwoComponentSystem(object):
 		return moleculesNeeded, allMoleculesChanges
 
 
-	def molecules_to_ss(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec):
+	def molecules_to_ss(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec=1e20):
 		"""
 		Calculates the changes in the counts of molecules as the system
 		reaches steady state
@@ -533,14 +533,13 @@ class TwoComponentSystem(object):
 			timestep
 		"""
 		# TODO (Gwanggyu): This function should probably get merged with the
-		# function above.
-
+		# 	function above.
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
 		y = scipy.integrate.odeint(
 			self.derivatives_parca, y_init,
 			t=[0, timeStepSec], Dfun=self.derivatives_parca_jacobian
-			)
+		)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
 			raise Exception(
@@ -628,7 +627,7 @@ class TwoComponentSystem(object):
 				dependencyMatrixV.append(-1)
 
 		# ATP dependents: ADP, PI, WATER, PROTON)
-		for ATPdependent in ["ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]:
+		for ATPdependent in ["ADP[c]", "Pi[c]", "WATER[c]", "PROTON[c]"]:
 			dependencyMatrixI.append(int(np.where(self.molecule_names == ATPdependent)[0]))
 			dependencyMatrixJ.append(dependencyMatrixATPJ)
 			if ATPdependent == "WATER[c]":
@@ -640,7 +639,7 @@ class TwoComponentSystem(object):
 			if col == dependencyMatrixATPJ:
 				continue
 			else:
-				dependencyMatrixI.append(int(np.where(self.molecule_names == "PI[c]")[0]))
+				dependencyMatrixI.append(int(np.where(self.molecule_names == "Pi[c]")[0]))
 				dependencyMatrixJ.append(col)
 				dependencyMatrixV.append(1)
 

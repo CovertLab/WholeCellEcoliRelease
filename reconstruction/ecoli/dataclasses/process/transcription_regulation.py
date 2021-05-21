@@ -56,7 +56,7 @@ class TranscriptionRegulation(object):
 		Computes probability of a one-component transcription factor binding
 		promoter.
 		"""
-		return float(signal)**power / (float(signal)**power + float(Kd))
+		return float(signal)**power / (float(signal)**power + float(Kd)**power)
 
 	def get_delta_prob_matrix(self, dense=False):
 		delta_prob = scipy.sparse.csr_matrix(
@@ -78,7 +78,7 @@ class TranscriptionRegulation(object):
 
 		self.abbr_to_rna_id = {}
 		for lookupInfo in raw_data.transcription_factors:
-			if len(lookupInfo["geneId"]) == 0:
+			if len(lookupInfo["geneId"]) == 0 or lookupInfo["geneId"] not in geneIdToRnaId:
 				continue
 			self.abbr_to_rna_id[lookupInfo["TF"]] = geneIdToRnaId[lookupInfo["geneId"]]
 

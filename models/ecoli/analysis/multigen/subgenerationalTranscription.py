@@ -241,8 +241,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		plotGreen = 0
 		plotBlue = 0
 
+		mRNA_id_set = set(mRnaIdsOrdered)
+
 		essential_genes_rna = validation_data.essential_genes.essential_RNAs
 		for g in essential_genes_rna:
+			if g not in mRNA_id_set:
+				continue
 			i = np.where(mRnaIdsOrdered == str(g))[0][0]
 			f = transcribedBoolOrdered[i]
 
@@ -294,8 +298,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		unknown = {"r": 0, "g": 0, "b": 0}
 		resistance = {"r": 0, "g": 0, "b": 0}
 		for frameID, function_ in six.viewitems(geneFunctions):
-			if function_ in ["Unknown function", "Unclear/under-characterized"]:
+			try:
 				i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
+			# Skip over genes that aren't used in the simulation
+			except IndexError:
+				continue
+			if function_ in ["Unknown function", "Unclear/under-characterized"]:
 				f = transcribedBoolOrdered[i]
 				if f == 0.0:
 					unknown["r"] += 1
@@ -305,7 +313,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					unknown["g"] += 1
 
 			elif function_ in ["Antibiotic resistance", "Toxin/antitoxin"]:
-				i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
 				f = transcribedBoolOrdered[i]
 				if f == 0.0:
 					resistance["r"] += 1

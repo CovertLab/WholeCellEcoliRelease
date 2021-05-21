@@ -1,3 +1,4 @@
+# TODO: Remove compartment tags
 "endoRnase"	"kcat (1 / units.s)"
 "EG10856-MONOMER[p]"	0.1
 "EG10857-MONOMER[c]"	0.1
@@ -5,6 +6,6 @@
 "EG10860-MONOMER[c]"	0.1
 "EG10861-MONOMER[c]"	0.1
 "EG10862-MONOMER[c]"	0.1
-"EG11299-MONOMER[c]"	0.1
+"EG11299-MONOMER[m]"	0.1
 "G7175-MONOMER[c]"	0.1
 "G7365-MONOMER[c]"	0.1

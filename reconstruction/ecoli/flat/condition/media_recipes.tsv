@@ -10,7 +10,7 @@
 "minimal_succinate"	"M9"	1.0	""	0	["SUC"]	[Infinity]	[]	[]
 "minimal_minus_calcium"	"M9_GLC"	1.0	""	0	["CA+2"]	[-Infinity]	[]	[]
 "minimal_minus_magnesium"	"M9_GLC"	1.0	""	0	["MG+2"]	[-Infinity]	[]	[]
-"minimal_minus_phosphate"	"M9_GLC"	1.0	""	0	["PI"]	[-Infinity]	[]	[]
+"minimal_minus_phosphate"	"M9_GLC"	1.0	""	0	["Pi"]	[-Infinity]	[]	[]
 "minimal_plus_arabinose"	"M9_GLC"	1.0	""	0	["ARABINOSE"]	[Infinity]	[]	[]
 "minimal_plus_cytidine"	"M9_GLC"	1.0	""	0	["CYTIDINE"]	[Infinity]	[]	[]
 "minimal_plus_ferric"	"M9_GLC"	1.0	""	0	["FE+3"]	[Infinity]	[]	[]

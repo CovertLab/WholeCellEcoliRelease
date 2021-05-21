@@ -12,7 +12,7 @@ from unum import Unum
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 # Data classes
-from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions
+from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions, UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS
 from reconstruction.ecoli.dataclasses.molecule_groups import MoleculeGroups
 from reconstruction.ecoli.dataclasses.molecule_ids import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
@@ -58,16 +58,40 @@ class Protein(object):
 	""" Protein """
 
 	def __init__(self, validation_data_raw, knowledge_base_raw):
+		compartment_ids_to_abbreviations = {
+			comp['id']: comp['abbrev'] for comp in knowledge_base_raw.compartments
+			}
+
+		# Compartments that don't exist in compartments.tsv
+		compartment_ids_to_abbreviations.update(
+			UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS)
+
+		protein_id_to_compartment_tag = {}
+
+		for protein in knowledge_base_raw.proteins:
+			exp_location = protein['exp_location']
+			comp_location = protein['comp_location']
+
+			if len(exp_location) + len(comp_location) == 0:
+				compartment = 'CCO-CYTOSOL'
+			elif len(exp_location) > 0:
+				compartment = exp_location[0]
+			else:
+				compartment = comp_location[0]
+
+			protein_id_to_compartment_tag.update({
+				protein['id']: [compartment_ids_to_abbreviations[compartment]]
+				})
+
 		# Build and save a dict from gene ID to monomerId
 		rna_id_to_gene_id = {
 			gene['rna_id']: gene['id'] for gene in knowledge_base_raw.genes}
-		protein_id_to_location = {
-			protein['id']: protein['compartment'][0] for protein in knowledge_base_raw.proteins}
 
-		self.geneIdToMonomerId = {
-			rna_id_to_gene_id[rna['id']]: '{}[{}]'.format(rna['monomer_id'], protein_id_to_location[rna['monomer_id']])
-			for rna in knowledge_base_raw.rnas
-			if rna["type"] == "mRNA"}
+		self.geneIdToMonomerId = {}
+
+		for rna in knowledge_base_raw.rnas:
+			if len(rna['monomer_ids']) > 0 and rna['monomer_ids'][0] in protein_id_to_compartment_tag:
+				self.geneIdToMonomerId[rna_id_to_gene_id[rna['id']]] = f"{rna['monomer_ids'][0]}[{protein_id_to_compartment_tag[rna['monomer_ids'][0]][0]}]"
 
 		# Build and save a dict from gene symbol to corresponding monomerId
 		self.geneSymbolToMonomerId = {}
@@ -160,8 +184,15 @@ class Protein(object):
 		avg = np.mean((rep1, rep2, rep3), axis = 0)
 		geneIds = [x["EcoCycID"] for x in dataset]
 
-		monomerIds = [self.geneIdToMonomerId[x] for x in geneIds]
-		nEntries = len(geneIds)
+		monomer_ids = []
+		avg_counts_filtered = []
+
+		for i, (gene_id, avg_count) in enumerate(zip(geneIds, avg)):
+			if gene_id in self.geneIdToMonomerId:
+				monomer_ids.append(self.geneIdToMonomerId[gene_id])
+				avg_counts_filtered.append(avg_count)
+
+		nEntries = len(monomer_ids)
 
 		wisniewski2014Data = np.zeros(
 			nEntries,
@@ -171,8 +202,8 @@ class Protein(object):
 				]
 			)
 
-		wisniewski2014Data["monomerId"] = monomerIds
-		wisniewski2014Data["avgCounts"] = avg
+		wisniewski2014Data["monomerId"] = monomer_ids
+		wisniewski2014Data["avgCounts"] = avg_counts_filtered
 
 		self.wisniewski2014Data = wisniewski2014Data
 

@@ -176,7 +176,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 		rnaExpression = sim_data.process.transcription.rna_expression[sim_data.condition]
 
 	monomerExpression = normalize(
-		rnaExpression[sim_data.relation.rna_index_to_monomer_mapping] *
+		rnaExpression[sim_data.relation.RNA_to_monomer_mapping] *
 		sim_data.process.translation.translation_efficiencies_by_monomer /
 		(np.log(2) / sim_data.condition_to_doubling_time[sim_data.condition].asNumber(units.s) + sim_data.process.translation.monomer_data['deg_rate'].asNumber(1 / units.s))
 		)

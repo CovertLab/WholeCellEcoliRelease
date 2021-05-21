@@ -122,7 +122,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
 			# Map transcription initiation events to monomers
-			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rna_index_to_monomer_mapping]
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.RNA_to_monomer_mapping]
 
 			# Load cell mass
 			cellMassInitial = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")[0]

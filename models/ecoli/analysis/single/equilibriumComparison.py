@@ -48,8 +48,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		cellVolume = cellMass / cellDensity
 
 		fig = plt.figure(figsize = (20, 20))
-		rows = 6
-		cols = 6
+		rows = 8
+		cols = 8
 		num_subentries = 3
 
 		for idx in range(stoichMatrix.shape[1]):

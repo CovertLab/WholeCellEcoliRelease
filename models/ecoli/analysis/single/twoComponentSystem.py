@@ -23,11 +23,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		TCS_IDS = []
 		moleculeTypeOrder = ["HK", "PHOSPHO-HK", "LIGAND", "HK-LIGAND", "PHOSPHO-HK-LIGAND", "RR", "PHOSPHO-RR"]
-		moleculeTypeLocation = ["[i]", "[i]", "[p]", "[i]", "[i]", "[c]", "[c]"]
 		moleculeTypeColor = ["b", "b", "orange", "g", "g", "r", "r"]
 		for system in sim_data.molecule_groups.twoComponentSystems:
 			for idx, moleculeType in enumerate(moleculeTypeOrder):
-				TCS_IDS.append(str(system["molecules"][moleculeType]) + moleculeTypeLocation[idx])
+				TCS_IDS.append(
+					str(system["molecules"][moleculeType])
+					+ sim_data.getter.get_compartment_tag(system["molecules"][moleculeType]))
 
 		(moleculeCounts,) = read_bulk_molecule_counts(simOutDir, (TCS_IDS,))
 

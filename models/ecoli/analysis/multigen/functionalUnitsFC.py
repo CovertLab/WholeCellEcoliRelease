@@ -51,7 +51,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Load sim data
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rna_data["id"][sim_data.relation.rna_index_to_monomer_mapping] # orders rna IDs to match monomer IDs
+		rnaIds = sim_data.process.transcription.rna_data["id"][sim_data.relation.RNA_to_monomer_mapping] # orders rna IDs to match monomer IDs
 		rnaIds = rnaIds.tolist()
 		ids_complexation = sim_data.process.complexation.molecule_names # Complexe of proteins, and protein monomers
 		ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes

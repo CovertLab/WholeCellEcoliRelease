@@ -2,7 +2,7 @@
 "molecule id"	"concentration (units.mmol / units.L)"
 # Media recipe from EcoCyc: MIX0-51
 "NA+"	103.7
-"PI"	69.454
+"Pi"	69.454
 "CL-"	27.25
 "GLC"	22.203
 "K+"	21.883

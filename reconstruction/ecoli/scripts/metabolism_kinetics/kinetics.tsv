@@ -121,7 +121,7 @@ Pubmed ID	reactionID	enzymeID	substrateIDs	Temp	rateEquationType	direction	kcat 
 7775463	"GSPSYN-RXN"	["GSP-CPLX"]	["SPERMIDINE"]	37	"standard"		[7]	[60]	[]	null	null	null	null	null		done!						
 7775463	"GSPAMID-RXN"	["GSP-CPLX"]	["GLUTATHIONYLSPERMIDINE"]	37	"standard"		[2.1]	[900]	[]	null	null	null	null	null		done!						
 7827038	"INORGPYROPHOSPHAT-RXN"	["CPLX0-243"]	["PPI"]	25	"standard"		[187]	[3.4]	[]	null	null	null	null	null		done!						
-7827038	"INORGPYROPHOSPHAT-RXN"	["CPLX0-243"]	["PI"]	25	"standard"		[114]	[]	[]	null	null	null	null	null		done!						
+7827038	"INORGPYROPHOSPHAT-RXN"	["CPLX0-243"]	["Pi"]	25	"standard"		[114]	[]	[]	null	null	null	null	null		done!
 7829480	"RXN0-4401"	["CPLX0-7974"]	["NADH"]		"standard"		[3.8]	[110]	[]	null	null	null	null	null	ecocyc new	done!						
 7837264	"3.4.21.89-RXN"	["EG10530-MONOMER"]	["Peptides-with-Leader-Sequence"]		"standard"		[8.73]	[16.5]	[]	null	null	null	null	null	ecocyc kinetics	They say their number is higher than others because they were using a better substrate.		['Peptides-with-Leader-Sequence']				
 7860596	"PNPOXI-RXN"	["PDXH-CPLX"]	["PYRIDOXINE-5P","PYRIDOXAL_PHOSPHATE"]	37	"custom"		[0.76]	[2]	[8]	"kcat*E*S/(Km*(1+I/Ki)+S)"	["kcat","Km","Ki","E","S","I"]	["kcat","Km","Ki"]	[0.76,2,8]	{"E":"PDXH-CPLX","S":"PYRIDOXINE-5P","I":"PYRIDOXAL_PHOSPHATE"}		done!						
@@ -839,7 +839,7 @@ Pubmed ID	reactionID	enzymeID	substrateIDs	Temp	rateEquationType	direction	kcat 
 17059210	"METHYLTHIOADENOSINE-NUCLEOSIDASE-RXN"	["CPLX0-1541"]	["5-METHYLTHIOADENOSINE"]	25	"standard"		[4.0]	[0.43]	[]	null	null	null	null	null		done!						
 17079236	"GLUC1PADENYLTRANS-RXN"	["GLUC1PADENYLTRANS-CPLX"]	["ATP","GLC-1-P"]	37	"standard"		[370]	[590,17]	[]	null	null	null	null	null	ecocyc kinetics	Km Mg2+ 2.6 mM, Fructose 1,6 bisphosphate is listed as an activator with A0.5 59.4 uM.		["GLC-1-P"]				
 17123542	"XYLULOKIN-RXN"	["CPLX0-7466"]	["D-XYLULOSE", "ATP"]	25	"standard"		[255]	[290,150]	[]	null	null	null	null	null		should be a complex						
-17134700	"ACYLPHOSPHATASE-RXN"	["G6502-MONOMER"]	["Acyl-Phosphates","PI"]	25	"custom"	"forward"	[94]	[540]	[1440]	"kcat*E*S/(km*(1+I/ki)+S)"	["kcat","km","ki","E","S","I"]	["kcat","km","ki"]	[94,540,1440]	["Acyl-Phosphates","PI"]	ecocyc new	25 deg		["Acyl-Phosphates"]				
+17134700	"ACYLPHOSPHATASE-RXN"	["G6502-MONOMER"]	["Acyl-Phosphates","Pi"]	25	"custom"	"forward"	[94]	[540]	[1440]	"kcat*E*S/(km*(1+I/ki)+S)"	["kcat","km","ki","E","S","I"]	["kcat","km","ki"]	[94,540,1440]	["Acyl-Phosphates","Pi"]	ecocyc new	25 deg		["Acyl-Phosphates"]
 17176045	"RXN-10856"	["CPLX0-3936"]	["CPD-11770"]	25	"standard"		[0.089]	[8.0]	[]	null	null	null	null	null		a little weird because the enzyme is bifunctional, should be a complex						
 17176045	"H2NEOPTERINALDOL-RXN"	["CPLX0-3936"]	["DIHYDRO-NEO-PTERIN"]	25	"standard"		[0.082]	[7.4]	[]	null	null	null	null	null		a little weird because the enzyme is bifunctional, should be a complex						
 17229734	"2-DEHYDROPANTOATE-REDUCT-RXN"	["2-DEHYDROPANTOATE-REDUCT-MONOMER"]	["2-DEHYDROPANTOATE","NADPH"]	27	"standard"		[25]	[30,7.3]	[]	null	null	null	null	null	EC1	done!		['2-DEHYDROPANTOATE']				
@@ -921,7 +921,7 @@ Pubmed ID	reactionID	enzymeID	substrateIDs	Temp	rateEquationType	direction	kcat 
 18247525	"ACYL-COA-HYDROLASE-RXN"	["EG11121-MONOMER"]	["CPD-207"]	25	"standard"		[9.4]	[16]	[]	null	null	null	null	null								
 18260824	"CTPSYN-RXN"	["CTPSYN-CPLX"]	["GLN"]	37	"standard"		[6.1]	[350]	[]	null	null	null	null	null	ecocyc kinetics	Using NH3, which is listed but not in a reaction for Ecocyc: Km 2.2 mM, kcat 9.5/s.						
 18284213	"RXN-9310"	["EG12438-MONOMER"]	["CPD-9924"]	37	"standard"		[167]	[8.3]	[]	null	null	null	null	null		done!						
-18299797	"INOPHOSPHOR-RXN"	["DEOD-CPLX"]	["INOSINE","PI"]	37	"standard"		[44.93]	[320,340]	[]	null	null	null	null	null		done!						
+18299797	"INOPHOSPHOR-RXN"	["DEOD-CPLX"]	["INOSINE","Pi"]	37	"standard"		[44.93]	[320,340]	[]	null	null	null	null	null		done!
 18353368	"RXN0-3741[CCO-CYTOSOL]-TMP/WATER//THYMIDINE/Pi.37."	["G7230-MONOMER"]	["TMP"]	37	"standard"		[1.19]	[129.4]	[]	null	null	null	null	null	ecocyc kinetics	Co2+ kcat 1.21/s, Km 340 uM is also a substrate.		["TMP"]	"RXN0-3741"			
 18353368	"RXN0-3741"	["G7230-MONOMER"]	["GMP"]	37	"standard"		[0.69]	[379.8]	[]	null	null	null	null	null	ecocyc kinetics	Co2+ kcat 1.21/s, Km 340 uM is also a substrate.			"RXN0-3741"			
 18353368	"RXN0-3741[CCO-CYTOSOL]-DCMP/WATER//DEOXYCYTIDINE/Pi.42."	["G7230-MONOMER"]	["DCMP"]	37	"standard"		[0.84]	[78.5]	[]	null	null	null	null	null	ecocyc kinetics	Co2+ kcat 1.21/s, Km 340 uM is also a substrate.		["DCMP"]	"RXN0-3741"			
@@ -996,7 +996,7 @@ Pubmed ID	reactionID	enzymeID	substrateIDs	Temp	rateEquationType	direction	kcat 
 19384989	"RXN0-742"	["PURK-CPLX"]	["ATP","5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE"]	25	"standard"		[5.9]	[48,66]	[]	null	null	null	null	null	ecocyc kinetics	done!		["5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE"]				
 19384989	"GARTRANSFORMYL2-RXN"	["GARTRANSFORMYL2-MONOMER"]	["5-PHOSPHO-RIBOSYL-GLYCINEAMIDE","ATP","FORMATE"]	25	"standard"		[37.6]	[10.1,45,319]	[]	null	null	null	null	null	ecocyc kinetics	done!		["5-PHOSPHO-RIBOSYL-GLYCINEAMIDE"]				
 19384989	"RXN0-742"	["PURK-CPLX"]	["ATP","5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE"]	25	"standard"		[52]	[90,26]	[]	null	null	null	null	null	ecocyc kinetics	this value is cited and competes with the other from this publication.		["5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE"]				
-19411254	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","PI"]	25	"standard"		[16,20]	[100,4200]	[]	null	null	null	null	null		done!						
+19411254	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","Pi"]	25	"standard"		[16,20]	[100,4200]	[]	null	null	null	null	null		done!
 19411254	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ATP"]	25	"standard"		[285]	[78]	[]	null	null	null	null	null		done!						
 19462023	"MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	["MALONYL-COA"]	25	"standard"		[0.00047]	[49]	[]	null	null	null	null	null	ecocyc kinetics	done!						
 19487291	"CYTDEAM-RXN"	["CPLX0-7932"]	["CYTOSINE"]		"standard"		[49.68]	[460]	[]	null	null	null	null	null		temp not reported, should be a complex						
@@ -1037,7 +1037,7 @@ Pubmed ID	reactionID	enzymeID	substrateIDs	Temp	rateEquationType	direction	kcat 
 20187643	"CARBPSYN-RXN"	["CARBPSYN-CPLX"]	["ATP"]		"standard"		[3.6]	[240]	[]	null	null	null	null	null	ecocyc kinetics	Temp not reported, these are all subreactions of the overall enzyme. Might be interesting to delve deeper for a paper.						
 20187643	"CARBPSYN-RXN"	["CARBPSYN-CPLX"]	["GLN"]		"standard"		[2.2]	[150]	[]	null	null	null	null	null	ecocyc kinetics	Temp not reported, these are all subreactions of the overall enzyme. Might be interesting to delve deeper for a paper.						
 20187643	"CARBPSYN-RXN"	["CARBPSYN-CPLX"]	["ADP"]		"standard"		[0.13]	[130]	[]	null	null	null	null	null	ecocyc kinetics	Temp not reported						
-20236319	"PHOSACETYLTRANS-RXN"	["PHOSACETYLTRANS-CPLX"]	["ACETYL-COA","PI"]	30	"custom"		[]	[]	[]	"kcat*E*Pi/(KmP + Pi)*(Ac^H)/(KmA^H +Ac^H)" 	["kcat","KmP","KmA","H","E","Pi","Ac"]	["kcat","KmP","KmA","H"]	[29.6,2.1,44.9,1.3]	{"E":"PHOSACETYLTRANS-CPLX","Pi":"PI","Ac":"ACETYL-COA"}		done!						
+20236319	"PHOSACETYLTRANS-RXN"	["PHOSACETYLTRANS-CPLX"]	["ACETYL-COA","Pi"]	30	"custom"		[]	[]	[]	"kcat*E*Pi/(KmP + Pi)*(Ac^H)/(KmA^H +Ac^H)" 	["kcat","KmP","KmA","H","E","Pi","Ac"]	["kcat","KmP","KmA","H"]	[29.6,2.1,44.9,1.3]	{"E":"PHOSACETYLTRANS-CPLX","Pi":"Pi","Ac":"ACETYL-COA"}		done!
 20236319	"PHOSACETYLTRANS-RXN"	["PHOSACETYLTRANS-CPLX"]	["CO-A","ACETYL-P"]	30	"custom"		[]	[]	[]	"kcat*E*CoA/(KmC + CoA)*(Ac^H)/(KmA^H +Ac^H)" 	["kcat","KmC","KmA","H","E","CoA","Ac"]	["kcat","KmC","KmA","H"]	[227.6,67.2,900,1.7]	{"E":"PHOSACETYLTRANS-CPLX","CoA":"CO-A","Ac":"ACETYL-P"}		done!						
 20353808	"DIHYDRODIPICSYN-RXN"	["DIHYDRODIPICSYN-CPLX"]	["PYRUVATE","L-ASPARTATE-SEMIALDEHYDE"]		"standard"		[45]	[150,120]	[]	null	null	null	null	null	ecocyc kinetics	Weird equations for the lysine inhibition here, they didn't make much sense so I left them out. Ki lysine wrt pyruvate 0.12 mM, Ki lysine wrt L-ASA 0.18 mM		["PYRUVATE"]				
 20364820	"MHPELY-RXN"	["MHPELY-MONOMER"]	["ACETALD"]	25	"standard"		[205.4]	[62900]	[]	null	null	null	null	null	ecocyc kinetics	Other substrates (with pyruvate as the carbonyl donor): glycolaldehyde (Km 33.3 mM, kcat 175.5/s), propionaldehyde (Km 32.9 mM, kcat 358.4/s), (D,L)-glyceraldehyde (Km 88.6 mM, kcat 5.6/s), butyraldehyde (Km 13.4 mM, kcat 132.5/s), isobutyraldehyde (Km 73.8 mM, kcat 64.9/s), succinic semialdehyde (Km 9.1 mM, kcat 203.8/s). With 2-ketobutanoate as the carbonyl donor, kcat 21.9/s and Km acetaldehyde 50.1 mM.		["ACETALD"]				

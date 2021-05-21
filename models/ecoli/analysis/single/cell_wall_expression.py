@@ -3,8 +3,7 @@ Plot of cell wall major components expression
 Note: This is not an exhaustive list of all components of cell wall.
 """
 
-from __future__ import absolute_import, division, print_function
-
+import pickle
 import os
 
 from matplotlib import pyplot as plt
@@ -20,49 +19,58 @@ from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
 
-cell_wall_proteins = {
+CELL_WALL_PROTEINS = {
     # murein
-    'CPD-12261[p]': 'murein',
-    'CPD-12231[p]':'peptidoglycan dimer',
-    'C6[p]':'lipid II',
-    'C5[c]': 'lipid I',
-    'CPD-9646[c]': 'undecaprenyl phosphate',
-    'UNDECAPRENYL-DIPHOSPHATE[c]': 'undecaprenyl diphosphate',
+    'CPD-12261': 'murein',
+    'CPD-12231':'peptidoglycan dimer',
+    'C6':'lipid II',
+    'C5': 'lipid I',
+    'CPD-9646': 'undecaprenyl phosphate',
+    'UNDECAPRENYL-DIPHOSPHATE': 'undecaprenyl diphosphate',
 
     # catalyzes lipid II transfer to outer membrane
-    'G6561-MONOMER[i]': 'lipid II flippase (MurJ)',
-    'EG10344-MONOMER[i]': 'essential cell division protein (FtsW)',
+    'G6561-MONOMER': 'lipid II flippase (MurJ)',
+    'EG10344-MONOMER': 'essential cell division protein (FtsW)',
 
     # catalyzes lipid II formation
-    'NACGLCTRANS-MONOMER[c]': 'MurG',
+    'NACGLCTRANS-MONOMER': 'MurG',
 
     # catalyzes lipid I formation
-    'PHOSNACMURPENTATRANS-MONOMER[i]': 'MraY',
+    'PHOSNACMURPENTATRANS-MONOMER': 'MraY',
 
     # PBP
-    'CPLX0-7717[i]': 'PBP1A', # transglycosylase-transpeptidase ~100
-    'CPLX0-3951[i]': 'PBP1B', # transglycosylase-transpeptidase ~100
-    'G7322-MONOMER[i]': 'PBP1C', # transglycosylase
-    'EG10606-MONOMER[i]': 'PBP2', # transpeptidase ~20
-    'EG10341-MONOMER[i]': 'PBP3', # transglycosylase-transpeptidase ~50
-    'EG10202-MONOMER[p]': 'PBP4', # DD-endopeptidase, DD-carboxypeptidase ~110
-    'EG10201-MONOMER[i]': 'PBP5', # DD-caroxypeptidase ~1,800
-    'EG10203-MONOMER[i]': 'PBP6', # DD-carbocypeptidase ~600
-    'EG12015-MONOMER[p]': 'PBP7', # DD-endopeptidase
+    'CPLX0-7717': 'PBP1A', # transglycosylase-transpeptidase ~100
+    'CPLX0-3951': 'PBP1B', # transglycosylase-transpeptidase ~100
+    'G7322-MONOMER': 'PBP1C', # transglycosylase
+    'EG10606-MONOMER': 'PBP2', # transpeptidase ~20
+    'EG10341-MONOMER': 'PBP3', # transglycosylase-transpeptidase ~50
+    'EG10202-MONOMER': 'PBP4', # DD-endopeptidase, DD-carboxypeptidase ~110
+    'EG10201-MONOMER': 'PBP5', # DD-caroxypeptidase ~1,800
+    'EG10203-MONOMER': 'PBP6', # DD-carbocypeptidase ~600
+    'EG12015-MONOMER': 'PBP7', # DD-endopeptidase
 
 }
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName,
 				simDataFile, validationDataFile, metadata):
+		with open(simDataFile, 'rb') as f:
+			sim_data = pickle.load(f)
+
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 
 		# Load data
 		initial_time = main_reader.readAttribute('initialTime')
 		time = main_reader.readColumn('time') - initial_time
-		(counts,) = read_bulk_molecule_counts(simOutDir,
-											  (cell_wall_proteins.keys(),))
+
+		existing_molecule_ids = [
+			mol_id + sim_data.getter.get_compartment_tag(mol_id)
+			for mol_id in CELL_WALL_PROTEINS.keys()
+			if sim_data.getter.is_valid_molecule(mol_id)
+		]
+		(counts,) = read_bulk_molecule_counts(
+			simOutDir, (existing_molecule_ids,))
 		counts = counts.astype(float).T
 
 		row_max = counts.max(axis=1)
@@ -73,10 +81,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			cmap='RdBu',
 			interpolation='nearest',
 			aspect='auto',
-			extent=[time[0],time[-1],len(cell_wall_proteins)-0.5,-0.5])
-		ax.set_yticks(np.arange(0, len(cell_wall_proteins), 1))
-		ax.set_yticklabels([cell_wall_proteins[mol_id] for
-							mol_id in cell_wall_proteins.keys()], fontsize=8)
+			extent=[time[0],time[-1],len(existing_molecule_ids)-0.5,-0.5])
+		ax.set_yticks(np.arange(0, len(existing_molecule_ids), 1))
+		ax.set_yticklabels([CELL_WALL_PROTEINS[mol_id[:-3]] for
+							mol_id in existing_molecule_ids], fontsize=8)
 		plt.xlabel('time (s)')
 		plt.title('Cell wall major components expression')
 
@@ -85,8 +93,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		final_counts.reverse()
 
 		ax2 = fig.add_subplot(111, sharex=ax, frameon=False)
-		ax2.set_ylim([-0.5, len(cell_wall_proteins.keys())-0.5])
-		ax2.set_yticks(np.arange(0, len(cell_wall_proteins), 1))
+		ax2.set_ylim([-0.5, len(existing_molecule_ids)-0.5])
+		ax2.set_yticks(np.arange(0, len(existing_molecule_ids), 1))
 		ax2.set_yticklabels(final_counts, fontsize=8)
 		ax2.tick_params(length=0)
 		ax2.yaxis.tick_right()

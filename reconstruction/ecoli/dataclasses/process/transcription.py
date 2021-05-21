@@ -179,8 +179,13 @@ class Transcription(object):
 		"""
 		self._basal_rna_fractions = sim_data.mass.get_basal_rna_fractions()
 
+		# Filter out RNAs without sequences
+		all_rnas = [
+			rna for rna in raw_data.rnas
+			if sim_data.getter.is_valid_molecule(rna['id'])]
+
 		# Load RNA IDs with compartment tags
-		rna_ids = [rna['id'] for rna in raw_data.rnas]
+		rna_ids = [rna['id'] for rna in all_rnas]
 		compartments = sim_data.getter.get_compartments(rna_ids)
 
 		rna_ids_with_compartments = [
@@ -188,7 +193,7 @@ class Transcription(object):
 			in zip(rna_ids, compartments)]
 
 		# Load set of mRNA ids
-		mRNA_ids = set([rna['id'] for rna in raw_data.rnas if rna['type'] == 'mRNA'])
+		mRNA_ids = set([rna['id'] for rna in all_rnas if rna['type'] == 'mRNA'])
 
 		# Load RNA half lives
 		rna_id_to_half_life = {}
@@ -207,7 +212,7 @@ class Transcription(object):
 		# average reported half life of mRNAs
 		half_lives = np.array([
 			rna_id_to_half_life.get(rna['id'], average_mRNA_half_lives).asNumber(units.s)
-			for rna in raw_data.rnas])
+			for rna in all_rnas])
 
 		# Convert to degradation rates
 		rna_deg_rates = np.log(2) / half_lives
@@ -221,18 +226,10 @@ class Transcription(object):
 			x['Gene']: x[sim_data.basal_expression_condition]
 			for x in getattr(raw_data.rna_seq_data, f'rnaseq_{RNA_SEQ_ANALYSIS}_mean')}
 
-		for rna in raw_data.rnas:
+		for rna in all_rnas:
 			gene_id = rna_id_to_gene_id[rna['id']]
-			# If sequencing data is not found for rRNA or tRNA, initialize
-            # expression to zero. For other RNA types, raise exception.
-			if gene_id in seq_data:
-				expression.append(seq_data[gene_id])
-			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
-				raise Exception(f'No RNA-seq data found for {rna["id"]}')
-			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
-				expression.append(0.)
-			else:
-				raise Exception(f'Unknown RNA {rna["id"]}')
+			# If sequencing data is not found, initialize expression to zero.
+			expression.append(seq_data.get(gene_id, 0.))
 
 		expression = np.array(expression)
 
@@ -248,10 +245,21 @@ class Transcription(object):
 
 		# Load gene IDs
 		gene_ids = np.array(
-			[rna_id_to_gene_id[rna['id']] for rna in raw_data.rnas])
+			[rna_id_to_gene_id[rna['id']] for rna in all_rnas])
+
+		# Construct boolean arrays for ribosomal protein and RNAP genes
+		n_rnas = len(rna_ids_with_compartments)
+		is_ribosomal_protein = np.zeros(n_rnas, dtype=np.bool)
+		is_RNAP	= np.zeros(n_rnas, dtype=np.bool)
+
+		for i, rna in enumerate(all_rnas):
+			for monomer_id in rna['monomer_ids']:
+				if monomer_id + '[c]' in sim_data.molecule_groups.ribosomal_proteins:
+					is_ribosomal_protein[i] = True
+				if monomer_id + '[c]' in sim_data.molecule_groups.RNAP_subunits:
+					is_RNAP[i] = True
 
 		# Construct boolean arrays and index arrays for each rRNA type
-		n_rnas = len(rna_ids_with_compartments)
 		is_23S = np.zeros(n_rnas, dtype = np.bool)
 		is_16S = np.zeros(n_rnas, dtype = np.bool)
 		is_5S = np.zeros(n_rnas, dtype = np.bool)
@@ -259,7 +267,7 @@ class Transcription(object):
 		idx_16S = []
 		idx_5S = []
 
-		for rnaIndex, rna in enumerate(raw_data.rnas):
+		for rnaIndex, rna in enumerate(all_rnas):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
 				is_23S[rnaIndex] = True
 				idx_23S.append(rnaIndex)
@@ -275,9 +283,6 @@ class Transcription(object):
 		idx_23S = np.array(idx_23S)
 		idx_16S = np.array(idx_16S)
 		idx_5S = np.array(idx_5S)
-
-		# Load IDs of protein monomers
-		monomer_ids = [rna['monomer_id'] for rna in raw_data.rnas]
 
 		# Load RNA sequences and molecular weights from getter functions
 		rna_seqs = sim_data.getter.get_sequences(rna_ids)
@@ -299,7 +304,10 @@ class Transcription(object):
 			for i, gene in enumerate(raw_data.genes)}
 
 		# Get list of coordinates and directions for each gene
-		coordinate_list = [gene["coordinate"] for gene in raw_data.genes]
+		coordinate_list = [
+			gene["left_end_pos"] if gene["direction"] == '+'
+			else gene["right_end_pos"]
+			for gene in raw_data.genes]
 		direction_list = [gene["direction"] for gene in raw_data.genes]
 
 		# Get coordinates of oriC and terC
@@ -324,12 +332,12 @@ class Transcription(object):
 		# Get location of transcription initiation relative to origin
 		replication_coordinate = [
 			get_relative_coordinates(coordinate_list[rna_id_to_gene_index[rna["id"]]])
-			for rna in raw_data.rnas]
+			for rna in all_rnas]
 
 		# Get direction of transcription
 		direction = [
 			(direction_list[rna_id_to_gene_index[rna["id"]]] == "+")
-			for rna in raw_data.rnas]
+			for rna in all_rnas]
 
 		# Set the lengths, nucleotide counts, molecular weights, and sequences
 		# of each type of rRNAs to be identical to those of the first rRNA
@@ -381,16 +389,12 @@ class Transcription(object):
 		rna_data['length'] = rna_lengths
 		rna_data['counts_ACGU'] = nt_counts
 		rna_data['mw'] = mws
-		rna_data['is_mRNA'] = [rna["type"] == "mRNA" for rna in raw_data.rnas]
-		rna_data['is_miscRNA'] = [rna["type"] == "miscRNA" for rna in raw_data.rnas]
-		rna_data['is_rRNA'] = [rna["type"] == "rRNA" for rna in raw_data.rnas]
-		rna_data['is_tRNA'] = [rna["type"] == "tRNA" for rna in raw_data.rnas]
-		rna_data['is_ribosomal_protein'] = [
-            "{}[c]".format(x) in sim_data.molecule_groups.ribosomal_proteins
-            for x in monomer_ids]
-		rna_data['is_RNAP'] = [
-            "{}[c]".format(x) in sim_data.molecule_groups.RNAP_subunits
-            for x in monomer_ids]
+		rna_data['is_mRNA'] = [rna["type"] == "mRNA" for rna in all_rnas]
+		rna_data['is_miscRNA'] = [rna["type"] == "miscRNA" for rna in all_rnas]
+		rna_data['is_rRNA'] = [rna["type"] == "rRNA" for rna in all_rnas]
+		rna_data['is_tRNA'] = [rna["type"] == "tRNA" for rna in all_rnas]
+		rna_data['is_ribosomal_protein'] = is_ribosomal_protein
+		rna_data['is_RNAP'] = is_RNAP
 		rna_data['is_23S_rRNA'] = is_23S
 		rna_data['is_16S_rRNA'] = is_16S
 		rna_data['is_5S_rRNA'] = is_5S
@@ -436,7 +440,7 @@ class Transcription(object):
 		"""
 		# Load sequence data
 		rna_seqs = sim_data.getter.get_sequences(
-			[rna['id'] for rna in raw_data.rnas])
+			[rna_id[:-3] for rna_id in self.rna_data['id']])
 
 		rrna_types = ['is_23S_rRNA', 'is_16S_rRNA', 'is_5S_rRNA']
 		for rrna in rrna_types:
@@ -539,35 +543,42 @@ class Transcription(object):
 
 		# Get IDs of charging reactions that should be removed
 		removed_reaction_ids = {
-			rxn['id'] for rxn in raw_data.rna_modification_reactions_removed}
+			rxn['id'] for rxn in raw_data.trna_charging_reactions_removed}
+
+		# Get IDs of all metabolites
+		metabolite_ids = {met['id'] for met in raw_data.metabolites}
 
 		# Create stoichiometry matrix for charging reactions
-		for reaction in raw_data.rna_modification_reactions:
+		for reaction in raw_data.trna_charging_reactions:
 			if reaction['id'] in removed_reaction_ids:
 				continue
 
 			# Get uncharged tRNA name for the given reaction
 			trna = None
-			for mol in [molecule['molecule'] + '[' + molecule['location'] + ']' for molecule in reaction['stoichiometry']]:
-				if mol in trna_names:
-					trna = mol
+			for mol_id in reaction['stoichiometry'].keys():
+				if f'{mol_id}[c]' in trna_names:
+					trna = f'{mol_id}[c]'
 					break
 
 			if trna is None:
 				continue
+
 			trna_index = trna_indices[trna]
 
 			# Get molecule information
 			aa_idx = None
-			for molecule in reaction['stoichiometry']:
-				molecule_prefix = molecule['molecule']
-				if molecule['type'] == 'metabolite':
-					molecule_prefix = molecule_prefix.upper()
+			for mol_id, coeff in reaction['stoichiometry'].items():
 
-				molecule_name = '{}[{}]'.format(
-					molecule_prefix,
-					molecule['location']
-					)
+				if mol_id in metabolite_ids:
+					molecule_name = "{}[{}]".format(
+						mol_id, 'c'
+						# Assume all metabolites are in cytosol
+						)
+				else:
+					molecule_name = "{}[{}]".format(
+						mol_id,
+						sim_data.getter.get_compartment(mol_id)[0]
+						)
 
 				if molecule_name not in molecules:
 					molecules.append(molecule_name)
@@ -577,19 +588,21 @@ class Transcription(object):
 
 				aa_idx = aa_indices.get(molecule_name, aa_idx)
 
-				coefficient = molecule['coeff']
-
-				assert coefficient % 1 == 0
+				# Assume coefficents given as null are -1
+				if coeff is None:
+					coeff = -1
+				assert coeff % 1 == 0
 
 				stoich_matrix_i.append(molecule_index)
 				stoich_matrix_j.append(trna_index)
-				stoich_matrix_v.append(coefficient)
+				stoich_matrix_v.append(coeff)
 
 			assert aa_idx is not None
 
 			# Create mapping for synthetases catalyzing charging
 			for synthetase in reaction['catalyzed_by']:
-				synthetase = '{}[{}]'.format(synthetase, molecule['location'])
+				synthetase = '{}[{}]'.format(
+					synthetase, sim_data.getter.get_compartment(synthetase)[0])
 
 				if synthetase not in synthetase_names:
 					synthetase_names.append(synthetase)

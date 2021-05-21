@@ -41,42 +41,38 @@ class Complexation(object):
 
 			self.ids_reactions.append(reaction['id'])
 
-			for molecule in reaction["stoichiometry"]:
-				if molecule["type"] == "metabolite":
-					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(),
-						molecule["location"]
-						)
-				else:
-					moleculeName = "{}[{}]".format(
-						molecule["molecule"],
-						sim_data.getter.get_compartment(molecule["molecule"])[0]
-						)
+			for mol_id, coeff in reaction["stoichiometry"].items():
+				mol_id_with_compartment = "{}[{}]".format(
+					mol_id,
+					sim_data.getter.get_compartment(mol_id)[0]
+					)
 
-				if moleculeName not in molecules:
-					molecules.append(moleculeName)
+				if mol_id_with_compartment not in molecules:
+					molecules.append(mol_id_with_compartment)
 					molecule_index = len(molecules) - 1
 				else:
-					molecule_index = molecules.index(moleculeName)
+					molecule_index = molecules.index(mol_id_with_compartment)
 
-				coefficient = molecule["coeff"]
-				assert (coefficient % 1) == 0
+				# Assume coefficents given as null are -1
+				if coeff is None:
+					coeff = -1
+
+				assert (coeff % 1) == 0
 
 				stoichMatrixI.append(molecule_index)
 				stoichMatrixJ.append(reaction_index)
-				stoichMatrixV.append(coefficient)
+				stoichMatrixV.append(coeff)
 
 				# Classify molecule into subunit or complex depending on sign
 				# of the stoichiometric coefficient - Note that a molecule can
 				# be both a subunit and a complex
-				if coefficient < 0:
-					subunits.append(moleculeName)
+				if coeff < 0:
+					subunits.append(mol_id_with_compartment)
 				else:
-					assert molecule["type"] == "proteincomplex"
-					complexes.append(moleculeName)
+					complexes.append(mol_id_with_compartment)
 
 				# Find molecular mass of the molecule and add to mass matrix
-				molecularMass = sim_data.getter.get_mass(moleculeName).asNumber(units.g / units.mol)
+				molecularMass = sim_data.getter.get_mass(mol_id_with_compartment).asNumber(units.g / units.mol)
 				stoichMatrixMass.append(molecularMass)
 
 			reaction_index += 1

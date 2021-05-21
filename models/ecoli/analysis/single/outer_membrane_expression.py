@@ -6,6 +6,7 @@ Note: This is not an exhaustive list of all components of outer membrane.
 from __future__ import absolute_import, division, print_function
 
 import os
+import pickle
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -19,78 +20,86 @@ from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
 
-outer_mem_proteins = {
+OUTER_MEM_PROTEINS = {
 	# phospholipids
-	'CPD-12819[c]': 'phosphatidylathanolamine',
-    'CPD-12824[c]' : 'cardiolipin',
-    'CPD-8260[c]': 'phosphatidylglycerol',
-
-    'CPD0-939[c]': 'LPS',
+	'CPD-12819': 'phosphatidylathanolamine',
+    'CPD-12824' : 'cardiolipin',
+    'CPD-8260': 'phosphatidylglycerol',
+    'CPD0-939': 'LPS',
 
 	# outer membrane proteins
-    'EG10669-MONOMER[i]': 'ompA',
-    # 'EG10671-MONOMER[e]': 'ompF',
-    # 'EG10670-MONOMER[e]': 'ompC',
-    # 'G6657-MONOMER[o]': 'ompG',
-    # 'G7814-MONOMER[o]': 'ompL',
-    # 'G6700-MONOMER[o]': 'ompN',
-    'EG10673-MONOMER[o]': 'ompT',
-    'EG12117-MONOMER[o]': 'ompX',
+    'EG10669-MONOMER': 'ompA',
+    'EG10671-MONOMER': 'ompF',
+    'EG10670-MONOMER': 'ompC',
+    'G6657-MONOMER': 'ompG',
+    'G7814-MONOMER': 'ompL',
+    'G6700-MONOMER': 'ompN',
+    'EG10673-MONOMER': 'ompT',
+    'EG12117-MONOMER': 'ompX',
 
 	# outer membrane porins
-	# 'CPLX0-7530[e]': 'outer membrane porin E',
-	'CPLX0-7533[e]': 'outer membrane porin C',
-	'CPLX0-7534[e]': 'outer membrane porin F',
-	# 'CPLX0-7655[e]': 'maltose outer membrane porin / phage lambda receptor protein',
+	'CPLX0-7530': 'outer membrane porin E',
+	'CPLX0-7533': 'outer membrane porin C',
+	'CPLX0-7534': 'outer membrane porin F',
+	'CPLX0-7655': 'maltose outer membrane porin / phage lambda receptor protein',
 
 	# Tol pal system
-	# 'CPLX0-2201[s]': 'Tol-Pal system', # spans envelope
-	# 'EG10684-MONOMER[e]': 'Pal',
+	'CPLX0-2201': 'Tol-Pal system', # spans envelope
+	'EG10684-MONOMER': 'Pal',
 
 	# other outer membrane
-	# 'CPLX0-7944[e]': 'outer membrane phospholipase',
-	# 'CPLX0-7952[s]': 'ferric coprogen outer membrane transport complex',
-	# 'CPLX0-7964[e]': 'TolC outer membrane channel',
-	# 'CPLX0-8009[e]': 'outer membrane protein; export and assembly of type 1 fimbriae',
-	# 'CPLX0-1924[s]': 'vitamin B12 outer membrane transport complex',
-	# 'CPLX0-1941[s]': 'ferric enterobactin outer membrane transport complex',
-	# 'CPLX0-1942[s]': 'ferrichrome outer membrane transport complex',
-	# 'CPLX0-1943[s]': 'ferric citrate outer membrane transport complex',
-	'EG10544-MONOMER[o]': 'murein lipoprotein',
+	'CPLX0-7944': 'outer membrane phospholipase',
+	'CPLX0-7952': 'ferric coprogen outer membrane transport complex',
+	'CPLX0-7964': 'TolC outer membrane channel',
+	'CPLX0-8009': 'outer membrane protein; export and assembly of type 1 fimbriae',
+	'CPLX0-1924': 'vitamin B12 outer membrane transport complex',
+	'CPLX0-1941': 'ferric enterobactin outer membrane transport complex',
+	'CPLX0-1942': 'ferrichrome outer membrane transport complex',
+	'CPLX0-1943': 'ferric citrate outer membrane transport complex',
+	'EG10544-MONOMER': 'murein lipoprotein',
 
 	# # phospholipid transport
-    # 'EG11293-MONOMER[o]': 'lolB',
-    # 'G6465-MONOMER[p]': 'lolA',
+    'EG11293-MONOMER': 'lolB',
+    'G6465-MONOMER': 'lolA',
 
 	# LPS biosynthesis
-	'EG11424-MONOMER[i]': 'waaL',
-	'EG10613-MONOMER[i]': 'msbA',
+	'EG11424-MONOMER': 'waaL',
+	'EG10613-MONOMER': 'msbA',
 
 	# LPS transport
-	'CPLX0-7704[i]': 'LPS ABC transporter (lipid A-core flippase)',
-	'CPLX0-7992[i]': 'LPS transport system',
-	'ABC-53-CPLX[i]': 'lptB2-F-G',
-	'CPLX0-7628[e]': 'lptE-D',
-	'YHBN-MONOMER[e]': 'lptA',
-	'YHBG-MONOMER[i]': 'lptB',
-	'G7664-MONOMER[i]': 'lptC',
-	'EG11569-MONOMER[e]': 'lptD',
-	'EG10855-MONOMER[e]': 'lptE',
-	'G7888-MONOMER[i]': 'lptF',
-	'G7889-MONOMER[i]': 'lptG',
+	'CPLX0-7704': 'LPS ABC transporter (lipid A-core flippase)',
+	'CPLX0-7992': 'LPS transport system',
+	'ABC-53-CPLX': 'lptB2-F-G',
+	'CPLX0-7628': 'lptE-D',
+	'YHBN-MONOMER': 'lptA',
+	'YHBG-MONOMER': 'lptB',
+	'G7664-MONOMER': 'lptC',
+	'EG11569-MONOMER': 'lptD',
+	'EG10855-MONOMER': 'lptE',
+	'G7888-MONOMER': 'lptF',
+	'G7889-MONOMER': 'lptG',
 }
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName,
 				simDataFile, validationDataFile, metadata):
+		with open(simDataFile, 'rb') as f:
+			sim_data = pickle.load(f)
+
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 
 		# Load data
 		initial_time = main_reader.readAttribute('initialTime')
 		time = main_reader.readColumn('time') - initial_time
-		(counts,) = read_bulk_molecule_counts(simOutDir,
-											  (outer_mem_proteins.keys(),))
+
+		existing_molecule_ids = [
+			mol_id + sim_data.getter.get_compartment_tag(mol_id)
+			for mol_id in OUTER_MEM_PROTEINS.keys()
+			if sim_data.getter.is_valid_molecule(mol_id)
+		]
+		(counts,) = read_bulk_molecule_counts(
+			simOutDir, (existing_molecule_ids,))
 		counts = counts.astype(float).T
 
 		row_max = counts.max(axis=1)
@@ -101,10 +110,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			cmap='RdBu',
 			interpolation='nearest',
 			aspect='auto',
-			extent=[time[0],time[-1],len(outer_mem_proteins)-0.5,-0.5])
-		ax.set_yticks(np.arange(0, len(outer_mem_proteins), 1))
-		ax.set_yticklabels([outer_mem_proteins[mol_id] for
-							mol_id in outer_mem_proteins.keys()], fontsize=8)
+			extent=[time[0],time[-1],len(existing_molecule_ids)-0.5,-0.5])
+		ax.set_yticks(np.arange(0, len(existing_molecule_ids), 1))
+		ax.set_yticklabels([OUTER_MEM_PROTEINS[mol_id[:-3]] for
+							mol_id in existing_molecule_ids], fontsize=8)
 		plt.xlabel('time (s)')
 		plt.title('Outer membrane major components expression')
 
@@ -113,8 +122,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		final_counts.reverse()
 
 		ax2 = fig.add_subplot(111, sharex=ax, frameon=False)
-		ax2.set_ylim([-0.5, len(outer_mem_proteins)-0.5])
-		ax2.set_yticks(np.arange(0, len(outer_mem_proteins), 1))
+		ax2.set_ylim([-0.5, len(existing_molecule_ids)-0.5])
+		ax2.set_yticks(np.arange(0, len(existing_molecule_ids), 1))
 		ax2.set_yticklabels(final_counts, fontsize=8)
 		ax2.tick_params(length=0)
 		ax2.yaxis.tick_right()

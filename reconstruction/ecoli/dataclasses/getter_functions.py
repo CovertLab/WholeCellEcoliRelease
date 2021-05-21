@@ -14,6 +14,26 @@ import numpy as np
 from reconstruction.ecoli.dataclasses.molecule_groups import POLYMERIZED_FRAGMENT_PREFIX
 from wholecell.utils import units
 
+RNA_TYPE_TO_SUBMASS = {
+	'tRNA': 'tRNA',
+	'mRNA': 'mRNA',
+	'pseudo': 'miscRNA',
+	'miscRNA': 'miscRNA',
+	'rRNA': 'rRNA',
+	'phantom': 'miscRNA',
+	}
+
+# Mapping of compartment IDs to abbreviations for compartments undefined in
+# flat/compartments.tsv
+UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS = {
+	'CCO-CW-BAC-NEG': 'o',
+	'CCO-CE-BAC': 'm',
+	'CCO-BAC-NUCLEOID': 'c',
+	'CCO-RIBOSOME': 'c',
+}
+
+class GeneDirectionError(Exception):
+	pass
 
 class UnknownMolecularWeightError(Exception):
 	pass
@@ -96,7 +116,7 @@ class GetterFunctions(object):
 		"""
 		return f'[{self._all_compartments[id_][0]}]'
 
-	def check_valid_molecule(self, mol_id):
+	def is_valid_molecule(self, mol_id):
 		# type: (str) -> bool
 		"""
 		Returns True if the molecule with the given ID is a valid molecule (has
@@ -125,31 +145,50 @@ class GetterFunctions(object):
 		Builds nucleotide sequences of each RNA using the genome sequence and
 		the transcription start sites and lengths of the corresponding gene.
 		"""
-		# Get index of gene corresponding to each RNA
-		rna_id_to_gene_index = {gene['rna_id']: i
-			for i, gene in enumerate(raw_data.genes)}
+		# Get mapping from rna_id to gene_id
+		rna_id_to_gene_id = {
+			gene['rna_id']: gene['id'] for gene in raw_data.genes}
 
-		# Get RNA lengths from gene data
-		gene_lengths = [gene['length'] for gene in raw_data.genes]
+		# Get coordinates and directions of each gene
+		gene_id_to_left_end_pos = {
+			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
+			}
+		gene_id_to_right_end_pos = {
+			gene['id']: gene['right_end_pos'] for gene in raw_data.genes
+			}
+		gene_id_to_direction = {
+			gene['id']: gene['direction'] for gene in raw_data.genes
+			}
 
-		# Get list of coordinates and directions for each gene
-		coordinate_list = [gene["coordinate"] for gene in raw_data.genes]
-		direction_list = [gene["direction"] for gene in raw_data.genes]
-
-		# Get RNA sequence from genome sequence
+		# Get RNA sequences from genome sequence
 		genome_sequence = raw_data.genome_sequence
+		all_rna_ids = list(set([rna['id'] for rna in raw_data.rnas]))
 
-		for rna in raw_data.rnas:
-			gene_index = rna_id_to_gene_index[rna['id']]
-			coordinate = coordinate_list[gene_index]
-
-			# Parse genome sequence to get RNA sequence
-			if direction_list[gene_index] == '+':
-				seq = genome_sequence[coordinate:coordinate + gene_lengths[gene_index]].transcribe()
+		for rna_id in all_rna_ids:
+			# Skip RNAs without associated genes
+			if rna_id not in rna_id_to_gene_id:
+				continue
 			else:
-				seq = genome_sequence[coordinate - gene_lengths[gene_index] + 1:coordinate + 1].reverse_complement().transcribe()
+				gene_id = rna_id_to_gene_id[rna_id]
+				left_end_pos = gene_id_to_left_end_pos[gene_id]
+				right_end_pos = gene_id_to_right_end_pos[gene_id]
 
-			self._sequences[rna['id']] = seq
+				# Skip RNAs without gene end positions
+				if left_end_pos is None or right_end_pos is None:
+					continue
+				else:
+					# Parse genome sequence to get RNA sequence (Note:
+					# positions in genes.tsv are given as 1-indexed
+					# coordinates)
+					if gene_id_to_direction[gene_id] == '+':
+						seq = genome_sequence[left_end_pos - 1 : right_end_pos].transcribe()
+					elif gene_id_to_direction[gene_id] == '-':
+						seq = genome_sequence[left_end_pos - 1 : right_end_pos].reverse_complement().transcribe()
+					else:
+						raise GeneDirectionError(
+							f'Unidentified gene direction given for {gene_id}')
+
+			self._sequences[rna_id] = seq
 
 	def _build_protein_sequences(self, raw_data):
 		"""
@@ -157,7 +196,9 @@ class GetterFunctions(object):
 		in raw_data.
 		"""
 		for protein in raw_data.proteins:
-			self._sequences[protein['id']] = Seq(protein['seq'])
+			if protein['seq'] is not None:
+				# Remove internal stop codons
+				self._sequences[protein['id']] = Seq(protein['seq'].replace('*', ''))
 
 	def _build_submass_array(self, mw, submass_name):
 		# type: (float, str) -> np.ndarray
@@ -178,11 +219,15 @@ class GetterFunctions(object):
 		"""
 		self._all_submass_arrays = {}
 
+		metabolites_with_masses = [
+			met for met in raw_data.metabolites if met['mw'] is not None]
+
+		# Water is the only metabolite with a separate submass classification
 		self._all_submass_arrays.update({
 			met['id']: (self._build_submass_array(met['mw'], 'metabolite')
 			if met['id'] != sim_data.molecule_ids.water[:-3]
 			else self._build_submass_array(met['mw'], 'water'))
-			for met in raw_data.metabolites
+			for met in metabolites_with_masses
 			})
 
 		# These updates can be dependent on metabolite masses
@@ -247,23 +292,36 @@ class GetterFunctions(object):
 		Molecular weights are calculated from the RNA sequence and the weights
 		of polymerized NTPs.
 		"""
+		rnas_with_seqs = [
+			rna['id'] for rna in raw_data.rnas if rna['id'] in self._sequences]
+
 		# Get RNA nucleotide compositions
-		rna_seqs = self.get_sequences([rna['id'] for rna in raw_data.rnas])
+		rna_seqs = self.get_sequences(rnas_with_seqs)
 		nt_counts = []
 		for seq in rna_seqs:
-			nt_counts.append(
-				[seq.count(letter) for letter in sim_data.ntp_code_to_id_ordered.keys()])
+			nt_counts.append([
+				seq.count(letter)
+				for letter in sim_data.ntp_code_to_id_ordered.keys()])
 		nt_counts = np.array(nt_counts)
 
 		# Calculate molecular weights
 		ppi_mw = self._all_submass_arrays[sim_data.molecule_ids.ppi[:-3]].sum()
 		polymerized_ntp_mws = np.array([
-			self._all_submass_arrays[met_id[:-3]].sum() for met_id in sim_data.molecule_groups.polymerized_ntps
+			self._all_submass_arrays[met_id[:-3]].sum()
+			for met_id in sim_data.molecule_groups.polymerized_ntps
 			])
 
 		mws = nt_counts.dot(polymerized_ntp_mws) + ppi_mw  # Add end weight
 
-		return {rna['id']: self._build_submass_array(mw, rna['type']) for (rna, mw) in zip(raw_data.rnas, mws)}
+		rna_id_to_type = {
+			rna['id']: rna['type'] for rna in raw_data.rnas
+			}
+
+		return {
+			rna_id: self._build_submass_array(
+				mw, RNA_TYPE_TO_SUBMASS[rna_id_to_type[rna_id]])
+			for (rna_id, mw) in zip(rnas_with_seqs, mws)
+			}
 
 	def _build_protein_masses(self, raw_data, sim_data):
 		"""
@@ -271,23 +329,31 @@ class GetterFunctions(object):
 		the protein IDs. Molecular weights are calculated from the protein
 		sequence and the weights of polymerized amino acids.
 		"""
+		proteins_with_seqs = [
+			protein['id'] for protein in raw_data.proteins
+			if protein['id'] in self._sequences]
+
 		# Get protein amino acid compositions
-		protein_seqs = self.get_sequences(
-			[protein['id'] for protein in raw_data.proteins])
+		protein_seqs = self.get_sequences(proteins_with_seqs)
 		aa_counts = []
 		for seq in protein_seqs:
-			aa_counts.append(
-				[seq.count(letter) for letter in sim_data.amino_acid_code_to_id_ordered.keys()])
+			aa_counts.append([
+				seq.count(letter)
+				for letter in sim_data.amino_acid_code_to_id_ordered.keys()])
 		aa_counts = np.array(aa_counts)
 
 		# Calculate molecular weights
 		water_mw = self._all_submass_arrays[sim_data.molecule_ids.water[:-3]].sum()
-		polymerized_aa_mws = np.array(
-			[self._all_submass_arrays[met_id[:-3]].sum() for met_id in sim_data.molecule_groups.polymerized_amino_acids]
-			)
+		polymerized_aa_mws = np.array([
+			self._all_submass_arrays[met_id[:-3]].sum()
+			for met_id in sim_data.molecule_groups.polymerized_amino_acids
+			])
 		mws = aa_counts.dot(polymerized_aa_mws) + water_mw  # Add end weight
 
-		return {protein['id']: self._build_submass_array(mw, 'protein') for (protein, mw) in zip(raw_data.proteins, mws)}
+		return {
+			protein_id: self._build_submass_array(mw, 'protein')
+			for (protein_id, mw) in zip(proteins_with_seqs, mws)
+			}
 
 	def _build_full_chromosome_mass(self, raw_data, sim_data):
 		"""
@@ -307,13 +373,16 @@ class GetterFunctions(object):
 
 		# Calculate molecular weight
 		polymerized_dntp_mws = np.array([
-			self._all_submass_arrays[met_id[:-3]].sum() for met_id in sim_data.molecule_groups.polymerized_dntps
+			self._all_submass_arrays[met_id[:-3]].sum()
+			for met_id in sim_data.molecule_groups.polymerized_dntps
 			])
 		mw = float(np.dot(
 			forward_strand_nt_counts + reverse_strand_nt_counts,
 			polymerized_dntp_mws))
 
-		return {sim_data.molecule_ids.full_chromosome[:-3]: self._build_submass_array(mw, 'DNA')}
+		return {
+			sim_data.molecule_ids.full_chromosome[:-3]: self._build_submass_array(mw, 'DNA')
+			}
 
 	def _build_modified_rna_masses(self, raw_data):
 		"""
@@ -328,20 +397,21 @@ class GetterFunctions(object):
 			modified_rna_id for rna in raw_data.rnas
 			for modified_rna_id in rna['modified_forms']}
 
-		# Get IDs of modification reactions that should be removed
-		removed_rna_modification_reaction_ids = {
-			rxn['id'] for rxn in raw_data.rna_modification_reactions_removed
+		# Get IDs of charging reactions that should be removed
+		removed_charging_reaction_ids = {
+			rxn['id'] for rxn in raw_data.trna_charging_reactions_removed
 			}
 
-		# Loop through each modification reaction
-		for rxn in raw_data.rna_modification_reactions:
-			if rxn['id'] in removed_rna_modification_reaction_ids:
+		# Loop through each charging reaction
+		for rxn in raw_data.trna_charging_reactions:
+			# Skip removed reactions
+			if rxn['id'] in removed_charging_reaction_ids:
 				continue
 
-			# Find molecule IDs whose masses are unknown
+			# Find molecule IDs whose masses are still unknown
 			unknown_mol_ids = [
-				x['molecule'] for x in rxn['stoichiometry']
-				if x['molecule'] not in self._all_submass_arrays]
+				mol_id for mol_id in rxn['stoichiometry'].keys()
+				if mol_id not in self._all_submass_arrays]
 			# The only molecule whose mass is unknown should be the modified
 			# RNA molecule
 			if len(unknown_mol_ids) != 1:
@@ -356,11 +426,11 @@ class GetterFunctions(object):
 
 			# Calculate mw of the modified RNA from the stoichiometry
 			mw_sum = np.zeros(self._n_submass_indexes)
-			for entry in rxn['stoichiometry']:
-				if entry['molecule'] == modified_rna_id:
-					modified_rna_coeff = entry['coeff']
+			for mol_id, coeff in rxn['stoichiometry'].items():
+				if mol_id == modified_rna_id:
+					modified_rna_coeff = coeff
 				else:
-					mw_sum += entry['coeff']*self._all_submass_arrays[entry['molecule']]
+					mw_sum += coeff*self._all_submass_arrays[mol_id]
 
 			modified_rna_masses[modified_rna_id] = -mw_sum/modified_rna_coeff
 
@@ -396,18 +466,22 @@ class GetterFunctions(object):
 			complex_ids = []
 			subunit_stoich = {}
 
-			for mol in rxn['stoichiometry']:
-				if mol['coeff'] == 1:
-					complex_ids.append(mol['molecule'])
-				elif mol['coeff'] < 0:
-					subunit_stoich.update({mol['molecule']: -mol['coeff']})
+			for mol_id, coeff in rxn['stoichiometry'].items():
+				# Assume coefficients given as "null" equate to -1
+				if coeff is None:
+					coeff = -1
+
+				if coeff == 1:
+					complex_ids.append(mol_id)
+				elif coeff < 0:
+					subunit_stoich.update({mol_id: -coeff})
 
 				# Each molecule should either be a complex with the coefficient
 				# 1 or a subunit with a negative coefficient
 				else:
 					raise InvalidProteinComplexError(
 						'Reaction %s contains an invalid molecule %s with stoichiometric coefficient %.1f.'
-						% (rxn['id'], mol['molecule'], mol['coeff']))
+						% (rxn['id'], mol_id, coeff))
 
 			# Each reaction should only produce a single protein complex
 			if len(complex_ids) != 1:
@@ -436,7 +510,7 @@ class GetterFunctions(object):
 				# stoichiometry
 				if mol_id not in complex_id_to_stoich:
 					raise InvalidProteinComplexError(
-						'Complex %s is not being produced by any copmlexation or equilibrium reaction.'
+						'Complex %s is not being produced by any complexation or equilibrium reaction.'
 						% (mol_id, )
 						)
 				mw_sum = np.zeros(self._n_submass_indexes)
@@ -452,9 +526,17 @@ class GetterFunctions(object):
 
 		return protein_complex_masses
 
+
 	def _build_compartments(self, raw_data, sim_data):
 		self._all_compartments = {}
 		all_compartments = [comp['abbrev'] for comp in raw_data.compartments]
+
+		compartment_ids_to_abbreviations = {
+			comp['id']: comp['abbrev'] for comp in raw_data.compartments
+			}
+		# TODO (ggsun): Add some of these to list of compartments?
+		compartment_ids_to_abbreviations.update(
+			UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS)
 
 		# RNAs, modified RNAs, and full chromosomes only localize to the
 		# cytosol
@@ -470,15 +552,39 @@ class GetterFunctions(object):
 			sim_data.molecule_ids.full_chromosome[:-3]: ['c']
 			})
 
-		# Proteins and modified proteins localize to the single compartment
-		# specified in raw data for each protein
+		# Proteins are assumed to localize to a single compartment. If an
+		# experimentally determined localization exists, the first compartment
+		# given in the list is used. If an experimentally determined
+		# localization doesn't exist, the first compartment given in the list
+		# of computationally determined compartments is used. If no compartment
+		# information is given, the protein is assumed to localize to the
+		# cytosol.
+		for protein in raw_data.proteins:
+			exp_location = protein['exp_location']
+			comp_location = protein['comp_location']
+
+			if len(exp_location) + len(comp_location) == 0:
+				compartment = 'CCO-CYTOSOL'
+			elif len(exp_location) > 0:
+				compartment = exp_location[0]
+			else:
+				compartment = comp_location[0]
+
+			self._all_compartments.update({
+				protein['id']: [compartment_ids_to_abbreviations[compartment]]
+				})
+
+		# Modified proteins localize to the single compartment specified in raw
+		# data for each protein
 		self._all_compartments.update({
-			protein['id']: [protein['compartment']] for protein
-			in itertools.chain(raw_data.proteins, raw_data.modified_proteins)
+			protein['id']: [protein['compartment']]
+			for protein in raw_data.modified_proteins
 			})
 
 		# Metabolites and polymerized subunits can localize to all compartments
 		# being modeled
+		# TODO (ggsun): Limit metabolite compartments to those that actually
+		#   exist in reaction stoichiometries
 		self._all_compartments.update({
 			met['id']: all_compartments for met in raw_data.metabolites
 			})
@@ -536,11 +642,14 @@ class GetterFunctions(object):
 			complex_id = None
 			subunit_ids = []
 
-			for mol in rxn['stoichiometry']:
-				if mol['coeff'] == 1:
-					complex_id = mol['molecule']
-				elif mol['coeff'] < 0:
-					subunit_ids.append(mol['molecule'])
+			for mol_id, coeff in rxn['stoichiometry'].items():
+				if coeff is None:
+					coeff = -1
+
+				if coeff == 1:
+					complex_id = mol_id
+				elif coeff < 0:
+					subunit_ids.append(mol_id)
 
 			complex_id_to_subunit_ids[complex_id] = subunit_ids
 
