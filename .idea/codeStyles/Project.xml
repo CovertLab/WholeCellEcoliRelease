@@ -15,13 +15,5 @@
       <option name="FROM_IMPORT_PARENTHESES_FORCE_IF_MULTILINE" value="true" />
       <option name="HANG_CLOSING_BRACKETS" value="true" />
     </Python>
-    <codeStyleSettings language="Python">
-      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
-      <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="false" />
-      <option name="SOFT_MARGINS" value="79" />
-      <indentOptions>
-        <option name="USE_TAB_CHARACTER" value="true" />
-      </indentOptions>
-    </codeStyleSettings>
   </code_scheme>
 </component>

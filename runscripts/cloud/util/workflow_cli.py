@@ -12,9 +12,12 @@ from wholecell.utils import scriptBase
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
-#: 'custom-1-5120' selects a GCE N1 VM with 1 CPU and 5 GB RAM.
-#: N1's max RAM per CPU is 6656 MB = 6.5 GB.
-GCE_VM_MACHINE_TYPE = 'custom-1-5120'
+#: custom-1-6656: N1 VM with 1 vCPU + 6.5 GB RAM (N1's max RAM per vCPU).
+#: N2, N2D: Should be faster but they charge for 2+ vCPUs while our firetasks
+#:   peg 1 core at 100% and rarely use multiple cores. Worth testing.
+#: e2-medium: 50% of each of 2 shared vCPUs, 100% in bursts. Lower cost. Does it
+#:   sustain 100% of 1 CPU? No control over processor type. Worth testing.
+GCE_VM_MACHINE_TYPE = 'custom-1-6656'
 
 
 class WorkflowCLI(scriptBase.ScriptBase):

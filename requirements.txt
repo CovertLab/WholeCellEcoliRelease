@@ -56,7 +56,7 @@ scipy==1.5.4
 aesara==2.0.8
 biopython==1.77
 bokeh==1.4.0
-borealis-fireworks==0.9.1
+borealis-fireworks==0.11.0
 confluent-kafka==1.4.2
 cvxpy==1.1.10
 Cython==0.29.21

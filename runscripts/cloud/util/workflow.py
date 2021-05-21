@@ -471,8 +471,12 @@ class Workflow(object):
 			if val is not None:
 				dest[key] = val
 
+		# Construct a name prefix that distinguishes this group of fireworker
+		# VMs from groups that run workflows in other LaunchPad DBs so VM
+		# creation won't hit a name conflict.
 		db_name = config['name']
-		prefix = 'fireworker-{}'.format(db_name)
+		worker_key = f'{self.owner_id}-{db_name}' if self.owner_id != db_name else db_name
+		prefix = f'fireworker-{worker_key}'
 		options = {
 			'image-family': 'fireworker',
 			'network-interface': 'no-address',  # no External IP
