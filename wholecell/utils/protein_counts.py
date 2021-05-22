@@ -2,14 +2,14 @@
 
 from __future__ import absolute_import, division, print_function
 
-from typing import cast, List
+from typing import cast, List, Tuple
 
 import numpy as np
 
 
 def get_simulated_validation_counts(
 		validation_counts, monomer_counts, validation_ids, simulation_ids):
-	# type: (np.ndarray, np.ndarray, np.ndarray, np.ndarray) -> (np.ndarray, np.ndarray)
+	# type: (np.ndarray, np.ndarray, np.ndarray, np.ndarray) -> Tuple[np.ndarray, np.ndarray]
 	"""
 	Get simulated counts and validation counts of monomers that exist in both
 	the simulation and the validation data
