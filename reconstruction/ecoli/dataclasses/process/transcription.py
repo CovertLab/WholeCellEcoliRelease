@@ -682,7 +682,7 @@ class Transcription(object):
 		Calculate constants for each attenuated gene.
 
 		TODO:
-			Calculate estimate charged tRNA concentration to use instead of all tRNA
+			Calculate estimated charged tRNA concentration to use instead of all tRNA
 		"""
 
 		def get_trna_conc(condition):
@@ -692,7 +692,7 @@ class Transcription(object):
 			volume = (spec['avgCellDryMassInit'] / sim_data.constants.cell_density
 				/ sim_data.mass.cell_dry_mass_fraction)
 			# Order of operations for conc (counts last) is to get units to work well
-			conc = (1 / sim_data.constants.n_avogadro / volume * counts)
+			conc = 1 / sim_data.constants.n_avogadro / volume * counts
 			return conc
 
 		k_units = units.umol / units.L

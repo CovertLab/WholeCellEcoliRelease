@@ -12,6 +12,7 @@ ACTIVE = [
 	"massFractionSummary.py",
 	"metabolism_kinetic_objective_weight.py",
 	"metabolism_secretion_penalty.py",
+	"remove_aa_inhibition.py",
 	"tfFit.py",
 	"tfFitComparison.py",
 	"time_step.py",
@@ -29,4 +30,8 @@ TAGS = {
 		"param_sensitivity.py",
 		"growth_condition_comparison_validation.py",
 		],
+	# Variant analyses to run with a specific simulation variant (key)
+	'remove_aa_inhibition': [
+		'remove_aa_inhibition.py',
+		]
 	}
