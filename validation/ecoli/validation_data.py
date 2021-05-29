@@ -39,7 +39,9 @@ class ValidationDataEcoli(object):
 		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
 		self.essential_genes = EssentialGenes(validation_data_raw)
 		self.geneFunctions = GeneFunctions(validation_data_raw)
+
 		self._add_dna_footprint_sizes(validation_data_raw)
+		self._add_amino_acid_uptake_rates(validation_data_raw)
 
 	def _add_dna_footprint_sizes(self, validation_data_raw):
 		"""
@@ -52,6 +54,28 @@ class ValidationDataEcoli(object):
 		for row in validation_data_raw.dna_footprint_sizes:
 			self.dna_footprint_sizes[row["molecule_ID"]] = row["footprint_size"]
 
+	def _add_amino_acid_uptake_rates(self, validation_data_raw):
+		"""
+		Loads amino acid uptake rates and stores data in a nested dictionary:
+		{
+			amino acid ID (str):
+			{
+				'uptake': measured max uptake rate (float with units of mol/mass/time),
+				'LB': lower bound of measured max uptake rate (float with units of mol/mass/time),
+				'UB': upper bound of measured max uptake rate (float with units of mol/mass/time),
+			}
+		}
+		"""
+
+		rates = {}
+		for row in validation_data_raw.amino_acid_uptake_rates:
+			data = {}
+			data['uptake'] = row['Uptake']
+			data['LB'] = row['Uptake, LB']
+			data['UB'] = row['Uptake, UB']
+			rates[row['Amino acid']] = data
+
+		self.amino_acid_uptake_rates = rates
 
 
 class Protein(object):

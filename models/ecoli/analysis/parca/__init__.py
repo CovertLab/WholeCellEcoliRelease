@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
 	'aa_synthesis_pathways.py',
+	'amino_acid_uptake_rates.py',
 	'expression_probabilities.py',
 	'fold_changes.py',
 	'interpolation.py',
@@ -18,4 +19,7 @@ TAGS = {
 		'metabolite_concentrations.py',
 		'interpolation.py',
 		],
+	'VALIDATION': [
+		'amino_acid_uptake_rates.py',
+		]
 	}

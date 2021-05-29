@@ -12,14 +12,15 @@ from reconstruction.spreadsheets import read_tsv
 
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
-	"taniguichi2010_table_6.tsv",
-	"houser2015_javier_table.tsv",
-	"wisniewski2014_supp2.tsv",
-	"schmidt2015_javier_table.tsv",
-	"toya_2010_central_carbon_fluxes.tsv",
+	"amino_acid_uptake_rates.tsv",
 	"dna_footprint_sizes.tsv",
 	"essential_genes.tsv",
 	"geneFunctions.tsv",
+	"houser2015_javier_table.tsv",
+	"schmidt2015_javier_table.tsv",
+	"taniguichi2010_table_6.tsv",
+	"toya_2010_central_carbon_fluxes.tsv",
+	"wisniewski2014_supp2.tsv",
 	)
 
 class ValidationDataRawEcoli(object):

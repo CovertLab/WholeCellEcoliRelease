@@ -646,7 +646,7 @@ class Metabolism(object):
 				associated with the column
 			specific_import_rates (np.ndarray[float]): import rates expected
 				in rich media conditions for each amino acid normalized by dry
-				cell mass in units of (1 / (K_CAT_UNITS * DRY_MASS_UNITS),
+				cell mass in units of K_CAT_UNITS / DRY_MASS_UNITS,
 				ordered by amino acid molecule group
 
 		Assumptions:
