@@ -53,7 +53,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# growth rate
 			expected_doubling_time = sim_data.doubling_time
-			massNames = ['instantaniousGrowthRate']
+			massNames = ['instantaneous_growth_rate']
 			growthRate = mass_reader.readColumn(massNames[0])[START_TIME_STEP:]
 			growthRate = (1 / units.s) * growthRate
 			doublingTime = 1 / growthRate * np.log(2)

@@ -70,7 +70,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			ax0.plot(time[idxInit] / 60., cellMass[idxInit],  markersize=6, linewidth=0, marker="o", color = "#FCBE67", markeredgewidth=0)
 
 			## Inst. growth rate
-			growthRate = mass.readColumn("instantaniousGrowthRate")
+			growthRate = mass.readColumn("instantaneous_growth_rate")
 			growthRate = (1 / units.s) * growthRate
 			growthRate = growthRate.asNumber(1 / units.min)
 			growthRate[abs(growthRate - np.median(growthRate)) > 1.25 * np.nanstd(growthRate)] = np.nan

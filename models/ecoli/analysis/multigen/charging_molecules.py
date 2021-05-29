@@ -138,7 +138,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			time = main_reader.readColumn('time') / 3600
 			division_times.append(time[-1])
 			elong_rate = ribosome_reader.readColumn('effectiveElongationRate')
-			growth_rate = mass_reader.readColumn('instantaniousGrowthRate') * 3600
+			growth_rate = mass_reader.readColumn('instantaneous_growth_rate') * 3600
 			counts_to_molar = enzyme_kinetics_reader.readColumn('countsToMolar')
 			(synthetase_counts, uncharged_trna_counts, charged_trna_counts, ppgpp_mol_counts
 				) = read_bulk_molecule_counts(simOutDir,

@@ -92,7 +92,7 @@ def analyze_variant(args):
 
 		# Growth rates
 		# Growth rate stored in units of per second and first value will be nan
-		growth = mass_reader.readColumn('instantaniousGrowthRate')
+		growth = mass_reader.readColumn('instantaneous_growth_rate')
 		if growth.size <= 1:
 			continue
 		growth_rate.append(np.mean(3600 * growth[1:]))

@@ -97,7 +97,7 @@ def analyze_variant(args):
 
 			# Load data
 			## Growth rate
-			growth_rate = np.nanmean(mass_reader.readColumn('instantaniousGrowthRate')[-5:]) * 3600  # 1/hr
+			growth_rate = np.nanmean(mass_reader.readColumn('instantaneous_growth_rate')[-5:]) * 3600  # 1/hr
 
 			## Central carbon flux
 			dry_mass = mass_reader.readColumn('dryMass')[-5:]

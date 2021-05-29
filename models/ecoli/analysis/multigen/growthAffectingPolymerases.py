@@ -62,7 +62,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			## Mass growth rate ##
-			time, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
+			time, growthRate = getMassData(simDir, ["instantaneous_growth_rate"])
 			timeStep = units.s * TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 			time = units.s * time
 			growthRate = (1 / units.s) * growthRate

@@ -182,7 +182,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		else:
 			self.growth = np.nan
 
-		self.instantaniousGrowthRate = self.growth / self.timeStepSec() / self.dryMass
+		self.instantaneous_growth_rate = self.growth / self.timeStepSec() / self.dryMass
 
 		self.proteinMassFraction = self.proteinMass / self.dryMass
 		self.rnaMassFraction = self.rnaMass / self.dryMass
@@ -247,6 +247,6 @@ class Mass(wholecell.listeners.listener.Listener):
 			inner_membrane_mass = self.inner_membrane_mass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
 			smallMoleculeMass = self.smallMoleculeMass,
-			instantaniousGrowthRate = self.instantaniousGrowthRate,
+			instantaneous_growth_rate = self.instantaneous_growth_rate,
 			cellVolume = self.volume
 			)
