@@ -156,7 +156,7 @@ tqdm==4.23.0
 traitlets==4.3.2
 typing==3.6.6
 Unum==4.1.4
-urllib3==1.24.2
+urllib3==1.26.5
 virtualenv==16.4.1
 virtualenv-clone==0.5.1
 virtualenvwrapper==4.8.4
