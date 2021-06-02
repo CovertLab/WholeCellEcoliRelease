@@ -23,6 +23,8 @@ from wholecell.io.tablereader import TableReader
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Listeners used
 		transcription_reader = TableReader(os.path.join(simOutDir, 'TranscriptElongationListener'))

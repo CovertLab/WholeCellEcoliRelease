@@ -22,6 +22,8 @@ SAMPLE_SIZE = 75  # Number of genes to plot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)

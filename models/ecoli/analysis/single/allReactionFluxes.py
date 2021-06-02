@@ -25,6 +25,8 @@ MOVING_AVE_WINDOW_SIZE = 200
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))

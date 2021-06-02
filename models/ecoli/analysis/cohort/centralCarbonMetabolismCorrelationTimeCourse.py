@@ -19,6 +19,8 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		plt.figure(figsize = (8.5, 11))
 

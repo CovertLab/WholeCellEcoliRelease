@@ -17,6 +17,8 @@ from wholecell.io.tablereader import TableReader
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)

@@ -20,6 +20,8 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))

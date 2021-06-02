@@ -118,6 +118,8 @@ class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
 	def __init__(self):
+		self.compartments = []  # mypy can't track setattr(self, attr_name, rows)
+
 		# Load raw data from TSV files
 		for filename in LIST_OF_DICT_FILENAMES:
 			self._load_tsv(FLAT_DIR, os.path.join(FLAT_DIR, filename))

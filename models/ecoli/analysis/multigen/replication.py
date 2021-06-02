@@ -15,6 +15,8 @@ CRITICAL_N = [1, 2, 4, 8]
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		genomeLength = len(sim_data.process.replication.genome_sequence)

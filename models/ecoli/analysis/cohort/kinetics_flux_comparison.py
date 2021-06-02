@@ -28,6 +28,8 @@ BURN_IN_TIME = 1
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
 		ap = AnalysisPaths(variantDir, cohort_plot = True)

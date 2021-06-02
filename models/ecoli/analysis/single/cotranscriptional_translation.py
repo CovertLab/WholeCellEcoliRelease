@@ -23,6 +23,8 @@ LABEL_TOP_N_GENES = 10  # Number of genes to be labeled in pane 8
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)

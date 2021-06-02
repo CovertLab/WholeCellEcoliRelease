@@ -65,6 +65,8 @@ def subplot(gs, legend, title, tf_id, gene_id, t, active, bound, inactive, promo
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)

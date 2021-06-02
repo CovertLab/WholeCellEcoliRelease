@@ -18,6 +18,8 @@ BURN_IN_STEPS = 20
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# read constraint data
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))

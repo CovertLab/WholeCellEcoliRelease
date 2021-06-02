@@ -16,6 +16,8 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 

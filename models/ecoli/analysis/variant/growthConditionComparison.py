@@ -22,6 +22,8 @@ PROTEIN_MW = 110.0
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		all_cells = ap.get_cells()

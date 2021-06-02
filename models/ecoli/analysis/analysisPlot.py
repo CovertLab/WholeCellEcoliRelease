@@ -14,8 +14,9 @@ import abc
 import os
 
 import matplotlib as mp
-
 from matplotlib import pyplot as plt
+import numpy as np
+
 from wholecell.utils import memory_debug, parallelization
 from wholecell.utils import filepath as fp
 
@@ -32,6 +33,10 @@ class AnalysisPlot(metaclass=abc.ABCMeta):
 	Inputs:
 		cpus: allotted number of CPU cores; default (0) => all available cores
 	"""
+
+	#: Whether to suppress NumPy "divide" and "invalid" warnings like Theano
+	#: used to do. Override this in subclasses as needed.
+	_suppress_numpy_warnings = False
 
 	def __init__(self, cpus=0):
 		self.cpus = parallelization.cpus(cpus)
@@ -98,14 +103,21 @@ class AnalysisPlot(metaclass=abc.ABCMeta):
 	def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata):
 		"""Public method to set up, make a plot, and cleanup."""
+		def do_plot():
+			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
+						 validationDataFile, metadata)
+
 		if not os.path.isdir(inputDir):
 			raise RuntimeError('Input directory ({}) does not currently exist.'
 				.format(inputDir))
 		fp.makedirs(plotOutDir)
 
 		with memory_debug.detect_leaks(), mp.rc_context():
-			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
-				validationDataFile, metadata)
+			if self._suppress_numpy_warnings:
+				with np.errstate(divide='ignore'), np.errstate(invalid='ignore'):
+					do_plot()
+			else:
+				do_plot()
 
 		self._axeses = {}
 

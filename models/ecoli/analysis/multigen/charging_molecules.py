@@ -85,6 +85,8 @@ def post_plot_formatting(ax, division_times, y_label, draw_horizontal=None, y_li
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)

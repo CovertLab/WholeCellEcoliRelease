@@ -33,6 +33,7 @@ OUTLIER_REACTIONS = [
 	]  # type: Sequence
 
 
+@np.errstate(invalid='ignore')  # "invalid value encountered in true_divide" in its own process
 def analyze_variant(args):
 	# type: (Tuple[int, AnalysisPaths, List[str], np.ndarray, List[bool]]) -> tuple
 	'''

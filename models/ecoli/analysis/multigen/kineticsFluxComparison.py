@@ -32,6 +32,8 @@ BURN_IN_STEPS = 20
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
