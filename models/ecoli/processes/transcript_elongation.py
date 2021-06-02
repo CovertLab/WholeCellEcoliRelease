@@ -70,7 +70,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.trna_attenuation = sim._trna_attenuation
 		self.cell_density = sim_data.constants.cell_density
 		self.n_avogadro = sim_data.constants.n_avogadro
-		self.charged_trna = self.bulkMoleculesView(sim_data.process.transcription.charged_trna_names)
+		self.amino_acids = self.bulkMoleculesView(sim_data.molecule_groups.amino_acids)
 		self.stop_probabilities = sim_data.process.transcription.get_attenuation_stop_probabilities
 		self.attenuated_rna_indices = sim_data.process.transcription.attenuated_rna_indices
 		self.attenuated_rna_indices_lookup = {idx: i for i, idx in enumerate(self.attenuated_rna_indices)}
@@ -151,7 +151,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			cell_mass = self.readFromListener('Mass', 'cellMass') * units.fg
 			cellVolume = cell_mass / self.cell_density
 			counts_to_molar = 1 / (self.n_avogadro * cellVolume)
-			attenuation_probability = self.stop_probabilities(counts_to_molar * self.charged_trna.total_counts())
+			attenuation_probability = self.stop_probabilities(counts_to_molar * self.amino_acids.total_counts())
 			prob_lookup = {tu: prob for tu, prob in zip(self.attenuated_rna_indices, attenuation_probability)}
 			tu_stop_probability = np.array([
 				prob_lookup.get(idx, 0) * (length < self.location_lookup.get(idx, 0))

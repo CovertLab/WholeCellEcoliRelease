@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 
 """
-Extracts average concentrations for metabolites from Lempp et al. Systematic
-identification of metabolites controlling gene expression in E. coli. 2019.
+Extracts concentrations for metabolites from various raw data files.
 
 Data in lempp2019.tsv was converted to a tsv from the file downloaded from
+Lempp et al. Systematic identification of metabolites controlling gene
+expression in E. coli. 2019.
 https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-019-12474-1/MediaObjects/41467_2019_12474_MOESM4_ESM.xlsx
 
 Data in park2016.tsv was converted to a tsv from supplementary table 5
@@ -15,6 +16,11 @@ Data in kochanowski2017*.tsv was converted to a tsv from EV table 6-1
 (absolute) and EV table 6-2 (relative) (manually removed some rows)
 from the file downloaded from
 https://www.embopress.org/action/downloadSupplement?doi=10.15252%2Fmsb.20167402&file=msb167402-sup-0007-TableEV6.xlsx
+
+Data in sander2019.tsv is from Sander et al. Allosteric Feedback Inhibition
+Enables Robust Amino Acid Biosynthesis in E. coli by Enforcing Enzyme Overabundance.
+2019 Table S7 (tab 'Amino Acids') from
+https://ars.els-cdn.com/content/image/1-s2.0-S2405471218304794-mmc2.xlsx
 """
 
 from __future__ import absolute_import, division, print_function
@@ -43,6 +49,7 @@ LEMPP_INPUT = os.path.join(DATA_DIR, 'lempp2019.tsv')
 PARK_INPUT = os.path.join(DATA_DIR, 'park2016.tsv')
 KOCHANOWSKI_ABSOLUTE_INPUT = os.path.join(DATA_DIR, 'kochanowski2017absolute.tsv')
 KOCHANOWSKI_RELATIVE_INPUT = os.path.join(DATA_DIR, 'kochanowski2017relative.tsv')
+SANDER_INPUT = os.path.join(DATA_DIR, 'sander2019.tsv')
 ABSOLUTE_OUTPUT_FILE = os.path.join(OUT_DIR, '{}_concentrations.tsv')
 RELATIVE_OUTPUT_FILE = os.path.join(OUT_DIR, 'relative_metabolite_concentrations.tsv')
 
@@ -109,6 +116,26 @@ KOCHANOWSKI_METABOLITES = {
 	# 'UDP-hexose': '',
 	'cAMP': 'CAMP',
 	}
+SANDER_METABOLITES = {
+	'Glutamic acid': 'GLT',
+	'Glutamine': 'GLN',
+	'Arginine': 'ARG',
+	'Proline': 'PRO',
+	'Aspartic acid': 'L-ASPARTATE',
+	'Asparagine': 'ASN',
+	'Lysine': 'LYS',
+	'Methionine': 'MET',
+	'Threonine': 'THR',
+	# '(Iso-)Leucine': '',
+	'Valine': 'VAL',
+	'Alanine': 'L-ALPHA-ALANINE',
+	'Serine': 'SER',
+	'Glycine': 'GLY',
+	'Histidine': 'HIS',
+	'Phenylalanine': 'PHE',
+	'Tryptophan': 'TRP',
+	'Tyrosine': 'TYR',
+	}
 ## Map media headers to wcm IDs (not all are currently valid media)
 KOCHANOWSKI_MEDIA = {
 	' M9 galactose 2g per L': 'minimal_galactose',
@@ -151,7 +178,7 @@ def lempp_concentrations():
 	with io.open(LEMPP_INPUT, 'rb') as f:
 		reader = tsv.reader(f)
 
-		start_conc_col = next(reader).index('intracellular concentrations (\xc2\xb5M)')
+		start_conc_col = next(reader).index('intracellular concentrations (\xb5M)')
 		next(reader)  # discard line
 		n_conc = np.sum([t.startswith('t0') for t in next(reader)[start_conc_col:]])
 		end_conc_col = start_conc_col + n_conc
@@ -255,6 +282,35 @@ def kochanowski_concentrations():
 
 	return met_conc
 
+def sander_concentrations():
+	# type: () -> Dict[str, float]
+	"""
+	Load Sander data for amino acid concentrations.
+
+	Returns:
+		met_conc: WCM ID to concentration (in M)
+	"""
+
+	met_conc = {}
+
+	with io.open(SANDER_INPUT, 'rb') as f:
+		reader = tsv.reader(f)
+
+		next(reader)  # discard line
+		next(reader)  # discard line
+		headers = next(reader)
+		id_col = headers.index('Name')
+		conc_col = headers.index('WT')
+
+		for line in reader:
+			met_id = SANDER_METABOLITES.get(line[id_col])
+			if met_id is None:
+				continue
+
+			met_conc[met_id] = float(line[conc_col]) / 1000  # convert mM to M
+
+	return met_conc
+
 def kegg_to_ecocyc(data):
 	# type: (Dict[str, Any]) -> Dict[str, Any]
 	"""
@@ -342,3 +398,7 @@ if __name__ == '__main__':
 	kochanowski = kochanowski_concentrations()
 	save_concentrations(kochanowski, 'Kochanowski')
 	save_kochanowski_relative_changes()
+
+	# Sander 2019
+	sander = sander_concentrations()
+	save_concentrations(sander, 'Sander')

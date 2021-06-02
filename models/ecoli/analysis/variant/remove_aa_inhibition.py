@@ -73,10 +73,11 @@ def heatmap(gs, aa_idx, data, enzyme_order):
 	# Extract concentrations from data
 	conc = np.zeros((n_rows, n_cols))
 	for row_idx, enzyme in enumerate(HEATMAP_ROWS):
-		variant_idx = enzyme_order.index(enzyme)
-		for col_idx, cols in enumerate(HEATMAP_COLS):
-			for aa in cols[1]:
-				conc[row_idx, col_idx] += data[variant_idx, aa_idx[aa]]
+		if enzyme in enzyme_order:
+			variant_idx = enzyme_order.index(enzyme)
+			for col_idx, cols in enumerate(HEATMAP_COLS):
+				for aa in cols[1]:
+					conc[row_idx, col_idx] += data[variant_idx, aa_idx[aa]]
 
 	# Scale concentrations for heatmap
 	wt_idx = HEATMAP_ROWS.index(WILDTYPE)
@@ -128,7 +129,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			aa_var[i, :] = conc.std(axis=0)**2
 
 		# xtick labels
-		labels = [WILDTYPE] + list(AA_TO_ENZYME.values())
+		labels = list(np.array([WILDTYPE] + list(AA_TO_ENZYME.values()))[variants])
 
 		# Create figure
 		plt.figure(figsize=(10, 15))

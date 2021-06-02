@@ -98,16 +98,21 @@ class Metabolism(object):
 			'Park Concentration',
 			'Lempp Concentration',
 			'Kochanowski Concentration',
+			'Sander Concentration',
 			]
 		excluded = {
 			'Park Concentration': {
 				'GLT',  # Steady state concentration reached with tRNA charging is much lower than Park
+				'THR',  # Attenuation needs concentration to be lower to match validation data
 				},
 			'Lempp Concentration': {
 				'ATP',  # TF binding does not solve with average concentration
 				},
 			'Kochanowski Concentration': {
 				'ATP',  # TF binding does not solve with average concentration
+				},
+			'Sander Concentration': {
+				'GLT',  # Steady state concentration reached with tRNA charging is much lower than Sander
 				},
 			}
 		metaboliteIDs = []

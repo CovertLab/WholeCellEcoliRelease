@@ -38,6 +38,7 @@ LIST_OF_DICT_FILENAMES = (
 	"metabolic_reactions_removed.tsv",
 	"metabolism_kinetics.tsv",
 	"metabolite_concentrations.tsv",
+	"metabolite_concentrations_removed.tsv",
 	"metabolites.tsv",
 	"modified_proteins.tsv",
 	"molecular_weight_keys.tsv",
@@ -104,6 +105,10 @@ LIST_OF_PARAMETER_FILENAMES = (
 	"mass_parameters.tsv",
 	"dna_supercoiling.tsv"
 	)
+# TODO: add other removed files here and not handle removing in scripts
+REMOVED_DATA = {
+	'metabolite_concentrations': 'metabolite_concentrations_removed',
+	}
 
 class DataStore(object):
 	def __init__(self):
@@ -119,6 +124,8 @@ class KnowledgeBaseEcoli(object):
 
 		for filename in LIST_OF_PARAMETER_FILENAMES:
 			self._load_parameters(os.path.join(FLAT_DIR, filename))
+
+		self._prune_data()
 
 		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))
 
@@ -160,3 +167,27 @@ class KnowledgeBaseEcoli(object):
 				param_dict[row['name']] = value
 
 		setattr(self, attr_name, param_dict)
+
+	def _prune_data(self):
+		"""
+		Remove rows that are specified to be removed. Data will only be removed
+		if all data in a row in the file specifying rows to be removed matches
+		the same columns in the raw data file.
+		"""
+
+		# Check each pair of files to be removed
+		for data, to_remove in REMOVED_DATA.items():
+			# Build the set of data to identify rows to be removed
+			attr_removed = getattr(self, to_remove)
+			removed_cols = list(attr_removed[0].keys())
+			removed_ids = set()
+			for row in attr_removed:
+				removed_ids.add(tuple([row[col] for col in removed_cols]))
+
+			# Remove any matching rows
+			attr_data = getattr(self, data)
+			n_entries = len(attr_data)
+			for i, row in enumerate(attr_data[::-1]):
+				checked_id = tuple([row[col] for col in removed_cols])
+				if checked_id in removed_ids:
+					attr_data.pop(n_entries - i - 1)
