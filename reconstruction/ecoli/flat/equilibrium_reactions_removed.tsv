@@ -1,4 +1,5 @@
 "id"	"_comments"
+"CPLX0-7541_RXN"	"AlaS-Ala complex. Outcompetes AlaS dimerization (active synthetase) which causes issues with simulations using tRNA charging."
 "CPLX0-7671_RXN"	"ArgP-Arg complex. ArgP-Lys binding inhibits expression and is used as the inactive ArgP form."
 "CPLX0-8076_RXN"	"ArgR-Arg complex. Not included in EcoCyc. Prevents formation of 6ArgR-Arg complex which is a TF"
 "MONOMER-51_3-KETO-ADIPYL-COA_RXN"	"Multiple reactions produce the same compound (MONOMER-51)"

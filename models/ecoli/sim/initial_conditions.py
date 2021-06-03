@@ -44,9 +44,10 @@ def calcInitialConditions(sim, sim_data):
 	bulkMolCntr = sim.internal_states['BulkMolecules'].container
 	uniqueMolCntr = sim.internal_states["UniqueMolecules"].container
 	media_id = sim.external_states['Environment'].current_media_id
+	import_molecules = sim.external_states['Environment'].get_import_molecules()
 
 	# Set up states
-	initializeBulkMolecules(bulkMolCntr, sim_data, media_id,
+	initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules,
 		randomState, massCoeff, sim._ppgpp_regulation)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data,
 		randomState, sim._superhelical_density, sim._trna_attenuation)
@@ -59,10 +60,10 @@ def calcInitialConditions(sim, sim_data):
 
 	# Adjust small molecule concentrations again after other mass adjustments
 	# for more stable metabolism solution at beginning of sims
-	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, massCoeff,
-		cell_mass=calculate_cell_mass(sim.internal_states))
+	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules,
+		massCoeff, cell_mass=calculate_cell_mass(sim.internal_states))
 
-def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff, ppgpp_regulation):
+def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, randomState, massCoeff, ppgpp_regulation):
 
 	# Set protein counts from expression
 	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
@@ -71,7 +72,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
 
 	# Set other biomass components
-	set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff)
+	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules, massCoeff)
 
 	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
@@ -240,11 +241,11 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulatio
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
-def set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff, cell_mass=None):
+def set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules, massCoeff, cell_mass=None):
 	doubling_time = sim_data.condition_to_doubling_time[sim_data.condition]
 
 	concDict = sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(
-		current_media_id
+		media_id=media_id, imports=import_molecules
 		)
 	concDict.update(sim_data.mass.getBiomassAsConcentrations(doubling_time))
 	concDict[sim_data.molecule_ids.ppGpp] = sim_data.growth_rate_parameters.get_ppGpp_conc(doubling_time)

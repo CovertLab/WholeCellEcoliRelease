@@ -12,6 +12,8 @@ from reconstruction.spreadsheets import read_tsv
 
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
+	"amino_acid_growth_rates.tsv",
+	"amino_acid_growth_rates_dose_response.tsv",
 	"amino_acid_uptake_rates.tsv",
 	"dna_footprint_sizes.tsv",
 	"essential_genes.tsv",

@@ -306,7 +306,7 @@ def set_conditions(sim_data, cell_specs, **kwargs):
 			print("Updating mass in condition {}".format(condition_label))
 		spec = cell_specs[condition_label]
 
-		concDict = sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(nutrients)
+		concDict = sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(media_id=nutrients)
 		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.condition_to_doubling_time[condition_label]))
 
 		avgCellDryMassInit, fitAvgSolublePoolMass = rescaleMassForSolubleMetabolites(
@@ -475,7 +475,7 @@ def buildBasalCellSpecifications(
 	# Create dictionary for basal condition
 	cell_specs = {}
 	cell_specs["basal"] = {
-		"concDict": sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients("minimal"),
+		"concDict": sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(media_id="minimal"),
 		"expression": sim_data.process.transcription.rna_expression["basal"].copy(),
 		"doubling_time": sim_data.condition_to_doubling_time["basal"],
 		}
@@ -576,7 +576,7 @@ def buildTfConditionCellSpecifications(
 
 		# Get metabolite concentrations for the condition
 		concDict = sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(
-			conditionValue["nutrients"]
+			media_id=conditionValue["nutrients"]
 			)
 		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.condition_to_doubling_time[conditionKey]))
 
@@ -674,7 +674,7 @@ def buildCombinedConditionCellSpecifications(
 
 		# Get metabolite concentrations for the condition
 		concDict = sim_data.process.metabolism.concentration_updates.concentrations_based_on_nutrients(
-			conditionValue["nutrients"]
+			media_id=conditionValue["nutrients"]
 			)
 		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.condition_to_doubling_time[conditionKey]))
 

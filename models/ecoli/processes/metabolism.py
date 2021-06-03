@@ -12,7 +12,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from typing import List, Tuple
+from typing import List, Optional, Set, Tuple
 
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 import wholecell.processes.process
@@ -58,6 +58,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Create model to use to solve metabolism updates
 		self.model = FluxBalanceAnalysisModel(
 			sim_data,
+			imports=environment.get_import_molecules(),
 			timeline=environment.current_timeline,
 			include_ppgpp=self.include_ppgpp,
 			)
@@ -250,11 +251,13 @@ class FluxBalanceAnalysisModel(object):
 	Metabolism model that solves an FBA problem with modular_fba.
 	"""
 
-	def __init__(self, sim_data, timeline=None, include_ppgpp=True):
-		# type: (SimulationDataEcoli, List[Tuple[float, str]], bool) -> None
+	def __init__(self, sim_data, imports=None, timeline=None, include_ppgpp=True):
+		# type: (SimulationDataEcoli, Optional[Set[str]], Optional[List[Tuple[float, str]]], bool) -> None
 		"""
 		Args:
 			sim_data: simulation data
+			imports: molecule IDs with compartment tag of molecules that can be
+				imported into the cell
 			timeline: timeline for nutrient changes during simulation
 				(time of change, media ID), if None, nutrients for the saved
 				condition are set at time 0 (eg. [(0.0, 'minimal')])
@@ -266,6 +269,9 @@ class FluxBalanceAnalysisModel(object):
 			timeline = [(0., nutrients)]
 		else:
 			nutrients = timeline[0][1]
+
+		if imports is None:
+			imports = sim_data.external_state.exchange_data_from_media(nutrients)['importExchangeMolecules']
 
 		# Local sim_data references
 		metabolism = sim_data.process.metabolism
@@ -287,14 +293,15 @@ class FluxBalanceAnalysisModel(object):
 
 		# go through all media in the timeline and add to metaboliteNames
 		metaboliteNamesFromNutrients = set()
-		exchange_molecules = set()
+		exchange_molecules = set(imports)
 		if include_ppgpp:
 			metaboliteNamesFromNutrients.add(self.ppgpp_id)
 		for time, media_id in timeline:
-			metaboliteNamesFromNutrients.update(
-				metabolism.concentration_updates.concentrations_based_on_nutrients(media_id)
-				)
 			exchanges = sim_data.external_state.exchange_data_from_media(media_id)
+			metaboliteNamesFromNutrients.update(
+				metabolism.concentration_updates.concentrations_based_on_nutrients(
+					imports=exchanges['importExchangeMolecules'])
+				)
 			exchange_molecules.update(exchanges['externalExchangeMolecules'])
 		self.metaboliteNamesFromNutrients = list(sorted(metaboliteNamesFromNutrients))
 		exchange_molecules = list(sorted(exchange_molecules))
@@ -303,7 +310,7 @@ class FluxBalanceAnalysisModel(object):
 
 		# Setup homeostatic objective concentration targets
 		## Determine concentrations based on starting environment
-		conc_dict = metabolism.concentration_updates.concentrations_based_on_nutrients(nutrients)
+		conc_dict = metabolism.concentration_updates.concentrations_based_on_nutrients(media_id=nutrients, imports=imports)
 		doubling_time = sim_data.condition_to_doubling_time[sim_data.condition]
 		conc_dict.update(self.getBiomassAsConcentrations(doubling_time))
 		if include_ppgpp:

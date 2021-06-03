@@ -41,6 +41,7 @@ class ValidationDataEcoli(object):
 		self.geneFunctions = GeneFunctions(validation_data_raw)
 
 		self._add_dna_footprint_sizes(validation_data_raw)
+		self._add_amino_acid_growth_rates(validation_data_raw)
 		self._add_amino_acid_uptake_rates(validation_data_raw)
 
 	def _add_dna_footprint_sizes(self, validation_data_raw):
@@ -53,6 +54,44 @@ class ValidationDataEcoli(object):
 
 		for row in validation_data_raw.dna_footprint_sizes:
 			self.dna_footprint_sizes[row["molecule_ID"]] = row["footprint_size"]
+
+	def _add_amino_acid_growth_rates(self, validation_data_raw):
+		"""
+		Loads growth rates with single amino acids supplemented in media.
+
+		amino_acid_media_growth_rates: dict with data from 4 replicates
+			{
+				media ID (str):
+				{
+					'mean': mean max growth rate from 4 replicates (float with units per time)
+					'std': standard deviation for max growth rate from 4 replicates (float with units per time)
+				}
+			}
+		amino_acid_media_dose_dependent_growth_rates: dict with data from single measurements from 4 concentrations
+			{
+				media ID (str):
+				{
+					'conc': concentration of the amino acid in media (np.ndarray[float] with units mol/volume)
+					'growth': max growth rate corresponding to each media concentration (float with units per time)
+				}
+			}
+		"""
+
+		rates = {}
+		for row in validation_data_raw.amino_acid_growth_rates:
+			rates[row['Media']] = {
+				'mean': row['Average max growth rate'],
+				'std': row['Max growth rate standard deviation'],
+				}
+		self.amino_acid_growth_rates = rates
+
+		rates = {}
+		for row in validation_data_raw.amino_acid_growth_rates_dose_response:
+			rates[row['Media']] = {
+				'conc': row['Media concentrations'],
+				'growth': row['Max growth rates'],
+				}
+		self.amino_acid_dose_dependent_growth_rates = rates
 
 	def _add_amino_acid_uptake_rates(self, validation_data_raw):
 		"""
