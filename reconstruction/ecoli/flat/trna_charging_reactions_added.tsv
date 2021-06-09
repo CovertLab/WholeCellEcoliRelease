@@ -1,0 +1,2 @@
+"id"	"stoichiometry"	"catalyzed_by"	"common_name"	"_notes"
+"SELENOCYSTEINE--TRNA-LIGASE-RXN_selC-tRNA"	{"L-SELENOCYSTEINE":-1,"ATP":-1,"selC-tRNA":-1,"PPI":1,"AMP":1,"charged-selC-tRNA":1}	["CPLX0-1141"]	"SELENOCYSTEIN SYNTHASE"	"Simplified selenocysteine charging from two steps (RXN0-2161 and 2.9.1.1-RXN) into one to match modeling framework of other charging reactions"

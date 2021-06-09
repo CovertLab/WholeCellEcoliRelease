@@ -540,19 +540,11 @@ class Transcription(object):
 		synthetase_names = []
 		synthetase_mapping_aa = []
 		synthetase_mapping_syn = []
-
-		# Get IDs of charging reactions that should be removed
-		removed_reaction_ids = {
-			rxn['id'] for rxn in raw_data.trna_charging_reactions_removed}
-
 		# Get IDs of all metabolites
 		metabolite_ids = {met['id'] for met in raw_data.metabolites}
 
 		# Create stoichiometry matrix for charging reactions
 		for reaction in raw_data.trna_charging_reactions:
-			if reaction['id'] in removed_reaction_ids:
-				continue
-
 			# Get uncharged tRNA name for the given reaction
 			trna = None
 			for mol_id in reaction['stoichiometry'].keys():

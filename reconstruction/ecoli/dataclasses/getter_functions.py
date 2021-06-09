@@ -397,17 +397,8 @@ class GetterFunctions(object):
 			modified_rna_id for rna in raw_data.rnas
 			for modified_rna_id in rna['modified_forms']}
 
-		# Get IDs of charging reactions that should be removed
-		removed_charging_reaction_ids = {
-			rxn['id'] for rxn in raw_data.trna_charging_reactions_removed
-			}
-
 		# Loop through each charging reaction
 		for rxn in raw_data.trna_charging_reactions:
-			# Skip removed reactions
-			if rxn['id'] in removed_charging_reaction_ids:
-				continue
-
 			# Find molecule IDs whose masses are still unknown
 			unknown_mol_ids = [
 				mol_id for mol_id in rxn['stoichiometry'].keys()
