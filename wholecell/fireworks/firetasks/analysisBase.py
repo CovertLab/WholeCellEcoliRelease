@@ -33,6 +33,9 @@ mpl.rc_file(fp.MATPLOTLIBRC_FILE)
 
 SUB_DIRECTORIES = {'.png': 'low_res_plots'}
 
+CORE_TAG = 'CORE'
+DEFAULT_TAG = 'DEFAULT'
+VARIANT_TAG = 'VARIANT'
 
 class AnalysisBase(FiretaskBase):
 	"""Base class for analysis plot Firetasks.
@@ -46,8 +49,14 @@ class AnalysisBase(FiretaskBase):
 			Use all uppercase for tag names so they don't conflict with module
 			filenames.
 
-			The tag 'CORE' lists the plots to run by default when the argument
+			The tag 'DEFAULT' will run 'CORE' and 'VARIANT' when the argument
 			list is empty.
+
+			The tag 'CORE' lists the plots that are most commonly used for
+			analysis.
+
+			The tag 'VARIANT' lists any analysis plots specific to the variant
+			that was simulated.
 
 			The tag 'ACTIVE' lists all active plots in this category. The
 			nightly build should run 'ACTIVE'.
@@ -71,7 +80,13 @@ class AnalysisBase(FiretaskBase):
 		job of an OrderedSet class.
 		'''
 		for name in plot_names:
-			if name in self.TAGS:
+			if name == DEFAULT_TAG:
+				self.expand_plot_names([CORE_TAG, VARIANT_TAG], name_dict)
+			elif name == VARIANT_TAG:
+				variant = self['metadata'].get('variant', '').upper()
+				if variant in self.TAGS:
+					self.expand_plot_names(self.TAGS[variant], name_dict)
+			elif name in self.TAGS:
 				self.expand_plot_names(self.TAGS[name], name_dict)
 			elif name.endswith('.py'):
 				name_dict[name] = True
@@ -82,13 +97,13 @@ class AnalysisBase(FiretaskBase):
 		'''List the plot module files (within self.MODULE_PATH) named by the
 		given list of plot names, doing these transformations:
 
-			* Default to the 'CORE' tag if plot_names is empty.
+			* Default to the 'DEFAULT' tag
 			* Expand all TAGS as defined by self.TAGS.
 			* Append '.py' to filenames as needed.
 			* Deduplicate entries but preserve the order.
 		'''
 		if not plot_names:
-			plot_names = ['CORE']
+			plot_names = [DEFAULT_TAG]
 		name_dict = OrderedDict()
 		self.expand_plot_names(plot_names, name_dict)
 		return list(name_dict.keys())

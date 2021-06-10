@@ -126,7 +126,7 @@ The `--plot` (or `-p`) optional parameter lets you pick one or more specific PLO
 The list of PLOTs can include analysis class filenames like `aaCounts` (or `aaCounts.py`)
 and analysis group TAGS like `CORE`. See the `__init__.py` file in each analysis class directory
 for the available analysis classes and group TAGS.
-The default is to run the `CORE` group of plots that are recommended for everyday development.
+The default is to run the `DEFAULT` tag, which will run the `CORE` group of plots that are recommended for everyday development and any variant specific plots with the corresponding variant tag.
 
 For example, to run two analysis plots on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
 

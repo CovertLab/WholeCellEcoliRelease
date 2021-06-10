@@ -439,8 +439,9 @@ class RunWcm(scriptBase.ScriptBase):
 			help='''Names the analysis plots to run, e.g. plot filenames
 				like "aaCounts.py" or "aaCounts" and tags like "METABOLISM"
 				as defined in the __init__.py files. If omitted, the default is
-				"CORE", which names the plots recommended for everyday
-				development. Use "ACTIVE" to run all active plots in this
+				"DEFAULT", which will run the "CORE" tag with plots recommended
+				for everyday development and the "VARIANT" tag for any variant
+				specific plots. Use "ACTIVE" to run all active plots in this
 				category. You can name specific analysis files but any
 				analysis categories that don't have those files will print
 				error messages.''')

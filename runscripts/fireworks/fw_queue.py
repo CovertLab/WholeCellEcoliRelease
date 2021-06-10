@@ -33,13 +33,14 @@ Workflow options:
 	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
 	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
 		simulation output
-	PLOTS (str, "CORE"): Which analyses to run (if RUN_AGGREGATE_ANALYSIS is
+	PLOTS (str, ""): Which analyses to run (if RUN_AGGREGATE_ANALYSIS is
 		true). This should name one or more tags. For more than one tag,
 		separate them with whitespace and remember shell quoting. ACTIVE
 		includes all active plots. CORE includes just the plots recommended for
-		everyday development. You can also name specific analysis files but any
-		analysis categories that don't have such a filename will print error
-		messages.
+		everyday development. VARIANT runs analysis specific to the specified
+		variant. DEFAULT runs both CORE and VARIANT and is selected by default.
+		You can also name specific analysis files but any analysis
+		categories that don't have such a filename will print error messages.
 	DISABLE_RIBOSOME_CAPACITY_FITTING (int, "0"): if nonzero, ribosome
 		expression is not fit to protein synthesis demands
 	DISABLE_RNAPOLY_CAPACITY_FITTING (int, "0"): if nonzero, RNA polymerase
@@ -278,7 +279,7 @@ COMPRESS_OUTPUT = bool(int(get_environment("COMPRESS_OUTPUT", "0")))
 SIM_DESCRIPTION = get_environment("DESC", "").replace(" ", "_")
 VERBOSE_QUEUE = bool(int(get_environment("VERBOSE_QUEUE", "1")))
 RUN_AGGREGATE_ANALYSIS = bool(int(get_environment("RUN_AGGREGATE_ANALYSIS", "1")))
-PLOTS = get_environment("PLOTS", "CORE").split()
+PLOTS = get_environment("PLOTS", "").split()
 CACHED_SIM_DATA = bool(int(get_environment("CACHED_SIM_DATA", "0")))
 PARALLEL_PARCA = bool(int(get_environment("PARALLEL_PARCA", "0")))
 DEBUG_PARCA = bool(int(get_environment("DEBUG_PARCA", "0")))

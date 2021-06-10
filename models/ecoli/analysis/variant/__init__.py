@@ -35,13 +35,29 @@ TAGS = {
 		'cell_growth.py',
 		],
 	# Variant analyses to run with a specific simulation variant (key)
-	'add_one_aa': [
+	'ADD_ONE_AA': [
 		'cell_growth.py',
 		],
-	'remove_aa_inhibition': [
+	'METABOLISM_KINETIC_OBJECTIVE_WEIGHT': [
+		'metabolism_kinetic_objective_weight.py',
+		],
+	'METABOLISM_SECRETION_PENALTY': [
+		'metabolism_secretion_penalty.py',
+		],
+	'PARAM_SENSITIVITY': [
+		'param_sensitivity.py',
+		],
+	'REMOVE_AA_INHIBITION': [
 		'remove_aa_inhibition.py',
 		],
-	'remove_one_aa': [
+	'REMOVE_ONE_AA': [
 		'cell_growth.py',
+		],
+	'TF_ACTIVITY': [
+		'tfFit.py',
+		'tfFitComparison.py',
+		],
+	'TIME_STEP': [
+		'time_step.py',
 		],
 	}
