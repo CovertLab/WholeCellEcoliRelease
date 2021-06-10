@@ -5,6 +5,6 @@
 "condition"	"nutrients"	"genotype perturbations"	"doubling time (units.min)"	"active TFs"	"inactive TFs"
 "basal"	"minimal"	{}	44.0	[]	[]
 "no_oxygen"	"minimal_minus_oxygen"	{}	100.0	["FNR-4FE-4S-CPLX", "PHOSPHO-ARCA", "CPLX0-226"]	[]
-"with_aa"	"minimal_plus_amino_acids"	{}	25.0	["CPLX-125", "MONOMER0-162", "CPLX0-228", "MONOMER0-155"]	["CPLX0-7669", "PUTA-CPLX", "EG12123-MONOMER"]
+"with_aa"	"minimal_plus_amino_acids"	{}	25.0	["CPLX-125", "MONOMER0-162", "CPLX0-228", "MONOMER0-155", "CPLX0-7796"]	["CPLX0-7669", "PUTA-CPLX", "EG12123-MONOMER"]
 "acetate"	"minimal_acetate"	{}	136.0	["CPLX0-226"]	[]
 "succinate"	"minimal_succinate"	{}	82.0	["CPLX0-226", "PHOSPHO-DCUR"]	[]
