@@ -1,7 +1,4 @@
 "id"	"_comments"
-"LYSOPHOSPHOLIPASE-RXN[CCO-UNKNOWN-SPACE]-2-Lysophosphatidylcholines/WATER//Carboxylates/L-1-GLYCERO-PHOSPHORYLCHOLINE/PROTON.103."
-"RXN0-5190[CCO-UNKNOWN-SPACE]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.115."
-"ATPSYN-RXN[CCO-PM-BAC-NEG]-ATP/PROTON/WATER//ADP/Pi/PROTON.48."
 "RXN-14812-FRUCTOSE-6P//FRUCTOSE-6P.25."	"Reactant and product are identical."
 "RXN0-6418-GLC//GLC.9."	"Reactant and product are identical."
 "N-ACETYLGLUCOSAMINE-KINASE-RXN-N-acetyl-D-glucosamine/ATP//CPD-16168/ADP/PROTON.49."	"Identical reaction with N-ACETYL-D-GLUCOSAMINE exists."

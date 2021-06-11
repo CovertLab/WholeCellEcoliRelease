@@ -11,7 +11,6 @@ TODO:
 from __future__ import absolute_import, division, print_function
 
 from copy import copy
-import itertools
 import re
 from typing import Any, cast, Dict, Iterable, List, Optional, Set, Tuple, Union
 
@@ -861,21 +860,9 @@ class Metabolism(object):
 		reversible_reactions = []
 		reaction_catalysts = {}
 
-		# Get IDs of reactions that should be removed
-		removed_metabolic_reaction_ids = {
-			rxn['id'] for rxn in cast(Any, raw_data).metabolic_reactions_removed}
-
 		# Load and parse reaction information from raw_data
-		# TODO (ggsun): Two files will later be merged
-		for reaction in itertools.chain(
-				cast(Any, raw_data).metabolic_reactions,
-				cast(Any, raw_data).protein_modification_reactions):
+		for reaction in cast(Any, raw_data).metabolic_reactions:
 			reaction_id = reaction["id"]
-
-			# Skip removed reactions
-			if reaction_id in removed_metabolic_reaction_ids:
-				continue
-
 			stoich = reaction["stoichiometry"]
 			direction = reaction["direction"]
 

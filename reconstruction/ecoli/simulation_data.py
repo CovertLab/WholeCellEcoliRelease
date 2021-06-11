@@ -130,7 +130,6 @@ class SimulationDataEcoli(object):
 		self.tf_to_fold_change = {}
 		self.tf_to_direction = {}
 
-		removed_fcs = {(row['TF'], row['Target']) for row in raw_data.fold_changes_removed}
 		for fc_file in ['fold_changes', 'fold_changes_nca']:
 			gene_not_found = set()
 			tf_not_found = set()
@@ -138,10 +137,6 @@ class SimulationDataEcoli(object):
 
 			for row in getattr(raw_data, fc_file):
 				FC = row['log2 FC mean']
-
-				# Skip fold changes that have been removed
-				if (row['TF'], row['Target']) in removed_fcs:
-					continue
 
 				# Skip fold changes that do not agree with curation
 				if row['Regulation_direct'] != '' and row['Regulation_direct'] > 2:

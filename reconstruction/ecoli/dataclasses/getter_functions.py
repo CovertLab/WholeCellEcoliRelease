@@ -437,21 +437,11 @@ class GetterFunctions(object):
 		"""
 		protein_complex_masses = {}
 
-		# Get IDs of complexation/equilibrium reactions that should be removed
-		removed_reaction_ids = {
-			rxn['id'] for rxn in itertools.chain(
-				raw_data.complexation_reactions_removed,
-				raw_data.equilibrium_reactions_removed)
-			}
-
 		# Build mapping from complex ID to its subunit stoichiometry
 		complex_id_to_stoich = {}
 
 		for rxn in itertools.chain(
 				raw_data.complexation_reactions, raw_data.equilibrium_reactions):
-			# Skip removed reactions
-			if rxn['id'] in removed_reaction_ids:
-				continue
 
 			# Get the ID of the complex and the stoichiometry of subunits
 			complex_ids = []
@@ -612,23 +602,12 @@ class GetterFunctions(object):
 		protein_complex_compartments = {}
 		metabolite_ids = {met['id'] for met in raw_data.metabolites}
 
-		# Get IDs of complexation/equilibrium reactions that should be removed
-		removed_reaction_ids = {
-			rxn['id'] for rxn in itertools.chain(
-				raw_data.complexation_reactions_removed,
-				raw_data.equilibrium_reactions_removed)
-			}
-
 		# Build mapping from complex ID to its subunit IDs
 		complex_id_to_subunit_ids = {}
 
 		for rxn in itertools.chain(
 				raw_data.complexation_reactions,
 				raw_data.equilibrium_reactions):
-			# Skip removed reactions
-			if rxn['id'] in removed_reaction_ids:
-				continue
-
 			# Get the ID of the complex and the stoichiometry of subunits
 			complex_id = None
 			subunit_ids = []

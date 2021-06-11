@@ -26,19 +26,11 @@ class Complexation(object):
 		stoichMatrixV = []  # Stoichiometric coefficients
 		stoichMatrixMass = []  # Molecular masses of molecules in stoichMatrixI
 
-		# Get IDs of reactions that should be removed
-		removed_reaction_ids = {
-			rxn['id'] for rxn in raw_data.complexation_reactions_removed}
-
 		self.ids_reactions = []
 		reaction_index = 0
 
 		# Build stoichiometric matrix from given complexation reactions
 		for reaction in raw_data.complexation_reactions:
-			# Skip removed reactions
-			if reaction['id'] in removed_reaction_ids:
-				continue
-
 			self.ids_reactions.append(reaction['id'])
 
 			for mol_id, coeff in reaction["stoichiometry"].items():

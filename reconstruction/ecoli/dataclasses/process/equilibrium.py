@@ -42,19 +42,10 @@ class Equilibrium(object):
 
 		# Make sure reactions are not duplicated in complexationReactions and
 		# equilibriumReactions
-		removed_equilibrium_reaction_ids = {
-			rxn['id'] for rxn in raw_data.equilibrium_reactions_removed}
-		removed_complexation_reaction_ids = {
-			rxn['id'] for rxn in raw_data.complexation_reactions_removed}
-
-		equilibrium_reaction_ids = set(
-			[x["id"] for x in raw_data.equilibrium_reactions
-			 if x['id'] not in removed_equilibrium_reaction_ids]
-		)
-		complexation_reaction_ids = set(
-			[x["id"] for x in raw_data.complexation_reactions
-			 if x['id'] not in removed_complexation_reaction_ids]
-		)
+		equilibrium_reaction_ids = {
+			x["id"] for x in raw_data.equilibrium_reactions}
+		complexation_reaction_ids = {
+			x["id"] for x in raw_data.complexation_reactions}
 
 		if equilibrium_reaction_ids.intersection(complexation_reaction_ids) != set():
 			raise Exception(
@@ -81,13 +72,6 @@ class Equilibrium(object):
 			m["Metabolite"] for m in raw_data.metabolite_concentrations] + [
 			"LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + two_component_system_ligands
 
-		for reaction in raw_data.equilibrium_reactions:
-			for mol_id in reaction["stoichiometry"].keys():
-				if mol_id in FORBIDDEN_MOLECULES or (
-						mol_id in metabolite_ids and mol_id not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
-					removed_equilibrium_reaction_ids.add(reaction['id'])
-					break
-
 		# Get forward and reverse rates of each reaction
 		forward_rates = {
 			rxn['id']: rxn['forward_rate'] for rxn in raw_data.equilibrium_reaction_rates
@@ -102,7 +86,16 @@ class Equilibrium(object):
 
 		# Build stoichiometry matrix
 		for reaction in raw_data.equilibrium_reactions:
-			if reaction['id'] in removed_equilibrium_reaction_ids:
+			skip_reaction = False
+
+			# Do not add reactions that include forbidden or nonexistent
+			# molecules
+			for mol_id in reaction["stoichiometry"].keys():
+				if mol_id in FORBIDDEN_MOLECULES or (
+						mol_id in metabolite_ids and mol_id not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
+					skip_reaction = True
+
+			if skip_reaction:
 				continue
 
 			ratesFwd.append(forward_rates.get(reaction['id'], median_forward_rate))
@@ -163,6 +156,8 @@ class Equilibrium(object):
 		self.molecule_names = molecules
 		self.ids_complexes = [self.molecule_names[i] for i in np.where(np.any(self.stoich_matrix() > 0, axis=1))[0]]
 		self.rxn_ids = rxnIds
+		print(rxnIds)
+		print(len(rxnIds))
 		self.rates_fwd = np.array(ratesFwd)
 		self.rates_rev = np.array(ratesRev)
 
