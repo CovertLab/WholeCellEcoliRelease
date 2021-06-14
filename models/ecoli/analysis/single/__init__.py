@@ -9,7 +9,6 @@ ACTIVE = [
 	"aaExchangeFluxes.py",
 	"active_rnap_coordinates.py",
 	"all_enzyme_absences.py",
-	"allReactionFluxes.py",
 	"cell_wall_expression.py",
 	"centralCarbonMetabolism.py",
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
@@ -110,7 +109,6 @@ TAGS = {
 	'METABOLISM': [
 		"aaExchangeFluxes.py",
 		"all_enzyme_absences.py",
-		"allReactionFluxes.py",
 		"centralCarbonMetabolism.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
