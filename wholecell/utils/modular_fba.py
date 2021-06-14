@@ -1106,8 +1106,10 @@ class FluxBalanceAnalysis(object):
 
 		if isinstance(reactionIDs, six.string_types):
 			reactionIDs = [reactionIDs]
-			lowerBounds = [lowerBounds]
-			upperBounds = [upperBounds]
+			if lowerBounds is not None:
+				lowerBounds = [lowerBounds]
+			if upperBounds is not None:
+				upperBounds = [upperBounds]
 
 		nReactions = len(reactionIDs)
 		if lowerBounds is None:
