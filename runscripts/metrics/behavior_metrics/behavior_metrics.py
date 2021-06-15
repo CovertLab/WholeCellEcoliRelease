@@ -196,13 +196,11 @@ MODE_FUNC_MAP = {
 	"process_simulated_fluxes": (
 		lambda filter_ids, rxn_ids, fluxes, id_map:
 		toya.process_simulated_fluxes(
-			filter_ids, rxn_ids, fluxes, id_map
+			filter_ids, rxn_ids, fluxes
 		)[0]
 	),
 	"process_toya_data": toya.process_toya_data,
 	"fluxome_common_ids": toya.get_common_ids,
-	"fluxome_root_to_id_indices_map":
-		toya.get_root_to_id_indices_map,
 	"normalize_to_column": normalize_to_column,
 	"get_simulated_validation_counts": get_simulated_validation_counts,
 	"filter_no_nan": lambda a: a[~np.isnan(a)],

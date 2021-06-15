@@ -361,21 +361,13 @@
                 "function": "adjust_toya_data",
                 "args": ["toya_fluxes_unprocessed", "cell_mass", "dry_mass", "cell_density"]
             },
-            "root_to_id_indices_map": {
-                "function": "fluxome_root_to_id_indices_map",
-                "args": ["sim_reaction_ids"]
-            },
-            "filter_ids": {
-                "function": "fluxome_common_ids",
-                "args": ["toya_reaction_ids", "root_to_id_indices_map"]
-            },
             "sim_fluxes": {
                 "function": "process_simulated_fluxes",
-                "args": ["filter_ids", "sim_reaction_ids", "sim_fluxes_unprocessed", "root_to_id_indices_map"]
+                "args": ["toya_reaction_ids", "sim_reaction_ids", "sim_fluxes_unprocessed"]
             },
             "toya_fluxes": {
                 "function": "process_toya_data",
-                "args": ["filter_ids", "toya_reaction_ids", "toya_fluxes_adjusted"]
+                "args": ["toya_reaction_ids", "toya_reaction_ids", "toya_fluxes_adjusted"]
             },
             "sim_fluxes_unitless": {
                 "function": "strip_units",

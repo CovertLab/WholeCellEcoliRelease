@@ -66,6 +66,10 @@ def get_root_to_id_indices_map(sim_reaction_ids):
 		Map from ID root to a list of the indices in
 		sim_reaction_ids of reactions having that root.
 	"""
+
+	raise NotImplementedError('This function does not provide all matches for certain reactions.'
+		'Re-implement before using.')
+
 	root_to_id_indices_map = dict()  # type: Dict[str, List[int]]
 	matcher = re.compile("^([A-Za-z0-9-/.]+)")
 	for i, rxn_id in enumerate(sim_reaction_ids):
@@ -77,8 +81,8 @@ def get_root_to_id_indices_map(sim_reaction_ids):
 
 
 def process_simulated_fluxes(
-		output_ids, reaction_ids, reaction_fluxes, root_to_id_indices_map):
-	# type: (Iterable[str], Iterable[str], Unum, Dict[str, List[int]]) -> Tuple[Unum, Unum]
+		output_ids, reaction_ids, reaction_fluxes):
+	# type: (Iterable[str], Iterable[str], Unum) -> Tuple[Unum, Unum]
 	"""Compute means and standard deviations of flux from simulation
 
 	For a given output ID from output_ids, all reaction IDs from
@@ -95,7 +99,6 @@ def process_simulated_fluxes(
 			order specified by reaction_ids) and each row is a time
 			point. Should have units FLUX_UNITS and be a numpy
 			matrix.
-		root_to_id_indices_map: words go here
 
 	Returns:
 		Tuple of the lists of mean fluxes and standard deviations for each
@@ -108,14 +111,14 @@ def process_simulated_fluxes(
 	stdevs = []  # type: List[np.ndarray]
 	for output_id in output_ids:
 		time_course = []  # type: List[Unum]
-		for i_rxn_id in root_to_id_indices_map[output_id]:
-			rxn_id = reaction_ids[i_rxn_id]
-			reverse = -1 if re.findall("(reverse)", rxn_id) else 1
-			matches = reaction_fluxes[:, np.where(reaction_ids == rxn_id)]
-			if len(time_course):
-				time_course += reverse * matches
-			else:
-				time_course = reverse * matches
+		for i, rxn_id in enumerate(reaction_ids):
+			if re.findall(output_id, rxn_id):
+				reverse = -1 if re.findall("(reverse)", rxn_id) else 1
+				matches = reaction_fluxes[:, i]
+				if len(time_course):
+					time_course += reverse * matches
+				else:
+					time_course = reverse * matches
 		if len(time_course):
 			time_course_ = time_course  # type: Any
 			means.append(np.mean(time_course_).asNumber(FLUX_UNITS))

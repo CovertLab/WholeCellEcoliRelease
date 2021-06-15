@@ -94,19 +94,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		reaction_ids, reaction_fluxes = Plot.load_fba_data(simOutDir)
 		toya_reactions, toya_fluxes, toya_stdevs = Plot.load_toya_data(
 			validationDataFile, simDataFile, simOutDir)
-		root_to_id_indices_map = toya.get_root_to_id_indices_map(
-			reaction_ids)
-		common_ids = toya.get_common_ids(
-			toya_reactions, root_to_id_indices_map)
 
 		sim_flux_means, sim_flux_stdevs = toya.process_simulated_fluxes(
-			common_ids, reaction_ids, reaction_fluxes,
-			root_to_id_indices_map
+			toya_reactions, reaction_ids, reaction_fluxes
 		)
 		toya_flux_means = toya.process_toya_data(
-			common_ids, toya_reactions, toya_fluxes)
+			toya_reactions, toya_reactions, toya_fluxes)
 		toya_flux_stdevs = toya.process_toya_data(
-			common_ids, toya_reactions, toya_stdevs)
+			toya_reactions, toya_reactions, toya_stdevs)
 
 		correlation_coefficient = np.corrcoef(
 			sim_flux_means.asNumber(FLUX_UNITS),
