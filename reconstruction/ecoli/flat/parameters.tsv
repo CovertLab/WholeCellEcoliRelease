@@ -31,3 +31,5 @@
 "complexation_rate"	1000	"1/units.s"	"Placeholder (estimated from Neidhardt)."	
 "fraction_supply_inhibited"	0.01		"Fraction of AA supply that will be inhibited at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data."	
 "fraction_supply_exported"	0.1		"Fraction of AA supply that will be exported at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data."	
+"ppi_concentration"	5E-4	"units.mol/units.L"	"multiple sources"	
+"pH"	7.2			

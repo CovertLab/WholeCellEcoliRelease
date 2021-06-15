@@ -101,9 +101,9 @@ LIST_OF_DICT_FILENAMES = (
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = (
+	"dna_supercoiling.tsv",
 	"parameters.tsv",
 	"mass_parameters.tsv",
-	"dna_supercoiling.tsv"
 	)
 
 REMOVED_DATA = {

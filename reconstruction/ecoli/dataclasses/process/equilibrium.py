@@ -156,8 +156,6 @@ class Equilibrium(object):
 		self.molecule_names = molecules
 		self.ids_complexes = [self.molecule_names[i] for i in np.where(np.any(self.stoich_matrix() > 0, axis=1))[0]]
 		self.rxn_ids = rxnIds
-		print(rxnIds)
-		print(len(rxnIds))
 		self.rates_fwd = np.array(ratesFwd)
 		self.rates_rev = np.array(ratesRev)
 
