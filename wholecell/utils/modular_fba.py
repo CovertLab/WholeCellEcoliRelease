@@ -177,8 +177,9 @@ class FluxBalanceAnalysis(object):
 	_generatedID_conversionFlux = "Flux converting flux to kinetic objective equivalents - "
 
 	## Kinetic or homeostatic
-	_geneatedID_low_target_range = 'objective pseudoflux in range below average - '
-	_geneatedID_high_target_range = 'objective pseudoflux in range above average - '
+	_generatedID_low_target_range = 'objective pseudoflux in range below average - '
+	_generatedID_high_target_range = 'objective pseudoflux in range above average - '
+	_generatedID_target_range = 'objective pseudoflux in range - '
 
 	# Initialization
 
@@ -751,6 +752,23 @@ class FluxBalanceAnalysis(object):
 				)
 
 				self._specialFluxIDsSet.add(quadTargetFlux)
+
+				# Allow consumption of kinetic objective equivalent at lower objective
+				# weight within target range
+				range_flux = self._generatedID_target_range + reactionID
+				self._solver.setFlowMaterialCoeff(
+					range_flux,
+					kineticObjEquivalent,
+					-1,
+					)
+				# Set limits to 0, if a target range is set, the upper and/or lower
+				# bounds will vary from 0
+				self._solver.setFlowBounds(
+					range_flux,
+					lowerBound=0,
+					upperBound=0,
+					)
+				self._specialFluxIDsSet.add(range_flux)
 			else:
 				# Add a pseudoreaction to allow the flux to be above its target
 				overTargetFlux = self._generatedID_amountOver + reactionID
@@ -772,7 +790,7 @@ class FluxBalanceAnalysis(object):
 
 				# Allow consumption of kinetic objective equivalent at lower objective
 				# weight within target range (above average)
-				upper_range_flux = self._geneatedID_high_target_range + reactionID
+				upper_range_flux = self._generatedID_high_target_range + reactionID
 				self._solver.setFlowMaterialCoeff(
 					upper_range_flux,
 					kineticObjEquivalent,
@@ -788,7 +806,7 @@ class FluxBalanceAnalysis(object):
 
 				# Allow consumption of kinetic objective equivalent at lower objective
 				# weight within target range (below average)
-				lower_range_flux = self._geneatedID_low_target_range + reactionID
+				lower_range_flux = self._generatedID_low_target_range + reactionID
 				self._solver.setFlowMaterialCoeff(
 					lower_range_flux,
 					kineticObjEquivalent,
@@ -844,6 +862,12 @@ class FluxBalanceAnalysis(object):
 					quadTargetFlux,
 					self.kineticObjectiveWeight * scaling,
 					)
+
+				quad_range_flux = self._generatedID_target_range + rxn
+				self._solver.setFlowObjectiveCoeff(
+					quad_range_flux,
+					self.kinetic_objective_weight_in_range * scaling,
+					)
 			else:
 				# Objective is to minimize running this relaxation reaction
 				overTargetFlux = self._generatedID_amountOver + rxn
@@ -863,14 +887,14 @@ class FluxBalanceAnalysis(object):
 						)
 
 				# Objective is to minimize running this relaxation reaction
-				upper_range_flux = self._geneatedID_high_target_range + rxn
+				upper_range_flux = self._generatedID_high_target_range + rxn
 				self._solver.setFlowObjectiveCoeff(
 					upper_range_flux,
 					self.kinetic_objective_weight_in_range * scaling,
 					)
 
 				# Objective is to minimize running this relaxation reaction
-				lower_range_flux = self._geneatedID_low_target_range + rxn
+				lower_range_flux = self._generatedID_low_target_range + rxn
 				if rxn not in self._oneSidedReactions:
 					self._solver.setFlowObjectiveCoeff(
 						lower_range_flux,
@@ -1294,6 +1318,9 @@ class FluxBalanceAnalysis(object):
 			reactionIDs (iterable of str) - specific reaction IDs to get objective
 				value for (if not provided then will return for all reactions in
 				the objective)
+
+		TODO:
+			Should the range fluxes be weighted?
 		'''
 
 		if reactionIDs is None:
@@ -1306,17 +1333,19 @@ class FluxBalanceAnalysis(object):
 
 		# Get all reaction fluxes at once for faster performance
 		if self._solver.quadratic_objective:
-			unity_ids = [self._generatedID_quadFluxRelax + rxn for rxn in reactionIDs]
+			id_templates = [
+				self._generatedID_quadFluxRelax,
+				self._generatedID_target_range,
+				]
 		else:
-			generated_ids = [
+			id_templates = [
 				self._generatedID_amountUnder,
 				self._generatedID_amountOver,
-				self._geneatedID_low_target_range,
-				self._geneatedID_high_target_range,
+				self._generatedID_low_target_range,
+				self._generatedID_high_target_range,
 				]
-			unity_ids = [i + rxn for rxn in reactionIDs for i in generated_ids]
-
-		fluxes = {rxn: flux for rxn, flux in zip(unity_ids, self.getReactionFluxes(unity_ids))}
+		generated_ids = [i + rxn for rxn in reactionIDs for i in id_templates]
+		fluxes = {rxn: flux for rxn, flux in zip(generated_ids, self.getReactionFluxes(generated_ids))}
 
 		for idx, reactionID in enumerate(reactionIDs):
 			if reactionID not in self._active_kinetic_targets:
@@ -1326,18 +1355,19 @@ class FluxBalanceAnalysis(object):
 
 			if self._solver.quadratic_objective:
 				quadUnityID = self._generatedID_quadFluxRelax + reactionID
-				relax = fluxes[quadUnityID]**2
+				quad_range_id = self._generatedID_target_range + reactionID
+				relax = fluxes[quadUnityID]**2 + self.kinetic_objective_weight_in_range * fluxes[quad_range_id]**2
 			else:
 				belowUnityID = self._generatedID_amountUnder + reactionID
 				aboveUnityID = self._generatedID_amountOver + reactionID
-				below_in_range_id = self._geneatedID_low_target_range + reactionID
-				above_in_range_id = self._geneatedID_high_target_range + reactionID
+				below_in_range_id = self._generatedID_low_target_range + reactionID
+				above_in_range_id = self._generatedID_high_target_range + reactionID
 				relaxUp = fluxes[belowUnityID]
 				relaxDown = fluxes[aboveUnityID]
 				below_in_range = fluxes[below_in_range_id]
 				above_in_range = fluxes[above_in_range_id]
 
-				relax = relaxUp + relaxDown + below_in_range + above_in_range
+				relax = relaxUp + relaxDown + self.kinetic_objective_weight_in_range * (below_in_range + above_in_range)
 
 				assert relaxUp <= NUMERICAL_ZERO or relaxDown <= NUMERICAL_ZERO
 
@@ -1402,16 +1432,24 @@ class FluxBalanceAnalysis(object):
 					-mean
 					)
 
-				lower_range_flux = self._geneatedID_low_target_range + reactionID
-				self._solver.setFlowBounds(
-					lower_range_flux,
-					upperBound=np.fmax(0, 1 - lower / mean),
-					)
-				upper_range_flux = self._geneatedID_high_target_range + reactionID
-				self._solver.setFlowBounds(
-					upper_range_flux,
-					upperBound=np.fmax(0, upper / mean - 1),
-					)
+				if self._solver.quadratic_objective:
+					range_flux = self._generatedID_target_range + reactionID
+					self._solver.setFlowBounds(
+						range_flux,
+						lowerBound=-(1 - lower / mean),
+						upperBound=(upper / mean - 1),
+						)
+				else:
+					lower_range_flux = self._generatedID_low_target_range + reactionID
+					self._solver.setFlowBounds(
+						lower_range_flux,
+						upperBound=np.fmax(0, 1 - lower / mean),
+						)
+					upper_range_flux = self._generatedID_high_target_range + reactionID
+					self._solver.setFlowBounds(
+						upper_range_flux,
+						upperBound=np.fmax(0, upper / mean - 1),
+						)
 
 			# Record the change
 			self._currentKineticTargets[reactionID] = mean

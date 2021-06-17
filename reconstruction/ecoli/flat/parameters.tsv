@@ -13,7 +13,7 @@
 "RNAP_elongation_rate_max"	85	"units.nt/units.s"		
 "metabolism_homeostatic_range_obj_fraction_higher"	0			
 "metabolism_kinetic_objective_weight_linear"	1E-07			
-"metabolism_kinetic_objective_weight_quadratic"	1E-09			
+"metabolism_kinetic_objective_weight_quadratic"	1E-11			
 "metabolism_kinetic_objective_weight_in_range"	0.01			
 "secretion_penalty_coeff"	0.001		"Use variant metabolism_secretion_penalty to optimize"	
 "sensitivity_analysis_alpha"	0			
