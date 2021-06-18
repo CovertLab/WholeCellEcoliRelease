@@ -296,9 +296,17 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		idx = self._getVar(flow)
 		if lowerBound is not None and self._lb[flow] != lowerBound:
 			self._lb[flow] = lowerBound
+			# Need to prevent cases where the new lower bound is greater than
+			# current upper bound and a new upper bound is not provided here
+			if upperBound is None and self._lb[flow] > self._ub[flow]:
+				self._ub[flow] = self._lb[flow]
 			reset_bounds = True
 		if upperBound is not None and self._ub[flow] != upperBound:
 			self._ub[flow] = upperBound
+			# Need to prevent cases where the new upper bound is less than
+			# current lower bound and a new loewr bound is not provided here
+			if lowerBound is None and self._lb[flow] > self._ub[flow]:
+				self._lb[flow] = self._ub[flow]
 			reset_bounds = True
 
 		if reset_bounds:
