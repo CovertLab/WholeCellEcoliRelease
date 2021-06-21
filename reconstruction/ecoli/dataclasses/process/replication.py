@@ -16,6 +16,10 @@ from wholecell.utils.random import stochasticRound
 PROCESS_MAX_TIME_STEP = 2.
 
 
+class SiteNotFoundError(Exception):
+	pass
+
+
 class Replication(object):
 	"""
 	SimulationData for the replication process
@@ -30,6 +34,7 @@ class Replication(object):
 
 		self._build_sequence(raw_data, sim_data)
 		self._build_gene_data(raw_data, sim_data)
+		self._build_sites(raw_data, sim_data)
 		self._build_replication(raw_data, sim_data)
 		self._build_motifs(raw_data, sim_data)
 		self._build_elongation_rates(raw_data, sim_data)
@@ -67,6 +72,30 @@ class Replication(object):
 		self.gene_data['symbol'] = symbols
 		self.gene_data['rna_id'] = rna_ids
 
+	def _build_sites(self, raw_data, sim_data):
+		"""
+		Build simulation data associated with DNA sites from raw_data.
+		"""
+		def get_site_center_coordinates(site_id):
+			"""
+			Calculate the center coordinates (rounded average of left and right
+			end coordinates) of a given DNA site.
+			"""
+			try:
+				left, right = sim_data.getter.get_genomic_coordinates(site_id)
+				center_coordinate = round((left + right)/2)
+			except (KeyError, TypeError):
+				raise SiteNotFoundError(
+					f"Coordinates of DNA site with ID {site_id} were not found in raw_data.")
+
+			return center_coordinate
+
+		# Get coordinates of oriC and terC
+		self.oric_coordinate = get_site_center_coordinates(
+			sim_data.molecule_ids.oriC_site)
+		self.terc_coordinate = get_site_center_coordinates(
+			sim_data.molecule_ids.terC_site)
+
 	def _build_replication(self, raw_data, sim_data):
 		"""
 		Build replication-associated simulation data from raw data.
@@ -79,17 +108,14 @@ class Replication(object):
 			numerical_sequence[i] = ntMapping[letter] # Build genome sequence as small integers
 
 		# Create 4 possible polymerization sequences
-		oric_coordinate = sim_data.constants.oriC_center.asNumber()
-		terc_coordinate = sim_data.constants.terC_center.asNumber()
-
 		# Forward sequence includes oriC
 		self.forward_sequence = numerical_sequence[
-			np.hstack((np.arange(oric_coordinate, self.genome_length),
-			np.arange(0, terc_coordinate)))]
+			np.hstack((np.arange(self.oric_coordinate, self.genome_length),
+			np.arange(0, self.terc_coordinate)))]
 
 		# Reverse sequence includes terC
 		self.reverse_sequence = numerical_sequence[
-			np.arange(oric_coordinate - 1, terc_coordinate - 1, -1)]
+			np.arange(self.oric_coordinate - 1, self.terc_coordinate - 1, -1)]
 
 		self.forward_complement_sequence = self._get_complement_sequence(self.forward_sequence)
 		self.reverse_complement_sequence = self._get_complement_sequence(self.reverse_sequence)
@@ -133,10 +159,6 @@ class Replication(object):
 		Coordinates of all motifs are calculated based on the given sequences
 		of the genome and the motifs.
 		"""
-		# Get coordinates of oriC's and terC's
-		self.oric_coordinates = sim_data.constants.oriC_center.asNumber()
-		self.terc_coordinates = sim_data.constants.terC_center.asNumber()
-
 		# Initialize dictionary of motif coordinates
 		self.motif_coordinates = dict()
 
@@ -196,8 +218,8 @@ class Replication(object):
 		the origin of replication.
 		"""
 		relative_coordinates = (
-			(coordinates - self.terc_coordinates)
-			% self.genome_length + self.terc_coordinates - self.oric_coordinates)
+			(coordinates - self.terc_coordinate)
+			% self.genome_length + self.terc_coordinate - self.oric_coordinate)
 
 		relative_coordinates[relative_coordinates < 0] += 1
 

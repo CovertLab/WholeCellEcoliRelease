@@ -25,8 +25,6 @@ def mm2inch(value):
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		oriC = sim_data.constants.oriC_center.asNumber()
-		terC = sim_data.constants.terC_center.asNumber()
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
 

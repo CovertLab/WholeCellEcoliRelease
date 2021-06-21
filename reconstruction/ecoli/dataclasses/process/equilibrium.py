@@ -84,18 +84,16 @@ class Equilibrium(object):
 
 		reaction_index = 0
 
-		# Build stoichiometry matrix
-		for reaction in raw_data.equilibrium_reactions:
-			skip_reaction = False
-
-			# Do not add reactions that include forbidden or nonexistent
-			# molecules
+		def should_skip_reaction(reaction):
 			for mol_id in reaction["stoichiometry"].keys():
 				if mol_id in FORBIDDEN_MOLECULES or (
 						mol_id in metabolite_ids and mol_id not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
-					skip_reaction = True
+					return True
+			return False
 
-			if skip_reaction:
+		# Build stoichiometry matrix
+		for reaction in raw_data.equilibrium_reactions:
+			if should_skip_reaction(reaction):
 				continue
 
 			ratesFwd.append(forward_rates.get(reaction['id'], median_forward_rate))

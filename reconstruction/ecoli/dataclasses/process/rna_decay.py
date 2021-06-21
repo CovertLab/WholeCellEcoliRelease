@@ -17,7 +17,9 @@ class RnaDecay(object):
 
 	def _buildRnaDecayData(self, raw_data, sim_data):
 		_ = sim_data  # unused
-		self.endoRNase_ids = [x["endoRnase"] for x in raw_data.endoRNases]
+		self.endoRNase_ids = [
+			x['endoRnase'] + sim_data.getter.get_compartment_tag(x['endoRnase'])
+			for x in raw_data.endoRNases]
 		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRNases])
 		self.stats_fit = {
 				'LossKm': 0.,

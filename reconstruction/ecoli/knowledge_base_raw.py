@@ -23,6 +23,7 @@ LIST_OF_DICT_FILENAMES = (
 	"complexation_reactions.tsv",
 	"complexation_reactions_removed.tsv",
 	"disabled_kinetic_reactions.tsv",
+	"dna_sites.tsv",
 	"dry_mass_composition.tsv",
 	"endoRNases.tsv",
 	"equilibrium_reaction_rates.tsv",
