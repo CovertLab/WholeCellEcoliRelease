@@ -29,12 +29,13 @@ This page goes through the Python environment setup steps in more detail and wit
 **Sherlock:** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip our Sherlock notes. Inside the lab, look in `$PI_HOME/downloads/` and `$PI_HOME/installation_notes/` for downloaded software packages and notes on recompiling them as needed to install new packages, new libraries, and new Python releases for the team.
 
 **See Issue #931.** There are several degrees of freedom for installing
-OpenBLAS, numpy, and scipy which change the computed results. We do not know
+OpenBLAS, NumPy, and SciPy which change the computed results. We do not know
 how to set up environments to get consistent results across platforms.
-The simplest and fastest setup is to install numpy and scipy from binary "wheels"
+It's possible that a newer version of OpenBLAS (such as v0.3.15) fixes those problems.
+The simplest and fastest setup is to install NumPy and SciPy from binary "wheels"
 with their embedded copies of OpenBLAS. Still, there's a case for compiling
 OpenBLAS from source code and linking numpy and scipy to it, as
-`cloud/docker/runtime/Dockerfile` does for building the wcm-runtime Docker
+`cloud/docker/runtime/Dockerfile` can do for building the wcm-runtime Docker
 Image.
 
 
@@ -43,13 +44,21 @@ Image.
 1. Use your package manager to install the needed libraries
 \[see the `requirements.txt` file for the latest list] or compile them from source.
 
-   Aesara will use the `openblas` library installed in this step.
-   You can optionally install numpy and scipy to also use it.
+   Most of this list comes from pyenv's requirements to install Python releases,
+   so check [the pyenv wiki](https://github.com/pyenv/pyenv/wiki) for the latest
+   list of libraries.
+
+   We no longer recommend installing `openblas` library using a package manager or
+   by compiling from source. Instead we let NumPy and SciPy install their
+   own copy and let Aesara find NumPy's copy.
+
+   You can optionally install `openblas` via package manager or source code,
+   but be sure to get at least release v0.3.9.
 
    **On macOS**
 
    ```bash
-   brew install glpk openssl readline swig suite-sparse xz openblas
+   brew install glpk openssl readline swig suite-sparse xz
    ```
 
    **On Ubuntu**
@@ -57,14 +66,10 @@ Image.
    ```bash
    sudo apt install -y glpk-utils libglpk-dev glpk-doc libssl-dev libreadline-dev \
      libncurses5-dev libncursesw5-dev libffi-dev zlib1g-dev libbz2-dev xz-utils \
-     libsqlite3-dev tk-dev openblas
+     libsqlite3-dev tk-dev
    ```
 
    For Ubuntu, you might also need to find and install the proprietary package `python-glpk`.
-
-   Don't use apt-get to install `libopenblas-dev` until that package repository
-   updates to a recent release like v0.3.9 (the version that's embedded in numpy
-   and scipy).
 
    **On Sherlock**
 
@@ -118,7 +123,7 @@ pyenv lets you install and switch between multiple Python releases and multiple
 "virtual environments", each with its own pip packages.
 
    ```bash
-   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.7
+   pyenv install 3.8.7
    ```
 
 
@@ -278,6 +283,7 @@ especially when called from multiple processes.
    ```
 
    then delete and recreate the virtualenv `wcEcoli3`.
+   Delete it via the command `pyenv virtualenv-delete wcEcoli3` or `pyenv uninstall wcEcoli3`.
 
 1. If you're using PyCharm, be sure to select the project's Python interpreter so PyCharm understands the version
 of Python and its installed libraries. This enables code completion, usage documentation
