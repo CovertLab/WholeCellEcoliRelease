@@ -10,8 +10,8 @@ See the [Homebrew website](https://brew.sh/) about supported releases of macOS a
 
 **Linux:** You'll need `apt` or `snap` or another package manager.
 
-**Windows:** _We have not tested the Whole Cell Model on Windows._ You could run it within a Linux
-virtual machine or blaze the trail on Windows.
+**Windows:** _We have not tested the Whole Cell Model on Windows._ You could try Windows Subsystem for Linux (WSL 2),
+or Docker on WSL 2, or a Linux virtual machine, or blaze the trail on Windows.
 
 
 ## Required tools: gcc, make, git
@@ -35,6 +35,9 @@ sudo apt install -y gcc make build-essential wget curl llvm
 
 ### On Sherlock
 
+(Here we're assuming you already have a login account for the Sherlock scientific computing cluster. If not,
+you might not need to bother with Sherlock except to view Jenkins CI build logs.)
+
 The needed tools are already installed for the group.
 Look in `$PI_HOME/downloads/`, `$PI_HOME/installation_notes/`, and `$PI_HOME/modules/`.
 
@@ -48,11 +51,13 @@ Probably `cmake` and `llvm` as well.
 
 
 
+
+
 ## Required tools: pyenv and virtualenv
 
 `pyenv` and `virtualenv` are tools to install versions of Python and switch
 between virtual environments, each with its own selection of Python and libraries.
-Separate projects should use separate virtual environments to avoid clashes over
+Separate projects need separate virtual environments to avoid clashes over
 required libraries and library versions.
 
 1. Install `pyenv`, `pyenv-virtualenv`, `pyenv-virtualenvwrapper` using your local
@@ -160,7 +165,8 @@ required libraries and library versions.
 ## Recommended tools
 
   * [PyCharm](https://www.jetbrains.com/pycharm/) or PyCharm Pro -- a very productive Integrated Development Environment (IDE). PyCharm Professional Edition is free for students and academic staff members.
-  * [Sublime Text 3](https://www.sublimetext.com/) -- a slick code editor with many speed features
+  * [Sublime Text](https://www.sublimetext.com/) -- a slick code editor with many speed features
+  * [Visual Studio Code](https://code.visualstudio.com/) -- a slick code editor with IDE plug-ins
   * [GitHub Desktop app](https://desktop.github.com/) -- greases the skids for common git operations and lets you compose commit messages while reviewing the edits
   * [iTerm2](https://www.iterm2.com/) for macOS -- much more helpful than the stock Terminal app
 
