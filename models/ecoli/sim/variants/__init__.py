@@ -1,4 +1,5 @@
 from .add_one_aa import add_one_aa
+from .add_one_aa_shift import add_one_aa_shift
 from .all_shuffle_params import all_shuffle_params
 from .condition import condition
 from .gene_knockout import gene_knockout
@@ -9,6 +10,7 @@ from .monomer_deg_rate_shuffle_params import monomer_deg_rate_shuffle_params
 from .param_sensitivity import param_sensitivity
 from .remove_aa_inhibition import remove_aa_inhibition
 from .remove_one_aa import remove_one_aa
+from .remove_one_aa_shift import remove_one_aa_shift
 from .rna_deg_rate_shuffle_params import rna_deg_rate_shuffle_params
 from .rrna_orientation import rrna_orientation
 from .tf_activity import tf_activity
@@ -21,6 +23,7 @@ from .wildtype import wildtype
 
 nameToFunctionMapping = {
 	"add_one_aa": add_one_aa,
+	"add_one_aa_shift": add_one_aa_shift,
 	"all_shuffle_params": all_shuffle_params,
 	"condition": condition,
 	"gene_knockout": gene_knockout,
@@ -31,6 +34,7 @@ nameToFunctionMapping = {
 	"param_sensitivity": param_sensitivity,
 	"remove_aa_inhibition": remove_aa_inhibition,
 	"remove_one_aa": remove_one_aa,
+	"remove_one_aa_shift": remove_one_aa_shift,
 	"rna_deg_rate_shuffle_params": rna_deg_rate_shuffle_params,
 	"rrna_orientation": rrna_orientation,
 	"tf_activity": tf_activity,
