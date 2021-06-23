@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import collections
 import functools
 import numbers
@@ -8,6 +6,7 @@ from pprint import pformat
 import re
 import sys
 import types
+from typing import Dict
 
 import Bio.Seq
 import numpy as np
@@ -375,6 +374,16 @@ def compare_ndarrays(array1, array2):
 	except AssertionError as e:
 		return simplify_error_message(e.args[0])
 
+
+def load_tree(path):
+	"""Load a .cPickle file as an object_tree."""
+	with open(path, "rb") as f:
+		# Extra kwargs only in PY3+ for compatibility with PY2 pickle files.
+		kwargs = {} if six.PY2 else dict(fix_imports=True, encoding='latin1')
+		data = cPickle.load(f, **kwargs)
+	return object_tree(data)
+
+
 def load_fit_tree(out_subdir):
 	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
 	# For convenience, optionally add the prefix 'out/'.
@@ -386,12 +395,7 @@ def load_fit_tree(out_subdir):
 		'kb',
 		constants.SERIALIZED_SIM_DATA_FILENAME)
 
-	with open(path, "rb") as f:
-		# Extra kwargs only in PY3+ for compatibility with PY2 pickle files.
-		kwargs = {} if six.PY2 else dict(fix_imports=True, encoding='latin1')
-		sim_data = cPickle.load(f, **kwargs)
-
-	return object_tree(sim_data)
+	return load_tree(path)
 
 def pprint_diffs(diffs, *, width=160, print_diff_lines=True, print_count=True):
 	'''Pretty-print the diff info: optionally print the detailed diff lines,
@@ -409,3 +413,49 @@ def pprint_diffs(diffs, *, width=160, print_diff_lines=True, print_count=True):
 	if print_count:
 		print('==> lines of differences: {}'.format(line_count))
 	return line_count
+
+
+def diff_files(path1: str, path2: str, print_diff_lines: bool = True) -> int:
+	"""Diff the pair of named pickle files. Return the diff line count."""
+	tree1 = load_tree(path1)
+	tree2 = load_tree(path2)
+	diffs = diff_trees(tree1, tree2)
+	return pprint_diffs(diffs, print_diff_lines=print_diff_lines)
+
+
+def list_pickles(directory: str) -> Dict[str, str]:
+	"""Return a map of .cPickle file names to paths in the given directory
+	sorted by file modification time then by filename."""
+	entries = [(entry.stat().st_mtime, entry.name, entry.path)
+			   for entry in os.scandir(directory)
+		       if entry.is_file() and entry.name.endswith('.cPickle')]
+	files = {e[1]: e[2] for e in sorted(entries)}
+	return files
+
+
+def diff_dirs(dir1: str, dir2: str, print_diff_lines: bool = True) -> int:
+	"""Diff the pickle files in the pair of named directories. Return the total
+	diff line count."""
+	print(f'Comparing pickle files in "{dir1}" vs. "{dir2}".')
+	pickles1 = list_pickles(dir1)
+	pickles2 = list_pickles(dir2)
+	count = 0
+
+	for name, path1 in pickles1.items():
+		print(f'\n*** {name} {"*" * (75 - len(name))}')
+		path2 = pickles2.get(name)
+		if path2:
+			count += diff_files(path1, path2, print_diff_lines)
+		else:
+			print(f'{name} is in {dir1} but not {dir2}')
+			count += 1
+
+	only_in_dir2 = pickles2.keys() - pickles1.keys()
+	if only_in_dir2:
+		print(f'\n*** Pickle files in {dir2} but not {dir1}:\n'
+			  f'{sorted(only_in_dir2)}')
+		count += len(only_in_dir2)
+
+	print(f'\n====> Total differences: {count} lines for {len(pickles1)} pickle'
+		  f' files in {dir1} against {len(pickles2)} pickle files in {dir2}.')
+	return count
