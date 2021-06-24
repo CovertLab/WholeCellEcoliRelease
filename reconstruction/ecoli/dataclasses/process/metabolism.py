@@ -893,7 +893,7 @@ class Metabolism(object):
 				all_downstream_complex_ids.extend(get_all_complexes(parent_complex_id))
 
 			# Remove duplicates
-			return list(set(all_downstream_complex_ids))
+			return sorted(set(all_downstream_complex_ids))
 
 		subunit_id_to_all_downstream_complexes = {
 			subunit_id: get_all_complexes(subunit_id)
@@ -938,7 +938,7 @@ class Metabolism(object):
 				all_potential_catalysts.extend(
 					subunit_id_to_all_downstream_complexes.get(catalyst, [catalyst]))
 
-			for catalyst in list(set(all_potential_catalysts)):
+			for catalyst in sorted(set(all_potential_catalysts)):
 				if sim_data.getter.is_valid_molecule(catalyst):
 					catalysts_with_loc = catalyst + sim_data.getter.get_compartment_tag(catalyst)
 					catalysts_for_this_rxn.append(catalysts_with_loc)
