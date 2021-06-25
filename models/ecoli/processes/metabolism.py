@@ -293,7 +293,6 @@ class FluxBalanceAnalysisModel(object):
 
 		# go through all media in the timeline and add to metaboliteNames
 		metaboliteNamesFromNutrients = set()
-		exchange_molecules = set(imports)
 		if include_ppgpp:
 			metaboliteNamesFromNutrients.add(self.ppgpp_id)
 		for time, media_id in timeline:
@@ -302,9 +301,8 @@ class FluxBalanceAnalysisModel(object):
 				metabolism.concentration_updates.concentrations_based_on_nutrients(
 					imports=exchanges['importExchangeMolecules'])
 				)
-			exchange_molecules.update(exchanges['externalExchangeMolecules'])
 		self.metaboliteNamesFromNutrients = list(sorted(metaboliteNamesFromNutrients))
-		exchange_molecules = list(sorted(exchange_molecules))
+		exchange_molecules = sorted(sim_data.external_state.all_external_exchange_molecules)
 		molecule_masses = dict(zip(exchange_molecules,
 			sim_data.getter.get_masses(exchange_molecules).asNumber(MASS_UNITS / COUNTS_UNITS)))
 
