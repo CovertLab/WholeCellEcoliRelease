@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 '''
 Compare whether two simulation runs produced identical output and, if not,
 print info on their differences. This also returns a shell exit status code.
