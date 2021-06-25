@@ -53,7 +53,7 @@ Probably `cmake` and `llvm` as well.
 
 
 
-## Required tools: pyenv and virtualenv
+## Required tools: pyenv and pyenv-virtualenv
 
 `pyenv` and `virtualenv` are tools to install versions of Python and switch
 between virtual environments, each with its own selection of Python and libraries.
@@ -62,7 +62,7 @@ required libraries and library versions.
 
 1. Install `pyenv`, `pyenv-virtualenv`, `pyenv-virtualenvwrapper` using your local
    package manager, e.g. [homebrew](https://brew.sh/) on macOS.
-   **\[It's already installed on Sherlock. Skip to the next step.]** E.g.
+   **\[On Sherlock, pyenv is already installed. Skip to the next step.]** E.g.
 
    ```shell script
    brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
@@ -86,7 +86,13 @@ required libraries and library versions.
    source ~/.bash_profile
    ```
 
-1. Set your shell login script (`~/.bash_profile` on Linux; `~/.profile` or `~/.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
+1. Configure your shell's environment (`~/.bash_profile` on Linux; `~/.profile` or `~/.bash_profile` on macOS with bash, or `~/.zshrc` for zsh, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more detailed and up-to-date instructions under **Configure your shell's environment for Pyenv** in [pyenv Installation](https://github.com/pyenv/pyenv#basic-github-checkout).
+
+   - Example `~/.zshrc` lines for macOS:
+
+     ```shell script
+     eval "$(pyenv init --path)"
+     ```
 
    - Example `~/.profile` or `~/.bash_profile` lines for macOS:
 
@@ -141,7 +147,7 @@ required libraries and library versions.
    export PYTHONPATH="$HOME/wcEcoli"
    ```
 
-   _or_ create a shell alias and run it when you work on wcEcoli:
+   _or_ create a shell alias **and run it when you work on wcEcoli or any other Python project**:
 
    ```shell script
    alias ppath='export PYTHONPATH=$PWD'
@@ -169,6 +175,54 @@ required libraries and library versions.
   * [Visual Studio Code](https://code.visualstudio.com/) -- a slick code editor with IDE plug-ins
   * [GitHub Desktop app](https://desktop.github.com/) -- greases the skids for common git operations and lets you compose commit messages while reviewing the edits
   * [iTerm2](https://www.iterm2.com/) for macOS -- much more helpful than the stock Terminal app
+
+
+### Shell tips
+
+Define shell aliases and environment variable settings in a file such as `$HOME/bin/shell-aliases.sh` and "source" it in your shell profile file. This way, you can edit `shell-aliases.sh` and `source` it without having to start a new shell.
+
+Example `.profile.sh`:
+
+```shell script
+export PATH=$PATH:$HOME/bin:/usr/local/sbin
+
+[[ -f $HOME/bin/shell-aliases.sh ]] && source $HOME/bin/shell-aliases.sh
+
+export PYENV_ROOT=/usr/local/var/pyenv
+if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+
+# If you're using macOS iTerm2.
+# See https://iterm2.com/documentation-shell-integration.html
+test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
+```
+
+Example `bin/shell-aliases.sh`:
+
+```shell script
+export OPENBLAS_NUM_THREADS=1
+alias ppath='export PYTHONPATH=$PWD'
+
+# If you have a symlink from `bin/subl@` -> `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl`
+export EDITOR='subl -w'
+
+export LESS="--ignore-case -R"
+export MORE="--ignore-case --quit-if-one-screen"
+alias la='ls -AF'
+alias ll='ls -lhF'
+alias ls='ls -F'
+alias l.='ls -d .*'
+alias lt='ls -lhFt'
+
+alias cdw='cd ~/dev/wcEcoli'
+alias cdwo='cd ~/dev/wcEcoli/out'
+
+alias df="df -h"
+alias du="du -h"
+alias grep='grep --color'
+
+# Append to the history file on exit so multiple tabs get their history saved.
+shopt -s histappend
+```
 
 
 ### PyCharm setup
