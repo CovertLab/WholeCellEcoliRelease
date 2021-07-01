@@ -11,6 +11,7 @@ TODO:
 from __future__ import absolute_import, division, print_function
 
 from copy import copy
+import itertools
 import re
 from typing import Any, cast, Dict, Iterable, List, Optional, Set, Tuple, Union
 
@@ -854,13 +855,17 @@ class Metabolism(object):
 		forward_directions = {'L2R', 'BOTH'}
 		reverse_directions = {'R2L', 'BOTH'}
 
+		metabolite_ids = {met['id'] for met in cast(Any, raw_data).metabolites}
+
 		# Build mapping from each complexation subunit to all downstream
 		# complexes containing the subunit, including itself
 		# Start by building mappings from subunits to complexes that are
 		# directly formed from the subunit through a single reaction
 		subunit_id_to_parent_complexes = {} # type: Dict[str, List[str]]
 
-		for comp_reaction in cast(Any, raw_data).complexation_reactions:
+		for comp_reaction in itertools.chain(
+				cast(Any, raw_data).complexation_reactions,
+				cast(Any, raw_data).equilibrium_reactions):
 			complex_id = None
 
 			# Find ID of complex
@@ -873,7 +878,7 @@ class Metabolism(object):
 
 			# Map each subunit to found complex
 			for mol_id, coeff in comp_reaction['stoichiometry'].items():
-				if mol_id == complex_id:
+				if mol_id == complex_id or mol_id in metabolite_ids:
 					continue
 				elif mol_id in subunit_id_to_parent_complexes:
 					subunit_id_to_parent_complexes[mol_id].append(complex_id)

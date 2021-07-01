@@ -36,6 +36,7 @@ LIST_OF_DICT_FILENAMES = (
 	"growth_rate_dependent_parameters.tsv",
 	"linked_metabolites.tsv",
 	"metabolic_reactions.tsv",
+	"metabolic_reactions_modified.tsv",
 	"metabolic_reactions_removed.tsv",
 	"metabolism_kinetics.tsv",
 	"metabolite_concentrations.tsv",
@@ -120,6 +121,9 @@ REMOVED_DATA = {
 ADDED_DATA = {
 	'trna_charging_reactions': 'trna_charging_reactions_added',
 	}
+MODIFIED_DATA = {
+	'metabolic_reactions': 'metabolic_reactions_modified',
+	}
 
 class DataStore(object):
 	def __init__(self):
@@ -140,6 +144,7 @@ class KnowledgeBaseEcoli(object):
 
 		self._prune_data()
 		self._join_data()
+		self._modify_data()
 
 		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))
 
@@ -227,3 +232,42 @@ class KnowledgeBaseEcoli(object):
 			# Join datasets
 			for row in added_data:
 				data.append(row)
+
+	def _modify_data(self):
+		"""
+		Modify entires in rows that are specified to be modified. Rows must be
+		identified by their entries in the first column (usually the ID column).
+		"""
+		# Check each pair of files to be modified
+		for data_attr, modify_attr in MODIFIED_DATA.items():
+			# Build the set of data to identify rows to be modified
+			data_to_modify = getattr(self, modify_attr)
+			id_col_name = list(data_to_modify[0].keys())[0]
+
+			id_to_modified_cols = {}
+			for row in data_to_modify:
+				id_to_modified_cols[row[id_col_name]] = row
+
+			# Modify any matching rows with identical IDs
+			data = getattr(self, data_attr)
+
+			if list(data[0].keys())[0] != id_col_name:
+				raise ValueError(f'Could not modify data {data_attr} with '
+					f'{modify_attr} because the names of the first columns '
+					f'do not match.')
+
+			modified_entry_ids = set()
+			for i, row in enumerate(data):
+				if row[id_col_name] in id_to_modified_cols:
+					data[i] = id_to_modified_cols[row[id_col_name]]
+					modified_entry_ids.add(row[id_col_name])
+
+			# Check for entries in modification data that do not exist in
+			# original data
+			id_diff = set(id_to_modified_cols.keys()).symmetric_difference(
+				modified_entry_ids)
+			if id_diff:
+				raise ValueError(f'Could not modify data {data_attr} with '
+					f'{modify_attr} because of one or more entries in '
+					f'{modify_attr} that do not exist in {data_attr} '
+					f'(nonexistent entries: {id_diff}).')
