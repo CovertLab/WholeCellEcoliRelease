@@ -48,7 +48,7 @@ def calcInitialConditions(sim, sim_data):
 
 	# Set up states
 	initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules,
-		randomState, massCoeff, sim._ppgpp_regulation)
+		randomState, massCoeff, sim._ppgpp_regulation, sim._trna_attenuation)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data,
 		randomState, sim._superhelical_density, sim._trna_attenuation)
 
@@ -63,13 +63,14 @@ def calcInitialConditions(sim, sim_data):
 	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules,
 		massCoeff, cell_mass=calculate_cell_mass(sim.internal_states))
 
-def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, randomState, massCoeff, ppgpp_regulation):
+def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, randomState, massCoeff,
+		ppgpp_regulation, trna_attenuation):
 
 	# Set protein counts from expression
-	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
+	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation, trna_attenuation)
 
 	# Set RNA counts from expression
-	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
+	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation, trna_attenuation)
 
 	# Set other biomass components
 	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules, massCoeff)
@@ -164,17 +165,21 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	charged_trna.countsIs(charged_trna_counts)
 	uncharged_trna.countsIs(uncharged_trna_counts)
 
-def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation):
+def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation, trna_attenuation):
 
 	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomer_data["id"])
 	monomerMass = massCoeff * sim_data.mass.get_component_masses(sim_data.condition_to_doubling_time[sim_data.condition])["proteinMass"] / sim_data.mass.avg_cell_to_initial_cell_conversion_factor
 	# TODO: unify this logic with the parca so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
+	transcription = sim_data.process.transcription
 	if ppgpp_regulation:
 		rnaExpression = sim_data.calculate_ppgpp_expression(sim_data.condition)
 	else:
-		rnaExpression = sim_data.process.transcription.rna_expression[sim_data.condition]
+		rnaExpression = transcription.rna_expression[sim_data.condition]
+
+	if trna_attenuation:
+		rnaExpression[transcription.attenuated_rna_indices] *= transcription.attenuation_readthrough[sim_data.condition]
 
 	monomerExpression = normalize(
 		rnaExpression[sim_data.relation.RNA_to_monomer_mapping] *
@@ -194,32 +199,39 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 		)
 
 
-def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation):
+def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation, trna_attenuation):
 	"""
 	Initializes counts of RNAs in the bulk molecule container using RNA
 	expression data. mRNA counts are also initialized here, but is later reset
 	to zero when the representations for mRNAs are moved to the unique molecule
 	container.
 	"""
-	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rna_data["id"])
+
+	transcription = sim_data.process.transcription
+
+	rnaView = bulkMolCntr.countsView(transcription.rna_data["id"])
 	rnaMass = massCoeff * sim_data.mass.get_component_masses(sim_data.condition_to_doubling_time[sim_data.condition])["rnaMass"] / sim_data.mass.avg_cell_to_initial_cell_conversion_factor
 
 	if ppgpp_regulation:
 		rnaExpression = sim_data.calculate_ppgpp_expression(sim_data.condition)
 	else:
-		rnaExpression = normalize(sim_data.process.transcription.rna_expression[sim_data.condition])
+		rnaExpression = normalize(transcription.rna_expression[sim_data.condition])
+
+	if trna_attenuation:
+		rnaExpression[transcription.attenuated_rna_indices] *= transcription.attenuation_readthrough[sim_data.condition]
+		rnaExpression /= rnaExpression.sum()
 
 	nRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
-		sim_data.process.transcription.rna_data["mw"].asNumber(units.g / units.mol),
+		transcription.rna_data["mw"].asNumber(units.g / units.mol),
 		rnaExpression,
 		sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		)
 
 	# ID Groups of rRNAs
-	idx_16Srrna = np.where(sim_data.process.transcription.rna_data['is_16S_rRNA'])[0]
-	idx_23Srrna = np.where(sim_data.process.transcription.rna_data['is_23S_rRNA'])[0]
-	idx_5Srrna = np.where(sim_data.process.transcription.rna_data['is_5S_rRNA'])[0]
+	idx_16Srrna = np.where(transcription.rna_data['is_16S_rRNA'])[0]
+	idx_23Srrna = np.where(transcription.rna_data['is_23S_rRNA'])[0]
+	idx_5Srrna = np.where(transcription.rna_data['is_5S_rRNA'])[0]
 
 	# Assume expression from all rRNA genes produce rRNAs from the first operon
 	total_16Srrna_expression = rnaExpression[idx_16Srrna].sum()
@@ -754,6 +766,15 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		np.concatenate((idx_rprotein, idx_rnap)))
 
 	assert promoter_init_probs[is_fixed].sum() < 1.0
+
+	# Adjust for attenuation that will stop transcription after initiation
+	if trna_attenuation:
+		attenuation_readthrough = {
+			idx: prob for idx, prob in
+			zip(sim_data.process.transcription.attenuated_rna_indices, sim_data.process.transcription.attenuation_readthrough[sim_data.condition])
+			}
+		readthrough_adjustment = np.array([attenuation_readthrough.get(idx, 1) for idx in TU_index])
+		promoter_init_probs *= readthrough_adjustment
 
 	scaleTheRestBy = (1. - promoter_init_probs[is_fixed].sum()) / promoter_init_probs[~is_fixed].sum()
 	promoter_init_probs[~is_fixed] *= scaleTheRestBy

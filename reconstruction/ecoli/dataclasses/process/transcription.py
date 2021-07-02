@@ -714,6 +714,11 @@ class Transcription(object):
 		basal_synth_prob = (basal_prob + delta)[self.attenuated_rna_indices]
 		self.attenuation_basal_prob_adjustments = basal_synth_prob * (1 / (1 - basal_stop_prob) - 1)
 
+		# Store expected readthrough fraction for each condition to use in initial conditions
+		self.attenuation_readthrough = {}
+		for condition in sim_data.conditions:
+			self.attenuation_readthrough[condition] = 1 - self.get_attenuation_stop_probabilities(get_aa_conc(condition))
+
 	def get_attenuation_stop_probabilities(self, aa_conc):
 		"""
 		Calculate the probability of a transcript stopping early due to attenuation.
