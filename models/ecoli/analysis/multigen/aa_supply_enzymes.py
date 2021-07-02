@@ -1,11 +1,8 @@
 """
-Show factors that contribute to the supply rates for amino acids.  Traces for
-'supply vs expected', 'normalized enzyme conc' and 'normalized AA conc' should
-stay around 1 for normal cells.  Can be helpful in troubleshooting issues with
-synthesis enzyme production or increases/drops in the amino acid concentration
-and the effect that both of these can have on the supply compared to expected.
-For more detailed analysis of the enzyme expression, look at the
-aa_supply_enzymes plot.
+Show the concentration of amino acid synthesis enzymes compared to the expected
+values from the parca for basal and with amino acid conditions. Can be helpful
+in troubleshooting issues with synthesis enzyme production and could be paired
+with the aa_supply analysis plot.
 """
 
 import pickle
@@ -16,8 +13,12 @@ import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from models.ecoli.processes.metabolism import CONC_UNITS
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.utils import units
+
+
+PLOT_UNITS = units.umol / units.L
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -29,28 +30,24 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		aa_ids = sim_data.molecule_groups.amino_acids
 		n_aas = len(aa_ids)
 
-		# Expected supply data
-		media = sim_data.conditions[sim_data.condition]['nutrients']
-		expected_supply = (sim_data.translation_supply_rate[media] * sim_data.constants.n_avogadro).asNumber(1 / units.fg / units.s)
+		# Expected expression from parameter calculations
+		metabolism = sim_data.process.metabolism
+		enzyme_to_amino_acid = metabolism.enzyme_to_amino_acid
+		with_aa_reference = metabolism.aa_supply_enzyme_conc_with_aa.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid
+		basal_reference = metabolism.aa_supply_enzyme_conc_basal.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
 		cell_paths = ap.get_cells()
 
 		# Load data
 		times = read_stacked_columns(cell_paths, 'Main', 'time') / 60
-		time_step = read_stacked_columns(cell_paths, 'Main', 'timeStepSec')
-		dry_mass = read_stacked_columns(cell_paths, 'Mass', 'dryMass')
-		counts_to_mol = read_stacked_columns(cell_paths, 'EnzymeKinetics', 'countsToMolar')
-		supply = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_supply')
+		counts_to_mol = (CONC_UNITS * read_stacked_columns(cell_paths, 'EnzymeKinetics', 'countsToMolar')).asNumber(PLOT_UNITS)
 		enzyme_counts = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_supply_enzymes')
-		aa_conc = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_supply_aa_conc').T
-		supply_fraction = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_supply_fraction').T
 
 		# Calculate derived quantities
-		normalized_supply = (supply / time_step / dry_mass / expected_supply).T
+		start = times[0, 0]
+		end = times[-1, 0]
 		enzyme_conc = (enzyme_counts * counts_to_mol).T
-		enzyme_conc /= enzyme_conc[:, 1:2]
-		aa_conc /= aa_conc[:, 1:2]
 
 		# Plot data
 		plt.figure(figsize=(16, 12))
@@ -60,15 +57,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		gs = gridspec.GridSpec(nrows=rows, ncols=cols)
 
 		## Plot data for each amino acid
-		for i, (supply, enzymes, aa_conc, fraction) in enumerate(zip(normalized_supply, enzyme_conc, aa_conc, supply_fraction)):
+		for i, (with_aa, basal, sim) in enumerate(zip(with_aa_reference, basal_reference, enzyme_conc)):
 			row = i // cols
 			col = i % cols
 			ax = plt.subplot(gs[row, col])
 
-			ax.plot(times, supply, label='Supply vs expected')
-			ax.plot(times, enzymes, label='Normalized enzyme conc')
-			ax.plot(times, aa_conc, label='Normalized AA conc')
-			ax.plot(times, fraction, label='Fraction max supply')
+			ax.plot(times, sim, label='Simulation')
+			ax.plot([start, end], [with_aa, with_aa], 'r--', linewidth=1, label='Expected, with AA')
+			ax.plot([start, end], [basal, basal], 'g--', linewidth=1, label='Expected, basal')
 
 			ax.spines['right'].set_visible(False)
 			ax.spines['top'].set_visible(False)
@@ -77,7 +73,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if row == rows - 1:
 				ax.set_xlabel('Time (min)')
 			if col == 0:
-				ax.set_ylabel('Normalized value')
+				ax.set_ylabel('Concentration (uM)')
 
 		## Display legend
 		handles, labels = ax.get_legend_handles_labels()

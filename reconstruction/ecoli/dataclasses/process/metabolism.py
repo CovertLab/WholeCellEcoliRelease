@@ -770,6 +770,12 @@ class Metabolism(object):
 		synthesis, _, _ = self.amino_acid_synthesis(enzyme_counts, aa_conc)
 		self.specific_import_rates = (supply - synthesis) / cell_specs['with_aa']['avgCellDryMassInit'].asNumber(DRY_MASS_UNITS)
 
+		# Concentrations for reference in analysis plot
+		conversion = sim_data.constants.cell_density / sim_data.constants.n_avogadro * sim_data.mass.cell_dry_mass_fraction
+		basal_counts = cell_specs['basal']['bulkAverageContainer'].counts(self.aa_enzymes)
+		self.aa_supply_enzyme_conc_with_aa = conversion * enzyme_counts / cell_specs['with_aa']['avgCellDryMassInit']
+		self.aa_supply_enzyme_conc_basal = conversion * basal_counts / cell_specs['basal']['avgCellDryMassInit']
+
 		# Check calculations that could end up negative
 		neg_idx = np.where(self.aa_kcats < 0)[0]
 		if len(neg_idx):

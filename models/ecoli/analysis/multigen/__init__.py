@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function
 ACTIVE = [
 	"aa_conc.py",
 	"aa_supply.py",
+	"aa_supply_enzymes.py",
 	"biosynthesisProductionDynamics.py",
 	"carRegulation.py",
 	"cellCycleLength.py",
@@ -55,6 +56,7 @@ TAGS = {
 	'CORE': [           # the default list to run in development
 		"aa_conc.py",
 		"aa_supply.py",
+		"aa_supply_enzymes.py",
 		"cellCycleLength.py",
 		"massFractionSummary.py",
 		"massFractionToUnity.py",
@@ -72,6 +74,7 @@ TAGS = {
 	'GROWTH': [
 		"aa_conc.py",
 		"aa_supply.py",
+		"aa_supply_enzymes.py",
 		"cellCycleLength.py",
 		"charging_molecules.py",
 		"growthAffectingPolymerases.py",
@@ -79,8 +82,9 @@ TAGS = {
 		"ppgpp_regulation.py",
 		],
 	'METABOLISM': [
-		"aa_supply.py",
 		"aa_conc.py",
+		"aa_supply.py",
+		"aa_supply_enzymes.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
 		"kineticsFluxComparison.py",
@@ -106,6 +110,7 @@ TAGS = {
 		],
 	'REGULATION': [
 		"aa_supply.py",
+		"aa_supply_enzymes.py",
 		"biosynthesisProductionDynamics.py",
 		"carRegulation.py",
 		"tf_binding.py",
@@ -128,6 +133,7 @@ TAGS = {
 		],
 	'TRANSLATION': [
 		"aa_supply.py",
+		"aa_supply_enzymes.py",
 		"charging_molecules.py",
 		"proteinFoldChangeVsTranslationEff.py",  # TODO(jerry): include this?
 		"ribosomeProduction.py",
