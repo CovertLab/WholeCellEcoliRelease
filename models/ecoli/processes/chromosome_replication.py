@@ -40,8 +40,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.polymerized_dntp_weights = sim_data.process.replication.replication_monomer_weights
 		self.replication_coordinate = sim_data.process.transcription.rna_data[
 			"replication_coordinate"]
-		self.D_period = sim_data.growth_rate_parameters.d_period.asNumber(
-			units.s)
+		self.D_period = sim_data.process.replication.d_period.asNumber(units.s)
 
 		# Create molecule views for replisome subunits, active replisomes,
 		# origins of replication, chromosome domains, and free active TFs
@@ -63,9 +62,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Get placeholder value for domains without children
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
-		self.basal_elongation_rate = int(
-			round(sim_data.growth_rate_parameters.replisome_elongation_rate.asNumber(
-			units.nt / units.s)))
+		# Get replisome elongation rates
+		self.basal_elongation_rate = sim_data.process.replication.basal_elongation_rate
 		self.make_elongation_rates = sim_data.process.replication.make_elongation_rates
 
 		# Sim options

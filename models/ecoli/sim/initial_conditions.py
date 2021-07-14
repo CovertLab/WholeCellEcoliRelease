@@ -345,8 +345,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	# Determine the number and location of replication forks at the start of
 	# the cell cycle
 	# Get growth rate constants
-	C = sim_data.growth_rate_parameters.c_period.asUnit(units.min)
-	D = sim_data.growth_rate_parameters.d_period.asUnit(units.min)
+	C = sim_data.process.replication.c_period
+	D = sim_data.process.replication.d_period
 	tau = sim_data.condition_to_doubling_time[sim_data.condition].asUnit(units.min)
 
 	# Calculate length of replichore

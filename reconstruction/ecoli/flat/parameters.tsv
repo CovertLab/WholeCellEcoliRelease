@@ -31,3 +31,5 @@
 "fraction_supply_exported"	0.1		"Fraction of AA supply that will be exported at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data."	
 "ppi_concentration"	5E-4	"units.mol/units.L"	"multiple sources"	
 "pH"	7.2			
+"d_period"	20	"units.min"		
+"replisome_elongation_rate"	967	"units.nt / units.s"		

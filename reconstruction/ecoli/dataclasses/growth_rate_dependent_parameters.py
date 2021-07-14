@@ -108,8 +108,8 @@ class Mass(object):
 		return massParams
 
 	def _build_CD_periods(self, raw_data, sim_data):
-		self.c_period = sim_data.growth_rate_parameters.c_period
-		self.d_period = sim_data.growth_rate_parameters.d_period
+		self._c_period = sim_data.constants.c_period
+		self._d_period = sim_data.constants.d_period
 
 	# Set based on growth rate avgCellDryMass
 	def get_avg_cell_dry_mass(self, doubling_time):
@@ -329,11 +329,9 @@ class Mass(object):
 		return dict(zip(metaboliteIDs, metaboliteConcentrations))
 
 	def _calculateGrowthRateDependentDnaMass(self, doubling_time):
-		C_PERIOD = self.c_period
-		D_PERIOD = self.d_period
-		CD_PERIOD = C_PERIOD + D_PERIOD
+		c_plus_d_period = self._c_period + self._d_period
 
-		if doubling_time < D_PERIOD:
+		if doubling_time < self._d_period:
 			raise Exception(
 				"Can't have doubling time shorter than cytokinesis time!")
 
@@ -343,9 +341,9 @@ class Mass(object):
 		# It is optimized to run quickly over the range of T_d
 		# and C and D periods that we have.
 		return self.chromosome_sequence_mass * (1 +
-												1 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - doubling_time) / C_PERIOD) +
-												2 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 2 * doubling_time) / C_PERIOD) +
-												4 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 4 * doubling_time) / C_PERIOD)
+												1 * (np.maximum(0. * doubling_time_unit, c_plus_d_period - doubling_time) / self._c_period) +
+												2 * (np.maximum(0. * doubling_time_unit, c_plus_d_period - 2 * doubling_time) / self._c_period) +
+												4 * (np.maximum(0. * doubling_time_unit, c_plus_d_period - 4 * doubling_time) / self._c_period)
 												)
 
 	def _clipTau_d(self, doubling_time):
@@ -408,9 +406,6 @@ class GrowthRateParameters(object):
 		self.ppGpp_concentration = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "ppGpp_conc")
 
 		self._per_dry_mass_to_per_volume = sim_data.constants.cell_density * (1. - raw_data.mass_parameters['cell_water_mass_fraction'])
-		self.c_period = units.min * 40.
-		self.d_period = units.min * 20.
-		self.replisome_elongation_rate = units.nt / units.s * 967.
 
 	def get_ribosome_elongation_rate(self, doubling_time):
 		return _useFitParameters(doubling_time, **self.ribosome_elongation_rate_params)

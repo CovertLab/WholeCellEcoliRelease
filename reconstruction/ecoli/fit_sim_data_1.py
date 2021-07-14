@@ -190,10 +190,6 @@ def input_adjustments(sim_data, cell_specs, debug=False, **kwargs):
 	setRNADegRates(sim_data)
 	setProteinDegRates(sim_data)
 
-	# TODO (ggsun): Make this part of dataclasses/process/replication.py?
-	# Set C-period
-	setCPeriod(sim_data)
-
 	return sim_data, cell_specs
 
 @save_state
@@ -987,24 +983,6 @@ def setProteinDegRates(sim_data):
 		idx = np.where(sim_data.process.translation.monomer_data["id"] == protein)[0]
 		sim_data.process.translation.monomer_data.struct_array['deg_rate'][idx] *= sim_data.adjustments.protein_deg_rates_adjustments[protein]
 
-def setCPeriod(sim_data):
-	"""
-	The C period is the time the cell takes to replicate its chromosome. This function calculates the C period
-	based on knowledge of the length of the genome (in nucleotides) and the elongation rate.
-	Dividing the genome length by the elongation rate alone will give the time to replicate that many nucleotides,
-	this value is further divided by two since replication can take place in two directions.
-
-	Requires
-	--------
-	- Genome length (nt) and the DNA polymerase elongation rate (nt/s).
-
-	Modifies
-	--------
-	- This function modifies sim_data to contain the c_period.
-	"""
-
-	sim_data.growth_rate_parameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growth_rate_parameters.replisome_elongation_rate / 2
-	sim_data.process.replication._c_period = sim_data.growth_rate_parameters.c_period.asNumber(units.min)
 
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
 	"""

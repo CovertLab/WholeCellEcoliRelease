@@ -29,8 +29,6 @@ class Replication(object):
 		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
 
 		self._n_nt_types = len(sim_data.dntp_code_to_id_ordered)
-		self._c_period = sim_data.growth_rate_parameters.c_period.asNumber(units.min)
-		self._d_period = sim_data.growth_rate_parameters.d_period.asNumber(units.min)
 
 		self._build_sequence(raw_data, sim_data)
 		self._build_gene_data(raw_data, sim_data)
@@ -38,6 +36,11 @@ class Replication(object):
 		self._build_replication(raw_data, sim_data)
 		self._build_motifs(raw_data, sim_data)
 		self._build_elongation_rates(raw_data, sim_data)
+
+		self.c_period = sim_data.constants.c_period
+		self.d_period = sim_data.constants.d_period
+		self.c_period_in_mins = self.c_period.asNumber(units.min)
+		self.d_period_in_mins = self.d_period.asNumber(units.min)
 
 	def _build_sequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
@@ -131,7 +134,7 @@ class Replication(object):
 		# Determine size of the matrix used by polymerize function
 		maxLen = np.int64(
 			self.replichore_lengths.max()
-			+ self.max_time_step * sim_data.growth_rate_parameters.replisome_elongation_rate.asNumber(units.nt / units.s)
+			+ self.max_time_step * sim_data.constants.replisome_elongation_rate.asNumber(units.nt / units.s)
 		)
 
 		self.replication_sequences = np.empty((4, maxLen), np.int8)
@@ -227,7 +230,7 @@ class Replication(object):
 
 	def _build_elongation_rates(self, raw_data, sim_data):
 		self.basal_elongation_rate = int(
-			round(sim_data.growth_rate_parameters.replisome_elongation_rate.asNumber(
+			round(sim_data.constants.replisome_elongation_rate.asNumber(
 			units.nt / units.s)))
 
 	def make_elongation_rates(self, random, replisomes, base, time_step):
@@ -262,5 +265,5 @@ class Replication(object):
 		relative_pos[coords < 0] = -relative_pos[coords < 0] / left_replichore_length
 
 		# Return the predicted average copy number
-		n_avg_copy = 2**(((1 - relative_pos) * self._c_period + self._d_period) / tau)
+		n_avg_copy = 2**(((1 - relative_pos) * self.c_period_in_mins + self.d_period_in_mins) / tau)
 		return n_avg_copy
