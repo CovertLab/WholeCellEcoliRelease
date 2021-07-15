@@ -151,7 +151,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		bulk_RNA_counts[self.rrsaIdx] += self.ribosome30S.total_count()
 		bulk_RNA_counts[[self.rrlaIdx, self.rrfaIdx]] += self.ribosome50S.total_count()
 		bulk_RNA_counts[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total_count()
-		bulk_RNA_counts[self.is_tRNA.astype(np.bool)] += self.charged_trna.total_counts()
+		bulk_RNA_counts[self.is_tRNA.astype(bool)] += self.charged_trna.total_counts()
 
 		TU_index, can_translate, is_full_transcript = self.unique_RNAs.attrs(
 			'TU_index', 'can_translate', 'is_full_transcript')

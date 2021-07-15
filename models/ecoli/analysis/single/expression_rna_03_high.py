@@ -49,7 +49,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"lpp - Murein lipoprotein",
 		]
 
-		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], np.int)
+		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], int)
 		rnaCounts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

@@ -461,7 +461,7 @@ def _useFitParameters(x_new, function, x_units, y_units, dtype):
 
 	# If value should be an integer (i.e. an elongation rate)
 	# round to the nearest integer
-	if dtype == np.int:
+	if dtype == int:
 		y_new = int(np.round(y_new))
 
 	return y_units * y_new

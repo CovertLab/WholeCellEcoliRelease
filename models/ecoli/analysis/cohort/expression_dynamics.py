@@ -58,9 +58,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		transcriptionIdx = np.array([moleculeIds.index(x) for x in ids_transcription])
 
-		ratioFinalToInitialCountMultigen = np.zeros((n_gens, n_monomers), dtype = np.float)
+		ratioFinalToInitialCountMultigen = np.zeros((n_gens, n_monomers), dtype = float)
 
-		# protein_index_of_interest_full = np.zeros((n_gens, n_monomers), dtype = np.bool)
+		# protein_index_of_interest_full = np.zeros((n_gens, n_monomers), dtype = bool)
 
 		time = np.arange(0)
 		for gen_idx, simDir in enumerate(allDir):
@@ -71,7 +71,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			# Get protein monomer counts
 			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
 			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
-			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(float) + 1)
 			ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
 
 		protein_index_of_interest = np.where(np.logical_and(ratioFinalToInitialCountMultigen > 1.6, ratioFinalToInitialCountMultigen < 2.4).all(axis = 0))[0]

@@ -124,7 +124,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			Computes the boolean mask of unique molecules that should be
 			removed based on the progression of the replication forks.
 			"""
-			mask = np.zeros_like(domain_indexes, dtype=np.bool)
+			mask = np.zeros_like(domain_indexes, dtype=bool)
 
 			# Loop through all domains
 			for domain_index in np.unique(domain_indexes):
@@ -419,7 +419,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 				TU_index=promoter_TU_indexes_new,
 				coordinates=promoter_coordinates_new,
 				domain_index=promoter_domain_indexes_new,
-				bound_TF=np.zeros((n_new_promoters, self.n_TFs), dtype=np.bool))
+				bound_TF=np.zeros((n_new_promoters, self.n_TFs), dtype=bool))
 
 
 		# Replicate DnaA boxes
@@ -439,7 +439,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 				n_new_DnaA_boxes,
 				coordinates=DnaA_box_coordinates_new,
 				domain_index=DnaA_box_domain_indexes_new,
-				DnaA_bound=np.zeros(n_new_DnaA_boxes, dtype=np.bool))
+				DnaA_bound=np.zeros(n_new_DnaA_boxes, dtype=bool))
 
 
 	def _compute_new_segment_attributes(self, old_boundary_molecule_indexes,

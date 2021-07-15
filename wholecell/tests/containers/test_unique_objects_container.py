@@ -465,7 +465,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		objectSet.attrIs(
 			chromosomeLocation = np.zeros(20),
-			boundToChromosome = np.zeros(20, np.bool)
+			boundToChromosome = np.zeros(20, bool)
 			)
 
 		chromosomeLocation, boundToChromosome = objectSet.attrs(
@@ -491,7 +491,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		npt.assert_array_equal(boundToChromosome, np.array([]))
 		npt.assert_array_equal(chromosomeLocation, np.array([]))
 
-		self.assertEqual(boundToChromosome.dtype, np.bool)
+		self.assertEqual(boundToChromosome.dtype, bool)
 		self.assertEqual(chromosomeLocation.dtype, np.uint32)
 
 

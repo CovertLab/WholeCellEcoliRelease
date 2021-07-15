@@ -13,7 +13,7 @@ def randCounts(randomState, counts, N):
 	counts = np.array(counts)
 	if counts.shape == ():
 		counts = counts.reshape(1)
-	if np.any(counts < 0) or counts.dtype != np.dtype(np.int):
+	if np.any(counts < 0) or counts.dtype != np.dtype(int):
 		raise Exception("counts must contain positive integers.")
 	if N < 0:
 		raise Exception("N must be positive.")

@@ -17,6 +17,8 @@ from wholecell.utils import units
 
 
 class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, input_dir, plot_out_dir, plot_out_filename, sim_data_file, validation_data_file, metadata):
 		with open(sim_data_file, 'rb') as f:
 			sim_data = pickle.load(f)

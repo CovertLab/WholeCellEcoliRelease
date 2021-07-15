@@ -249,8 +249,8 @@ class Transcription(object):
 
 		# Construct boolean arrays for ribosomal protein and RNAP genes
 		n_rnas = len(rna_ids_with_compartments)
-		is_ribosomal_protein = np.zeros(n_rnas, dtype=np.bool)
-		is_RNAP	= np.zeros(n_rnas, dtype=np.bool)
+		is_ribosomal_protein = np.zeros(n_rnas, dtype=bool)
+		is_RNAP	= np.zeros(n_rnas, dtype=bool)
 
 		for i, rna in enumerate(all_rnas):
 			for monomer_id in rna['monomer_ids']:
@@ -260,9 +260,9 @@ class Transcription(object):
 					is_RNAP[i] = True
 
 		# Construct boolean arrays and index arrays for each rRNA type
-		is_23S = np.zeros(n_rnas, dtype = np.bool)
-		is_16S = np.zeros(n_rnas, dtype = np.bool)
-		is_5S = np.zeros(n_rnas, dtype = np.bool)
+		is_23S = np.zeros(n_rnas, dtype = bool)
+		is_16S = np.zeros(n_rnas, dtype = bool)
+		is_5S = np.zeros(n_rnas, dtype = bool)
 		idx_23S = []
 		idx_16S = []
 		idx_5S = []

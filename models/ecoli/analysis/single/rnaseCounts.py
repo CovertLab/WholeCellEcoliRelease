@@ -35,7 +35,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get counts for RNase proteins and mRNAs
 		(RNase_counts,) = read_bulk_molecule_counts(simOutDir, (RNase_IDS,))
-		rnaIndexes = np.array([all_mRNA_ids.index(rna) for rna in RNase_RnaIDS], np.int)
+		rnaIndexes = np.array([all_mRNA_ids.index(rna) for rna in RNase_RnaIDS], int)
 		RNase_RNA_counts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

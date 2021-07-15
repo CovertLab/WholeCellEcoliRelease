@@ -441,7 +441,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			if domain_idx == 0:
 				if n_replisome == 0:
 					# No replisomes - all motifs should fall in this domain
-					motif_mask = np.ones_like(all_motif_coordinates, dtype=np.bool)
+					motif_mask = np.ones_like(all_motif_coordinates, dtype=bool)
 
 				else:
 					# Get domain boundaries
@@ -517,7 +517,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		TU_index=np.array(TU_index),
 		coordinates=np.array(promoter_coordinates),
 		domain_index=np.array(promoter_domain_index),
-		bound_TF=np.zeros((n_promoter, n_tf), dtype=np.bool))
+		bound_TF=np.zeros((n_promoter, n_tf), dtype=bool))
 
 	# Add DnaA boxes as unique molecules and set attributes
 	n_DnaA_box = len(DnaA_box_coordinates)
@@ -526,7 +526,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		'DnaA_box', n_DnaA_box,
 		coordinates=np.array(DnaA_box_coordinates),
 		domain_index=np.array(DnaA_box_domain_index),
-		DnaA_bound=np.zeros(n_DnaA_box, dtype=np.bool)
+		DnaA_bound=np.zeros(n_DnaA_box, dtype=bool)
 		)
 
 
@@ -586,7 +586,7 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 	TU_index = promoters.attr("TU_index")
 
 	# Initialize bound_TF array
-	bound_TF = np.zeros((len(promoters), len(tf_ids)), dtype=np.bool)
+	bound_TF = np.zeros((len(promoters), len(tf_ids)), dtype=bool)
 
 	for tf_idx, tf_id in enumerate(tf_ids):
 		# Get counts of transcription factors
@@ -613,7 +613,7 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 		n_to_bind = int(stochasticRound(
 			randomState, np.full(n_available_promoters, pPromoterBound)).sum())
 
-		bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
+		bound_locs = np.zeros(n_available_promoters, dtype=bool)
 		if n_to_bind > 0:
 			# Determine randomly which DNA targets to bind based on which of
 			# the following is more limiting:
@@ -810,7 +810,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	# TODO (Eran): make sure there aren't any RNAPs at same location on same gene
 	updated_lengths = np.array(
 		randomState.rand(n_RNAPs_to_activate) * rnaLengths[TU_index_partial_RNAs],
-		dtype=np.int)
+		dtype=int)
 
 	# Rescale boolean array of directions to an array of 1's and -1's.
 	direction_rescaled = (2 * (direction - 0.5)).astype(np.int64)
@@ -860,7 +860,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		TU_index=TU_index_partial_RNAs,
 		transcript_length=updated_lengths,
 		is_mRNA=is_mRNA_partial_RNAs,
-		is_full_transcript=np.zeros(cast(int, n_RNAPs_to_activate), dtype=np.bool),
+		is_full_transcript=np.zeros(cast(int, n_RNAPs_to_activate), dtype=bool),
 		can_translate=is_mRNA_partial_RNAs,
 		RNAP_index=RNAP_indexes,
 		massDiff_nonspecific_RNA=added_RNA_mass,
@@ -889,9 +889,9 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		'RNA', len(TU_index_full_mRNAs),
 		TU_index=TU_index_full_mRNAs,
 		transcript_length=rnaLengths[TU_index_full_mRNAs],
-		is_mRNA=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
-		is_full_transcript=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
-		can_translate=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
+		is_mRNA=np.ones_like(TU_index_full_mRNAs, dtype=bool),
+		is_full_transcript=np.ones_like(TU_index_full_mRNAs, dtype=bool),
+		can_translate=np.ones_like(TU_index_full_mRNAs, dtype=bool),
 		RNAP_index=np.full(TU_index_full_mRNAs.shape, -1, dtype=np.int64),
 		massDiff_mRNA=rna_masses[TU_index_full_mRNAs])
 
@@ -1281,7 +1281,7 @@ def determine_chromosome_state(C, D, tau, replichore_length, n_max_replisomes,
 	# Initialize arrays for replisomes
 	n_replisomes = 2*(2**n_rounds - 1)
 	coordinates = np.zeros(n_replisomes, dtype=np.int64)
-	right_replichore_replisome = np.zeros(n_replisomes, dtype=np.bool)
+	right_replichore_replisome = np.zeros(n_replisomes, dtype=bool)
 	domain_index_replisome = np.zeros(n_replisomes, dtype=np.int32)
 
 	# Initialize child domain array for chromosome domains

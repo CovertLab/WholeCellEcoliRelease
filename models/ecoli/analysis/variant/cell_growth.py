@@ -115,7 +115,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 						# yields = units.strip_empty_units(growth / (glc_flux * glc_mw * dry_mass))
 
 						glc_yield = yields[np.isfinite(yields)].mean()
-				except Exception:
+				except Exception as e:
+					print(f'Exception reading Main/time, Mass/instantaneous_growth_rate,'
+						  f' RibosomeData/effectiveElongationRate, FBAResults/externalMoleculeIDs,'
+						  f' or FBAResults/externalExchangeFluxes: {e!r}')
 					cycle_length = 0
 					growth_rate = 0
 					elong_rate = 0

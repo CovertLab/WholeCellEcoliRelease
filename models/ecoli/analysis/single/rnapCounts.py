@@ -28,7 +28,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"EG10893_RNA[c]", "EG10894_RNA[c]",
 			"EG10895_RNA[c]", "EG10896_RNA[c]"]
 
-		rnapRnaIndexes = np.array([mRNA_idx[rnapRnaId] for rnapRnaId in RNAP_RNA_IDS], np.int)
+		rnapRnaIndexes = np.array([mRNA_idx[rnapRnaId] for rnapRnaId in RNAP_RNA_IDS], int)
 		rnapRnaCounts = mRNA_counts[:, rnapRnaIndexes]
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))

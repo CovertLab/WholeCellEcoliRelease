@@ -18,6 +18,8 @@ from six.moves import zip
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))

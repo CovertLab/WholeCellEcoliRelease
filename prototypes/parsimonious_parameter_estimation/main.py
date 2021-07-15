@@ -267,7 +267,7 @@ def main():
 		directions = np.zeros((MAX_ITERATIONS, N_PARAMETERS), np.float64)
 		direction_vectors = np.zeros(
 			(MAX_ITERATIONS, call_if_callable(search_directions).shape[0]),
-			np.bool
+			bool
 			)
 
 		for iteration in range(1, MAX_ITERATIONS+1):

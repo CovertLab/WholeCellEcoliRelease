@@ -111,7 +111,7 @@ def _nonredundant_directions(vectors, opposites_are_redundant = False):
 
 	n_vectors = vectors.shape[0]
 
-	is_nonredundant = np.ones(n_vectors, np.bool)
+	is_nonredundant = np.ones(n_vectors, bool)
 
 	vectors = vectors / np.sqrt(np.sum(np.square(vectors), 1))[:, None]
 

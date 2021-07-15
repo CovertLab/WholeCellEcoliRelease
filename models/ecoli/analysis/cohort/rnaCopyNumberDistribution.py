@@ -69,7 +69,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		np.random.seed(21)
 
 		# Extract RNA counts from all simData
-		all_rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=np.int)
+		all_rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=int)
 
 		# For each generation and seed
 		for gen_idx, simDirs in enumerate(sim_dirs_grouped_by_gen):

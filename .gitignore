@@ -160,3 +160,5 @@ reconstruction/ecoli/scripts/nca/data/regulon-db/*.tsv
 *.fls
 *.synctex.gz
 
+# VSCode:
+.vscode/

@@ -51,7 +51,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"ushA - UDP-sugar hydrolase / 5'-ribonucleotidase / 5'-deoxyribonucleotidase",
 		]
 
-		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], np.int)
+		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], int)
 		rnaCounts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

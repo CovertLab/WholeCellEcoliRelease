@@ -111,15 +111,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rrn23S_init_prob = ribosomeData.readColumn("rrn23S_init_prob")
 			rrn5S_init_prob = ribosomeData.readColumn("rrn5S_init_prob")
 
-			idx_16s = np.zeros(len(sim_data.molecule_groups.s30_16s_rRNA), dtype=np.int)
+			idx_16s = np.zeros(len(sim_data.molecule_groups.s30_16s_rRNA), dtype=int)
 			for idx, id16s in enumerate(sim_data.molecule_groups.s30_16s_rRNA):
 				idx_16s[idx] = np.where(sim_data.process.transcription.rna_data['id'] == id16s)[0][0]
 
-			idx_23s = np.zeros(len(sim_data.molecule_groups.s50_23s_rRNA), dtype=np.int)
+			idx_23s = np.zeros(len(sim_data.molecule_groups.s50_23s_rRNA), dtype=int)
 			for idx, id23s in enumerate(sim_data.molecule_groups.s50_23s_rRNA):
 				idx_23s[idx] = np.where(sim_data.process.transcription.rna_data['id'] == id23s)[0][0]
 
-			idx_5s = np.zeros(len(sim_data.molecule_groups.s50_5s_rRNA), dtype=np.int)
+			idx_5s = np.zeros(len(sim_data.molecule_groups.s50_5s_rRNA), dtype=int)
 			for idx, id5s in enumerate(sim_data.molecule_groups.s50_5s_rRNA):
 				idx_5s[idx] = np.where(sim_data.process.transcription.rna_data['id'] == id5s)[0][0]
 

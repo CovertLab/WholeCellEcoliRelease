@@ -6,7 +6,6 @@ control of transcription in cases where certain proteins might not be produced.
 """
 
 import pickle
-import os
 
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
@@ -15,7 +14,6 @@ import numpy as np
 from models.ecoli.analysis import multigenAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_bulk_molecules, read_stacked_columns
-from wholecell.io.tablereader import TableReader
 
 
 def subplot(gs, legend, title, tf_id, gene_id, t, active, bound, inactive, promoters):

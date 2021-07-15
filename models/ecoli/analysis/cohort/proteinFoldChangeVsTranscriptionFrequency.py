@@ -55,11 +55,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		n_monomers = sim_data.process.translation.monomer_data['id'].size
 		n_sims = ap.n_generation
 
-		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
-		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
-		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
-		monomerCountInitialMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
-		cellMassInitialMultigen = np.zeros(n_sims, dtype = np.float)
+		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = bool)
+		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = float)
+		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = int)
+		monomerCountInitialMultigen = np.zeros((n_sims, n_monomers), dtype = int)
+		cellMassInitialMultigen = np.zeros(n_sims, dtype = float)
 
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
@@ -114,7 +114,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
 
 			# Calculate if monomer comes close to doubling
-			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(float) + 1)
 			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
 
 			# Load transcription initiation event data
@@ -205,7 +205,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# step = (lims[1] - lims[0]) / 125
 		# bins = np.arange(lims[0], lims[1] + step, step)
 
-		# mass_in_binrange = np.zeros(bins.size-1, dtype=np.float)
+		# mass_in_binrange = np.zeros(bins.size-1, dtype=float)
 		# for i in range(len(bins) - 1):
 		# 	in_bin_range = np.logical_and(averageFoldChangePerMonomer > bins[i], averageFoldChangePerMonomer < bins[i+1])
 		# 	mass_in_binrange[i] = avgMonomerInitialMassFraction[in_bin_range].sum()

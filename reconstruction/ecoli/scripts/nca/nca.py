@@ -69,7 +69,7 @@ def nca_criteria_check(A: np.ndarray, tfs: np.ndarray, verbose: bool = True) -> 
         try:
             rank = np.linalg.matrix_rank(N)
         except ValueError as e:
-            raise NotValidMatrixError('Could not get the rank of the matrix')
+            raise NotValidMatrixError(f'Could not get the rank of the matrix: {e!r}')
 
         return rank
 
@@ -207,7 +207,7 @@ def fast_nca(E: np.ndarray,
     """
     Perform FastNCA on dataset E with network connectivity specified by A for the
     problem: E = AP. Based on matlab implementation from Chang et al. 2008.
-    http://www.eee.hku.hk/~cqchang/FastNCA.m
+    https://www.eee.hku.hk/~cqchang/FastNCA.m
 
     Args:
         E: data to solve NCA for (n genes, m conditions)
@@ -504,6 +504,7 @@ def iterative_sub_nca(
             E: original expression matrix (n genes, o TFs)
             A: original network topology mapping (o TFs, m conditions)
             tfs: original TF IDs corresponding to columns of A
+            verbose: If set, prints updates about removed columns
             max_divisions: the maximum number of times to subdivide the A matrix
 
         Returns:
@@ -535,7 +536,7 @@ def iterative_sub_nca(
             try:
                 Ai, tfsi = nca_criteria_check(A[:, reduced_A], tfs[reduced_A], verbose=verbose)
             except NotValidMatrixError as e:
-                print(f'Warning: could only make {len(E_divided)} divisions')
+                print(f'Warning: could only make {len(E_divided)} divisions: {e!r}')
                 break
             removed_tfs = removed_tfs - set(tfsi)
 

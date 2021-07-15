@@ -30,9 +30,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		n_monomers = sim_data.process.translation.monomer_data['id'].size
 		n_sims = ap.n_generation
 
-		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
-		monomerDoubleMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
-		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
+		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = bool)
+		monomerDoubleMultigen = np.zeros((n_sims, n_monomers), dtype = bool)
+		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = int)
 
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
@@ -46,7 +46,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
 
 			# Calculate if monomer comes close to doubling
-			ratioFinalToInitialCount = proteinMonomerCounts[-1:] / proteinMonomerCounts[0,:].astype(np.float)
+			ratioFinalToInitialCount = proteinMonomerCounts[-1:] / proteinMonomerCounts[0,:].astype(float)
 			monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
 
 			# Load transcription initiation event data

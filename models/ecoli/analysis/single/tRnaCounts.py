@@ -27,8 +27,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		mol_indices = {mol: i for i, mol in enumerate(moleculeIds)}
 
-		uncharged_indices = np.array([mol_indices[moleculeId] for moleculeId in rnaIds], np.int)
-		charged_indices = np.array([mol_indices[moleculeId] for moleculeId in charged_trna_ids], np.int)
+		uncharged_indices = np.array([mol_indices[moleculeId] for moleculeId in rnaIds], int)
+		charged_indices = np.array([mol_indices[moleculeId] for moleculeId in charged_trna_ids], int)
 
 		bulk_counts = bulkMolecules.readColumn("counts")
 		rna_counts = bulk_counts[:, uncharged_indices] + bulk_counts[:, charged_indices]

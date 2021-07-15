@@ -334,8 +334,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 			is_full_transcript, RNAP_index, RNA_unique_index = molecule_set.attrs(
 				"is_full_transcript", "RNAP_index", "unique_index")
 
-			d1_bool = np.zeros(n_molecules, dtype=np.bool)
-			d2_bool = np.zeros(n_molecules, dtype=np.bool)
+			d1_bool = np.zeros(n_molecules, dtype=bool)
+			d2_bool = np.zeros(n_molecules, dtype=bool)
 
 			# Divide full transcripts binomially
 			full_transcript_indexes = np.where(is_full_transcript)[0]

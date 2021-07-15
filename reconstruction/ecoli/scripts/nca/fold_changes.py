@@ -239,7 +239,7 @@ def load_sigma_gene_interactions() -> Dict[str, Dict[str, int]]:
     sigma_idx = 0
     gene_idx = 1
     dir_idx = 2
-    evidence_idx = 4  # TODO: filter on evidence?
+    # evidence_idx = 4  # TODO: filter on evidence?
     for line in data:
         sigma_factors = line[sigma_idx].split(', ')
         gene = line[gene_idx]
@@ -270,14 +270,18 @@ def add_tf_gene_data(
     Add TF-gene interaction data to a data structure from multiple sources.
 
     Args:
-        split: if True, splits TFs into activator and repressor forms
-        verbose: if True, prints warnings about loaded data
-
-    Returns:
         tf_genes: relationship between TF and genes {TF: {gene: regulatory direction}}
             regulatory direction is 1 for positive regulation
             regulatory direction is -1 for negative regulation
             regulatory direction is 0 for unknown or conflicting regulation
+        tf: TODO
+        gene: TODO
+        effect: TODO
+        activator_key: TODO
+        repressor_key: TODO
+        ambiguous_key: TODO
+        split: if True, splits TFs into activator and repressor forms
+        verbose: if True, prints warnings about loaded data
     """
 
     # Check type of regulation
@@ -411,7 +415,7 @@ def load_regulondb_tf_gene_interactions(
     tf_idx = 0
     gene_idx = 1
     dir_idx = 2
-    evidence_idx = 4  # TODO: filter on evidence?
+    # evidence_idx = 4  # TODO: filter on evidence?
     for line in data:
         # Extract columns of interest
         tf = line[tf_idx]
@@ -772,6 +776,8 @@ def calculate_fold_changes(
         P: NCA solution for TF/condition relationship (m TFs, o conditions)
         genes: IDs for each gene corresponding to rows in A (n genes)
         tfs: names of each TF corresponding to columns in A (m TFs)
+        n_std: TODO
+        min_conditions: TODO
 
     Returns:
         fcs: fold changes corresponding to entries in A (n genes, m TFs)

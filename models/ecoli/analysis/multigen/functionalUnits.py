@@ -100,7 +100,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Account for bulk molecules
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
+			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], int)
 			proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 			bulkMolecules.close()
 

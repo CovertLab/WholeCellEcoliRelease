@@ -144,10 +144,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			effectiveElongationRate = actualElongations / ribosomeCounts
 			extraRibosomes = (ribosomeCounts - actualElongations / 21.) / (actualElongations / 21.) * 100
 
-			fractionActive = activeRibosome.astype(np.float) / (activeRibosome + np.hstack((counts30S, counts50S)).min(axis=1))
+			fractionActive = activeRibosome.astype(float) / (activeRibosome + np.hstack((counts30S, counts50S)).min(axis=1))
 
 			## Calculate statistics involving ribosomes and RNAP ##
-			ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
+			ratioRNAPtoRibosome = totalRnap.astype(float) / ribosomeCounts.astype(float)
 			ribosomeConcentration = ((1 / sim_data.constants.n_avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cell_density) * (units.fg * cellMass))
 
 			averageRibosomeElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")

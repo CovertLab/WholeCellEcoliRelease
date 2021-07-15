@@ -145,7 +145,7 @@ class TfBinding(wholecell.processes.process.Process):
 				self.randomState, np.full(n_available_promoters, pPromoterBound)).sum(),
 				n_available_active_tfs))
 
-			bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
+			bound_locs = np.zeros(n_available_promoters, dtype=bool)
 			if n_to_bind > 0:
 				# Determine randomly which DNA targets to bind based on which of
 				# the following is more limiting:

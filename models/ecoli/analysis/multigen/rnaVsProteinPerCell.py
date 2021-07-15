@@ -94,9 +94,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
+			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], int)
 			proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
-			rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+			rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], int)
 			avgRnaCounts = bulkMoleculeCounts[:, rnaIndexes].mean(axis = 0)
 			bulkMolecules.close()
 			if i == 0:

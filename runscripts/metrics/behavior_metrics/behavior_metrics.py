@@ -9,7 +9,7 @@ from collections import namedtuple
 import importlib
 from os import path
 import re
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Text, Tuple, Union
+from typing import Any, Dict, Callable, Iterable, List, Optional, Sequence, Text, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -112,7 +112,7 @@ def find_indices_bulk(to_search, targets):
 	Returns:
 		The indices.
 	"""
-	return np.array([to_search.index(elem) for elem in targets], np.int)
+	return np.array([to_search.index(elem) for elem in targets], int)
 
 
 def np_pick(array, pick_spec):
@@ -157,7 +157,7 @@ VALIDATION_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", "validationData.cPickle")
 METRICS_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", "metricsData.cPickle")
 
 #: Map from mode names to the functions that handle the mode
-MODE_FUNC_MAP = {
+MODE_FUNC_MAP: Dict[str, Callable] = {
 	# Simple Scalar-Valued Functions
 	"mean": np.mean,
 	"stdev": np.std,

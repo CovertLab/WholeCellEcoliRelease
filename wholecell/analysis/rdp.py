@@ -152,8 +152,8 @@ def rdp(points, threshold):
 	# We work with squared distances to avoid calculating square roots, which is computationally expensive
 	squared_threshold = np.square(threshold)
 
-	keep = np.zeros(n_points, np.bool) # the positions to retain after filtering
-	active = np.ones(n_points, np.bool) # points that have yet to be analyzed
+	keep = np.zeros(n_points, bool) # the positions to retain after filtering
+	active = np.ones(n_points, bool) # points that have yet to be analyzed
 
 	# Mark the first and last points as 1) kept and 2) analyzed
 	keep[0] = True

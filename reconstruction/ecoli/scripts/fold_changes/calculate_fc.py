@@ -72,10 +72,12 @@ def load_src(attempt_match):
 		tf_data = {}
 		for gene, fcs in regulated.items():
 			if attempt_match:
-				fcs = np.abs(fcs)  # Bad!! - ignores annotated condition comparison regulation direction
+				fcs1 = np.abs(fcs)  # Bad!! - ignores annotated condition comparison regulation direction
+			else:
+				fcs1 = np.array(fcs)
 			tf_data[gene] = {
-				'mean': float(np.mean(fcs)),
-				'std': float(np.std(fcs, ddof=1)),
+				'mean': float(np.mean(fcs1)),
+				'std': float(np.std(fcs1, ddof=1)),
 				}
 		processed_data[tf] = tf_data
 

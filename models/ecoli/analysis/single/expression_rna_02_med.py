@@ -51,7 +51,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"livJ - Branched chain amino acid ABC transporter - periplasmic binding protein",
 		]
 
-		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], np.int)
+		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], int)
 		rnaCounts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

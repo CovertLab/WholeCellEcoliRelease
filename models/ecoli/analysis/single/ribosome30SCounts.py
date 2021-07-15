@@ -33,7 +33,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
 		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
 		all_mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
-		rnaIndexes = np.array([all_mRNA_idx[rna] for rna in rnaIds], np.int)
+		rnaIndexes = np.array([all_mRNA_idx[rna] for rna in rnaIds], int)
 		rnaCounts = mRNA_counts[:, rnaIndexes]
 		(freeProteinCounts, freeRRnaCounts, complexCounts) = read_bulk_molecule_counts(
 			simOutDir, (proteinIds, rRnaIds, complexIds))

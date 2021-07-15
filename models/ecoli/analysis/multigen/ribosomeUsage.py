@@ -83,8 +83,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			moleculeIds = bulkMoleculesDataFile.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesDataFile.readColumn("counts")
 
-			complexIndexes30S = np.array([moleculeIds.index(comp) for comp in complexIds30S], np.int)
-			complexIndexes50S = np.array([moleculeIds.index(comp) for comp in complexIds50S], np.int)
+			complexIndexes30S = np.array([moleculeIds.index(comp) for comp in complexIds30S], int)
+			complexIndexes50S = np.array([moleculeIds.index(comp) for comp in complexIds50S], int)
 
 			# Get counts of 30S and 50S mRNA, rProteins, rRNA, and full complex counts
 			complexCounts30S = bulkMoleculeCounts[:, complexIndexes30S]
@@ -125,7 +125,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			counts50S = complexCounts50S
 			activeRibosomeCounts = activeRibosome
 			totalRibosomeCounts = activeRibosomeCounts + np.hstack((counts30S, counts50S)).min(axis=1)
-			molarFractionActive = activeRibosomeCounts.astype(np.float) / totalRibosomeCounts
+			molarFractionActive = activeRibosomeCounts.astype(float) / totalRibosomeCounts
 
 			totalRibosomeConcentration = ((1 / nAvogadro) * totalRibosomeCounts) / cellVolume
 			activeRibosomeConcentration = ((1 / nAvogadro) * activeRibosomeCounts) / cellVolume

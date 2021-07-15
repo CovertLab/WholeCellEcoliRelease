@@ -48,7 +48,7 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 
 		n_uncharged_trna = len(self.uncharged_trna_ids)
 		self.fraction_trna_charged = np.zeros(n_uncharged_trna, np.float64)
-		self.net_charged = np.zeros(n_uncharged_trna, np.int)
+		self.net_charged = np.zeros(n_uncharged_trna, int)
 
 		# For transcription
 		n_ntp = len(self.ntpIds)
@@ -63,7 +63,7 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 
 		n_aa_supplied = len(self.aaIds)
 		self.aa_supply = np.zeros(n_aa_supplied, np.float64)
-		self.aa_supply_enzymes = np.zeros(n_aa_supplied, np.int)
+		self.aa_supply_enzymes = np.zeros(n_aa_supplied, int)
 		self.aa_supply_aa_conc = np.zeros(n_aa_supplied, np.float64)
 		self.aa_supply_fraction = np.zeros(n_aa_supplied, np.float64)
 

@@ -154,7 +154,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 				site_index_to_original_index[site_index] = [original_index]
 
 		TF_bound = np.zeros(
-			(all_unique_TF_sites.shape[0], n_timesteps), dtype=np.bool)
+			(all_unique_TF_sites.shape[0], n_timesteps), dtype=bool)
 
 		for site_index, original_indexes in site_index_to_original_index.items():
 			TF_bound[site_index, time_index[original_indexes]] = True

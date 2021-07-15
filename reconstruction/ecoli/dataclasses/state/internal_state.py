@@ -10,7 +10,6 @@ from wholecell.utils import units
 from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
 from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecules
 
-import itertools
 import numpy as np
 
 class InternalState(object):
@@ -357,6 +356,7 @@ class InternalState(object):
 			'DnaA_box')
 
 	def _build_compartments(self, raw_data, sim_data):
+		_ = sim_data
 		compartmentData = np.empty(len(raw_data.compartments),
 			dtype = [('id','U20'),('compartmentAbbreviation', 'U1')])
 

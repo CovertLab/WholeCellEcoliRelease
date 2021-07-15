@@ -116,17 +116,17 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		two_component_monomer_counts = np.dot(self.two_component_system_stoich,
 			np.negative(bulkMoleculeCounts[self.two_component_system_complex_idx]))
 
-		bulkMoleculeCounts[self.complexation_molecule_idx] += complex_monomer_counts.astype(np.int)
-		bulkMoleculeCounts[self.equilibrium_molecule_idx] += equilibrium_monomer_counts.astype(np.int)
-		bulkMoleculeCounts[self.two_component_system_molecule_idx] += two_component_monomer_counts.astype(np.int)
+		bulkMoleculeCounts[self.complexation_molecule_idx] += complex_monomer_counts.astype(int)
+		bulkMoleculeCounts[self.equilibrium_molecule_idx] += equilibrium_monomer_counts.astype(int)
+		bulkMoleculeCounts[self.two_component_system_molecule_idx] += two_component_monomer_counts.astype(int)
 
 		# Account for monomers in unique molecule complexes
 		n_ribosome_subunit = n_active_ribosome * self.ribosome_stoich
 		n_rnap_subunit = n_active_rnap * self.rnap_stoich
 		n_replisome_subunit = n_active_replisome * self.replisome_stoich
-		bulkMoleculeCounts[self.ribosome_subunit_idx] += n_ribosome_subunit.astype(np.int)
-		bulkMoleculeCounts[self.rnap_subunit_idx] += n_rnap_subunit.astype(np.int)
-		bulkMoleculeCounts[self.replisome_subunit_idx] += n_replisome_subunit.astype(np.int)
+		bulkMoleculeCounts[self.ribosome_subunit_idx] += n_ribosome_subunit.astype(int)
+		bulkMoleculeCounts[self.rnap_subunit_idx] += n_rnap_subunit.astype(int)
+		bulkMoleculeCounts[self.replisome_subunit_idx] += n_replisome_subunit.astype(int)
 
 		# Update monomerCounts
 		self.monomerCounts = bulkMoleculeCounts[self.monomer_idx]

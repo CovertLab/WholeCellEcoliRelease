@@ -80,7 +80,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
 			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			rnaIndexes = np.array([all_mRNA_ids.index(x) for x in rnaIds], np.int)
+			rnaIndexes = np.array([all_mRNA_ids.index(x) for x in rnaIds], int)
 			rnaCounts.append(mRNA_counts_reader.readColumn("mRNA_counts")[:, rnaIndexes])
 
 		rnaDegradedCountsAveraged = []

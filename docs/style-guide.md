@@ -403,7 +403,7 @@ It doesn't have a way to express array shape so the shape still goes into a docs
 import numpy as np
 
 def f(a):
-    # type: (np.ndarray[np.float]) -> np.ndarray[int]
+    # type: (np.ndarray[float]) -> np.ndarray[int]
     return np.asarray(a, dtype=int)
 ```
 

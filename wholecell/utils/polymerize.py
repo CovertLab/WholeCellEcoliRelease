@@ -134,7 +134,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		#     (num_monomers, num_sequences, num_steps), a bitmask of monomer usage.
 		self._sequenceMonomers = np.empty(
 			(self._nMonomers, self._nSequences, self._sequenceLength),
-			dtype = np.bool)
+			dtype = bool)
 		for monomerIndex in range(self._nMonomers):
 			self._sequenceMonomers[monomerIndex, ...] = (
 				self._sequences == monomerIndex)
@@ -164,7 +164,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 		# Empty placeholders - will be filled in during trivial elongation,
 		# then inspected during nontrivial (resource-limited) elongation
-		self._monomerIsLimiting = np.empty(self._nMonomers, np.bool)
+		self._monomerIsLimiting = np.empty(self._nMonomers, bool)
 		self._reactionIsLimiting = None
 
 	def _prepare_outputs(self):

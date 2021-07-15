@@ -59,7 +59,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		np.random.seed(21)
 
 		# Extract protein counts from all simData
-		protein_counts = np.zeros((n_generation, n_seed, n_proteins), dtype=np.int)
+		protein_counts = np.zeros((n_generation, n_seed, n_proteins), dtype=int)
 
 		for gen_idx, simDirs in enumerate(sim_dirs_grouped_by_gen):
 			for seed_idx, simDir in enumerate(simDirs):

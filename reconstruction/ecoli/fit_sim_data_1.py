@@ -2188,7 +2188,7 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 	rnaIdxs = [rnaIdx for (rnaIdx, fc) in sorted(zip(rnaIdxs, fcs), key = lambda pair: pair[0])]
 
 	# Adjust expression based on fold change and normalize
-	rnaIdxsBool = np.zeros(len(rnaIds), dtype = np.bool)
+	rnaIdxsBool = np.zeros(len(rnaIds), dtype = bool)
 	rnaIdxsBool[rnaIdxs] = 1
 	fcs = np.array(fcs)
 	scaleTheRestBy = (1. - (expression[rnaIdxs] * fcs).sum()) / (1. - (expression[rnaIdxs]).sum())
@@ -2636,7 +2636,7 @@ def fitPromoterBoundProbability(sim_data, cell_specs):
 			if secondElem in fixedTFs:
 				fixedTFIdxs.append(idx)
 
-		fixedTFIdxs = np.array(fixedTFIdxs, dtype=np.int)
+		fixedTFIdxs = np.array(fixedTFIdxs, dtype=int)
 
 		return H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, H_col_name_to_index
 

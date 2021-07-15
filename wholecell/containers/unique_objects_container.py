@@ -860,7 +860,7 @@ class _UniqueObjectSet(object):
 		container.
 		"""
 		self._container = container
-		self._globalIndexes = np.array(globalIndexes, np.int)
+		self._globalIndexes = np.array(globalIndexes, int)
 		self._process_index = process_index
 		self._access = access
 

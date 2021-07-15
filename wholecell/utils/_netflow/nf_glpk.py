@@ -1,3 +1,4 @@
+# noinspection HttpUrlsUsage
 """
 NetworkFlow's interface to GNU Linear Programming Kit.
 This uses a fraction of the API that's available via the swiglpk pip.

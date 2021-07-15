@@ -68,6 +68,8 @@ def plot_data(gs, col, time, x, y, label, molecule_names):
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Read data from listeners
 		enzymeKinetics = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))

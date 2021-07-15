@@ -434,7 +434,7 @@ class RunWcm(scriptBase.ScriptBase):
 
 		# Analyses
 		self.define_parameter_bool(parser, 'run_analysis', True,
-			help="Run the Variant, Cohort, Multigen, and Single analyses.")
+			help="Run the Parca, Variant, Cohort, Multigen, and Single analyses.")
 		parser.add_argument('-p', '--plot', nargs='+', default=[],
 			help='''Names the analysis plots to run, e.g. plot filenames
 				like "aaCounts.py" or "aaCounts" and tags like "METABOLISM"

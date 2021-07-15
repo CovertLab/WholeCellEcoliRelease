@@ -45,7 +45,7 @@ class Test_polymerize(unittest.TestCase):
 		self.nMonomers = np.amax(sequences) + 1 # [0 .. max(monomer #)]
 		self.sequenceMonomers = np.empty(
 			(self.nMonomers, self.nSequences, self.sequenceLength),
-			dtype=np.bool
+			dtype=bool
 			)
 		for monomerIndex in range(self.nMonomers):
 			self.sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)

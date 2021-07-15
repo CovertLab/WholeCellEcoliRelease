@@ -352,7 +352,8 @@ def compare_ndarrays(array1, array2):
 	if issubclass(array1.dtype.type, np.floating):
 		try:
 			# This handles float tolerance but not NaN and Inf.
-			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
+			with np.errstate(invalid='ignore'):
+				np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
 			return ()
 		except AssertionError as _:
 			# return elide(array1), elide(array2), simplify_error_message(e.args[0])
