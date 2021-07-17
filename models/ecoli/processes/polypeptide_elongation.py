@@ -477,18 +477,19 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		aa_in_media = self.aa_environment.import_present()
 		synthesis, enzyme_counts, saturation = self.amino_acid_synthesis(
 			self.aa_enzymes.total_counts(), aa_conc)
+		imported = self.amino_acid_import(aa_in_media, dry_mass)
 		if self.process.mechanistic_supply:
 			# Set supply based on mechanistic synthesis and supply
-			self.process.aa_supply = self.process.timeStepSec() * (
-					synthesis + self.amino_acid_import(aa_in_media, dry_mass))
+			self.process.aa_supply = self.process.timeStepSec() * (synthesis + imported)
 		else:
 			# Adjust aa_supply higher if amino acid concentrations are low
 			# Improves stability of charging and mimics amino acid synthesis
 			# inhibition and export
 			self.process.aa_supply *= self.aa_supply_scaling(aa_conc, aa_in_media)
 
-		# TODO: add synthesis and import?
 		self.process.writeToListener('GrowthLimits', 'aa_supply', self.process.aa_supply)
+		self.process.writeToListener('GrowthLimits', 'aa_synthesis', synthesis * self.process.timeStepSec())
+		self.process.writeToListener('GrowthLimits', 'aa_import', imported * self.process.timeStepSec())
 		self.process.writeToListener('GrowthLimits', 'aa_supply_enzymes', enzyme_counts)
 		self.process.writeToListener('GrowthLimits', 'aa_supply_aa_conc', aa_conc.asNumber(units.mmol/units.L))
 		self.process.writeToListener('GrowthLimits', 'aa_supply_fraction', saturation)

@@ -63,6 +63,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 
 		n_aa_supplied = len(self.aaIds)
 		self.aa_supply = np.zeros(n_aa_supplied, np.float64)
+		self.aa_synthesis = np.zeros(n_aa_supplied, np.float64)
+		self.aa_import = np.zeros(n_aa_supplied, np.float64)
 		self.aa_supply_enzymes = np.zeros(n_aa_supplied, int)
 		self.aa_supply_aa_conc = np.zeros(n_aa_supplied, np.float64)
 		self.aa_supply_fraction = np.zeros(n_aa_supplied, np.float64)
@@ -83,6 +85,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			'ntpAllocated': 'ntpIds',
 			'ntpUsed': 'ntpIds',
 			'aa_supply': 'aaIds',
+			'aa_synthesis': 'aaIds',
+			'aa_import': 'aaIds',
 			'aa_supply_enzymes': 'aaIds',
 			'aa_supply_aa_conc': 'aaIds',
 			'aa_supply_fraction': 'aaIds',
@@ -113,6 +117,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			spot_syn = self.spot_syn,
 			spot_deg = self.spot_deg,
 			aa_supply = self.aa_supply,
+			aa_synthesis = self.aa_synthesis,
+			aa_import = self.aa_import,
 			aa_supply_enzymes = self.aa_supply_enzymes,
 			aa_supply_aa_conc = self.aa_supply_aa_conc,
 			aa_supply_fraction = self.aa_supply_fraction,

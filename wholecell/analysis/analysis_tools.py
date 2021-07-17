@@ -134,6 +134,10 @@ def _check_bulk_inputs(mol_names: Union[Tuple[Sequence[str], ...], Sequence[str]
 
 	return mol_names
 
+def _remove_first(remove_first: bool):
+	"""Slice to remove the first time point entry if remove_first is True"""
+	return slice(1, None) if remove_first else slice(None)
+
 def read_bulk_molecule_counts(sim_out_dir, mol_names):
 	# type: (str, Union[Tuple[Sequence[str], ...], Sequence[str]]) -> Iterator[np.ndarray]
 	'''
@@ -187,6 +191,7 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 def read_stacked_bulk_molecules(
 		cell_paths: np.ndarray,
 		mol_names: Union[Tuple[Sequence[str], ...], Sequence[str]],
+		remove_first: bool = False,
 		) -> List[np.ndarray]:
 	"""
 	Reads bulk molecule counts from multiple cells and assembles each group
@@ -199,6 +204,8 @@ def read_stacked_bulk_molecules(
 		mol_names: tuple of list-likes of strings or a list-like of strings
 			that name molecules to read the counts for. A single array will be
 			converted to a tuple for processing.
+		remove_first: if True, removes the first column of data from each cell
+			which might be set to a default value in some cases
 
 	Returns:
 		stacked data (n time points) if single molecule or
@@ -212,12 +219,12 @@ def read_stacked_bulk_molecules(
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
 		for i, counts in enumerate(read_bulk_molecule_counts(sim_out_dir, mol_names)):
-			data[i].append(counts)
+			data[i].append(counts[_remove_first(remove_first)])
 
 	# Use vstack for 2D or hstack for 1D to get proper dimension alignments
 	return [np.vstack(d) if len(d[0].shape) > 1 else np.hstack(d) for d in data]
 
-def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str) -> np.ndarray:
+def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str, remove_first: bool = False) -> np.ndarray:
 	"""
 	Reads column data from multiple cells and assembles into a single array.
 
@@ -227,6 +234,8 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str) -> np.
 			AnalysisPaths.get_cells()
 		table: name of the table to read data from
 		column: name of the column to read data from
+		remove_first: if True, removes the first column of data from each cell
+			which might be set to a default value in some cases
 
 	Returns:
 		stacked data (n time points, m subcolumns)
@@ -234,7 +243,6 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str) -> np.
 	TODO:
 		add common processing options:
 		- mean per cell cycle
-		- remove first time point
 		- normalize to a time point
 	"""
 
@@ -242,6 +250,6 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str) -> np.
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
 		reader = TableReader(os.path.join(sim_out_dir, table))
-		data.append(reader.readColumn(column, squeeze=False))
+		data.append(reader.readColumn(column, squeeze=False)[_remove_first(remove_first)])
 
 	return np.vstack(data)
