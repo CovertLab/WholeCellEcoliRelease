@@ -30,11 +30,8 @@ This page goes through the Python environment setup steps in more detail and wit
 OpenBLAS, NumPy, and SciPy which change the computed results. We do not know
 how to set up environments to get consistent results across platforms.
 It's possible that a newer version of OpenBLAS (such as v0.3.15) fixes those problems.
-The simplest and fastest setup is to install NumPy and SciPy from binary "wheels"
-with their embedded copies of OpenBLAS. Still, there's a case for compiling
-OpenBLAS from source code and linking numpy and scipy to it, as
-`cloud/docker/runtime/Dockerfile` can do for building the wcm-runtime Docker
-Image.
+The simplest and fastest setup is to install numpy and scipy from binary "wheels"
+with their embedded copies of OpenBLAS -- **recommended**. 
 
 
 ## Prerequisites
@@ -80,6 +77,14 @@ Image.
    ```
 
    For Ubuntu, you might also need to find and install the proprietary package `python-glpk`.
+
+
+   Don't use apt-get to install `libopenblas-dev` until that package repository
+   updates to a recent release like v0.3.9 (the version that's embedded in numpy
+   and scipy). For Ubuntu, use ```bashapt-cache policy libopenblas-dev``` to check 
+   the candidate version for OpenBLAS. It is **recommended** to install OpenBLAS along with 
+   numpy (see below).
+
 
    **On Sherlock**
 
@@ -133,7 +138,13 @@ pyenv lets you install and switch between multiple Python releases and multiple
 "virtual environments", each with its own pip packages.
 
    ```bash
-   pyenv install 3.8.7
+   pyenv install 3.8.7 #v3.8.9 might also works but still under tests. 
+   ```
+
+   For Linux/Ubuntu:
+
+   ```bash
+   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.7 #v3.8.9 might also works but still under tests.
    ```
 
 
@@ -148,7 +159,7 @@ virtualenv.
 
    ```bash
    cd ~/dev/wcEcoli  # or wherever you cloned the `wcEcoli` project to
-   pyenv virtualenv 3.8.7 wcEcoli3 && pyenv local wcEcoli3
+   pyenv virtualenv 3.8.7 wcEcoli3 && pyenv local wcEcoli3 #if you use python 3.8.9, replace 3.8.7 for 3.8.9. 
    ```
 
 1. Upgrade this virtual environment's installers.
@@ -164,23 +175,26 @@ virtualenv.
    how to set up environments to get consistent results across platforms.
    The simplest and fastest setup is to install numpy and scipy from binary _wheels_
    with their embedded copies of OpenBLAS using `pip install` **without** the
-   `--no-binary numpy,scipy` option. Still, there's a case for compiling
-   OpenBLAS from source code and linking numpy and scipy to it, as
-   `cloud/docker/runtime/Dockerfile` does for building the wcm-runtime Docker
-   Image.
+   `--no-binary numpy,scipy` option -- **recommended**. 
+
+   Still, there's a case for compiling OpenBLAS from source code and linking numpy and scipy to it, as
+   `cloud/docker/runtime/Dockerfile` can _optionally_ do for building the wcm-runtime Docker Image.
 
    Where is OpenBLAS installed?
    * Brew on macOS installs OpenBLAS in `/usr/local/opt/openblas/`.
+   * From source in Ubuntu in `/opt/OpenBLAS/` (default)
    * For other package managers, find out where they install it.
    * When compiling OpenBLAS from source,
-     `make FC=gfortran && make PREFIX=/XYZ install` installs it in that `/XYZ`
+     `make FC=gfortran && make PREFIX=/XYZ install` installs it in that specified `/XYZ`
      PREFIX directory, which defaults to `/opt/OpenBLAS`.
    * On Sherlock, it's installed in `$PI_HOME/downloads-sherlock2/compiled/openblas`.
      (Using an environment module for OpenBLAS only works if it's loaded at runtime.)
 
    To link numpy and scipy to a manually-installed OpenBLAS, create a `~/.numpy-site.cfg` file pointing to
    it (and remember to run `pip install <packages> --no-binary numpy,scipy` in the
-   pip-install steps below), e.g.:
+   pip-install steps below)
+
+   Copy these lines to `~/.numpy-site.cfg`:
 
       ```
       [openblas]
@@ -219,8 +233,7 @@ virtualenv.
    LDFLAGS="-shared $LDFLAGS" pip install -r requirements.txt --no-binary numpy,scipy && pyenv rehash
    ```
 
-   The `LDFLAGS="-shared $LDFLAGS"` preamble fixes dozens of scipy build
-   errors starting with  
+   The `LDFLAGS="-shared $LDFLAGS"` preamble fixes dozens of scipy build errors starting with  
    `In function _start (.text+0x20): undefined reference to main` and  
    `undefined reference to PyFloat_FromDouble`.
 
@@ -238,8 +251,10 @@ virtualenv.
       python runscripts/debug/summarize_environment.py
       ```
 
-      It should print entries like this for numpy and scipy showing which
-      OpenBLAS they're linked to:
+      It should print entries like the ones below for numpy and scipy showing which
+      OpenBLAS they're linked to. ```library_dirs = ['/usr/local/opt/openblas/lib']```
+      reveals the path to source openblas while ```library_dirs = ['/usr/local/lib']```
+      is shown for numpy's embedded openblas.
 
       ```
       lapack_opt_info:
@@ -247,6 +262,15 @@ virtualenv.
           library_dirs = ['/usr/local/opt/openblas/lib']
           define_macros = [('HAVE_CBLAS', None)]
           language = c
+      ```
+      or this:
+
+      ```
+      lapack_opt_info:
+         libraries = ['openblas', 'openblas']
+         library_dirs = ['/usr/local/lib']
+         language = c
+         define_macros = [('HAVE_CBLAS', None)]
       ```
 
 1. **Required:** Add the following line to your shell profile and run it in your current shell.
@@ -262,6 +286,8 @@ especially when called from multiple processes.
     ```shell script
     runscripts/debug/time_libraries.sh
     ```
+
+    (It might fail some tests with AssertionError: 0.xxxxx not less than or equal to 0.4.)
 
 1. Test Aesara:
 
@@ -281,14 +307,17 @@ especially when called from multiple processes.
 
    (Yes, it's expected to print deprecation warnings.)
 
-1. Run the unit tests.
+1. Run the unit tests and runParca.py.
 
    ```shell script
    pytest
+
+   python runscripts/manual/runParca.py
    ```
 
-   If the unit tests fail with an error message saying the loader can't load
-   ...libpython..., that means you need to `--enable-shared` when installing python.
+   If the unit tests or runParca.py fail with an error message saying the loader can't load
+   ...libpython... or an error related to 'shared objects' and needing to compile with -fPIC,
+   that means you need to `--enable-shared` when installing python.
    Go back to that step, run
 
    ```shell script
@@ -297,6 +326,12 @@ especially when called from multiple processes.
 
    then delete and recreate the virtualenv `wcEcoli3`.
    Delete it via the command `pyenv virtualenv-delete wcEcoli3` or `pyenv uninstall wcEcoli3`.
+
+1. Remember to copy the git hooks from the repo (see [git hooks](../runscripts/git_hooks/README.md)) to your `.git` directory to maintain an up to date environment while doing development:
+
+   ```
+   cp runscripts/git_hooks/*[^.md] .git/hooks/
+   ```
 
 1. If you're using PyCharm, be sure to select the project's Python interpreter so PyCharm understands the version
 of Python and its installed libraries. This enables code completion, usage documentation
