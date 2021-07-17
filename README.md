@@ -276,3 +276,10 @@ custom workflow software.
 Allen Discovery Center project on Google Cloud Platform.
 
 See [How to run the Whole Cell Model on the Google Cloud Platform](docs/google-cloud.md).
+
+## Parameter search and optimization
+
+Another runscript will allow you to search for parameters or optimize parameters for a desired objective, which can be any output from the simulation.  This script will run the parca and simulations with varying sets of parameters and can update the parameters based on the results of each iteration.  Define any optimization approach you would like to use in a file in [wholecell/optimization/](wholecell/optimization/) and the method, which will define the set of parameters and objective you are interested in, in [models/ecoli/sim/parameter_search/](models/ecoli/sim/parameter_search/) and then run the script with your options (add `-c` for the number of CPUs to use in parallel for faster iteration):
+```
+runscripts/manual/parameter_search.py output-dir --solver spsa --method quick_example -c 4
+```

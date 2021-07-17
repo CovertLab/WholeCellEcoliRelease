@@ -66,6 +66,18 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	},
 	cell_id = None,
 )
+ALTERNATE_KWARG_NAMES = {
+	"length_sec": "lengthSec",
+	"timestep_safety_frac": "timeStepSafetyFraction",
+	"timestep_max": "maxTimeStep",
+	"timestep_update_freq": "updateTimeStepFreq",
+	"log_to_shell": "logToShell",
+	"log_to_disk_every": "logToDiskEvery",
+	"mass_distribution": "massDistribution",
+	"growth_rate_noise": "growthRateNoise",
+	"d_period_division": "dPeriodDivision",
+	"translation_supply": "translationSupply",
+	}
 
 def _orderedAbstractionReference(iterableOfClasses):
 	return collections.OrderedDict(

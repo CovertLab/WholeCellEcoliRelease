@@ -115,8 +115,8 @@ def default_wcecoli_out_subdir_path():
 	raise IOError(errno.ENOENT,
 		'"{}" has no subdirectories.  Run runParca?'.format(out_dir))
 
-def find_sim_path(directory=None):
-	# type: (Optional[str]) -> str
+def find_sim_path(directory=None, makedirs=False):
+	# type: (Optional[str], bool) -> str
 	"""Find a simulation path, looking for the given directory name as an
 	absolute path, or as a subdirectory of wcEcoli/out/, or as a subdirectory
 	name that starts with out/, or (if None) call
@@ -131,7 +131,11 @@ def find_sim_path(directory=None):
 	else:
 		input_dir = os.path.join(fp.ROOT_PATH, 'out', directory)
 
-	fp.verify_dir_exists(input_dir, "Need a simulation dir.")
+	if makedirs:
+		fp.makedirs(input_dir)
+	else:
+		fp.verify_dir_exists(input_dir, "Need a simulation dir.")
+
 	return input_dir
 
 def str_to_bool(s):

@@ -19,4 +19,6 @@ DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GEN
 
 bash runscripts/jenkins/run-fireworks.sh
 
+runscripts/manual/parameter_search.py --method quick_example
+
 rm -fr out/*
