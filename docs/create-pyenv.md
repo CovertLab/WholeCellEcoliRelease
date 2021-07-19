@@ -177,9 +177,9 @@ virtualenv.
    The simplest and fastest setup is to install numpy and scipy from binary "wheels"
    with their embedded copies of OpenBLAS using `pip install` **without** the
    `--no-binary numpy,scipy` option.
-   Using the same BLAS implementation should help with reproducibility, and the
-   embedded copy is always compiled with gcc/gfortran, so this is the
-   recommended approach.
+   Using the same BLAS implementation should help with portable reproducibility,
+   and numpy's embedded copy is compiled with gcc/gfortran for every platform, so
+   this is the recommended way to go.
 
    Still, there's a case for using a package manager to install OpenBLAS or
    compiling OpenBLAS from source code, then linking numpy and scipy to it as

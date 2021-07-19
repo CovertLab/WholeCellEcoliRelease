@@ -64,8 +64,8 @@ required libraries and library versions.
    package manager, e.g. [homebrew](https://brew.sh/) on macOS.
    **\[On Sherlock, pyenv is already installed. Skip to the next step.]** 
 
-   Do see [pyenv Installation](https://github.com/pyenv/pyenv#installation) for
-   up-to-date details to install pyenv on various operating systems.
+   See [pyenv Installation](https://github.com/pyenv/pyenv#installation) for
+   up-to-date instructions to install pyenv on various operating systems.
 
    Example commands on MacOS:
 
@@ -84,9 +84,8 @@ required libraries and library versions.
 1. Configure your shell's environment (`~/.profile` or `~/.bash_profile` for bash,
    or `~/.zshrc` for zsh, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv`
    per the latest instructions in
-   [pyenv Installation](https://github.com/pyenv/pyenv#basic-github-checkout)
-   under **Configure your shell's environment for Pyenv** _and_ under
-   **Add pyenv into your shell**.
+   [**Configure your shell's environment for Pyenv**](https://github.com/pyenv/pyenv#:~:text=src-,configure%20your%20shell's%20environment%20for%20pyenv,-Note)
+   _and_ [**Add pyenv into your shell**](https://github.com/pyenv/pyenv#:~:text=add%20pyenv%20into%20your%20shell).
 
    - Example `~/.zshrc` lines for macOS:
 
