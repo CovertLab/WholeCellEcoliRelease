@@ -64,54 +64,68 @@ required libraries and library versions.
    package manager, e.g. [homebrew](https://brew.sh/) on macOS.
    **\[On Sherlock, pyenv is already installed. Skip to the next step.]** 
 
-   See [pyenv Installation](https://github.com/pyenv/pyenv#installation) for _up-to-date and detailed_ ways to install pyenv on various operating systems. **Recommended**
+   Do see [pyenv Installation](https://github.com/pyenv/pyenv#installation) for
+   up-to-date details to install pyenv on various operating systems.
 
-   For example, you may run this command on MacOS:
+   Example commands on MacOS:
 
    ```shell script
    brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
    ```
 
-   Or try these commands on Ubuntu:
+   Example commands on Linux:
 
    ```shell script
    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-   echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile       #In some cases you might have .bashrc instead of .bash_profile. 
-   echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
-   echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile 
-   #If you get a Warning when running pyenv, replace (pyenv init -) to (pyenv init --path)
-   source ~/.bash_profile
-
    git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
-   echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bash_profile
-
    git clone https://github.com/pyenv/pyenv-virtualenvwrapper.git $(pyenv root)/plugins/pyenv-virtualenvwrapper
-   source ~/.bash_profile
    ```
 
-1. Configure your shell's environment (`~/.profile` or `~/.bash_profile` on macOS with bash or Ubuntu, or `~/.zshrc` for zsh, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or refer to the more detailed and up-to-date instructions under **Configure your shell's environment for Pyenv** in [pyenv Installation](https://github.com/pyenv/pyenv#basic-github-checkout)(**Recommended**).
+1. Configure your shell's environment (`~/.profile` or `~/.bash_profile` for bash,
+   or `~/.zshrc` for zsh, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv`
+   per the latest instructions in
+   [pyenv Installation](https://github.com/pyenv/pyenv#basic-github-checkout)
+   under **Configure your shell's environment for Pyenv** _and_ under
+   **Add pyenv into your shell**.
 
    - Example `~/.zshrc` lines for macOS:
 
      ```shell script
-     eval "$(pyenv init --path)"
+     if which pyenv > /dev/null; then
+         eval "$(pyenv init --path)"
+         eval "$(pyenv init -)"
+     fi
+     if which pyenv-virtualenv-init > /dev/null; then
+         eval "$(pyenv virtualenv-init -)"
+     fi
      ```
 
-   - Example `~/.profile` or `~/.bash_profile` lines for macOS:
+   - Example bash `~/.profile` or `~/.bash_profile` lines for macOS:
 
      ```shell script
      export PYENV_ROOT=/usr/local/var/pyenv
-     if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-     if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+     if which pyenv > /dev/null; then
+         eval "$(pyenv init --path)"
+         eval "$(pyenv init -)"
+     fi
+     if which pyenv-virtualenv-init > /dev/null; then
+         eval "$(pyenv virtualenv-init -)"
+     fi
      ## ^^^ Do this before sourcing iterm2_shell_integration
      ```
 
-  - Example `~/.profile` or `~/.bash_profile` lines for Linux/Ubuntu:
+   - Example bash `~/.profile` or `~/.bash_profile` lines for Linux:
 
      ```shell script
-     export PYENV_ROOT="$HOME/.pyenv"            #or whichever path you chose to clone pyenv to
-     if which pyenv > /dev/null; then eval "$(pyenv init --path)"; fi
-     if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+     export PYENV_ROOT="$HOME/.pyenv"
+     export PATH="$PYENV_ROOT/bin:$PATH"
+     if which pyenv > /dev/null; then
+         eval "$(pyenv init --path)"
+         eval "$(pyenv init -)"
+     fi
+     if which pyenv-virtualenv-init > /dev/null; then
+         eval "$(pyenv virtualenv-init -)"
+     fi
      ```
 
    - Example `~/.bash_profile` lines for Sherlock:

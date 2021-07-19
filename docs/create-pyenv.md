@@ -26,13 +26,6 @@ This page goes through the Python environment setup steps in more detail and wit
 
 **Sherlock:** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip our Sherlock notes. Inside the lab, look in `$PI_HOME/downloads/` and `$PI_HOME/installation_notes/` for downloaded software packages and notes on recompiling them as needed to install new packages, new libraries, and new Python releases for the team.
 
-**See Issue #931.** There are several degrees of freedom for installing
-OpenBLAS, NumPy, and SciPy which change the computed results. We do not know
-how to set up environments to get consistent results across platforms.
-It's possible that a newer version of OpenBLAS (such as v0.3.15) fixes those problems.
-The simplest and fastest setup is to install numpy and scipy from binary "wheels"
-with their embedded copies of OpenBLAS -- **recommended**. 
-
 
 ## Prerequisites
 
@@ -80,10 +73,14 @@ with their embedded copies of OpenBLAS -- **recommended**.
 
 
    Don't use apt-get to install `libopenblas-dev` until that package repository
-   updates to a recent release like v0.3.9 (the version that's embedded in numpy
-   and scipy). For Ubuntu, use ```bashapt-cache policy libopenblas-dev``` to check 
-   the candidate version for OpenBLAS. It is **recommended** to install OpenBLAS along with 
-   numpy (see below).
+   updates to a recent release of OpenBLAS such as the one that's embedded in
+   numpy and scipy package wheels.
+   On Ubuntu, use ```apt-cache policy libopenblas-dev``` to check the candidate version.
+   To see which version of OpenBLAS is embedded in numpy, see
+   [openblas_support.py](https://github.com/numpy/numpy/blob/main/tools/openblas_support.py)
+   in the relevant numpy release tag.
+   Recommendation: Let numpy and scipy install their embedded copies of OpenBLAS
+   (see below).
 
 
    **On Sherlock**
@@ -130,21 +127,25 @@ with their embedded copies of OpenBLAS -- **recommended**.
    `module load` the module to make it accessible via environment variable paths
    like `CPPFLAGS`. See for example `$PI_HOME/modules/xz/5.2.5.lua`.
 
+### On Ubuntu and other Linux environments
+
+1. Install Python using `pyenv`, enabling Python to be loaded as a shared
+   library.
+
+   ```bash
+   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.7
+   ```
 
 ### Anywhere else
 
-1. Install Python using `pyenv`.
-pyenv lets you install and switch between multiple Python releases and multiple
-"virtual environments", each with its own pip packages.
+Note: If running Parca gets an error message that "the loader can't load libpython"
+or an error related to "shared objects" and "needing to compile with -fPIC", use
+the above command that has `--enable-shared`.
+
+1. Use `pyenv`.
 
    ```bash
-   pyenv install 3.8.7 #v3.8.9 might also works but still under tests. 
-   ```
-
-   For Linux/Ubuntu:
-
-   ```bash
-   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.7 #v3.8.9 might also works but still under tests.
+   pyenv install 3.8.7 
    ```
 
 
@@ -159,7 +160,7 @@ virtualenv.
 
    ```bash
    cd ~/dev/wcEcoli  # or wherever you cloned the `wcEcoli` project to
-   pyenv virtualenv 3.8.7 wcEcoli3 && pyenv local wcEcoli3 #if you use python 3.8.9, replace 3.8.7 for 3.8.9. 
+   pyenv virtualenv 3.8.7 wcEcoli3 && pyenv local wcEcoli3
    ```
 
 1. Upgrade this virtual environment's installers.
@@ -171,30 +172,36 @@ virtualenv.
 1. ***CONDITIONAL:*** Link numpy and scipy to a manually-installed OpenBLAS.
 
    **See Issue #931.** There are several degrees of freedom for installing
-   OpenBLAS, numpy, and scipy which change the computed results. We do not know
+   OpenBLAS, numpy, and scipy that might change the computed results. We do not know
    how to set up environments to get consistent results across platforms.
-   The simplest and fastest setup is to install numpy and scipy from binary _wheels_
+   The simplest and fastest setup is to install numpy and scipy from binary "wheels"
    with their embedded copies of OpenBLAS using `pip install` **without** the
-   `--no-binary numpy,scipy` option -- **recommended**. 
+   `--no-binary numpy,scipy` option.
+   Using the same BLAS implementation should help with reproducibility, and the
+   embedded copy is always compiled with gcc/gfortran, so this is the
+   recommended approach.
 
-   Still, there's a case for compiling OpenBLAS from source code and linking numpy and scipy to it, as
-   `cloud/docker/runtime/Dockerfile` can _optionally_ do for building the wcm-runtime Docker Image.
+   Still, there's a case for using a package manager to install OpenBLAS or
+   compiling OpenBLAS from source code, then linking numpy and scipy to it as
+   `cloud/docker/runtime/Dockerfile` _optionally_ does when building the
+   wcm-runtime Docker Image.
 
-   Where is OpenBLAS installed?
+   In that case, you need to locate the OpenBLAS library.
    * Brew on macOS installs OpenBLAS in `/usr/local/opt/openblas/`.
-   * From source in Ubuntu in `/opt/OpenBLAS/` (default)
-   * For other package managers, find out where they install it.
-   * When compiling OpenBLAS from source,
+   * For other package managers, find out where they installed `lib/libopenblas*`.
+   * Compiling OpenBLAS from source in Ubuntu goes into `/opt/OpenBLAS/` by default.
+   * Compiling from source with
      `make FC=gfortran && make PREFIX=/XYZ install` installs it in that specified `/XYZ`
-     PREFIX directory, which defaults to `/opt/OpenBLAS`.
+     PREFIX directory.
    * On Sherlock, it's installed in `$PI_HOME/downloads-sherlock2/compiled/openblas`.
-     (Using an environment module for OpenBLAS only works if it's loaded at runtime.)
+     (Using an environment module to load the OpenBLAS when installing numpy and
+     scipy works if the same environment module is loaded at runtime.)
 
    To link numpy and scipy to a manually-installed OpenBLAS, create a `~/.numpy-site.cfg` file pointing to
-   it (and remember to run `pip install <packages> --no-binary numpy,scipy` in the
-   pip-install steps below)
+   it and remember to run `pip install <packages> --no-binary numpy,scipy` in the
+   pip-install steps below.
 
-   Copy these lines to `~/.numpy-site.cfg`:
+   Copy these lines to `~/.numpy-site.cfg`, adjusting the paths as needed:
 
       ```
       [openblas]
@@ -273,6 +280,12 @@ virtualenv.
          define_macros = [('HAVE_CBLAS', None)]
       ```
 
+      (NumPy's embedded OpenBLAS library is in the virtualenv's
+      `site-packages/numpy.libs/` on Linux, or
+      `site-packages/numpy/.dylibs/` on macOS, or
+      `site-packages/numpy/.libs/` on Windows.)
+
+
 1. **Required:** Add the following line to your shell profile and run it in your current shell.
 This gets more consistent results from OpenBLAS and it improves performance significantly,
 especially when called from multiple processes.
@@ -287,7 +300,7 @@ especially when called from multiple processes.
     runscripts/debug/time_libraries.sh
     ```
 
-    (It might fail some tests with AssertionError: 0.xxxxx not less than or equal to 0.4.)
+    (It might fail some timing expectations with a message like "AssertionError: 0.xxxxx not less than or equal to 0.4.")
 
 1. Test Aesara:
 
@@ -312,11 +325,12 @@ especially when called from multiple processes.
    ```shell script
    pytest
 
+   ppath
    python runscripts/manual/runParca.py
    ```
 
    If the unit tests or runParca.py fail with an error message saying the loader can't load
-   ...libpython... or an error related to 'shared objects' and needing to compile with -fPIC,
+   ...libpython... or an error related to "shared objects" and "needing to compile with -fPIC",
    that means you need to `--enable-shared` when installing python.
    Go back to that step, run
 
