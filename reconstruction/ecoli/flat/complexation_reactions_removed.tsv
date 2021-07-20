@@ -18,6 +18,7 @@
 "CPLX0-7748_RXN"	"Subunit PHOSPHO-CPXR missing from model"
 "CPLX0-7754_RXN"	"Subunit PHOSPHO-UHPA missing from model"
 "CPLX0-7795_RXN"	"Subunit PHOSPHO-KDPE missing from model"
+"CPLX0-7879_RXN"	"Consumes rpsJ and prevents formation of some ribosomes"
 "CPLX0-7885_RXN"	"Subunits MONOMER0-4195 and MONOMER0-4196 missing from model"
 "ENTMULTI-CPLX_RXN"	"Subunits ENTB-CPLX and ENTF-PANT are not proteins"
 "GCVMULTI-CPLX_RXN"	"Subunit LIPOYL-GCVH missing from model"

@@ -49,11 +49,11 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 		activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
-		plt.figure(figsize = (8.5, 15))
+		plt.figure(figsize = (8.5, 14))
 		plt.rc('font', **FONT)
 
 		for idx in range(len(proteinIds)):
-			rna_axis = plt.subplot(12, 3, idx + 1)
+			rna_axis = plt.subplot(10, 3, idx + 1)
 
 			sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', '-', 'b')
 			setAxisMaxMinY(rna_axis, rnaCounts[:, idx])
@@ -63,31 +63,31 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			setAxisMaxMinY(protein_axis, freeProteinCounts[:, idx])
 
 			# Component label
-			rna_axis.set_xlabel(proteinIds[idx][:-3])
+			rna_axis.set_title(proteinIds[idx][:-3], fontsize=8)
 
 		for idx in range(len(rRnaIds)):
-			rna_axis = plt.subplot(12, 3, idx + len(proteinIds) + 1)
+			rna_axis = plt.subplot(10, 3, idx + len(proteinIds) + 1)
 
 			sparklineAxis(rna_axis, time / 60., freeRRnaCounts[:, idx], 'left', '-', 'b')
 			setAxisMaxMinY(rna_axis, freeRRnaCounts[:, idx])
 
 			# Component label
-			rna_axis.set_xlabel(rRnaIds[idx][:-3])
+			rna_axis.set_title(rRnaIds[idx][:-3], fontsize=8)
 
 		for idx in range(len(complexIds)):
-			complex_axis = plt.subplot(12, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
+			complex_axis = plt.subplot(10, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
 
 			sparklineAxis(complex_axis, time / 60., complexCounts[:, idx], 'left', '-', 'r')
 			setAxisMaxMinY(complex_axis, complexCounts[:, idx])
 
 			# Component label
-			complex_axis.set_xlabel(complexIds[idx][:-3])
+			complex_axis.set_title(complexIds[idx][:-3], fontsize=8)
 
 		# Plot number of ribosomes
-		ribosome_axis = plt.subplot(12, 3, 1 + len(proteinIds) + len(rRnaIds) + len(complexIds) + 1)
+		ribosome_axis = plt.subplot(10, 3, len(proteinIds) + len(rRnaIds) + len(complexIds) + 1)
 		sparklineAxis(ribosome_axis, time / 60., activeRibosome, 'left', '-', 'r')
 		setAxisMaxMinY(ribosome_axis, activeRibosome)
-		ribosome_axis.set_xlabel('Active ribosome')
+		ribosome_axis.set_title('Active ribosome', fontsize=8)
 
 		# Save
 		plt.tight_layout()

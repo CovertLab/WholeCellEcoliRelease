@@ -37,14 +37,16 @@ class MoleculeGroups(object):
 			'polymerized_dntps': polymerized_dntp_ids,
 			'polymerized_subunits': polymerized_aa_ids + polymerized_ntp_ids + polymerized_dntp_ids,
 
+			# EG11508-MONOMER[c] (sra) is removed from the list because it is
+			# not essential and should have very low counts in rich media
 			's30_proteins':	['EG10912-MONOMER[c]', 'EG10916-MONOMER[c]',
 				'EG10906-MONOMER[c]', 'EG10914-MONOMER[c]', 'EG10909-MONOMER[c]',
 				'EG10903-MONOMER[c]', 'EG10911-MONOMER[c]', 'EG10904-MONOMER[c]',
 				'EG10900-MONOMER[c]', 'EG10901-MONOMER[c]', 'EG10905-MONOMER[c]',
 				'EG10915-MONOMER[c]', 'EG10918-MONOMER[c]', 'EG10919-MONOMER[c]',
-				'EG10907-MONOMER[c]', 'EG11508-MONOMER[c]', 'EG10908-MONOMER[c]',
-				'EG10920-MONOMER[c]', 'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]',
-				'EG10917-MONOMER[c]', 'EG10913-MONOMER[c]'],
+				'EG10907-MONOMER[c]', 'EG10908-MONOMER[c]', 'EG10920-MONOMER[c]',
+				'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]', 'EG10917-MONOMER[c]',
+				'EG10913-MONOMER[c]'],
 			's30_16s_rRNA': ['RRSA-RRNA[c]', 'RRSB-RRNA[c]', 'RRSC-RRNA[c]',
 				'RRSD-RRNA[c]', 'RRSE-RRNA[c]', 'RRSG-RRNA[c]', 'RRSH-RRNA[c]'],
 
@@ -93,6 +95,8 @@ class MoleculeGroups(object):
 			'RNAP_subunits': ['RPOB-MONOMER[c]', 'RPOC-MONOMER[c]',
 				'EG10893-MONOMER[c]'],
 
+			# EG11508-MONOMER[c] (sra) is removed from the list because it is
+			# not essential and should have very low counts in rich media
 			'ribosomal_proteins': ['EG10872-MONOMER[c]', 'EG10879-MONOMER[c]',
 				'EG11232-MONOMER[c]', 'EG10877-MONOMER[c]', 'EG10876-MONOMER[c]',
 				'EG10892-MONOMER[c]', 'EG10874-MONOMER[c]',	'EG50001-MONOMER[c]',
@@ -109,9 +113,9 @@ class MoleculeGroups(object):
 				'EG10903-MONOMER[c]', 'EG10911-MONOMER[c]', 'EG10904-MONOMER[c]',
 				'EG10900-MONOMER[c]', 'EG10901-MONOMER[c]', 'EG10905-MONOMER[c]',
 				'EG10915-MONOMER[c]', 'EG10918-MONOMER[c]', 'EG10919-MONOMER[c]',
-				'EG10907-MONOMER[c]', 'EG11508-MONOMER[c]', 'EG10908-MONOMER[c]',
-				'EG10906-MONOMER[c]', 'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]',
-				'EG10917-MONOMER[c]', 'EG10913-MONOMER[c]'],
+				'EG10907-MONOMER[c]', 'EG10908-MONOMER[c]', 'EG10906-MONOMER[c]',
+				'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]', 'EG10917-MONOMER[c]',
+				'EG10913-MONOMER[c]'],
 
 			'carbon_sources': ['GLC[p]', 'ACET[p]', 'SUC[p]'],
 		}

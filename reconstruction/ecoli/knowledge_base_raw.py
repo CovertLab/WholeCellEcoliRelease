@@ -21,6 +21,7 @@ LIST_OF_DICT_FILENAMES = (
 	"biomass.tsv",
 	"compartments.tsv",
 	"complexation_reactions.tsv",
+	"complexation_reactions_modified.tsv",
 	"complexation_reactions_removed.tsv",
 	"disabled_kinetic_reactions.tsv",
 	"dna_sites.tsv",
@@ -122,6 +123,7 @@ ADDED_DATA = {
 	'trna_charging_reactions': 'trna_charging_reactions_added',
 	}
 MODIFIED_DATA = {
+	'complexation_reactions': 'complexation_reactions_modified',
 	'metabolic_reactions': 'metabolic_reactions_modified',
 	}
 
