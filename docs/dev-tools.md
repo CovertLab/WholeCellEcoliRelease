@@ -251,7 +251,7 @@ shopt -s histappend
 
 ### PyCharm setup
 
-After [building the pyenv](docs/create-pyenv.md) and cloning the repo to a local directory, you can create a project in PyCharm.
+After [building the pyenv](create-pyenv.md) and cloning the repo to a local directory, you can create a project in PyCharm.
 wcEcoli has a project in source control.
 
 * **Be sure to select the project's Python interpreter so PyCharm understands the version
