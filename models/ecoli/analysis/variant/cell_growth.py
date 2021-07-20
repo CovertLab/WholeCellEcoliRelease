@@ -19,18 +19,27 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 
 
+CONTROL_LABEL = 'L-SELENOCYSTEINE'  # control because SEL is already included for uptake in minimal media
 GLC_ID = 'GLC[p]'
 FLUX_UNITS = units.mmol / units.g / units.h
 MASS_UNITS = units.fg
 GROWTH_UNITS = MASS_UNITS / units.s
+AXIS_LIMITS = [0.5, 1.5]
 
 
-def plot_validation(mean, std, labels, val_rates, val_std, val_aa_ids, label, text):
+def plot_bar(gs, x, y, ylabel, reference, bottom=True, yerr=None):
+	ax = plt.subplot(gs)
+	plt.bar(x, y, yerr=yerr)
+	if reference is not None and reference in x:
+		plt.axhline(y[x.index(reference)], linestyle='--', linewidth=0.5, color='k', alpha=0.5)
+	plt.ylabel(ylabel, fontsize=8)
+	remove_border(ax, bottom=bottom)
+
+def plot_validation(mean, std, labels, val_rates, val_std, val_aa_ids, label, text_highlight=None):
 	# Normalize simulation data by the control condition
 	rate_mapping = {label: rate for label, rate in zip(labels, mean)}
 	std_mapping = {label: std for label, std in zip(labels, std)}
-	control_label = 'L-SELENOCYSTEINE'  # control because SEL is already included for uptake in minimal media
-	wcm_control = rate_mapping.get(control_label, 1)
+	wcm_control = rate_mapping.get(CONTROL_LABEL, 1)
 	wcm_normalized_growth_rates = np.array([
 		rate_mapping.get(aa, 0) / wcm_control
 		for aa in val_aa_ids
@@ -48,9 +57,14 @@ def plot_validation(mean, std, labels, val_rates, val_std, val_aa_ids, label, te
 		xerr=val_std, yerr=wcm_normalized_std, fmt='o', alpha=0.5,
 		label=f'{label} r={r:.2f} (p={p:.2g}, n={n})')
 
-	if text:
+	if text_highlight:
 		for aa, x, y in zip(val_aa_ids, val_rates, wcm_normalized_growth_rates):
-			plt.text(x, 0.01 + y, aa, ha='center', fontsize=6)
+			color = 'r' if text_highlight.get(aa, False) else 'k'
+			if y < AXIS_LIMITS[0]:
+				y = AXIS_LIMITS[0]
+			elif y > AXIS_LIMITS[1]:
+				y = AXIS_LIMITS[1]
+			plt.text(x, 0.01 + y, aa, ha='center', fontsize=6, color=color)
 
 def remove_border(ax, bottom=False):
 	ax.spines['top'].set_visible(False)
@@ -80,6 +94,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		variant_elong_rates = []
 		variant_glc_yields = []
 		labels = []
+		reference_variant = None
 		for variant in variants:
 			lengths = []
 			growth_rates = []
@@ -99,9 +114,12 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 					# Load data
 					time = main_reader.readColumn('time')
+					time_step = main_reader.readColumn('timeStepSec')[1:]
 					cycle_length = time[-1] - time[0]
-					growth_rate = mass_reader.readColumn('instantaneous_growth_rate')[1:].mean()
-					elong_rate = ribosome_reader.readColumn('effectiveElongationRate')[1:].mean()
+					growth_rate = mass_reader.readColumn('instantaneous_growth_rate')[1:]
+					weighted_growth = growth_rate @ time_step / (time[-1] - time[1])
+					elong_rate = ribosome_reader.readColumn('effectiveElongationRate')[1:]
+					weighted_elong = elong_rate @ time_step / (time[-1] - time[1])
 					ex_molecules = fba_results.readAttribute('externalMoleculeIDs')
 					if 'GLC[p]' in ex_molecules:
 						glc_idx = ex_molecules.index(GLC_ID)
@@ -114,14 +132,15 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 						# dry_mass = MASS_UNITS * mass_reader.readColumn('dryMass')
 						# yields = units.strip_empty_units(growth / (glc_flux * glc_mw * dry_mass))
 
+						# TODO: weight this by time step like rates above while accounting for removed indices?
 						glc_yield = yields[np.isfinite(yields)].mean()
 				except Exception as e:
 					print(f'Exception reading Main/time, Mass/instantaneous_growth_rate,'
 						  f' RibosomeData/effectiveElongationRate, FBAResults/externalMoleculeIDs,'
 						  f' or FBAResults/externalExchangeFluxes: {e!r}')
 					cycle_length = 0
-					growth_rate = 0
-					elong_rate = 0
+					weighted_growth = 0
+					weighted_elong = 0
 
 				# Filter out cell cycle lengths that are too short (likely failed)
 				# TODO: better way to test for failure
@@ -131,8 +150,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				else:
 					lengths.append(cycle_length / 60)
 					count += 1
-				growth_rates.append(growth_rate)
-				elong_rates.append(elong_rate)
+				growth_rates.append(weighted_growth)
+				elong_rates.append(weighted_elong)
 				glc_yields.append(glc_yield)
 
 			variant_lengths.append(lengths)
@@ -140,10 +159,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			variant_growth_rates.append(growth_rates)
 			variant_elong_rates.append(elong_rates)
 			variant_glc_yields.append(glc_yields)
-			labels.append(aa_ids[variant][:-3])
+			label = aa_ids[variant][:-3]
+			labels.append(label)
+			if label == CONTROL_LABEL:
+				reference_variant = variant
 
 		all_lengths = np.vstack(variant_lengths)
 		mean_lengths = np.array([np.mean(row[np.isfinite(row) & (row > 0)]) for row in all_lengths])
+		std_lengths = np.array([np.std(row[np.isfinite(row) & (row > 0)]) for row in all_lengths])
 		all_growth_rates = np.vstack(variant_growth_rates) * 3600
 		mean_growth_rates = all_growth_rates.mean(axis=1)
 		std_growth_rates = all_growth_rates.std(axis=1)
@@ -173,56 +196,41 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		plt.figure(figsize=(16, 10))
 		gs = gridspec.GridSpec(5, 3)
 
-		## Bar plot of cell cycle lengths
-		ax = plt.subplot(gs[0, 0])
-		plt.bar(variants, mean_lengths)
-		plt.ylabel('Average cell cycle length (min)', fontsize=8)
-		remove_border(ax, bottom=True)
-
-		## Bar plot of growth rates
-		ax = plt.subplot(gs[1, 0])
-		plt.bar(variants, mean_growth_rates, yerr=std_growth_rates)
-		plt.ylabel('Average growth rate (1/hr)', fontsize=8)
-		remove_border(ax, bottom=True)
-
-		## Bar plot of elongation rates
-		ax = plt.subplot(gs[2, 0])
-		plt.bar(variants, mean_elong_rates, yerr=std_elong_rates)
-		plt.ylabel('Average elongation rate (AA/s)', fontsize=8)
-		remove_border(ax, bottom=True)
-
-		## Bar plot of glucose yield
-		ax = plt.subplot(gs[3, 0])
-		plt.bar(variants, mean_glc_yields, yerr=std_glc_yields)
-		plt.ylabel('Glc yield (1 / uptake)', fontsize=8)
-		remove_border(ax, bottom=True)
-
-		## Bar plot of valid simulations
-		ax = plt.subplot(gs[4, 0])
-		plt.bar(variants, variant_counts)
-		plt.ylabel('Number of variants', fontsize=8)
-		plt.xticks(variants, labels, rotation=45, fontsize=6, ha='right')
-		remove_border(ax)
+		## Bar plots of cell properties
+		plot_bar(gs[0, 0], variants, mean_lengths, 'Average cell cycle length (min)', reference_variant, yerr=std_lengths)
+		plot_bar(gs[1, 0], variants, mean_growth_rates, 'Average growth rate (1/hr)', reference_variant, yerr=std_growth_rates)
+		plot_bar(gs[2, 0], variants, mean_elong_rates, 'Average elongation rate (AA/s)', reference_variant, yerr=std_elong_rates)
+		plot_bar(gs[3, 0], variants, mean_glc_yields, 'Glc yield (1 / uptake)', reference_variant, yerr=std_glc_yields)
+		plot_bar(gs[4, 0], variants, variant_counts, 'Number of variants', reference_variant, bottom=False)
+		xlabels = np.array(labels)
+		xlabels[xlabels == CONTROL_LABEL] = 'Control'
+		plt.xticks(variants, xlabels, rotation=45, fontsize=6, ha='right')
 
 		## Validation comparison for each amino acid addition
 		if metadata.get('variant', '') == 'add_one_aa':
 			ax = plt.subplot(gs[:, 1:])
+			highlight = {
+				label: count != max(variant_counts)
+				for label, count in zip(labels, variant_counts)
+				}  # Highlight failed variants
 
 			# Plot datasets to compare against validation
 			plot_validation(mean_growth_rates, std_growth_rates, labels,
 				val_normalized_growth_rates, val_normalized_std, val_aa_ids,
-				'Growth rate', text=True)
+				'Growth rate', text_highlight=highlight)
 			plot_validation(mean_elong_rates, std_elong_rates, labels,
 				val_normalized_growth_rates, val_normalized_std, val_aa_ids,
-				'Elong rate', text=False)
+				'Elong rate')
 			plot_validation(mean_glc_yields, std_glc_yields, labels,
 				val_normalized_growth_rates, val_normalized_std, val_aa_ids,
-				'Glc yield', text=False)
+				'Glc yield')
 
 			# Plot formatting
 			plt.legend(fontsize=8)
 			remove_border(ax)
 			ax.tick_params(axis='x', labelsize=6)
+			ax.axhline(1, linestyle='--', linewidth=0.5, color='k', alpha=0.5)
+			ax.axvline(1, linestyle='--', linewidth=0.5, color='k', alpha=0.5)
 			plt.xlabel('Validation growth rate\n(Normalized to minimal media)')
 			plt.ylabel('Simulation data\n(Normalized to minimal media)')
 
@@ -232,6 +240,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			min_rate = min(x_min, y_min)
 			max_rate = max(x_max, y_max)
 			plt.plot([min_rate, max_rate], [min_rate, max_rate], '--k')
+
+			# Limit axes to reasonable range
+			plt.xlim(AXIS_LIMITS)
+			plt.ylim(AXIS_LIMITS)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
