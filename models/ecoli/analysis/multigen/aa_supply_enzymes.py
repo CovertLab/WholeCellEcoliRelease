@@ -40,9 +40,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		cell_paths = ap.get_cells()
 
 		# Load data
-		times = read_stacked_columns(cell_paths, 'Main', 'time') / 60
-		counts_to_mol = (CONC_UNITS * read_stacked_columns(cell_paths, 'EnzymeKinetics', 'countsToMolar')).asNumber(PLOT_UNITS)
-		enzyme_counts = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_supply_enzymes')
+		times = read_stacked_columns(cell_paths, 'Main', 'time', remove_first=True) / 60
+		counts_to_mol = (CONC_UNITS * read_stacked_columns(
+			cell_paths, 'EnzymeKinetics', 'countsToMolar', remove_first=True)).asNumber(PLOT_UNITS)
+		enzyme_counts = read_stacked_columns(
+			cell_paths, 'GrowthLimits', 'aa_supply_enzymes', remove_first=True)
 
 		# Calculate derived quantities
 		start = times[0, 0]
@@ -61,8 +63,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			row = i // cols
 			col = i % cols
 			ax = plt.subplot(gs[row, col])
+			mean = sim.mean()
 
 			ax.plot(times, sim, label='Simulation')
+			ax.plot([start, end], [mean, mean], 'k--', linewidth=1, label='Simulation, mean')
 			ax.plot([start, end], [with_aa, with_aa], 'r--', linewidth=1, label='Expected, with AA')
 			ax.plot([start, end], [basal, basal], 'g--', linewidth=1, label='Expected, basal')
 
