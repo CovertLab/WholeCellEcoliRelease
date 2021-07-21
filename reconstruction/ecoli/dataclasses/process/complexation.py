@@ -178,9 +178,8 @@ class Complexation(object):
 	def _findRow(self, product, speciesList):
 		try:
 			row = speciesList.index(product)
-		except ValueError as e:
-			raise MoleculeNotFoundError(
-				"Could not find %s in the list of molecules." % (product,), e)
+		except ValueError:
+			row = -1  # Flag if not found so not a complex
 		return row
 
 	def _findColumn(self, stoichMatrixRow):
@@ -191,6 +190,9 @@ class Complexation(object):
 
 	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList):
 		row = self._findRow(product, speciesList)
+		if row == -1:
+			return {product: 1.0}
+
 		col = self._findColumn(stoichMatrix[row, :])
 		if col == -1:
 			return {product: 1.0}

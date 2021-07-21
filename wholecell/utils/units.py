@@ -171,3 +171,6 @@ def strip_empty_units(value):
 		value.checkNoUnit()
 		value = value.asNumber()
 	return value
+
+def isnan(value):
+	return np.isnan(value._value) if hasUnit(value) else np.isnan(value)

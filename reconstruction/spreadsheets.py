@@ -186,13 +186,19 @@ class JsonReader(object):
 
 				# Units do not work with empty values
 				if value != '':
-					# Units do not work with lists so need to convert to ndarray
-					if isinstance(value, list):
-						value_with_units = value_units * np.array(value)
+					if isinstance(value, dict):
+						# Apply units to each dictionary value
+						for k, v in value.items():
+							value[k] = value_units * v
+							value[k].normalize()
 					else:
-						value_with_units = value_units * value
-					# Normalize to catch any unit issues now instead of later
-					value = value_with_units.normalize()
+						# Units do not work with lists so need to convert to ndarray
+						if isinstance(value, list):
+							value_with_units = value_units * np.array(value)
+						else:
+							value_with_units = value_units * value
+						# Normalize to catch any unit issues now instead of later
+						value = value_with_units.normalize()
 
 				attributeDict[attribute] = value
 			else:
