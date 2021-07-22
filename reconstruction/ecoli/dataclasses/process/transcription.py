@@ -929,28 +929,26 @@ class Transcription(object):
 		# Adjustments for TFs
 		tf_adjustments = {}
 		delta_prob = sim_data.process.transcription_regulation.get_delta_prob_matrix()
+		adjusted_mask = self.rna_data['is_RNAP'] | self.rna_data['is_ribosomal_protein'] | self.rna_data['is_rRNA']
 		for condition in ['with_aa', 'basal', 'no_oxygen']:
 			p_promoter_bound = np.array([
 				sim_data.pPromoterBound[condition][tf]
 				for tf in sim_data.process.transcription_regulation.tf_ids
 				])
 			delta = delta_prob @ p_promoter_bound
-			# TODO(jerry): Handle the NaN or Infinity values from this line then
-			#  use `with np.errstate(invalid='ignore'):` to suppress its warnings.
-			tf_adjustments[condition] = delta / sim_data.process.transcription.rna_synth_prob[condition]
+			tf_adjustments[condition] = delta[adjusted_mask] / sim_data.process.transcription.rna_synth_prob[condition][adjusted_mask]
 
 		# Solve least squares fit for expression of each component of RNAP and ribosomes
 		self._normalize_ppgpp_expression()  # Need to normalize first to get correct scale
-		adjusted_mask = self.rna_data['is_RNAP'] | self.rna_data['is_ribosomal_protein'] | self.rna_data['is_rRNA']
 		F = np.array([[1- f_ppgpp_aa, f_ppgpp_aa], [1 - f_ppgpp_basal, f_ppgpp_basal], [1 - f_ppgpp_anaerobic, f_ppgpp_anaerobic]])
 		Flst = np.linalg.inv(F.T.dot(F)).dot(F.T)
 		expression = np.array([
-			self.rna_expression['with_aa'] * (1 - tf_adjustments['with_aa']),
-			self.rna_expression['basal'] * (1 - tf_adjustments['basal']),
-			self.rna_expression['no_oxygen'] * (1 - tf_adjustments['no_oxygen'])])
+			self.rna_expression['with_aa'][adjusted_mask] * np.fmax(0, 1 - tf_adjustments['with_aa']),
+			self.rna_expression['basal'][adjusted_mask] * np.fmax(0, 1 - tf_adjustments['basal']),
+			self.rna_expression['no_oxygen'][adjusted_mask] * np.fmax(0, 1 - tf_adjustments['no_oxygen'])])
 		adjusted_free, adjusted_ppgpp = Flst.dot(expression)
-		self.exp_free[adjusted_mask] = adjusted_free[adjusted_mask]
-		self.exp_ppgpp[adjusted_mask] = adjusted_ppgpp[adjusted_mask]
+		self.exp_free[adjusted_mask] = adjusted_free
+		self.exp_ppgpp[adjusted_mask] = adjusted_ppgpp
 		self._normalize_ppgpp_expression()
 
 	def adjust_ppgpp_expression_for_tfs(self, sim_data):
@@ -1002,6 +1000,8 @@ class Transcription(object):
 		Normalize both free and ppGpp bound expression values to 1.
 		"""
 
+		self.exp_free[self.exp_free < 0] = 0
+		self.exp_ppgpp[self.exp_ppgpp < 0] = 0
 		self.exp_free /= self.exp_free.sum()
 		self.exp_ppgpp /= self.exp_ppgpp.sum()
 

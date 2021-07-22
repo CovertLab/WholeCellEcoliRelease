@@ -4,3 +4,8 @@
 "leuO"	"bglJ"	"Remove feedback loop between bglJ <-> leuO"
 "fnr"	"arcA"	"Remove to get expression of arcA"
 "leuO"	"leuA"	"Remove for more steady expression of LeuA - need better control of LeuO expression"
+"lrp"	"rplR"	"Remove to increase ribosome counts in with amino acid conditions when simulating with ppGpp"
+"argR"	"rpsO"	"Remove to increase ribosome counts in with amino acid conditions when simulating with ppGpp"
+"crp"	"rpsO"	"Remove to increase ribosome counts in with amino acid conditions when simulating with ppGpp"
+"fis"	"rpsO"	"Remove to increase ribosome counts in with amino acid conditions when simulating with ppGpp"
+"fis"	"gltX"	"Remove to get higher charging in with amino acid conditions when simulating with ppGpp"
