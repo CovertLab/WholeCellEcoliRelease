@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from wholecell.utils import units
-from six.moves import range, zip
+from wholecell.utils.mc_complexation import mccBuildMatrices
 
 
 class ComplexationError(Exception):
@@ -96,6 +96,9 @@ class Complexation(object):
 		balanceMatrix = self.stoich_matrix() * self.mass_matrix()
 		massBalanceArray = np.sum(balanceMatrix, axis=0)
 		assert np.max(np.absolute(massBalanceArray)) < 1e-8  # had to bump this up to 1e-8 because of flagella supercomplex
+
+		stoichMatrix = self.stoich_matrix().astype(np.int64, order='F')
+		self.prebuilt_matrices = mccBuildMatrices(stoichMatrix)
 
 	def stoich_matrix(self):
 		"""

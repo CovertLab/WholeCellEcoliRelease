@@ -13,7 +13,7 @@ import six
 
 from wholecell.utils import units
 
-from  models.ecoli.sim.initial_conditions import determine_chromosome_state
+from reconstruction.ecoli.initialization import determine_chromosome_state
 
 
 N_MAX_REPLISOMES = 1000  # Chosen to be big enough to have no effect
