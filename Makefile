@@ -8,7 +8,7 @@ compile:
 #  write_ode_file.py in Parca code.
 # Fireworks writes launcher_20* and block_20*.
 clean:
-	rm -fr fixtures
+	rm -fr fixtures cache
 	(cd reconstruction/ecoli/dataclasses/process && rm -f equilibrium_odes.py two_component_system_odes*.py)
 	find . -name "*.pyc" -exec rm -rf {} \;
 	find . -name "*.o" -exec rm -fr {} \;

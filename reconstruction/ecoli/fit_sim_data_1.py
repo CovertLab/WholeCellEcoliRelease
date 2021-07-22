@@ -5,8 +5,7 @@ TODO: establish a controlled language for function behaviors (i.e. create* set* 
 TODO: functionalize so that values are not both set and returned from some methods
 """
 
-from __future__ import absolute_import, division, print_function
-
+import binascii
 import functools
 import itertools
 import os
@@ -26,7 +25,6 @@ from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils import filepath, parallelization, units
 from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
-from wholecell.utils import parallelization
 
 
 # Fitting parameters
@@ -3176,6 +3174,13 @@ def calculateRnapRecruitment(sim_data, cell_specs):
 		}
 
 
+def crc32(arr: np.ndarray) -> int:
+	"""Return a CRC32 checksum of an ndarray."""
+	shape = str(arr.shape).encode()
+	values = arr.tobytes()
+	return binascii.crc32(shape + values)
+
+
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	"""
 	Fits the affinities (Michaelis-Menten constants) for RNAs binding to endoRNAses.
@@ -3324,13 +3329,12 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 				alpha
 			)
 
+	# The checksum in the filename picks independent caches for distinct cases
+	# such as different Parca options or Parca code in different git branches.
+	# `make clean` will delete the cache files.
 	needToUpdate = False
-	fixturesDir = filepath.makedirs(filepath.ROOT_PATH, "fixtures", "endo_km")
-	# Numpy 'U' fields make these files incompatible with older code, so change
-	# the filename. No need to make files compatible between Python 2 & 3; we'd
-	# have to set the same protocol version and set Python 3-only args like
-	# encoding='latin1'.
-	km_filepath = os.path.join(fixturesDir, 'km{}.cPickle'.format(sys.version_info[0]))
+	cache_dir = filepath.makedirs(filepath.ROOT_PATH, "cache")
+	km_filepath = os.path.join(cache_dir, f'parca-km-{crc32(Kmcounts)}.cPickle')
 
 	if os.path.exists(km_filepath):
 		with open(km_filepath, "rb") as f:
