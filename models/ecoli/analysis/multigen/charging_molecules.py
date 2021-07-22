@@ -70,7 +70,7 @@ def post_plot_formatting(ax, division_times, y_label, draw_horizontal=None, y_li
 		ax.set_xticks([0, division_times[-1]])
 
 	if draw_horizontal is not None:
-		ax.axhline(draw_horizontal, color='k', linestyle='--', linewidth=1)
+		ax.axhline(draw_horizontal, color='k', linestyle='--', linewidth=0.5, alpha=0.8)
 		ax.set_yticks(np.hstack((ax.get_yticks(), draw_horizontal)))
 
 	str_format = FormatStrFormatter('%.3g')
@@ -125,6 +125,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		initial_charged_trna_counts = None
 		initial_ppgpp_protein_counts = None
 		division_times = []
+		total_elong = 0.
+		total_growth = 0.
 		total_ppgpp = 0.
 		timesteps = 0.
 		for sim_dir in ap.get_cells():
@@ -145,6 +147,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			(synthetase_counts, uncharged_trna_counts, charged_trna_counts, ppgpp_mol_counts
 				) = read_bulk_molecule_counts(simOutDir,
 				(synthetase_names, uncharged_trna_names, charged_trna_names, ppgpp_molecules))
+
+			## Running totals for elongation and growth
+			total_elong += elong_rate.sum()
+			total_growth += np.nansum(growth_rate)
 
 			## Synthetase counts
 			synthetase_counts = np.dot(synthetase_counts, aa_from_synthetase)
@@ -187,11 +193,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			plot_ax(uncharged_trna_ax, time, np.log2(normalized_uncharged_trna_counts))
 			plot_ax(charged_trna_ax, time, np.log2(normalized_charged_trna_counts))
 
+		elong_mean = total_elong / timesteps
+		growth_mean = total_growth / timesteps
 		ppgpp_mean = total_ppgpp / timesteps
 
 		# Format plot axes
-		post_plot_formatting(growth_ax, division_times, 'Ribosome\nElongation Rate', y_lim=[0, 22])
-		post_plot_formatting(growth_ax2, division_times, 'Growth Rate\n(1/hr)', y_lim=0, secondary=True)
+		post_plot_formatting(growth_ax, division_times, 'Ribosome\nElongation Rate', y_lim=[0, 22], draw_horizontal=elong_mean)
+		post_plot_formatting(growth_ax2, division_times, 'Growth Rate\n(1/hr)', y_lim=0, draw_horizontal=growth_mean, secondary=True)
 		post_plot_formatting(spot_ax, division_times, 'SpoT\nFold Change', draw_horizontal=0)
 		post_plot_formatting(rela_ax, division_times, 'RelA\nFold Change', draw_horizontal=0, secondary=True)
 		post_plot_formatting(ppgpp_ax, division_times, 'ppGpp Conc\n(uM)', y_lim=0, draw_horizontal=ppgpp_mean)
