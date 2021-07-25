@@ -9,7 +9,6 @@ import binascii
 import functools
 import itertools
 import os
-import sys
 import time
 import traceback
 from typing import Callable, List
@@ -18,6 +17,7 @@ from arrow import StochasticSystem
 from cvxpy import Variable, Problem, Minimize, norm
 import numpy as np
 import scipy.optimize
+import scipy.sparse
 import six
 from six.moves import cPickle, range, zip
 
@@ -3174,11 +3174,14 @@ def calculateRnapRecruitment(sim_data, cell_specs):
 		}
 
 
-def crc32(arr: np.ndarray) -> int:
-	"""Return a CRC32 checksum of an ndarray."""
-	shape = str(arr.shape).encode()
-	values = arr.tobytes()
-	return binascii.crc32(shape + values)
+def crc32(*arrays: np.ndarray, initial: int = 0) -> int:
+	"""Return a CRC32 checksum of the given ndarrays."""
+	def crc_next(initial: int, array: np.ndarray) -> int:
+		shape = str(array.shape).encode()
+		values = array.tobytes()
+		return binascii.crc32(values, binascii.crc32(shape, initial))
+
+	return functools.reduce(crc_next, arrays, initial)
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
@@ -3279,17 +3282,19 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	if sim_data.constants.sensitivity_analysis_alpha:
 		Alphas = [0.0001, 0.001, 0.01, 0.1, 1, 10]
 
-	for alpha in Alphas:
+	total_endo_rnase_capacity_mol_l_s = totalEndoRnaseCapacity.asNumber(units.mol / units.L / units.s)
+	rna_conc_mol_l = (countsToMolar * rnaCounts).asNumber(units.mol / units.L)
+	degredation_rates_s = degradationRates.asNumber(1 / units.s)
 
+	for alpha in Alphas:
 		if VERBOSE: print('Alpha = %f' % alpha)
 
 		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.km_loss_function(
-				totalEndoRnaseCapacity.asNumber(units.mol / units.L / units.s),
-				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
-				degradationRates.asNumber(1 / units.s),
+				total_endo_rnase_capacity_mol_l_s,
+				rna_conc_mol_l,
+				degredation_rates_s,
 				isEndoRnase,
-				alpha
-			)
+				alpha)
 		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
 		sim_data.process.rna_decay.sensitivity_analysis_alpha_residual[alpha] = np.sum(np.abs(R_aux(KmCooperativeModel)))
 		sim_data.process.rna_decay.sensitivity_analysis_alpha_regulari_neg[alpha] = np.sum(np.abs(Rneg(KmCooperativeModel)))
@@ -3308,11 +3313,10 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		totalEndoRNcap = units.sum(endoRNaseConc * kcat)
 		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.km_loss_function(
 				totalEndoRNcap.asNumber(units.mol / units.L),
-				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
-				degradationRates.asNumber(1 / units.s),
+				rna_conc_mol_l,
+				degredation_rates_s,
 				isEndoRnase,
-				alpha
-			)
+				alpha)
 		KmcountsIni = (( totalEndoRNcap / degradationRates.asNumber() ) - rnaConc).asNumber()
 		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, KmcountsIni, fprime = LossFunctionP)
 		sim_data.process.rna_decay.sensitivity_analysis_kcat[kcat] = KmCooperativeModel
@@ -3322,19 +3326,19 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 	# Loss function, and derivative
 	LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.km_loss_function(
-				totalEndoRnaseCapacity.asNumber(units.mol / units.L / units.s),
-				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
-				degradationRates.asNumber(1 / units.s),
-				isEndoRnase,
-				alpha
-			)
+			total_endo_rnase_capacity_mol_l_s,
+			rna_conc_mol_l,
+			degredation_rates_s,
+			isEndoRnase,
+			alpha)
 
 	# The checksum in the filename picks independent caches for distinct cases
 	# such as different Parca options or Parca code in different git branches.
 	# `make clean` will delete the cache files.
 	needToUpdate = False
 	cache_dir = filepath.makedirs(filepath.ROOT_PATH, "cache")
-	km_filepath = os.path.join(cache_dir, f'parca-km-{crc32(Kmcounts)}.cPickle')
+	checksum = crc32(Kmcounts, isEndoRnase, np.array(alpha))
+	km_filepath = os.path.join(cache_dir, f'parca-km-{checksum}.cPickle')
 
 	if os.path.exists(km_filepath):
 		with open(km_filepath, "rb") as f:
