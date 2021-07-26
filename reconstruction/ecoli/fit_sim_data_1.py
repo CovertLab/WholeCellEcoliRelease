@@ -2615,6 +2615,18 @@ def fitPromoterBoundProbability(sim_data, cell_specs):
 				pInitI.append(H_col_name_to_index[col_name])
 				pInitV.append(1.)
 
+		# Save indices to update promoter binding for active TFs in combined conditions
+		for condition, tfs in sim_data.condition_active_tfs.items():
+			for tf in tfs:
+				col_name = f'{tf}__{tf}__active'
+				pPromoterBoundIdxs[condition][tf] = H_col_name_to_index[col_name]
+
+		# Save indices to update promoter binding for inactive TFs in combined conditions
+		for condition, tfs in sim_data.condition_inactive_tfs.items():
+			for tf in tfs:
+				col_name = f'{tf}__{tf}__inactive'
+				pPromoterBoundIdxs[condition][tf] = H_col_name_to_index[col_name]
+
 		# Build vector pInit and matrix H
 		pInit = np.zeros(len(set(pInitI)))
 		pInit[pInitI] = pInitV
