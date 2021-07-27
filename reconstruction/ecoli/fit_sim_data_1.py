@@ -3239,6 +3239,9 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	TODO (John): Determine what part (if any) of the 'linear' parameter fitting should be retained.
 	"""
 
+	def arrays_differ(a: np.ndarray, b: np.ndarray) -> bool:
+		return a.shape != b.shape or not np.allclose(a, b, equal_nan=True)
+
 	cellDensity = sim_data.constants.cell_density
 	cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
 	countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
@@ -3335,24 +3338,30 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	# The checksum in the filename picks independent caches for distinct cases
 	# such as different Parca options or Parca code in different git branches.
 	# `make clean` will delete the cache files.
-	needToUpdate = False
+	needToUpdate = ''
 	cache_dir = filepath.makedirs(filepath.ROOT_PATH, "cache")
 	checksum = crc32(Kmcounts, isEndoRnase, np.array(alpha))
 	km_filepath = os.path.join(cache_dir, f'parca-km-{checksum}.cPickle')
 
 	if os.path.exists(km_filepath):
 		with open(km_filepath, "rb") as f:
-			KmcountsCached = cPickle.load(f)
+			KmCache = cPickle.load(f)
 
-		# KmcountsCached fits a set of Km values to give the expected degradation rates.
+		# KmCooperativeModel fits a set of Km values to give the expected degradation rates.
 		# It takes 1.5 - 3 minutes to recompute.
 		# R_aux calculates the difference of the degradation rate based on these
-		# Km values and the expected rate so this sum seems like a reliable test of
-		# whether the cache fits current input data.
-		if Kmcounts.shape != KmcountsCached.shape or np.sum(np.abs(R_aux(KmcountsCached))) > 1e-15:
-			needToUpdate = True
+		# Km values and the expected rate so this sum seems like a good test of
+		# whether the cache fits current input data, but cross-check additional
+		# inputs to avoid Issue #996.
+		KmCooperativeModel = KmCache['KmCooperativeModel']
+		if (Kmcounts.shape != KmCooperativeModel.shape
+				or np.sum(np.abs(R_aux(KmCooperativeModel))) > 1e-15
+				or arrays_differ(KmCache['total_endo_rnase_capacity_mol_l_s'], total_endo_rnase_capacity_mol_l_s)
+				or arrays_differ(KmCache['rna_conc_mol_l'], rna_conc_mol_l)
+				or arrays_differ(KmCache['degredation_rates_s'], degredation_rates_s)):
+			needToUpdate = 'recompute'
 	else:
-		needToUpdate = True
+		needToUpdate = 'compute'
 
 
 	if needToUpdate:
@@ -3363,15 +3372,19 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
 		Kmcounts = (( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc).asNumber()
 
-		if VERBOSE: print("Running non-linear optimization")
+		if VERBOSE: print(f'Running non-linear optimization to {needToUpdate} {km_filepath}')
 		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
+		KmCache = dict(
+			KmCooperativeModel=KmCooperativeModel,
+			total_endo_rnase_capacity_mol_l_s=total_endo_rnase_capacity_mol_l_s,
+			rna_conc_mol_l=rna_conc_mol_l,
+			degredation_rates_s=degredation_rates_s)
 
 		with open(km_filepath, "wb") as f:
-			cPickle.dump(KmCooperativeModel, f, protocol=cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(KmCache, f, protocol=cPickle.HIGHEST_PROTOCOL)
 	else:
 		if VERBOSE:
 			print("Not running non-linear optimization--using cached result {}".format(km_filepath))
-		KmCooperativeModel = KmcountsCached
 
 	if VERBOSE > 1:
 		print("Loss function (Km inital) = %f" % np.sum(np.abs(LossFunction(Kmcounts))))
