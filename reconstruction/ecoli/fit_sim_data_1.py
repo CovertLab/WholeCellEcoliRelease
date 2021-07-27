@@ -3287,7 +3287,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 	total_endo_rnase_capacity_mol_l_s = totalEndoRnaseCapacity.asNumber(units.mol / units.L / units.s)
 	rna_conc_mol_l = (countsToMolar * rnaCounts).asNumber(units.mol / units.L)
-	degredation_rates_s = degradationRates.asNumber(1 / units.s)
+	degradation_rates_s = degradationRates.asNumber(1 / units.s)
 
 	for alpha in Alphas:
 		if VERBOSE: print('Alpha = %f' % alpha)
@@ -3295,7 +3295,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.km_loss_function(
 				total_endo_rnase_capacity_mol_l_s,
 				rna_conc_mol_l,
-				degredation_rates_s,
+				degradation_rates_s,
 				isEndoRnase,
 				alpha)
 		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
@@ -3317,7 +3317,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.km_loss_function(
 				totalEndoRNcap.asNumber(units.mol / units.L),
 				rna_conc_mol_l,
-				degredation_rates_s,
+				degradation_rates_s,
 				isEndoRnase,
 				alpha)
 		KmcountsIni = (( totalEndoRNcap / degradationRates.asNumber() ) - rnaConc).asNumber()
@@ -3331,7 +3331,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.km_loss_function(
 			total_endo_rnase_capacity_mol_l_s,
 			rna_conc_mol_l,
-			degredation_rates_s,
+			degradation_rates_s,
 			isEndoRnase,
 			alpha)
 
@@ -3358,7 +3358,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 				or np.sum(np.abs(R_aux(KmCooperativeModel))) > 1e-15
 				or arrays_differ(KmCache['total_endo_rnase_capacity_mol_l_s'], total_endo_rnase_capacity_mol_l_s)
 				or arrays_differ(KmCache['rna_conc_mol_l'], rna_conc_mol_l)
-				or arrays_differ(KmCache['degredation_rates_s'], degredation_rates_s)):
+				or arrays_differ(KmCache['degradation_rates_s'], degradation_rates_s)):
 			needToUpdate = 'recompute'
 	else:
 		needToUpdate = 'compute'
@@ -3378,7 +3378,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 			KmCooperativeModel=KmCooperativeModel,
 			total_endo_rnase_capacity_mol_l_s=total_endo_rnase_capacity_mol_l_s,
 			rna_conc_mol_l=rna_conc_mol_l,
-			degredation_rates_s=degredation_rates_s)
+			degradation_rates_s=degradation_rates_s)
 
 		with open(km_filepath, "wb") as f:
 			cPickle.dump(KmCache, f, protocol=cPickle.HIGHEST_PROTOCOL)
