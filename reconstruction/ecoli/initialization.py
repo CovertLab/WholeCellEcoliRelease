@@ -60,7 +60,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, r
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
-		superhelical_density, trna_attenuation):
+		superhelical_density, ppgpp_regulation, trna_attenuation):
 	# Initialize counts of full chromosomes
 	initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data)
 
@@ -71,7 +71,7 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 	# Initialize active RNAPs and unique molecule representations of RNAs
-	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState, trna_attenuation)
+	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState, ppgpp_regulation, trna_attenuation)
 
 	# Initialize linking numbers of chromosomal segments
 	if superhelical_density:
@@ -112,7 +112,12 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 		rnaExpression = transcription.rna_expression[sim_data.condition]
 
 	if trna_attenuation:
-		rnaExpression[transcription.attenuated_rna_indices] *= transcription.attenuation_readthrough[sim_data.condition]
+		# Need to adjust expression (calculated without attenuation) by basal_adjustment
+		# to get the expected expression without any attenuation and then multiply
+		# by the condition readthrough probability to get the condition specific expression
+		readthrough = transcription.attenuation_readthrough[sim_data.condition]
+		basal_adjustment = transcription.attenuation_readthrough['basal']
+		rnaExpression[transcription.attenuated_rna_indices] *= readthrough / basal_adjustment
 
 	monomerExpression = normalize(
 		rnaExpression[sim_data.relation.RNA_to_monomer_mapping] *
@@ -151,7 +156,12 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulatio
 		rnaExpression = normalize(transcription.rna_expression[sim_data.condition])
 
 	if trna_attenuation:
-		rnaExpression[transcription.attenuated_rna_indices] *= transcription.attenuation_readthrough[sim_data.condition]
+		# Need to adjust expression (calculated without attenuation) by basal_adjustment
+		# to get the expected expression without any attenuation and then multiply
+		# by the condition readthrough probability to get the condition specific expression
+		readthrough = transcription.attenuation_readthrough[sim_data.condition]
+		basal_adjustment = transcription.attenuation_readthrough['basal']
+		rnaExpression[transcription.attenuated_rna_indices] *= readthrough / basal_adjustment
 		rnaExpression /= rnaExpression.sum()
 
 	nRnas = countsFromMassAndExpression(
@@ -570,7 +580,7 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 
 
 def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
-		trna_attenuation=False):
+		ppgpp_regulation, trna_attenuation):
 	"""
 	Activate RNA polymerases as unique molecules, and distribute them along
 	length of genes, while decreasing counts of unactivated RNA polymerases
@@ -600,11 +610,11 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	n_RNAPs_to_activate = np.int64(fracActiveRnap * inactive_RNAP_counts)
 
 	# Parameters for rnaSynthProb
-	basal_prob = sim_data.process.transcription_regulation.basal_prob
+	basal_prob = sim_data.process.transcription_regulation.basal_prob.copy()
 	if trna_attenuation:
 		basal_prob[sim_data.process.transcription.attenuated_rna_indices] += sim_data.process.transcription.attenuation_basal_prob_adjustments
 	n_TUs = len(basal_prob)
-	delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True)
+	delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True, ppgpp=ppgpp_regulation)
 
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection("promoter")

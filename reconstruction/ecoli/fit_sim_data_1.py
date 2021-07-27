@@ -39,7 +39,7 @@ PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
 PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
 PROMOTER_MAX_ITERATIONS = 100
 PROMOTER_CONVERGENCE_THRESHOLD = 1e-9
-ECOS_0_TOLERANCE = 1e-12  # Tolerance to adjust solver output to 0
+ECOS_0_TOLERANCE = 1e-10  # Tolerance to adjust solver output to 0
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 

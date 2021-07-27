@@ -33,6 +33,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(TranscriptInitiation, self).initialize(sim, sim_data)
 
+		# Sim options
+		self.trna_attenuation = sim._trna_attenuation
+		self.ppgpp_regulation = sim._ppgpp_regulation
+
 		# Load parameters
 		self.fracActiveRnapDict = sim_data.process.transcription.rnapFractionActiveDict
 		self.rnaLengths = sim_data.process.transcription.rna_data["length"]
@@ -42,13 +46,13 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Initialize matrices used to calculate synthesis probabilities
 		self.basal_prob = sim_data.process.transcription_regulation.basal_prob.copy()
-		self.trna_attenuation = sim._trna_attenuation
 		if self.trna_attenuation:
 			self.attenuated_rna_indices = sim_data.process.transcription.attenuated_rna_indices
 			self.attenuation_adjustments = sim_data.process.transcription.attenuation_basal_prob_adjustments
 			self.basal_prob[self.attenuated_rna_indices] += self.attenuation_adjustments
 		self.n_TUs = len(self.basal_prob)
-		self.delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True)
+		self.delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(
+			dense=True, ppgpp=self.ppgpp_regulation)
 
 		# Determine changes from genetic perturbations
 		self.genetic_perturbations = {}
@@ -103,7 +107,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.ppgpp = self.bulkMoleculeView(sim_data.molecule_ids.ppGpp)
 		self.synth_prob = sim_data.process.transcription.synth_prob_from_ppgpp
 		self.copy_number = sim_data.process.replication.get_average_copy_number
-		self.ppgpp_regulation = sim._ppgpp_regulation
 
 
 	def calculateRequest(self):

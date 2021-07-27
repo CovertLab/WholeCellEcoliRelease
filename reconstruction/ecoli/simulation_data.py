@@ -266,7 +266,7 @@ class SimulationDataEcoli(object):
 
 		ppgpp = self.growth_rate_parameters.get_ppGpp_conc(
 			self.condition_to_doubling_time[condition])
-		delta_prob = self.process.transcription_regulation.get_delta_prob_matrix()
+		delta_prob = self.process.transcription_regulation.get_delta_prob_matrix(ppgpp=True)
 		p_promoter_bound = np.array([
 			self.pPromoterBound[condition][tf]
 			for tf in self.process.transcription_regulation.tf_ids

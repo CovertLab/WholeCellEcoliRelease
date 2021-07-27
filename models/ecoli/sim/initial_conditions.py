@@ -30,7 +30,7 @@ def calcInitialConditions(sim, sim_data):
 	init.initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules,
 		randomState, massCoeff, sim._ppgpp_regulation, sim._trna_attenuation)
 	init.initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data,
-		randomState, sim._superhelical_density, sim._trna_attenuation)
+		randomState, sim._superhelical_density, sim._ppgpp_regulation, sim._trna_attenuation)
 
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume

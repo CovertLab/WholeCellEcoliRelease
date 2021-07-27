@@ -20,6 +20,7 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
 from reconstruction.ecoli.dataclasses.getter_functions import UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS
+from reconstruction.ecoli.initialization import create_bulk_container
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 # NOTE: Importing SimulationDataEcoli would make a circular reference so use Any.
 #from reconstruction.ecoli.simulation_data import SimulationDataEcoli
@@ -737,10 +738,12 @@ class Metabolism(object):
 			raise RuntimeError('Could not determine amino acid order to calculate dependencies first.'
 				' Make sure there are no cyclical pathways for amino acids that can degrade.')
 
+		basal_container = create_bulk_container(sim_data, n_seeds=5)
+		with_aa_container = create_bulk_container(sim_data, condition='with_aa', n_seeds=5)
 		for amino_acid in ordered_aa_ids:
 			data = self.aa_synthesis_pathways[amino_acid]
 			enzymes = data['enzymes']
-			enzyme_counts = cell_specs['basal']['bulkAverageContainer'].counts(enzymes).sum()
+			enzyme_counts = basal_container.counts(enzymes).sum()
 
 			aa_conc = minimal_conc[amino_acid]
 			if data['ki'] is None:
@@ -820,7 +823,6 @@ class Metabolism(object):
 		# TODO: better way of handling this that is efficient computationally
 		self.aa_to_index = aa_to_index
 		self.aa_upstream_aas = [upstream_aas_for_km[aa] for aa in aa_ids]
-		# self.aa_upstream_mapping = np.array([aa_to_index[aa] for aa in upstream_aas_for_km])
 
 		# Convert enzyme counts to an amino acid basis via dot product (counts @ self.enzyme_to_amino_acid)
 		self.enzyme_to_amino_acid = np.zeros((len(self.aa_enzymes), len(aa_ids)))
@@ -851,33 +853,11 @@ class Metabolism(object):
 			aa: rate
 			for aa, rate in zip(sim_data.molecule_groups.amino_acids, with_aa_rates)
 			}
-		enzyme_counts = cell_specs['with_aa']['bulkAverageContainer'].counts(self.aa_enzymes)
+		enzyme_counts = with_aa_container.counts(self.aa_enzymes)
 		aa_conc = units.mol / units.L * np.array([
 			conc('minimal_plus_amino_acids')[aa].asNumber(units.mol/units.L)
 			for aa in aa_ids
 			])
-		basal_conc = units.mol / units.L * np.array([
-			conc('minimal')[aa].asNumber(units.mol/units.L)
-			for aa in aa_ids
-			])
-
-		# Use approximate adjustment for attenuation of enzymes
-		aa_attenuation = sim_data.process.transcription.get_attenuation_stop_probabilities(aa_conc)
-		basal_attenuation = sim_data.process.transcription.get_attenuation_stop_probabilities(basal_conc)
-		attenuation_expression_adjustment = (1 - aa_attenuation) / (1 - basal_attenuation)
-		attenuated_idx = {rna: i for i, rna in enumerate(sim_data.process.transcription.attenuated_rna_ids)}
-		monomer_to_rna = {d['id']: d['rna_id'] for d in sim_data.process.translation.monomer_data}
-		for i, enzyme in enumerate(self.aa_enzymes):
-			rna_ids = [
-				monomer_to_rna[monomer]
-				for monomer in sim_data.process.complexation.get_monomers(enzyme)['subunitIds']
-				]
-			attenuation = np.array([
-				attenuation_expression_adjustment[attenuated_idx[rna]]
-				if rna in attenuated_idx else 1
-				for rna in rna_ids
-				])
-			enzyme_counts[i] *= min(attenuation)
 
 		supply = np.array([with_aa_supply[aa] for aa in aa_ids])  # TODO: check that this is ok and do not need other adjustments for downstream
 		synthesis, _, _ = self.amino_acid_synthesis(enzyme_counts, aa_conc)
@@ -885,7 +865,7 @@ class Metabolism(object):
 
 		# Concentrations for reference in analysis plot
 		conversion = sim_data.constants.cell_density / sim_data.constants.n_avogadro * sim_data.mass.cell_dry_mass_fraction
-		basal_counts = cell_specs['basal']['bulkAverageContainer'].counts(self.aa_enzymes)
+		basal_counts = basal_container.counts(self.aa_enzymes)
 		self.aa_supply_enzyme_conc_with_aa = conversion * enzyme_counts / cell_specs['with_aa']['avgCellDryMassInit']
 		self.aa_supply_enzyme_conc_basal = conversion * basal_counts / cell_specs['basal']['avgCellDryMassInit']
 
@@ -936,6 +916,7 @@ class Metabolism(object):
 			- self.aa_reverse_stoich @ (self.aa_kcats * counts_per_aa * reverse_fraction)
 			- self.aa_kcats * counts_per_aa * loss_fraction
 		)
+
 		return synthesis, counts_per_aa, fraction
 
 	def amino_acid_import(self, aa_in_media: np.ndarray, dry_mass: units.Unum):
