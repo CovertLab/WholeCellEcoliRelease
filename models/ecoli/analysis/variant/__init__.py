@@ -8,6 +8,7 @@ ACTIVE = [
 	"doubling_time_histogram.py",
 	"growthConditionComparison.py",
 	"growth_condition_comparison_validation.py",
+	"growth_rate_time_series.py",
 	"massFractionSummary.py",
 	"meneSensitivity.py",
 	"metabolism_kinetic_objective_weight.py",
@@ -33,13 +34,16 @@ TAGS = {
 		],
 	'VALIDATION': [
 		'cell_growth.py',
+		'growth_rate_time_series',
 		],
 	# Variant analyses to run with a specific simulation variant (key)
 	'ADD_ONE_AA': [
 		'cell_growth.py',
+		'growth_rate_time_series',
 		],
 	'ADD_ONE_AA_SHIFT': [
 		'cell_growth.py',
+		'growth_rate_time_series',
 		],
 	'METABOLISM_KINETIC_OBJECTIVE_WEIGHT': [
 		'metabolism_kinetic_objective_weight.py',
@@ -55,9 +59,11 @@ TAGS = {
 		],
 	'REMOVE_ONE_AA': [
 		'cell_growth.py',
+		'growth_rate_time_series',
 		],
 	'REMOVE_ONE_AA_SHIFT': [
 		'cell_growth.py',
+		'growth_rate_time_series',
 		],
 	'TF_ACTIVITY': [
 		'tfFit.py',

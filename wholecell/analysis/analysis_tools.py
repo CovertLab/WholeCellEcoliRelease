@@ -224,7 +224,8 @@ def read_stacked_bulk_molecules(
 	# Use vstack for 2D or hstack for 1D to get proper dimension alignments
 	return [np.vstack(d) if len(d[0].shape) > 1 else np.hstack(d) for d in data]
 
-def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str, remove_first: bool = False) -> np.ndarray:
+def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str,
+		remove_first: bool = False, ignore_exception: bool = False) -> np.ndarray:
 	"""
 	Reads column data from multiple cells and assembles into a single array.
 
@@ -236,6 +237,7 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str, remove
 		column: name of the column to read data from
 		remove_first: if True, removes the first column of data from each cell
 			which might be set to a default value in some cases
+		ignore_exception: if True, ignores any exceptions encountered while reading
 
 	Returns:
 		stacked data (n time points, m subcolumns)
@@ -249,7 +251,14 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str, remove
 	data = []
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
-		reader = TableReader(os.path.join(sim_out_dir, table))
-		data.append(reader.readColumn(column, squeeze=False)[_remove_first(remove_first)])
+		try:
+			reader = TableReader(os.path.join(sim_out_dir, table))
+			data.append(reader.readColumn(column, squeeze=False)[_remove_first(remove_first)])
+		except Exception as e:
+			if ignore_exception:
+				print(f'Ignored exception in read_stacked_columns: {e!r}')
+				continue
+			else:
+				raise
 
 	return np.vstack(data)
