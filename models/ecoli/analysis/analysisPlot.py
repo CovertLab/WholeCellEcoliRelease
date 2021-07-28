@@ -94,6 +94,17 @@ class AnalysisPlot(metaclass=abc.ABCMeta):
 			ymax += 0.001
 		return axes.set_ylim(ymin, ymax)
 
+	@staticmethod
+	def remove_border(ax=None, bottom=False):
+		if ax is None:
+			ax = plt.gca()
+
+		ax.spines['top'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		if bottom:
+			ax.spines['bottom'].set_visible(False)
+			ax.set_xticks([])
+
 	@abc.abstractmethod
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata):
