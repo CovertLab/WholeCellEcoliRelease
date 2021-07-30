@@ -40,7 +40,8 @@ METADATA_KEYS = (
 	'superhelical_density',
 	'recycle_stalled_elongation',
 	'mechanistic_replisome',
-	'mechanistic_aa_supply',
+	'mechanistic_translation_supply',
+	'mechanistic_aa_uptake',
 	'trna_attenuation',
 	)
 
@@ -70,7 +71,8 @@ SIM_KEYS = (
 	'superhelical_density',
 	'recycle_stalled_elongation',
 	'mechanistic_replisome',
-	'mechanistic_aa_supply',
+	'mechanistic_translation_supply',
+	'mechanistic_aa_uptake',
 	'trna_attenuation',
 	'raise_on_time_limit',
 	'log_to_shell',
@@ -474,9 +476,12 @@ class ScriptBase(metaclass=abc.ABCMeta):
 		add_bool_option('mechanistic_replisome', 'mechanistic_replisome',
 			help='if true, replisome initiation is mechanistic (requires'
 				 ' appropriate number of subunits to initiate)')
-		add_bool_option('mechanistic_aa_supply', 'mechanistic_aa_supply',
-			help='if true, amino acid supply is mechanistic (depends on'
+		add_bool_option('mechanistic_translation_supply', 'mechanistic_translation_supply',
+			help='if true, amino acid translation supply is mechanistic (depends on'
 				 ' concentrations of enzymes and amino acids)')
+		add_bool_option('mechanistic_aa_uptake', 'mechanistic_aa_uptake',
+			help='if true, amino acid uptake is mechanistic (depends on'
+				 ' concentrations of transporter enzymes and amino acids)')
 		add_bool_option('trna_attenuation', 'trna_attenuation',
 			help='if true, transcriptional attenuation by charged tRNA is enabled')
 		add_bool_option('raise_on_time_limit', 'raise_on_time_limit',

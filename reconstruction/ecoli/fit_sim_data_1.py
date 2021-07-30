@@ -366,6 +366,7 @@ def final_adjustments(sim_data, cell_specs, **kwargs):
 	# Set supply constants for amino acids based on condition supply requirements
 	sim_data.process.metabolism.set_phenomological_supply_constants(sim_data)
 	sim_data.process.metabolism.set_mechanistic_supply_constants(sim_data, cell_specs)
+	sim_data.process.metabolism.set_mechanistic_uptake_constants(sim_data, cell_specs)
 
 	return sim_data, cell_specs
 

@@ -6,6 +6,7 @@ ACTIVE = [
 	"aa_conc.py",
 	"aa_supply.py",
 	"aa_supply_enzymes.py",
+	"aa_growth_limits.py",
 	"biosynthesisProductionDynamics.py",
 	"carRegulation.py",
 	"cellCycleLength.py",
@@ -74,6 +75,7 @@ TAGS = {
 	'GROWTH': [
 		"aa_conc.py",
 		"aa_supply.py",
+		"aa_growth_limits.py",
 		"aa_supply_enzymes.py",
 		"cellCycleLength.py",
 		"charging_molecules.py",
@@ -84,6 +86,7 @@ TAGS = {
 	'METABOLISM': [
 		"aa_conc.py",
 		"aa_supply.py",
+		"aa_growth_limits.py",
 		"aa_supply_enzymes.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
@@ -110,6 +113,7 @@ TAGS = {
 		],
 	'REGULATION': [
 		"aa_supply.py",
+		"aa_growth_limits.py",
 		"aa_supply_enzymes.py",
 		"biosynthesisProductionDynamics.py",
 		"carRegulation.py",

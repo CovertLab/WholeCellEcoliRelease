@@ -54,6 +54,7 @@ class Metabolism(wholecell.processes.process.Process):
 		environment = self._external_states['Environment']
 		self.use_trna_charging = sim._trna_charging
 		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging
+		self.mechanistic_aa_uptake = sim._mechanistic_aa_uptake
 
 		# Create model to use to solve metabolism updates
 		self.model = FluxBalanceAnalysisModel(
@@ -96,9 +97,26 @@ class Metabolism(wholecell.processes.process.Process):
 			update_molecules += [self.model.ppgpp_id]
 		self.conc_update_molecules = sorted(update_molecules)
 
+		# Amino acids in media for import rates
+		self.aa_exchange_names = np.array([
+			sim_data.external_state.env_to_exchange_map[aa[:-3]]
+			for aa in self.aa_names
+			])
+		self.aa_environment = self.environmentView([aa[:-3] for aa in self.aa_exchange_names])
+
+		self.removed_aa_uptake = np.array([
+			aa in self.aa_targets_not_updated
+			for aa in self.aa_exchange_names
+			])
+
+		self.amino_acid_import = sim_data.process.metabolism.amino_acid_import
+		self.aa_transporters_names = sim_data.process.metabolism.aa_transporters_names
+		self.aa_transporters_container = self.bulkMoleculesView(self.aa_transporters_names)
+
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
+		self.aa_transporters_container.requestAll()
 		self.kineticsEnzymes.requestAll()
 		self.kineticsSubstrates.requestAll()
 
@@ -140,10 +158,19 @@ class Metabolism(wholecell.processes.process.Process):
 			for met, conc in conc_updates.items()
 			}
 
+		aa_uptake_package = None
+		if self.mechanistic_aa_uptake:
+			aa_in_media = self.aa_environment.import_present()
+			aa_in_media[self.removed_aa_uptake] = False
+			import_rates = (counts_to_molar * self.timeStepSec() * self.amino_acid_import(
+				aa_in_media, dry_mass, self.aa_transporters_container.counts(),
+				self.mechanistic_aa_uptake)).asNumber(CONC_UNITS)
+			aa_uptake_package=(import_rates[aa_in_media], self.aa_exchange_names[aa_in_media], True)
+
 		# Update FBA problem based on current state
 		## Set molecule availability (internal and external)
 		self.model.set_molecule_levels(metabolite_counts_init, counts_to_molar,
-			coefficient, current_media_id, unconstrained, constrained, conc_updates)
+			coefficient, current_media_id, unconstrained, constrained, conc_updates, aa_uptake_package)
 
 		## Set reaction limits for maintenance and catalysts present
 		self.model.set_reaction_bounds(catalyst_counts, counts_to_molar,
@@ -202,6 +229,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "targetFluxes", targets / time_step_unitless)
 		self.writeToListener("EnzymeKinetics", "targetFluxesUpper", upper_targets / time_step_unitless)
 		self.writeToListener("EnzymeKinetics", "targetFluxesLower", lower_targets / time_step_unitless)
+		self.writeToListener("EnzymeKinetics", "targetAAConc", [self.aa_targets.get(id_, 0) for id_ in self.aa_names])
 
 	def update_amino_acid_targets(self, counts_to_molar):
 		"""
@@ -230,6 +258,11 @@ class Metabolism(wholecell.processes.process.Process):
 				if aa in self.aa_targets_not_updated:
 					continue
 				self.aa_targets[aa] += diff
+				# TODO (Santiago): Improve targets update
+				if self.aa_targets[aa] < 0:
+					print(f'Warning: updated amino acid target for {aa} was negative - adjusted to be positive.')
+					self.aa_targets[aa] = 1
+
 		# First time step of a simulation so set target to current counts to prevent
 		# concentration jumps between generations
 		else:
@@ -443,7 +476,7 @@ class FluxBalanceAnalysisModel(object):
 		return external_molecule_levels
 
 	def set_molecule_levels(self, metabolite_counts, counts_to_molar,
-			coefficient, current_media_id, unconstrained, constrained, conc_updates):
+			coefficient, current_media_id, unconstrained, constrained, conc_updates, aa_uptake_package=None):
 		"""
 		Set internal and external molecule levels available to the FBA solver.
 
@@ -458,7 +491,10 @@ class FluxBalanceAnalysisModel(object):
 			constrained (Dict[str, units.Unum]): molecules (keys) and their
 				limited max uptake rates (values in mol / mass / time units)
 			conc_updates (Dict[str, Unum]): updates to concentrations targets for
-				molecules (molecule ID: concentration in counts/volume units)
+				molecules (molecule ID: concentration in mmol/L units)
+			aa_uptake_package (Tuple[np.ndarray, np.ndarray, Boolean]): packed
+				variables needed to set hard external amino acid updatkes
+				(uptake rates, amino acid names, force levels)
 		"""
 
 		# Update objective from media exchanges
@@ -476,6 +512,11 @@ class FluxBalanceAnalysisModel(object):
 		external_molecule_levels = self.update_external_molecule_levels(
 			objective, metabolite_conc, external_molecule_levels)
 		self.fba.setExternalMoleculeLevels(external_molecule_levels)
+
+		if aa_uptake_package:
+			levels, molecules, force = aa_uptake_package
+			self.fba.setExternalMoleculeLevels(levels, molecules=molecules, force=force)
+
 
 	def set_reaction_bounds(self, catalyst_counts, counts_to_molar, coefficient,
 			gtp_to_hydrolyze):

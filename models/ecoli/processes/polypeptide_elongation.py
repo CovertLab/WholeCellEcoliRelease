@@ -70,7 +70,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		# Create views onto all polymerization reaction small molecules
-		self.aas = self.bulkMoleculesView(sim_data.molecule_groups.amino_acids)
+		self.aaNames = sim_data.molecule_groups.amino_acids
+		self.aas = self.bulkMoleculesView(self.aaNames)
 
 		self.elngRateFactor = 1.
 
@@ -85,7 +86,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		else:
 			self.elongation_model = BaseElongationModel(sim_data, self)
 		self.ppgpp_regulation = sim._ppgpp_regulation
-		self.mechanistic_supply = sim._mechanistic_aa_supply
+		self.mechanistic_translation_supply = sim._mechanistic_translation_supply
+		self.mechanistic_uptake = sim._mechanistic_aa_uptake
 
 		# Growth associated maintenance energy requirements for elongations
 		self.gtpPerElongation = constants.gtp_per_translation
@@ -264,6 +266,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Write data to listeners
 		self.writeToListener("GrowthLimits", "net_charged", net_charged)
 		self.writeToListener("GrowthLimits", "aasUsed", aas_used)
+		self.writeToListener("GrowthLimits", "aaCountDiff", [self.aa_count_diff.get(id_, 0) for id_ in self.aaNames])
 
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aa_counts_for_translation)
@@ -422,6 +425,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.aa_aas = self.process.bulkMoleculesView(molecule_groups.amino_acids)
 		self.amino_acid_synthesis = metabolism.amino_acid_synthesis
 		self.amino_acid_import = metabolism.amino_acid_import
+		
+		self.aa_transporters_container = self.process.bulkMoleculesView(metabolism.aa_transporters_names)
 
 	def request(self, aasInSequences):
 		self.max_time_step = min(self.process.max_time_step, self.max_time_step * self.time_step_increase)
@@ -477,8 +482,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		aa_in_media = self.aa_environment.import_present()
 		synthesis, enzyme_counts, saturation = self.amino_acid_synthesis(
 			self.aa_enzymes.total_counts(), aa_conc)
-		imported = self.amino_acid_import(aa_in_media, dry_mass)
-		if self.process.mechanistic_supply:
+		imported = self.amino_acid_import(aa_in_media, dry_mass, self.aa_transporters_container.total_counts(), self.process.mechanistic_uptake)
+		if self.process.mechanistic_translation_supply:
 			# Set supply based on mechanistic synthesis and supply
 			self.process.aa_supply = self.process.timeStepSec() * (synthesis + imported)
 		else:
@@ -592,13 +597,15 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.proton.countInc(nElongations)
 		self.water.countDec(nInitialized)
 
-		# Use the difference between expected AA supply based on expected doubling time
-		# and current DCW and AA used to charge tRNA to update the concentration target
+		# Use the difference between (expected AA supply based on expected doubling time
+		# and current DCW) and AA used to charge tRNA to update the concentration target
 		# in metabolism during the next time step
-		aa_diff = self.process.aa_supply - np.dot(self.process.aa_from_trna, total_charging_reactions)
+		aa_used_trna = np.dot(self.process.aa_from_trna, total_charging_reactions)
+		aa_diff = self.process.aa_supply - aa_used_trna
 		if np.any(np.abs(aa_diff / self.process.aas.total_counts()) > self.max_amino_acid_adjustment):
 			self.time_step_short_enough = False
 
+		self.process.writeToListener('GrowthLimits', 'trnaCharged', aa_used_trna)
 		return net_charged, {aa: diff for aa, diff in zip(self.aaNames, aa_diff)}
 
 	def calculate_trna_charging(self, synthetase_conc, uncharged_trna_conc, charged_trna_conc, aa_conc, ribosome_conc, f, time_limit=1000, use_disabled_aas=False):

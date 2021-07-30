@@ -69,6 +69,9 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.aa_supply_aa_conc = np.zeros(n_aa_supplied, np.float64)
 		self.aa_supply_fraction = np.zeros(n_aa_supplied, np.float64)
 
+		self.aaCountDiff = np.zeros(n_aa_supplied, np.float64)
+		self.trnaCharged = np.zeros(n_aa_supplied, np.float64)
+
 	def update(self):
 		pass
 
@@ -90,6 +93,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			'aa_supply_enzymes': 'aaIds',
 			'aa_supply_aa_conc': 'aaIds',
 			'aa_supply_fraction': 'aaIds',
+			'trnaCharged':'aaIds',
+			'aaCountDiff':'aaIds'
 			}
 
 		tableWriter.writeAttributes(
@@ -122,4 +127,6 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			aa_supply_enzymes = self.aa_supply_enzymes,
 			aa_supply_aa_conc = self.aa_supply_aa_conc,
 			aa_supply_fraction = self.aa_supply_fraction,
+			aaCountDiff = self.aaCountDiff,
+			trnaCharged = self.trnaCharged,
 			)

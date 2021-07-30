@@ -21,6 +21,7 @@ ACTIVE = [
 	"dntpCounts.py",
 	"equilibriumComparison.py",
 	"evaluationTime.py",
+	"expected_mechanistic_vs_real_uptake.py",
 	"expression_rna_01_low.py",
 	"expression_rna_02_med.py",
 	"expression_rna_03_high.py",
@@ -103,6 +104,7 @@ TAGS = {
 		],
 	'KINETICS': [
 		"centralCarbonMetabolismScatter.py",
+		"expected_mechanistic_vs_real_uptake.py",
 		"external_exchange_fluxes.py",
 		"kineticsFluxComparison.py",
 		],
@@ -113,6 +115,7 @@ TAGS = {
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
 		"concentrationDeviation.py",
+		"expected_mechanistic_vs_real_uptake.py",
 		"external_exchange_fluxes.py",
 		"fbaOptimizationProblem.py",
 		"flux_bounds.py",

@@ -28,7 +28,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metabolism = sim.processes["Metabolism"].model
 		self.n_constrained_reactions = len(self.metabolism.kinetics_constrained_reactions)
 		self.n_metabolites = len(self.metabolism.metaboliteNamesFromNutrients)
-
+		self.aa_ids = sim_data.molecule_groups.amino_acids
 		self.constraint_is_kcat_only = sim_data.process.metabolism.constraint_is_kcat_only[
 			self.metabolism.active_constraints_mask].tolist()
 
@@ -48,6 +48,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.targetFluxesUpper = np.zeros(self.n_constrained_reactions, np.float64)
 		self.targetFluxesLower = np.zeros(self.n_constrained_reactions, np.float64)
 		self.actualFluxes = np.zeros(self.n_constrained_reactions, np.float64)
+		self.targetAAConc = np.zeros(len(self.aa_ids), np.float64)
 
 	def update(self):
 		pass
@@ -60,7 +61,9 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			'targetFluxes': 'constrainedReactions',
                         'targetFluxesUpper': 'constrainedReactions',
                         'targetFluxesLower': 'constrainedReactions',
-			'actualFluxes': 'constrainedReactions'}
+			'actualFluxes': 'constrainedReactions',
+			'targetAAConc': 'aa_ids'
+			}
 
 		tableWriter.writeAttributes(
 			enzymeIDs = self.enzymeIDs,
@@ -68,6 +71,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			constrainedReactions = self.metabolism.kinetics_constrained_reactions,
 			kineticsConstrainedReactions = self.metabolism.kinetics_constrained_reactions,
 			constraint_is_kcat_only = self.constraint_is_kcat_only,
+			aa_ids = self.aa_ids,
 			subcolumns = subcolumns)
 
 
@@ -83,4 +87,5 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
                         targetFluxesUpper = self.targetFluxesUpper,
                         targetFluxesLower = self.targetFluxesLower,
 			actualFluxes = self.actualFluxes,
+			targetAAConc = self.targetAAConc
 			)

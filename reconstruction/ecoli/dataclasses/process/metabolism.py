@@ -626,6 +626,85 @@ class Metabolism(object):
 
 		return supply_scaling
 
+	def set_aa_to_transporters_mapping_data(self, sim_data):
+		'''
+		Creates a dictionary that maps amino acids with their transporters. 
+		Based on this dictionary, it creates a correlation matrix with rows
+		as AA and columns as transporters.
+
+		Args:
+			sim_data (SimulationData object)
+
+		Sets class attributes:
+			aa_to_transporters (Dict[str, list]): dictonary that maps aa to transporters involved
+				in uptake reactions  
+			aa_to_transporters_matrix (np.ndarray[int]): correlation matrix. Columns correspond to transporter
+				enzymes and rows to amino acids
+			aa_transporters_names (np.ndarray[str]): names of all transporters 
+
+		'''
+
+		# Mapping aminoacids to their transporters
+		# CYS does not have any uptake reaction, so we initialize the dict with it to ensure
+		# the presence of the 21 AAs
+		# TODO (Santiago): Reversible reactions
+		aa_to_transporters = {"CYS[c]": []}
+		for reaction in self.transport_reactions:
+			for aa in sim_data.molecule_groups.amino_acids:
+				if aa in self.reaction_stoich[reaction] and self.reaction_stoich[reaction][aa] > 0:
+					if aa not in aa_to_transporters:
+						aa_to_transporters[aa] = []
+					aa_to_transporters[aa] += self.reaction_catalysts[reaction]
+
+		aa_to_transporters = {aa: aa_to_transporters[aa] for aa in sim_data.molecule_groups.amino_acids}
+		self.aa_to_transporters = aa_to_transporters
+
+		c = 0
+		transporters_to_idx = {}
+		for aa, transporters in aa_to_transporters.items():
+			for transporter in transporters:
+				if transporter not in transporters_to_idx:
+					transporters_to_idx[transporter]=c
+					c += 1
+
+		aa_to_transporters_matrix = [0]*len(aa_to_transporters)
+
+		for i, trnspts in enumerate(aa_to_transporters.values()):
+			temp = [0] * len(transporters_to_idx)
+			for tr in trnspts:
+				temp[transporters_to_idx[tr]] = 1
+			aa_to_transporters_matrix[i] = temp
+
+		aa_transporters_names = list(transporters_to_idx.keys())
+
+		self.aa_to_transporters_matrix = np.array(aa_to_transporters_matrix)
+		self.aa_transporters_names = np.array(aa_transporters_names)
+
+	def set_mechanistic_uptake_constants(self, sim_data, cell_specs):
+		'''
+		Based on the matrix calculated in set_aa_to_transporters_mapping_data(), we calculate
+		the total amount of transporter counts per AA.
+		Args:
+			sim_data (SimulationData object)
+			cell_specs (Dict[str, Dict])
+		Sets class attribute:
+			uptake_kcats_per_aa (np.ndarray[float]): kcats corresponding to generic transport 
+				reactions for each AA. Units in counts/second [1/s]
+		'''
+
+		self.set_aa_to_transporters_mapping_data(sim_data)
+
+		# Calculate kcats based on self.specific_import_rates, dry mass and transporters counts
+		# TODO (Santiago): generate container with create_bulk_container() instead
+		import_rates = sim_data.process.metabolism.specific_import_rates*cell_specs['with_aa']['avgCellDryMassInit'].asNumber(units.fg)
+		bulk_container = cell_specs['with_aa']['bulkAverageContainer'].counts(self.aa_transporters_names)
+		counts = self.aa_to_transporters_matrix.dot(bulk_container)
+
+		mask = counts == 1
+		counts[counts == 0] = 1.
+		import_rates[~mask & (counts == 1)] = 0.
+		self.uptake_kcats_per_aa = import_rates / counts
+
 	def set_mechanistic_supply_constants(self, sim_data, cell_specs):
 		"""
 		Sets constants to determine amino acid supply during translation.  Used
@@ -919,20 +998,28 @@ class Metabolism(object):
 
 		return synthesis, counts_per_aa, fraction
 
-	def amino_acid_import(self, aa_in_media: np.ndarray, dry_mass: units.Unum):
+	def amino_acid_import(self, aa_in_media: np.ndarray, dry_mass: units.Unum, aa_transporters_counts: np.ndarray, mechanisitc_uptake: bool):
 		"""
 		Calculate the rate of amino acid uptake.
 
 		Args:
 			aa_in_media: bool for each amino acid being present in current media
 			dry_mass: current dry mass of the cell, with mass units
+			aa_transporters_counts: counts of each transporter
+			mechanisitc_uptake: if true, the uptake is calculated based on transporters
 
 		Returns:
 			rate of uptake for each amino acid. array is unitless but
 				represents counts of amino acid per second
 		"""
 
-		return aa_in_media * self.specific_import_rates * dry_mass.asNumber(DRY_MASS_UNITS)
+		if not mechanisitc_uptake:
+			return aa_in_media * self.specific_import_rates * dry_mass.asNumber(DRY_MASS_UNITS)
+
+		# Supply based on mechanistic synthesis and supply
+		counts_per_aa = self.aa_to_transporters_matrix.dot(aa_transporters_counts)
+		import_rates = self.uptake_kcats_per_aa * counts_per_aa
+		return import_rates * aa_in_media
 
 	@staticmethod
 	def extract_reactions(raw_data, sim_data):
