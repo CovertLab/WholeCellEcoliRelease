@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 # Active analysis modules to run, in this order.
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
+	"aa_uptake_sensitivity.py",
 	"adder_sizer.py",
 	"cell_growth.py",
 	"doubling_time_histogram.py",
@@ -37,6 +38,9 @@ TAGS = {
 		'growth_rate_time_series',
 		],
 	# Variant analyses to run with a specific simulation variant (key)
+	'AA_UPTAKE_SENSITIVITY': [
+		'aa_uptake_sensitivity',
+		],
 	'ADD_ONE_AA': [
 		'cell_growth.py',
 		'growth_rate_time_series',

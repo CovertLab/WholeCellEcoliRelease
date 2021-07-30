@@ -261,4 +261,4 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str,
 			else:
 				raise
 
-	return np.vstack(data)
+	return np.vstack(data) if data else np.array([])

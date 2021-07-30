@@ -12,9 +12,6 @@ Expected variant indices (dependent on sorted order of sim_data.conditionActiveT
 	2: with amino acids
 """
 
-from __future__ import absolute_import, division, print_function
-
-
 # UPDATE: give a descriptive function name that matches the file name
 def template(sim_data, index):
 	# UPDATE: modify sim_data attributes based on the variant index
@@ -22,6 +19,6 @@ def template(sim_data, index):
 
 	# UPDATE: set strings to give a description of the variant/what has changed
 	return dict(
-		shortName = '{}'.format(index),
-		desc = 'something is set at {}.'.format(index)
+		shortName=f'{index}',
+		desc=f'something is set at {index}.'
 		), sim_data
