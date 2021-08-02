@@ -20,7 +20,6 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
 from reconstruction.ecoli.dataclasses.getter_functions import UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS
-from reconstruction.ecoli.initialization import create_bulk_container
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 # NOTE: Importing SimulationDataEcoli would make a circular reference so use Any.
 #from reconstruction.ecoli.simulation_data import SimulationDataEcoli
@@ -628,7 +627,7 @@ class Metabolism(object):
 
 	def set_aa_to_transporters_mapping_data(self, sim_data):
 		'''
-		Creates a dictionary that maps amino acids with their transporters. 
+		Creates a dictionary that maps amino acids with their transporters.
 		Based on this dictionary, it creates a correlation matrix with rows
 		as AA and columns as transporters.
 
@@ -637,10 +636,10 @@ class Metabolism(object):
 
 		Sets class attributes:
 			aa_to_transporters (Dict[str, list]): dictonary that maps aa to transporters involved
-				in uptake reactions  
+				in uptake reactions
 			aa_to_transporters_matrix (np.ndarray[int]): correlation matrix. Columns correspond to transporter
 				enzymes and rows to amino acids
-			aa_transporters_names (np.ndarray[str]): names of all transporters 
+			aa_transporters_names (np.ndarray[str]): names of all transporters
 
 		'''
 
@@ -680,32 +679,38 @@ class Metabolism(object):
 		self.aa_to_transporters_matrix = np.array(aa_to_transporters_matrix)
 		self.aa_transporters_names = np.array(aa_transporters_names)
 
-	def set_mechanistic_uptake_constants(self, sim_data, cell_specs):
+	def set_mechanistic_uptake_constants(self, sim_data, cell_specs, with_aa_container):
 		'''
 		Based on the matrix calculated in set_aa_to_transporters_mapping_data(), we calculate
 		the total amount of transporter counts per AA.
+
 		Args:
 			sim_data (SimulationData object)
 			cell_specs (Dict[str, Dict])
+			with_aa_container (BulkObjectsContainer): average initialization
+				container in the with_aa condition
+
 		Sets class attribute:
-			uptake_kcats_per_aa (np.ndarray[float]): kcats corresponding to generic transport 
+			uptake_kcats_per_aa (np.ndarray[float]): kcats corresponding to generic transport
 				reactions for each AA. Units in counts/second [1/s]
+
+		TODO:
+			- Include external amino acid concentrations and KM values
+			- Consider export reactions
 		'''
 
 		self.set_aa_to_transporters_mapping_data(sim_data)
 
 		# Calculate kcats based on self.specific_import_rates, dry mass and transporters counts
-		# TODO (Santiago): generate container with create_bulk_container() instead
-		import_rates = sim_data.process.metabolism.specific_import_rates*cell_specs['with_aa']['avgCellDryMassInit'].asNumber(units.fg)
-		bulk_container = cell_specs['with_aa']['bulkAverageContainer'].counts(self.aa_transporters_names)
-		counts = self.aa_to_transporters_matrix.dot(bulk_container)
+		import_rates = sim_data.process.metabolism.specific_import_rates * cell_specs['with_aa']['avgCellDryMassInit'].asNumber(units.fg)
+		transporter_counts = with_aa_container.counts(self.aa_transporters_names)
+		counts = self.aa_to_transporters_matrix.dot(transporter_counts)
 
-		mask = counts == 1
-		counts[counts == 0] = 1.
-		import_rates[~mask & (counts == 1)] = 0.
-		self.uptake_kcats_per_aa = import_rates / counts
+		with np.errstate(divide='ignore'):
+			self.uptake_kcats_per_aa = import_rates / counts
+		self.uptake_kcats_per_aa[counts == 0] = 0
 
-	def set_mechanistic_supply_constants(self, sim_data, cell_specs):
+	def set_mechanistic_supply_constants(self, sim_data, cell_specs, basal_container, with_aa_container):
 		"""
 		Sets constants to determine amino acid supply during translation.  Used
 		with amino_acid_synthesis() and amino_acid_import() during simulations
@@ -717,6 +722,10 @@ class Metabolism(object):
 		Args:
 			sim_data (SimulationData object)
 			cell_specs (Dict[str, Dict])
+			basal_container (BulkObjectsContainer): average initialization
+				container in the basal condition
+			with_aa_container (BulkObjectsContainer): average initialization
+				container in the with_aa condition
 
 		Sets class attributes:
 			aa_enzymes (np.ndarray[str]): enzyme ID with location tag for each
@@ -766,7 +775,6 @@ class Metabolism(object):
 			terms
 
 		TODO:
-			Tie import rates to transporter expression and external concentrations
 			Handle different kcats (or enzymes) for reverse reactions
 			Search for new kcat/KM values in literature or use metabolism_kinetics.tsv
 			Consider multiple reaction steps
@@ -817,8 +825,6 @@ class Metabolism(object):
 			raise RuntimeError('Could not determine amino acid order to calculate dependencies first.'
 				' Make sure there are no cyclical pathways for amino acids that can degrade.')
 
-		basal_container = create_bulk_container(sim_data, n_seeds=5)
-		with_aa_container = create_bulk_container(sim_data, condition='with_aa', n_seeds=5)
 		for amino_acid in ordered_aa_ids:
 			data = self.aa_synthesis_pathways[amino_acid]
 			enzymes = data['enzymes']

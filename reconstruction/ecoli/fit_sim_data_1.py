@@ -21,6 +21,7 @@ import scipy.sparse
 import six
 from six.moves import cPickle, range, zip
 
+from reconstruction.ecoli.initialization import create_bulk_container
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils import filepath, parallelization, units
@@ -364,9 +365,13 @@ def final_adjustments(sim_data, cell_specs, **kwargs):
 	sim_data.process.transcription.adjust_ppgpp_expression_for_tfs(sim_data)
 
 	# Set supply constants for amino acids based on condition supply requirements
+	average_basal_container = create_bulk_container(sim_data, n_seeds=5)
+	average_with_aa_container = create_bulk_container(sim_data, condition='with_aa', n_seeds=5)
 	sim_data.process.metabolism.set_phenomological_supply_constants(sim_data)
-	sim_data.process.metabolism.set_mechanistic_supply_constants(sim_data, cell_specs)
-	sim_data.process.metabolism.set_mechanistic_uptake_constants(sim_data, cell_specs)
+	sim_data.process.metabolism.set_mechanistic_supply_constants(sim_data, cell_specs,
+		average_basal_container, average_with_aa_container)
+	sim_data.process.metabolism.set_mechanistic_uptake_constants(sim_data, cell_specs,
+		average_with_aa_container)
 
 	return sim_data, cell_specs
 
