@@ -19,9 +19,6 @@ DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GEN
 
 bash runscripts/jenkins/run-fireworks.sh
 
-# Test some runscripts to make sure they do not fall out of step with other updates
-# Remove these lines if these scripts are no longer useful and causing build failures
-runscripts/debug/metabolism.py --validation -1  # This should come before parameter_search.py to use the correct default directory
-runscripts/manual/parameter_search.py --method quick_example
+runscripts/jenkins/runscript-checks.sh
 
 rm -fr out/*

@@ -1,6 +1,6 @@
 import numpy as np
 
-from models.ecoli.processes.polypeptide_elongation import SteadyStateElongationModel
+from models.ecoli.processes.polypeptide_elongation import calculate_trna_charging, get_charging_params
 import reconstruction.ecoli.initialization as init
 from wholecell.sim.divide_cell import load_inherited_state
 
@@ -35,22 +35,22 @@ def calcInitialConditions(sim, sim_data):
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
 	if sim._trna_charging:
-		elongation_model = SteadyStateElongationModel(sim_data, sim.processes['PolypeptideElongation'])
-		initialize_trna_charging(sim_data, sim.internal_states, elongation_model.calculate_trna_charging)
+		initialize_trna_charging(sim_data, sim.internal_states, sim._variable_elongation_translation)
 
 	# Adjust small molecule concentrations again after other mass adjustments
 	# for more stable metabolism solution at beginning of sims
 	init.set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules,
 		massCoeff, cell_mass=init.calculate_cell_mass(sim.internal_states))
 
-def initialize_trna_charging(sim_data, states, calc_charging):
+def initialize_trna_charging(sim_data, states, variable_elongation):
 	'''
 	Initializes charged tRNA from uncharged tRNA and amino acids
 
 	Inputs:
 		sim_data (SimulationDataEcoli object)
 		states (dict with internal_state objects as values) - internal states of sim
-		calc_charging (function) - function to calculate charging of tRNA
+		variable_elongation (bool) - if True, the max elongation rate is set to be
+			higher in the simulation
 
 	Notes:
 		Does not adjust for mass of amino acids on charged tRNA (~0.01% of cell mass)
@@ -82,7 +82,9 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	f = aas_in_sequences[1:] / np.sum(aas_in_sequences[1:])
 
 	# Estimate initial charging state
-	fraction_charged, _ = calc_charging(synthetase_conc, uncharged_trna_conc, charged_trna_conc, aa_conc, ribosome_conc, f)
+	charging_params = get_charging_params(sim_data, variable_elongation=variable_elongation)
+	fraction_charged, _ = calculate_trna_charging(synthetase_conc, uncharged_trna_conc,
+		charged_trna_conc, aa_conc, ribosome_conc, f, charging_params)
 
 	# Update counts of tRNA to match charging
 	total_trna_counts = uncharged_trna.counts() + charged_trna.counts()
