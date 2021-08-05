@@ -584,8 +584,16 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.charged_trna.countsDec(total_uncharging_reactions)
 		self.uncharged_trna.countsInc(total_uncharging_reactions)
 
-		# Create ppGpp
-		## Concentrations of interest
+		# Update proton counts to reflect polymerization reactions and transfer of AA from tRNA
+		# Peptide bond formation releases a water but transferring AA from tRNA consumes a OH-
+		# Net production of H+ for each elongation, consume extra water for each initialization
+		# since a peptide bond doesn't form
+		self.proton.countInc(nElongations)
+		self.water.countDec(nInitialized)
+
+		# Create or degrade ppGpp
+		# This should come after all countInc/countDec calls since it shares some molecules with
+		# other views and those counts should be updated to get the proper limits on ppGpp reactions
 		if self.process.ppgpp_regulation:
 			v_rib = (nElongations * self.counts_to_molar).asNumber(CONC_UNITS) / self.process.timeStepSec()
 			ribosome_conc = self.counts_to_molar * self.process.active_ribosomes.total_count()
@@ -616,13 +624,6 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			self.process.writeToListener('GrowthLimits', 'spot_deg', spot_deg)
 
 			self.ppgpp_reaction_metabolites.countsInc(delta_metabolites)
-
-		# Update proton counts to reflect polymerization reactions and transfer of AA from tRNA
-		# Peptide bond formation releases a water but transferring AA from tRNA consumes a OH-
-		# Net production of H+ for each elongation, consume extra water for each initialization
-		# since a peptide bond doesn't form
-		self.proton.countInc(nElongations)
-		self.water.countDec(nInitialized)
 
 		# Use the difference between (expected AA supply based on expected doubling time
 		# and current DCW) and AA used to charge tRNA to update the concentration target
