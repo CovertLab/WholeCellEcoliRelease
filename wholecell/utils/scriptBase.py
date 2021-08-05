@@ -36,6 +36,7 @@ METADATA_KEYS = (
 	'variable_elongation_translation',
 	'translation_supply',
 	'trna_charging',
+	'aa_supply_in_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
 	'recycle_stalled_elongation',
@@ -43,6 +44,7 @@ METADATA_KEYS = (
 	'mechanistic_translation_supply',
 	'mechanistic_aa_uptake',
 	'trna_attenuation',
+	'adjust_timestep_for_charging',
 	)
 
 PARCA_KEYS = (
@@ -58,6 +60,7 @@ SIM_KEYS = (
 	'timestep_safety_frac',
 	'timestep_max',
 	'timestep_update_freq',
+	'adjust_timestep_for_charging',
 	'log_to_disk_every',
 	'jit',
 	'mass_distribution',
@@ -67,6 +70,7 @@ SIM_KEYS = (
 	'variable_elongation_translation',
 	'translation_supply',
 	'trna_charging',
+	'aa_supply_in_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
 	'recycle_stalled_elongation',
@@ -445,6 +449,9 @@ class ScriptBase(metaclass=abc.ABCMeta):
 		add_option('log_to_disk_every', 'logToDiskEvery', int,
 			help='frequency at which sim outputs are written to disk')
 
+		add_bool_option('adjust_timestep_for_charging', 'adjust_timestep_for_charging',
+			help='if true, adjusts the timestep if charging creates a large'
+				 ' update to improve stability of sims')
 		add_bool_option('jit', 'jit',
 			help='If true, jit compiled functions are used for certain'
 				 ' processes, otherwise only uses lambda functions')
@@ -466,13 +473,17 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			help='if true, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
+		add_bool_option('aa_supply_in_charging', 'aa_supply_in_charging',
+			help='if true, amino acid supply function is used during charging for'
+				 ' more stable charging calculations (longer sim execution times).'
+				 ' Only has an effect if --trna-charging option is used.')
 		add_bool_option('ppgpp_regulation', 'ppgpp_regulation',
 			help='if true, ppGpp concentration is determined with kinetic equations.')
 		add_bool_option('superhelical_density', 'superhelical_density',
 			help='if true, dynamically calculate superhelical densities of each DNA segment')
 		add_bool_option('recycle_stalled_elongation', 'recycle_stalled_elongation',
-						help='if true, recycle RNAP and fragment bases when transcription'
-							 'elongation is stalled in ntp-limiting conditions')
+			help='if true, recycle RNAP and fragment bases when transcription'
+				 'elongation is stalled in ntp-limiting conditions')
 		add_bool_option('mechanistic_replisome', 'mechanistic_replisome',
 			help='if true, replisome initiation is mechanistic (requires'
 				 ' appropriate number of subunits to initiate)')

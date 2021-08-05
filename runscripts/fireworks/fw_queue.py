@@ -68,6 +68,8 @@ Simulation parameters:
 	TIMESTEP_SAFETY_FRAC (float, "1.3"): increases the time step by this factor
 		if conditions are favorable; up the the limit of the max time step
 	TIMESTEP_UPDATE_FREQ (int, "5"): frequency at which the time step is updated
+	ADJUST_TIMESTEP_FOR_CHARGING (int, "0"): if nonzero, adjusts the timestep
+		if charging creates a large update to improve stability of sims
 	LOG_TO_DISK_EVERY (int, "1"): frequency at which simulation outputs are
 		logged to disk
 	JIT (int, "1"): if nonzero, jit compiled functions are used for certain
@@ -87,6 +89,9 @@ Modeling options:
 	TRNA_CHARGING (int, "1"): if nonzero, tRNA charging reactions are modeled
 		and the ribosome elongation rate is set by the amount of charged tRNA
 		present.  This option will override TRANSLATION_SUPPLY in the simulation.
+	AA_SUPPLY_IN_CHARGING (int, "0"): if nonzero, amino acid supply function is
+		used during charging for more stable charging calculations (longer sim
+		execution times).  Only has an effect if TRNA_CHARGING option is used.
 	PPGPP_REGULATION (int, "0"): if nonzero, ppGpp concentration is determined
 		with kinetic equations
 	SUPERHELICAL_DENSITY (int, "0"): if nonzero, dynamically compute
@@ -258,6 +263,7 @@ WC_LENGTHSEC = int(get_environment("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["le
 TIMESTEP_SAFETY_FRAC = float(get_environment("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
 TIMESTEP_MAX = float(get_environment("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
 TIMESTEP_UPDATE_FREQ = int(get_environment("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
+ADJUST_TIMESTEP_FOR_CHARGING = int(get_environment("ADJUST_TIMESTEP_FOR_CHARGING", DEFAULT_SIMULATION_KWARGS["adjust_timestep_for_charging"]))
 LOG_TO_DISK_EVERY = int(get_environment("LOG_TO_DISK_EVERY", DEFAULT_SIMULATION_KWARGS["logToDiskEvery"]))
 JIT = bool(int(get_environment("JIT", DEFAULT_SIMULATION_KWARGS["jit"])))
 MASS_DISTRIBUTION = bool(int(get_environment("MASS_DISTRIBUTION", DEFAULT_SIMULATION_KWARGS["massDistribution"])))
@@ -265,6 +271,7 @@ GROWTH_RATE_NOISE = bool(int(get_environment("GROWTH_RATE_NOISE", DEFAULT_SIMULA
 D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
 TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
 TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
+AA_SUPPLY_IN_CHARGING = bool(int(get_environment("AA_SUPPLY_IN_CHARGING", DEFAULT_SIMULATION_KWARGS["aa_supply_in_charging"])))
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
 SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_SIMULATION_KWARGS["superhelical_density"])))
 RECYCLE_STALLED_ELONGATION = bool(int(get_environment("RECYCLE_STALLED_ELONGATION", DEFAULT_SIMULATION_KWARGS["recycle_stalled_elongation"])))
@@ -359,6 +366,7 @@ metadata = {
 	"d_period_division": D_PERIOD_DIVISION,
 	"translation_supply": TRANSLATION_SUPPLY,
 	"trna_charging": TRNA_CHARGING,
+	"aa_supply_in_charging": AA_SUPPLY_IN_CHARGING,
 	"ppgpp_regulation": PPGPP_REGULATION,
 	"superhelical_density": SUPERHELICAL_DENSITY,
 	"recycle_stalled_elongation": RECYCLE_STALLED_ELONGATION,
@@ -366,6 +374,7 @@ metadata = {
 	"mechanistic_translation_supply": MECHANISTIC_TRANSLATION_SUPPLY,
 	"mechanistic_aa_uptake": MECHANISTIC_AA_UPTAKE,
 	"trna_attenuation": TRNA_ATTENUATION,
+	"adjust_timestep_for_charging": ADJUST_TIMESTEP_FOR_CHARGING,
 	}
 
 metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
@@ -713,6 +722,7 @@ for i in VARIANTS_TO_RUN:
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
+							adjust_timestep_for_charging = ADJUST_TIMESTEP_FOR_CHARGING,
 							log_to_disk_every = LOG_TO_DISK_EVERY,
 							jit=JIT,
 							mass_distribution = MASS_DISTRIBUTION,
@@ -720,6 +730,7 @@ for i in VARIANTS_TO_RUN:
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
 							trna_charging = TRNA_CHARGING,
+							aa_supply_in_charging = AA_SUPPLY_IN_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
 							superhelical_density = SUPERHELICAL_DENSITY,
 							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
@@ -750,6 +761,7 @@ for i in VARIANTS_TO_RUN:
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
+							adjust_timestep_for_charging = ADJUST_TIMESTEP_FOR_CHARGING,
 							log_to_disk_every = LOG_TO_DISK_EVERY,
 							jit=JIT,
 							mass_distribution = MASS_DISTRIBUTION,
@@ -757,6 +769,7 @@ for i in VARIANTS_TO_RUN:
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
 							trna_charging = TRNA_CHARGING,
+							aa_supply_in_charging = AA_SUPPLY_IN_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
 							superhelical_density = SUPERHELICAL_DENSITY,
 							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,

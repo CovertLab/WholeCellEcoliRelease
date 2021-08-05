@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 """
 Tools and analysis to debug charging problems.
+
+TODO:
+	- add additional sim options (aa_supply_in_charging, mechanistic_translation_supply) to match sim
 """
 
 from __future__ import annotations
@@ -214,7 +217,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 		timestep_size = self.time_step_sizes[timestep] * timestep_adjustment
 
 		# Calculate tRNA charging and resulting values
-		fraction_charged, v_rib = calculate_trna_charging(
+		fraction_charged, v_rib, _ = calculate_trna_charging(
 			self.synthetase_conc[timestep, :] * synthetase_adjustments,
 			uncharged_trna_conc,
 			charged_trna_conc,
