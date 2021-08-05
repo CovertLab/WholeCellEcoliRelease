@@ -90,8 +90,8 @@ Modeling options:
 		and the ribosome elongation rate is set by the amount of charged tRNA
 		present.  This option will override TRANSLATION_SUPPLY in the simulation.
 	AA_SUPPLY_IN_CHARGING (int, "0"): if nonzero, amino acid supply function is
-		used during charging for more stable charging calculations (longer sim
-		execution times).  Only has an effect if TRNA_CHARGING option is used.
+		used during charging for more stable charging calculations.  Only has an
+		effect if TRNA_CHARGING option is used.
 	PPGPP_REGULATION (int, "0"): if nonzero, ppGpp concentration is determined
 		with kinetic equations
 	SUPERHELICAL_DENSITY (int, "0"): if nonzero, dynamically compute

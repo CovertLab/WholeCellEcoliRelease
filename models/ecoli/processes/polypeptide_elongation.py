@@ -10,7 +10,7 @@ TODO:
 from typing import Any, Dict, Optional, Set
 
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from six.moves import range, zip
 
 import wholecell.processes.process
@@ -933,7 +933,7 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 		trna2[mask] = trna1[mask] + trna2[mask]
 		trna1[mask] = 0
 
-	def dcdt(c, t):
+	def dcdt(t, c):
 		'''
 		Function for odeint to integrate
 
@@ -995,14 +995,14 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 	n_aas_masked = len(masked_aa_conc)
 
 	# Integrate rates of charging and elongation
-	dt = 0.001
-	t = np.arange(0, time_limit, dt)
 	c_init = np.hstack((uncharged_trna_conc, charged_trna_conc, aa_conc, np.zeros(n_aas)))
-	sol = odeint(dcdt, c_init, t)
+	sol = solve_ivp(dcdt, [0, time_limit], c_init, method='BDF')
+	c_sol = sol.y.T
 
 	# Determine new values from integration results
-	uncharged_trna_conc = sol[-1, :n_aas_masked]
-	charged_trna_conc = sol[-1, n_aas_masked:2*n_aas_masked]
+	uncharged_trna_conc = c_sol[-1, :n_aas_masked]
+	charged_trna_conc = c_sol[-1, n_aas_masked:2*n_aas_masked]
+
 	negative_check(uncharged_trna_conc, charged_trna_conc)
 	negative_check(charged_trna_conc, uncharged_trna_conc)
 
@@ -1016,6 +1016,6 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 	new_fraction_charged[~mask] = fraction_charged.mean()
 
 	# Amount of amino acids supplied in charging
-	total_supply = sol[-1, 2*n_aas_masked+n_aas:2*n_aas_masked+2*n_aas]
+	total_supply = c_sol[-1, 2*n_aas_masked+n_aas:2*n_aas_masked+2*n_aas]
 
 	return new_fraction_charged, v_rib, total_supply

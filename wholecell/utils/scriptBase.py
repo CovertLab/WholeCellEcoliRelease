@@ -475,7 +475,7 @@ class ScriptBase(metaclass=abc.ABCMeta):
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
 		add_bool_option('aa_supply_in_charging', 'aa_supply_in_charging',
 			help='if true, amino acid supply function is used during charging for'
-				 ' more stable charging calculations (longer sim execution times).'
+				 ' more stable charging calculations.'
 				 ' Only has an effect if --trna-charging option is used.')
 		add_bool_option('ppgpp_regulation', 'ppgpp_regulation',
 			help='if true, ppGpp concentration is determined with kinetic equations.')
