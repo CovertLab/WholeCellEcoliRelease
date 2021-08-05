@@ -43,10 +43,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Get common names of genes
 		gene_names = []
 		for gene_id in sim_data.process.transcription.rna_data['gene_id']:
-			if gene_id in sim_data.common_names.genes:
-				gene_names.append(sim_data.common_names.genes[gene_id][0])
-			else:
-				gene_names.append(gene_id)
+			gene_names.append(sim_data.common_names.get_common_name(gene_id))
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))

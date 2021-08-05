@@ -300,8 +300,8 @@ class BuildNetwork(object):
 			gene_node = Node()
 
 			# Get name and synonyms for gene
-			gene_name, gene_synonym = self.common_names.genes.get(
-				gene_id, (gene_id, [gene_id]))
+			gene_name = self.common_names.get_common_name(gene_id)
+			gene_synonyms = self.common_names.get_synonyms(gene_id)
 
 			# Get URL for gene
 			gene_url = URL_TEMPLATE.format(gene_id)
@@ -311,7 +311,7 @@ class BuildNetwork(object):
 				"node_type": "Gene",
 				"node_id": gene_id,
 				"name": gene_name,
-				"synonyms": gene_synonym,
+				"synonyms": gene_synonyms,
 				"url": gene_url,
 				"location": COMPARTMENTS['n'],
 				}
@@ -344,8 +344,8 @@ class BuildNetwork(object):
 			# Add common name and synonyms
 			# Remove compartment tag
 			rna_id_no_compartment = rna_id[:-3]
-			gene_name, gene_synonyms = self.common_names.genes.get(
-				gene_id, (gene_id, [gene_id]))
+			gene_name = self.common_names.get_common_name(gene_id)
+			gene_synonyms = self.common_names.get_synonyms(gene_id)
 
 			rna_synonyms = []  # TODO(jerry): what default value to use?
 			if is_mrna:
@@ -353,9 +353,8 @@ class BuildNetwork(object):
 				if isinstance(gene_synonyms, list):
 					rna_synonyms = [x + " mRNA" for x in gene_synonyms]
 			else:
-				rna_name, rna_synonyms = self.common_names.rnas.get(
-					rna_id_no_compartment,
-					(rna_id_no_compartment, [rna_id_no_compartment]))
+				rna_name = self.common_names.get_common_name(rna_id_no_compartment)
+				rna_synonyms = self.common_names.get_synonyms(rna_id_no_compartment)
 
 			attr = {
 				'node_class': 'State',
@@ -449,10 +448,10 @@ class BuildNetwork(object):
 
 			# Add attributes to the node
 			monomer_id_no_compartment = monomer_id[:-3]
-			monomer_name, monomer_synonyms = self.common_names.proteins.get(
-				monomer_id_no_compartment, (monomer_id, [monomer_id]))
-			gene_name, gene_synonyms = self.common_names.genes.get(
-				gene_id, (gene_id, [gene_id]))
+			monomer_name = self.common_names.get_common_name(monomer_id_no_compartment)
+			monomer_synonyms = self.common_names.get_synonyms(monomer_id_no_compartment)
+			gene_name = self.common_names.get_common_name(gene_id)
+			gene_synonyms = self.common_names.get_synonyms(gene_id)
 
 			attr = {
 				'node_class': 'State',
@@ -573,8 +572,8 @@ class BuildNetwork(object):
 
 			# Add attributes to the node
 			complex_id_no_compartment = complex_id[:-3]
-			complex_name, complex_synonyms = self.common_names.proteins.get(
-				complex_id_no_compartment, (complex_id, [complex_id]))
+			complex_name = self.common_names.get_common_name(complex_id_no_compartment)
+			complex_synonyms = self.common_names.get_synonyms(complex_id_no_compartment)
 
 			attr = {
 				'node_class': 'State',
@@ -723,8 +722,8 @@ class BuildNetwork(object):
 
 			# Add attributes to the node
 			metabolite_id_no_compartment = metabolite_id[:-3]
-			metabolite_name, metabolite_synonyms = self.common_names.metabolites.get(
-				metabolite_id_no_compartment, (metabolite_id, [metabolite_id]))
+			metabolite_name = self.common_names.get_common_name(metabolite_id_no_compartment)
+			metabolite_synonyms = self.common_names.get_synonyms(metabolite_id_no_compartment)
 
 			attr = {
 				'node_class': 'State',
@@ -863,15 +862,13 @@ class BuildNetwork(object):
 
 			# Add attributes to the node
 			complex_id_no_compartment = complex_id[:-3]
-			complex_name, complex_synonyms = self.common_names.proteins.get(
-				complex_id_no_compartment, (complex_id, [complex_id]))
+			complex_name = self.common_names.get_common_name(complex_id_no_compartment)
 
 			attr = {
 				'node_class': 'State',
 				'node_type': 'Complex',
 				'node_id': complex_id,
 				'name': complex_name,
-				'synonyms': complex_synonyms,
 				'location': molecule_compartment(complex_id),
 				}
 			complex_node.read_attributes(**attr)
@@ -886,15 +883,14 @@ class BuildNetwork(object):
 
 			# Add attributes to the node
 			metabolite_id_no_compartment = metabolite_id[:-3]
-			metabolite_name, metabolite_synonyms = self.common_names.metabolites.get(
-				metabolite_id_no_compartment, (metabolite_id, [metabolite_id]))
+			metabolite_name = self.common_names.get_common_name(
+				metabolite_id_no_compartment)
 
 			attr = {
 				'node_class': 'State',
 				'node_type': 'Metabolite',
 				'node_id': metabolite_id,
 				'name': metabolite_name,
-				'synonyms': metabolite_synonyms,
 				'location': molecule_compartment(metabolite_id),
 				}
 			metabolite_node.read_attributes(**attr)

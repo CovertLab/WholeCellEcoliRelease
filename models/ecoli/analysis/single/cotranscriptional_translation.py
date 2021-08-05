@@ -115,8 +115,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# transcribed mRNAs
 		partial_mRNA_counts_mean = partial_mRNA_counts.mean(axis=0)
 		rank = np.argsort(partial_mRNA_counts_mean)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.common_names.genes[
-			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
+		ranked_genes = [
+			sim_data.common_names.get_common_name(mRNA_id_to_gene_id[mRNA_ids[i]])
+			for i in rank]
 
 		ax = plt.subplot(gs[1, 0])
 		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_counts_mean[rank])
@@ -136,8 +137,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			partial_mRNA_counts_mean/all_mRNA_counts_mean)
 		partial_mRNA_proportions[all_mRNA_counts_mean < 10] = 0
 		rank = np.argsort(partial_mRNA_proportions)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.common_names.genes[
-			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
+		ranked_genes = [
+			sim_data.common_names.get_common_name(mRNA_id_to_gene_id[mRNA_ids[i]])
+			for i in rank]
 
 		ax = plt.subplot(gs[2, 0])
 		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_proportions[rank])
@@ -207,8 +209,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# are bound to the chromosome
 		bound_ribosome_counts_mean = chromosome_bound_ribosome_counts.mean(axis=0)
 		rank = np.argsort(bound_ribosome_counts_mean)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.common_names.genes[
-			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
+		ranked_genes = [
+			sim_data.common_names.get_common_name(protein_id_to_gene_id[protein_ids[i]])
+			for i in rank]
 
 		ax = plt.subplot(gs[6, 0])
 		ax.bar(list(range(PLOT_TOP_N_GENES)), bound_ribosome_counts_mean[rank])
@@ -229,8 +232,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			bound_ribosome_counts_mean / all_ribosome_counts_mean)
 		bound_ribosome_proportions[all_ribosome_counts_mean < 10] = 0
 		rank = np.argsort(bound_ribosome_proportions)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.common_names.genes[
-			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
+		ranked_genes = [
+			sim_data.common_names.get_common_name(protein_id_to_gene_id[protein_ids[i]])
+			for i in rank]
 
 		ax = plt.subplot(gs[7, 0])
 		ax.bar(list(range(PLOT_TOP_N_GENES)), bound_ribosome_proportions[rank])
@@ -274,8 +278,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			)[::-1][:LABEL_TOP_N_GENES]
 
 		for i in top_gene_indexes:
-			gene_name = sim_data.common_names.genes[
-				protein_id_to_gene_id[membrane_protein_ids[i]]][0]
+			gene_name = sim_data.common_names.get_common_name(
+				protein_id_to_gene_id[membrane_protein_ids[i]])
 			ribosome_count = bound_ribosome_counts_mean[membrane_protein_mask][i]
 			x = membrane_protein_x[i]
 			y = membrane_protein_y[i]

@@ -89,9 +89,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		headon_rank = np.argsort(n_headon_per_gene)[::-1][:PLOT_TOP_N_GENES]
 
 		# Get common names of top N genes
-		codirectional_top_genes = [sim_data.common_names.genes.get(gene, [gene])[0]
+		codirectional_top_genes = [sim_data.common_names.get_common_name(gene)
 			for gene in gene_ids[codirectional_rank]]
-		headon_top_genes = [sim_data.common_names.genes.get(gene, [gene])[0]
+		headon_top_genes = [sim_data.common_names.get_common_name(gene)
 			for gene in gene_ids[headon_rank]]
 
 		# Plot
