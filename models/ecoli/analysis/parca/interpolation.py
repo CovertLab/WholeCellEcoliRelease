@@ -11,7 +11,7 @@ import numpy as np
 
 from models.ecoli.analysis import parcaAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils import constants, units
+from wholecell.utils import constants, fitting, units
 
 
 def get_raw(data, x_col, y_col, factor=1):
@@ -113,9 +113,19 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 				label += '\n({})'.format(unit)
 
 			# Plot data
-			ax.plot(doubling_time_range, y_interp)
+			ax.plot(doubling_time_range, y_interp, label='sim_data fit')
 			if data:
-				ax.plot(data[0], data[1], 'or')
+				# Original data
+				x = np.array(data[0])
+				y = np.array(data[1])
+				ax.plot(x, y, 'or', label='Original data')
+
+				# Fit to data
+				params = fitting.fit_linearized_transforms(x, y, r_tol=0, p_tol=1)
+				linearized_fit = fitting.interpolate_linearized_fit(doubling_time_range, *params)
+				ax.plot(doubling_time_range, linearized_fit,
+					'--', label='Best linearized transform fit')
+
 			for dt in doubling_times:
 				ax.axvline(dt, linestyle='--', color='k', linewidth=0.5)
 
@@ -124,6 +134,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			ax.spines['right'].set_visible(False)
 			ax.set_ylabel(label)
 			ax.set_xlim([np.min(doubling_time_range), np.max(doubling_time_range)])
+			ax.legend(fontsize=6)
 
 		## Save figure
 		plt.tight_layout()
