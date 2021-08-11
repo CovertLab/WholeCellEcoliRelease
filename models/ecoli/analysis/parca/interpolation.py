@@ -45,7 +45,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 					'fractionActiveRnap'),
 			(growth.get_ppGpp_conc, None):
 				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
-					'ppGpp_conc', factor=growth._per_dry_mass_to_per_volume),
+					'ppGpp_conc', factor=growth.per_dry_mass_to_per_volume),
 			(growth.get_ribosome_elongation_rate, None):
 				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
 					'ribosomeElongationRate'),

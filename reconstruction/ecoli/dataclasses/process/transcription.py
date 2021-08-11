@@ -5,21 +5,17 @@ TODO: add mapping of tRNA to charged tRNA if allowing more than one modified for
 TODO: handle ppGpp and DksA-ppGpp regulation separately
 """
 
-from __future__ import absolute_import, division, print_function
-
-import numpy as np
-import scipy
-from scipy import interpolate
-import sympy as sp
 from typing import cast
 
+import numpy as np
+import sympy as sp
+
 from wholecell.sim.simulation import MAX_TIME_STEP
-from wholecell.utils import data, units
+from wholecell.utils import data, fitting, units
 from wholecell.utils.fitting import normalize
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import make_elongation_rates
-from six.moves import zip
 
 
 PROCESS_MAX_TIME_STEP = 2.
@@ -158,12 +154,15 @@ class Transcription(object):
 		self.ppgpp_fold_changes = fold_changes
 
 		# Predict growth rate from ppGpp level
+		# Transforms selected for good fit and to keep the growth rate positive
+		# even at high ppGpp concentrations.
 		per_dry_mass_to_per_volume = sim_data.constants.cell_density * sim_data.mass.cell_dry_mass_fraction
 		ppgpp = np.array([(d['ppGpp_conc'] * per_dry_mass_to_per_volume).asNumber(PPGPP_CONC_UNITS)
 			for d in raw_data.growth_rate_dependent_parameters])
 		growth_rates = np.log(2) / np.array([d['doublingTime'].asNumber(units.s)
 			for d in raw_data.growth_rate_dependent_parameters])
-		self._ppgpp_growth_parameters = interpolate.splrep(ppgpp[::-1], growth_rates[::-1], k=1)
+		self._ppgpp_growth_parameters = fitting.fit_linearized_transforms(
+			ppgpp, growth_rates, x_fun=['none'], y_fun=['1/sqrt'])
 
 		if PRINT_VALUES:
 			print('Supplement value (KM): {:.1f}'
@@ -1097,7 +1096,7 @@ class Transcription(object):
 		ppgpp = ppgpp.asNumber(PPGPP_CONC_UNITS)
 		f_ppgpp = self.fraction_rnap_bound_ppgpp(ppgpp)
 
-		y = interpolate.splev(ppgpp, self._ppgpp_growth_parameters)
+		y = fitting.interpolate_linearized_fit(ppgpp, *self._ppgpp_growth_parameters)
 		growth = max(cast(float, y), 0.0)
 		tau = np.log(2) / growth / 60
 		loss = growth + self.rna_data['deg_rate'].asNumber(1 / units.s)
