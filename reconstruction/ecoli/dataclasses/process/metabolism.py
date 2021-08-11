@@ -51,7 +51,6 @@ class Metabolism(object):
 	def __init__(self, raw_data, sim_data):
 		self._set_solver_values(sim_data.constants)
 		self._build_biomass(raw_data, sim_data)
-		self._build_linked_metabolites(raw_data, sim_data)
 		self._build_metabolism(raw_data, sim_data)
 		self._build_ppgpp_reactions(raw_data, sim_data)
 		self._build_transport_reactions(raw_data, sim_data)
@@ -235,26 +234,27 @@ class Metabolism(object):
 			raise ValueError('Multiple concentrations for metabolite(s): {}'.format(', '.join(unique_ids[counts > 1])))
 
 		# TODO (Travis): only pass raw_data and sim_data and create functions to load absolute and relative concentrations
+		conc_dict = dict(zip(metaboliteIDs, METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)))
 		all_metabolite_ids = {met['id'] for met in raw_data.metabolites}
-		self.concentration_updates = ConcentrationUpdates(dict(zip(
-			metaboliteIDs,
-			METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)
-			)),
+		linked_metabolites = self._build_linked_metabolites(raw_data, conc_dict)
+		self.concentration_updates = ConcentrationUpdates(
+			conc_dict,
 			relative_changes,
 			raw_data.equilibrium_reactions,
 			sim_data.external_state.exchange_dict,
-			all_metabolite_ids
+			all_metabolite_ids,
+			linked_metabolites,
 		)
 		self.conc_dict = self.concentration_updates.concentrations_based_on_nutrients("minimal")
 		self.nutrients_to_internal_conc = {}
 		self.nutrients_to_internal_conc["minimal"] = self.conc_dict.copy()
 
-	def _build_linked_metabolites(self, raw_data, sim_data):
+	def _build_linked_metabolites(self, raw_data, conc_dict):
 		"""
 		Calculates ratio between linked metabolites to keep it constant
 		throughout a simulation.
 
-		Attributes set:
+		Returns:
 			linked_metabolites (Dict[str, Dict[str, Any]]): mapping from a
 				linked metabolite to its lead metabolite and concentration
 				ratio to be maintained with the following keys:
@@ -262,13 +262,15 @@ class Metabolism(object):
 					'ratio' (float): ratio to multiply the lead concentration by
 		"""
 
-		self.linked_metabolites = {}
+		linked_metabolites = {}
 		for row in raw_data.linked_metabolites:
 			lead = row['Lead metabolite']
 			linked = row['Linked metabolite']
-			ratio = units.strip_empty_units(self.conc_dict[lead] / self.conc_dict[linked])
+			ratio = units.strip_empty_units(conc_dict[linked] / conc_dict[lead])
 
-			self.linked_metabolites[linked] = {'lead': lead, 'ratio': ratio}
+			linked_metabolites[linked] = {'lead': lead, 'ratio': ratio}
+
+		return linked_metabolites
 
 	def _build_metabolism(self, raw_data, sim_data):
 		"""
@@ -1807,12 +1809,13 @@ class Metabolism(object):
 
 # Class used to update metabolite concentrations based on the current nutrient conditions
 class ConcentrationUpdates(object):
-	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict, all_metabolite_ids):
+	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict, all_metabolite_ids, linked_metabolites):
 		self.units = units.getUnit(list(concDict.values())[0])
 		self.default_concentrations_dict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 		self.exchange_fluxes = self._exchange_flux_present(exchange_data_dict)
 		self.relative_changes = relative_changes
 		self._all_metabolite_ids = all_metabolite_ids
+		self.linked_metabolites = linked_metabolites
 
 		# factor of internal amino acid increase if amino acids present in nutrients
 		self.molecule_scale_factors = {
@@ -1875,6 +1878,9 @@ class ConcentrationUpdates(object):
 					if conversion_units:
 						setAmount = (setAmount / conversion_to_no_units).asNumber()
 					concDict[moleculeName] = setAmount
+
+		for met, linked in self.linked_metabolites.items():
+			concDict[met] = concDict[linked['lead']] * linked['ratio']
 
 		return concDict
 

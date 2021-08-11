@@ -15,7 +15,7 @@
 "ihfA"	"PC00027"	"minimal"	{}	"minimal"	{"EG10440_RNA[c]": 0}	"0CS"
 "leuO"	"PD00519"	"minimal"	{}	"minimal"	{"EG10531_RNA[c]": 0}	"0CS"
 "lexA"	"PC00010"	"minimal"	{}	"minimal"	{"EG10533_RNA[c]": 0}	"0CS"
-"metJ"	"CPLX0-7796"	"minimal_plus_sam"	{}	"minimal"	{}	"1CS"
+"metJ"	"CPLX0-7796"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "cytR"	"CPLX0-7740"	"minimal"	{}	"minimal_plus_cytidine"	{}	"1CS"
 "fnr"	"FNR-4FE-4S-CPLX"	"minimal_minus_oxygen"	{"EG10061_RNA[c]": 0}	"minimal"	{"EG10061_RNA[c]": 0}	"1CS"
 "arcA"	"PHOSPHO-ARCA"	"minimal_minus_oxygen"	{"EG10325_RNA[c]": 0}	"minimal"	{"EG10325_RNA[c]": 0}	"2CS"
