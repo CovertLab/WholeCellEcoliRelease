@@ -9,6 +9,7 @@ Modifies:
 	sim_data.expectedDryMassIncreaseDict
 	sim_data.nutrient_to_doubling_time
 	sim_data.translation_supply_rate
+	sim_data.process.translation.ribosomeElongationRateDict
 	sim_data.process.translation.ribosomeFractionActiveDict
 	sim_data.process.transcription.rnaPolymeraseElongationRateDict
 	sim_data.process.transcription.rnaSynthProbFraction
@@ -57,6 +58,7 @@ def remove_one_aa_shift(sim_data, index):
 			sim_data.expectedDryMassIncreaseDict,
 			sim_data.nutrient_to_doubling_time,
 			sim_data.translation_supply_rate,
+			sim_data.process.translation.ribosomeElongationRateDict,
 			sim_data.process.translation.ribosomeFractionActiveDict,
 			sim_data.process.transcription.rnaPolymeraseElongationRateDict,
 			sim_data.process.transcription.rnaSynthProbFraction,
