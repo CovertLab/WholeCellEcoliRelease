@@ -47,14 +47,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		aas_used = read_stacked_columns(cell_paths, 'GrowthLimits', 'aasUsed', remove_first=True)
 		aa_conc = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_conc', remove_first=True).T
 		aa_targets = read_stacked_columns(cell_paths, 'EnzymeKinetics', 'targetAAConc', remove_first=True)
-		trna_charged = read_stacked_columns(cell_paths, 'GrowthLimits', 'trnaCharged', remove_first=True)
 
 		# Calculate derived quantities
 		normalized_supply = (supply / time_step / dry_mass / expected_supply).T
 		normalized_synthesis = (synthesis / time_step / dry_mass / expected_supply).T
 		normalized_imported = (imported / time_step / dry_mass / expected_supply).T
 		normalized_use = (aas_used / time_step / dry_mass / expected_supply).T
-		normalized_charged = (trna_charged / time_step / dry_mass / expected_supply).T
 		normalized_targets = (aa_targets * counts_to_mol).T
 		normalized_targets /= aa_conc[:, 0:1]
 		aa_conc /= aa_conc[:, 0:1]
@@ -68,22 +66,20 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		gs = gridspec.GridSpec(nrows=rows, ncols=cols)
 
 		## Plot data for each amino acid
-		for i, (supply, aa_conc, synthesis, imported, use, target, charged) in enumerate(zip(
-				normalized_supply, aa_conc, normalized_synthesis, normalized_imported, normalized_use,
-				normalized_targets, normalized_charged)):
+		for i, (supply, aa_conc, synthesis, imported, use, target) in enumerate(zip(normalized_supply, 
+			aa_conc, normalized_synthesis, normalized_imported, normalized_use, normalized_targets)):
 			row = i // cols
 			col = i % cols
 			ax = plt.subplot(gs[row, col])
 
-			ax.plot(times, supply, label='Supply', linewidth=0.5, alpha=0.8, color='blue')
-			ax.plot(times, synthesis, label='Synthesis', linewidth=0.5, alpha=0.5, color='green')
-			ax.plot(times, aa_conc, label='AA conc', alpha=0.5, color='orange')
-			ax.plot(times, imported, label='Imported', linewidth=0.5, alpha=0.5, color='red')
-			ax.plot(times, use, label='Translation use', linewidth=0.5, alpha=0.5, color='gray')
-			ax.plot(times, target, label='AA targets', linewidth=0.5, alpha=0.5, color='pink')
-			ax.plot(times, charged, label='AA trna charged', linewidth=0.5, alpha=0.5, color='black')
-			ax.axhline(0, linestyle='--', linewidth=0.5, color='k', alpha=0.5)
-			ax.axhline(1, linestyle='--', linewidth=0.5, color='k', alpha=0.5)
+			ax.plot(times, supply, label='Supply', alpha=0.5)
+			ax.plot(times, aa_conc, label='AA conc', alpha=0.5)
+			ax.plot(times, synthesis, label='Synthesis', alpha=0.5)
+			ax.plot(times, imported, label='Imported', alpha=0.5)
+			ax.plot(times, use, label='Translation use', alpha=0.5)
+			ax.plot(times, target, label='AA targets', alpha=0.5)
+			ax.axhline(0, linestyle='--', linewidth=0.5, color='k', alpha=0.3)
+			ax.axhline(1, linestyle='--', linewidth=0.5, color='k', alpha=0.3)
 
 			ax.spines['right'].set_visible(False)
 			ax.spines['top'].set_visible(False)
