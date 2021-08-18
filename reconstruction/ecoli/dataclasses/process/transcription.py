@@ -454,7 +454,7 @@ class Transcription(object):
 		# Construct transcription sequence matrix
 		maxLen = np.int64(
 			self.rna_data["length"].asNumber().max()
-			+ self.max_time_step * sim_data.growth_rate_parameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+			+ self.max_time_step * sim_data.constants.RNAP_elongation_rate_for_stable_RNA.asNumber(units.nt / units.s)
 			)
 
 		self.transcription_sequences = np.full((len(rna_seqs), maxLen), polymerize.PAD_VALUE, dtype=np.int8)
