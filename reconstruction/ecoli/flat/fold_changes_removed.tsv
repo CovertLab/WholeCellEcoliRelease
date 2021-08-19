@@ -9,3 +9,4 @@
 "crp"	"rpsO"	"Remove to increase ribosome counts in with amino acid conditions when simulating with ppGpp"
 "fis"	"rpsO"	"Remove to increase ribosome counts in with amino acid conditions when simulating with ppGpp"
 "fis"	"gltX"	"Remove to get higher charging in with amino acid conditions when simulating with ppGpp"
+"argP"	"gdhA"	"Remove to get stable growth with mechanistic translation supply due to complexity of ArgP signaling and Lys pathway control"
