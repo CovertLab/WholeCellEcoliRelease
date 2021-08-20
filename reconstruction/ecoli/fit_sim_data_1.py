@@ -194,11 +194,15 @@ def input_adjustments(sim_data, cell_specs, debug=False, **kwargs):
 @save_state
 def basal_specs(sim_data, cell_specs,
 		disable_ribosome_capacity_fitting=False, disable_rnapoly_capacity_fitting=False,
+		variable_elongation_transcription=True, variable_elongation_translation=False,
 		**kwargs):
+
 	cell_specs = buildBasalCellSpecifications(
 		sim_data,
+		variable_elongation_transcription,
+		variable_elongation_translation,
 		disable_ribosome_capacity_fitting,
-		disable_rnapoly_capacity_fitting
+		disable_rnapoly_capacity_fitting,
 		)
 
 	# Set expression based on ppGpp regulation from basal expression
@@ -221,14 +225,16 @@ def basal_specs(sim_data, cell_specs,
 @save_state
 def tf_condition_specs(sim_data, cell_specs, cpus=1,
 		disable_ribosome_capacity_fitting=False, disable_rnapoly_capacity_fitting=False,
-		variable_elongation_transcription=False, variable_elongation_translation=False,
+		variable_elongation_transcription=True, variable_elongation_translation=False,
 		**kwargs):
 	# Limit the number of CPUs before printing it to stdout.
 	cpus = parallelization.cpus(cpus)
 
 	# Apply updates to cell_specs from buildTfConditionCellSpecifications for each TF condition
 	conditions = list(sorted(sim_data.tf_to_active_inactive_conditions))
-	args = [(sim_data, tf, disable_ribosome_capacity_fitting, disable_rnapoly_capacity_fitting)
+	args = [
+		(sim_data, tf, variable_elongation_transcription, variable_elongation_translation,
+				disable_ribosome_capacity_fitting, disable_rnapoly_capacity_fitting)
 		for tf in conditions]
 	apply_updates(buildTfConditionCellSpecifications, args, conditions, cell_specs, cpus)
 
@@ -427,8 +433,10 @@ def apply_updates(func, args, labels, dest, cpus):
 
 def buildBasalCellSpecifications(
 		sim_data,
+		variable_elongation_transcription=True,
+		variable_elongation_translation=False,
 		disable_ribosome_capacity_fitting=False,
-		disable_rnapoly_capacity_fitting=False
+		disable_rnapoly_capacity_fitting=False,
 		):
 	"""
 	Creates cell specifications for the basal condition by fitting expression.
@@ -486,6 +494,8 @@ def buildBasalCellSpecifications(
 		cell_specs["basal"]["expression"],
 		cell_specs["basal"]["concDict"],
 		cell_specs["basal"]["doubling_time"],
+		variable_elongation_transcription = variable_elongation_transcription,
+		variable_elongation_translation = variable_elongation_translation,
 		disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
 		disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 		)
@@ -512,8 +522,10 @@ def buildBasalCellSpecifications(
 def buildTfConditionCellSpecifications(
 		sim_data,
 		tf,
+		variable_elongation_transcription=True,
+		variable_elongation_translation=False,
 		disable_ribosome_capacity_fitting=False,
-		disable_rnapoly_capacity_fitting=False
+		disable_rnapoly_capacity_fitting=False,
 		):
 	"""
 	Creates cell specifications for a given transcription factor by
@@ -597,6 +609,8 @@ def buildTfConditionCellSpecifications(
 			cell_specs[conditionKey]["concDict"],
 			cell_specs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rna_data['Km_endoRNase'],
+			variable_elongation_transcription = variable_elongation_transcription,
+			variable_elongation_translation = variable_elongation_translation,
 			disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
 			disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 			)
@@ -613,7 +627,7 @@ def buildTfConditionCellSpecifications(
 def buildCombinedConditionCellSpecifications(
 		sim_data,
 		cell_specs,
-		variable_elongation_transcription=False,
+		variable_elongation_transcription=True,
 		variable_elongation_translation=False,
 		disable_ribosome_capacity_fitting=False,
 		disable_rnapoly_capacity_fitting=False):
@@ -717,7 +731,7 @@ def expressionConverge(
 		concDict,
 		doubling_time,
 		Km=None,
-		variable_elongation_transcription=False,
+		variable_elongation_transcription=True,
 		variable_elongation_translation=False,
 		disable_ribosome_capacity_fitting=False,
 		disable_rnapoly_capacity_fitting=False):

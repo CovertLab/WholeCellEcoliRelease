@@ -454,7 +454,7 @@ class Transcription(object):
 		# Construct transcription sequence matrix
 		maxLen = np.int64(
 			self.rna_data["length"].asNumber().max()
-			+ self.max_time_step * sim_data.growth_rate_parameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+			+ self.max_time_step * sim_data.constants.RNAP_elongation_rate_for_stable_RNA.asNumber(units.nt / units.s)
 			)
 
 		self.transcription_sequences = np.full((len(rna_seqs), maxLen), polymerize.PAD_VALUE, dtype=np.int8)
@@ -731,7 +731,10 @@ class Transcription(object):
 		return 1 - np.exp(units.strip_empty_units(trna_by_aa @ self.attenuation_k))
 
 	def _build_elongation_rates(self, raw_data, sim_data):
-		self.max_elongation_rate = sim_data.constants.RNAP_elongation_rate_max.asNumber(units.nt / units.s)
+		self.stable_RNA_elongation_rate = sim_data.constants.RNAP_elongation_rate_for_stable_RNA.asNumber(units.nt / units.s)
+
+		# rRNAs are set to have higher elongation rates
+		# TODO (ggsun): Consider adding tRNAs
 		self.rRNA_indexes = np.where(self.rna_data['is_rRNA'])[0]
 
 	def make_elongation_rates(self, random, base, time_step, variable_elongation=False):
@@ -740,7 +743,7 @@ class Transcription(object):
 			self.transcription_sequences.shape[0],
 			base,
 			self.rRNA_indexes,
-			self.max_elongation_rate,
+			self.stable_RNA_elongation_rate,
 			time_step,
 			variable_elongation)
 

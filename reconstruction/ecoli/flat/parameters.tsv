@@ -8,7 +8,7 @@
 "endoRNase_cooperation"	1			
 "ribosome_elongation_rate_max"	30	"units.aa/units.s"		
 "ribosome_elongation_rate_basal"	22	"units.aa/units.s"		
-"RNAP_elongation_rate_max"	85	"units.nt/units.s"		
+"RNAP_elongation_rate_for_stable_RNA"	85	"units.nt/units.s"
 "metabolism_homeostatic_range_obj_fraction_higher"	0			
 "metabolism_kinetic_objective_weight_linear"	1E-07			
 "metabolism_kinetic_objective_weight_quadratic"	1E-11			

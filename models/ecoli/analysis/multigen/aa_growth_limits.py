@@ -44,18 +44,22 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		supply = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_supply', remove_first=True)
 		synthesis = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_synthesis', remove_first=True)
 		imported = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_import', remove_first=True)
+		exported = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_export', remove_first=True)
 		aas_used = read_stacked_columns(cell_paths, 'GrowthLimits', 'aasUsed', remove_first=True)
 		aa_conc = read_stacked_columns(cell_paths, 'GrowthLimits', 'aa_conc', remove_first=True).T
 		aa_targets = read_stacked_columns(cell_paths, 'EnzymeKinetics', 'targetAAConc', remove_first=True)
+		aa_conc /= 1000 # Values are in umol and all the rest in mmol
 
 		# Calculate derived quantities
 		normalized_supply = (supply / time_step / dry_mass / expected_supply).T
 		normalized_synthesis = (synthesis / time_step / dry_mass / expected_supply).T
 		normalized_imported = (imported / time_step / dry_mass / expected_supply).T
+		normalized_exported = (exported / time_step / dry_mass).T
 		normalized_use = (aas_used / time_step / dry_mass / expected_supply).T
 		normalized_targets = (aa_targets * counts_to_mol).T
 		normalized_targets /= aa_conc[:, 0:1]
 		aa_conc /= aa_conc[:, 0:1]
+		normalized_exported /= normalized_exported[:,0:1]
 
 
 		# Plot data
@@ -66,8 +70,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		gs = gridspec.GridSpec(nrows=rows, ncols=cols)
 
 		## Plot data for each amino acid
-		for i, (supply, aa_conc, synthesis, imported, use, target) in enumerate(zip(normalized_supply, 
-			aa_conc, normalized_synthesis, normalized_imported, normalized_use, normalized_targets)):
+		for i, (supply, aa_conc, synthesis, imported, exported, use, target) in enumerate(zip(normalized_supply, 
+			aa_conc, normalized_synthesis, normalized_imported, normalized_exported, normalized_use, normalized_targets)):
 			row = i // cols
 			col = i % cols
 			ax = plt.subplot(gs[row, col])
@@ -77,7 +81,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			ax.plot(times, synthesis, label='Synthesis', alpha=0.5)
 			ax.plot(times, imported, label='Imported', alpha=0.5)
 			ax.plot(times, use, label='Translation use', alpha=0.5)
-			ax.plot(times, target, label='AA targets', alpha=0.5)
+			ax.plot(times, exported, label='Exported', alpha=0.5, color='gray')
+			ax.plot(times, target, label='AA targets', alpha=0.3, color='purple')
 			ax.axhline(0, linestyle='--', linewidth=0.5, color='k', alpha=0.3)
 			ax.axhline(1, linestyle='--', linewidth=0.5, color='k', alpha=0.3)
 
