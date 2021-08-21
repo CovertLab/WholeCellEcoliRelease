@@ -82,6 +82,7 @@ def post_plot_formatting(ax, division_times, y_label, draw_horizontal=None, y_li
 	else:
 		color = 'k'
 	ax.set_ylabel(y_label, fontsize=8, color=color)
+	ax.tick_params(axis='both', labelsize=6)
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -107,23 +108,25 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
 
 		# Create plot and axes
-		n_subplots = 8
-		fig = plt.figure(figsize=(5, 12))
+		n_subplots = 9
+		fig = plt.figure(figsize=(5, 20))
 		growth_ax = plt.subplot(n_subplots, 1, 1)
 		growth_ax2 = growth_ax.twinx()
 		ppgpp_ax = plt.subplot(n_subplots, 1, 2)
 		spot_ax = plt.subplot(n_subplots, 1, 3)
 		rela_ax = spot_ax.twinx()
 		synth_ax = plt.subplot(n_subplots, 1, 4)
-		frac_ax = plt.subplot(n_subplots, 1, 5)
-		uncharged_trna_ax = plt.subplot(n_subplots, 1, 6)
-		charged_trna_ax = plt.subplot(n_subplots, 1, 7)
-		legend_ax = plt.subplot(n_subplots, 1, 8)
+		trna_ax = plt.subplot(n_subplots, 1, 5)
+		frac_ax = plt.subplot(n_subplots, 1, 6)
+		uncharged_trna_ax = plt.subplot(n_subplots, 1, 7)
+		charged_trna_ax = plt.subplot(n_subplots, 1, 8)
+		legend_ax = plt.subplot(n_subplots, 1, 9)
 
-		initial_synthetase_counts = None
-		initial_uncharged_trna_counts = None
-		initial_charged_trna_counts = None
-		initial_ppgpp_protein_counts = None
+		initial_synthetase_conc = None
+		initial_uncharged_trna_conc = None
+		initial_charged_trna_conc = None
+		initial_ppgpp_protein_conc = None
+		initial_total_trna_conc = None
 		division_times = []
 		total_elong = 0.
 		total_growth = 0.
@@ -143,7 +146,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			division_times.append(time[-1])
 			elong_rate = ribosome_reader.readColumn('effectiveElongationRate')
 			growth_rate = mass_reader.readColumn('instantaneous_growth_rate') * 3600
-			counts_to_molar = enzyme_kinetics_reader.readColumn('countsToMolar')
+			counts_to_molar = enzyme_kinetics_reader.readColumn('countsToMolar').reshape(-1, 1)
 			(synthetase_counts, uncharged_trna_counts, charged_trna_counts, ppgpp_mol_counts
 				) = read_bulk_molecule_counts(simOutDir,
 				(synthetase_names, uncharged_trna_names, charged_trna_names, ppgpp_molecules))
@@ -153,45 +156,50 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			total_growth += np.nansum(growth_rate)
 
 			## Synthetase counts
-			synthetase_counts = np.dot(synthetase_counts, aa_from_synthetase)
-			if initial_synthetase_counts is None:
-				initial_synthetase_counts = synthetase_counts[1, :]
-			normalized_synthetase_counts = synthetase_counts / initial_synthetase_counts
+			synthetase_conc = counts_to_molar * np.dot(synthetase_counts, aa_from_synthetase)
+			if initial_synthetase_conc is None:
+				initial_synthetase_conc = synthetase_conc[1, :]
+			normalized_synthetase_conc = synthetase_conc / initial_synthetase_conc
 
 			## Uncharged tRNA counts
-			uncharged_trna_counts = np.dot(uncharged_trna_counts, aa_from_trna)
-			if initial_uncharged_trna_counts is None:
-				initial_uncharged_trna_counts = uncharged_trna_counts[1, :]
-			normalized_uncharged_trna_counts = uncharged_trna_counts / initial_uncharged_trna_counts
+			uncharged_trna_conc = counts_to_molar * np.dot(uncharged_trna_counts, aa_from_trna)
+			if initial_uncharged_trna_conc is None:
+				initial_uncharged_trna_conc = uncharged_trna_conc[1, :]
+			normalized_uncharged_trna_conc = uncharged_trna_conc / initial_uncharged_trna_conc
 
 			## Charged tRNA counts
-			charged_trna_counts = np.dot(charged_trna_counts, aa_from_trna)
-			if initial_charged_trna_counts is None:
-				initial_charged_trna_counts = charged_trna_counts[1, :]
-			normalized_charged_trna_counts = charged_trna_counts / initial_charged_trna_counts
+			charged_trna_conc = counts_to_molar * np.dot(charged_trna_counts, aa_from_trna)
+			if initial_charged_trna_conc is None:
+				initial_charged_trna_conc = charged_trna_conc[1, :]
+			normalized_charged_trna_conc = charged_trna_conc / initial_charged_trna_conc
 
-			## Fraction charged
-			fraction_charged = charged_trna_counts / (charged_trna_counts + uncharged_trna_counts)
+			## Total tRNA and fraction charged
+			total_trna_conc = charged_trna_conc + uncharged_trna_conc
+			if initial_total_trna_conc is None:
+				initial_total_trna_conc = total_trna_conc[1, :]
+			normalized_total_trna_conc = total_trna_conc / initial_total_trna_conc
+			fraction_charged = charged_trna_conc / (charged_trna_conc + uncharged_trna_conc)
 
 			## ppGpp related counts and concentration
-			ppgpp_protein_counts = ppgpp_mol_counts[:, :2]
-			if initial_ppgpp_protein_counts is None:
-				initial_ppgpp_protein_counts = ppgpp_protein_counts[1, :]
-			normalized_ppgpp_protein_counts = ppgpp_protein_counts / initial_ppgpp_protein_counts
-			ppgpp_conc = ppgpp_mol_counts[:, 2] * counts_to_molar * 1000
+			ppgpp_protein_conc = counts_to_molar * ppgpp_mol_counts[:, :2]
+			if initial_ppgpp_protein_conc is None:
+				initial_ppgpp_protein_conc = ppgpp_protein_conc[1, :]
+			normalized_ppgpp_protein_conc = ppgpp_protein_conc / initial_ppgpp_protein_conc
+			ppgpp_conc = ppgpp_mol_counts[:, 2] * counts_to_molar[:, 0] * 1000
 			total_ppgpp += ppgpp_conc.sum()
 			timesteps += len(ppgpp_conc)
 
 			# Plot data
 			plot_ax(growth_ax, time[1:], elong_rate[1:])  # [1:] to remove spike down
 			plot_ax(growth_ax2, time[1:], growth_rate[1:], True)
-			plot_ax(spot_ax, time, np.log2(normalized_ppgpp_protein_counts[:, 1]))
-			plot_ax(rela_ax, time, np.log2(normalized_ppgpp_protein_counts[:, 0]), True)
+			plot_ax(spot_ax, time, np.log2(normalized_ppgpp_protein_conc[:, 1]))
+			plot_ax(rela_ax, time, np.log2(normalized_ppgpp_protein_conc[:, 0]), True)
 			plot_ax(ppgpp_ax, time, ppgpp_conc)
-			plot_ax(synth_ax, time, np.log2(normalized_synthetase_counts))
+			plot_ax(synth_ax, time, np.log2(normalized_synthetase_conc))
+			plot_ax(trna_ax, time, np.log2(normalized_total_trna_conc))
 			plot_ax(frac_ax, time, fraction_charged)
-			plot_ax(uncharged_trna_ax, time, np.log2(normalized_uncharged_trna_counts))
-			plot_ax(charged_trna_ax, time, np.log2(normalized_charged_trna_counts))
+			plot_ax(uncharged_trna_ax, time, np.log2(normalized_uncharged_trna_conc))
+			plot_ax(charged_trna_ax, time, np.log2(normalized_charged_trna_conc))
 
 		elong_mean = total_elong / timesteps
 		growth_mean = total_growth / timesteps
@@ -200,14 +208,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Format plot axes
 		post_plot_formatting(growth_ax, division_times, 'Ribosome\nElongation Rate', y_lim=[0, 22], draw_horizontal=elong_mean)
 		post_plot_formatting(growth_ax2, division_times, 'Growth Rate\n(1/hr)', y_lim=0, draw_horizontal=growth_mean, secondary=True)
-		post_plot_formatting(spot_ax, division_times, 'SpoT\nFold Change', draw_horizontal=0)
-		post_plot_formatting(rela_ax, division_times, 'RelA\nFold Change', draw_horizontal=0, secondary=True)
+		post_plot_formatting(spot_ax, division_times, 'SpoT Conc\nFold Change', draw_horizontal=0)
+		post_plot_formatting(rela_ax, division_times, 'RelA Conc\nFold Change', draw_horizontal=0, secondary=True)
 		post_plot_formatting(ppgpp_ax, division_times, 'ppGpp Conc\n(uM)', y_lim=0, draw_horizontal=ppgpp_mean)
-		post_plot_formatting(synth_ax, division_times, 'Synthetase\nFold Change', draw_horizontal=0)
+		post_plot_formatting(synth_ax, division_times, 'Synthetase Conc\nFold Change', draw_horizontal=0)
+		post_plot_formatting(trna_ax, division_times, 'Total tRNA Conc\nFold Change', draw_horizontal=0)
 		post_plot_formatting(frac_ax, division_times, 'Fraction\ntRNA Charged', y_lim=[0, 1])
-		post_plot_formatting(uncharged_trna_ax, division_times, 'Uncharged tRNA\nFold Change', draw_horizontal=0)
-		post_plot_formatting(charged_trna_ax, division_times, 'Charged tRNA\nFold Change', draw_horizontal=0, show_x_axis=True)
-		charged_trna_ax.set_xlabel('Time (hr)')
+		post_plot_formatting(uncharged_trna_ax, division_times, 'Uncharged tRNA Conc\nFold Change', draw_horizontal=0)
+		post_plot_formatting(charged_trna_ax, division_times, 'Charged tRNA Conc\nFold Change', draw_horizontal=0, show_x_axis=True)
+		charged_trna_ax.set_xlabel('Time (hr)', fontsize=8)
 
 		# Format and display legend below all plots
 		legend_ax.set_prop_cycle('color', COLORS_SMALL)
