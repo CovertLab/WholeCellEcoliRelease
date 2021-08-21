@@ -54,8 +54,12 @@ class Metabolism(wholecell.processes.process.Process):
 		environment = self._external_states['Environment']
 		self.use_trna_charging = sim._trna_charging
 		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging
+<<<<<<< HEAD
 		self.mechanistic_aa_uptake = sim._mechanistic_aa_uptake
 		metabolism = sim_data.process.metabolism
+=======
+		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
+>>>>>>> 84dae5931... Aa mechanistic export (#1151)
 
 		# Create model to use to solve metabolism updates
 		self.model = FluxBalanceAnalysisModel(
@@ -110,14 +114,23 @@ class Metabolism(wholecell.processes.process.Process):
 			for aa in self.aa_exchange_names
 			])
 
+<<<<<<< HEAD
 		self.amino_acid_import = metabolism.amino_acid_import
 		self.aa_transporters_names = metabolism.aa_transporters_names
+=======
+		self.amino_acid_import = sim_data.process.metabolism.amino_acid_import
+		self.amino_acid_export = sim_data.process.metabolism.amino_acid_export
+		self.aa_transporters_names = sim_data.process.metabolism.aa_transporters_names
+		self.aa_export_transporters_names = sim_data.process.metabolism.aa_export_transporters_names
+>>>>>>> 84dae5931... Aa mechanistic export (#1151)
 		self.aa_transporters_container = self.bulkMoleculesView(self.aa_transporters_names)
+		self.aa_export_transporters_container = self.bulkMoleculesView(self.aa_export_transporters_names)
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
 		self.aa_transporters_container.requestAll()
+		self.aa_export_transporters_container.requestAll()
 		self.kineticsEnzymes.requestAll()
 		self.kineticsSubstrates.requestAll()
 
@@ -160,13 +173,18 @@ class Metabolism(wholecell.processes.process.Process):
 			}
 
 		aa_uptake_package = None
-		if self.mechanistic_aa_uptake:
+		if self.mechanistic_aa_transport:
 			aa_in_media = self.aa_environment.import_present()
 			aa_in_media[self.removed_aa_uptake] = False
 			import_rates = (counts_to_molar * self.timeStepSec() * self.amino_acid_import(
 				aa_in_media, dry_mass, self.aa_transporters_container.counts(),
-				self.mechanistic_aa_uptake)).asNumber(CONC_UNITS)
-			aa_uptake_package=(import_rates[aa_in_media], self.aa_exchange_names[aa_in_media], True)
+				self.mechanistic_aa_transport)).asNumber(CONC_UNITS)
+			export_rates = (counts_to_molar * self.timeStepSec() * self.amino_acid_export(
+				self.aa_export_transporters_container.counts(),
+				counts_to_molar * self.aas.total_counts(),
+				self.mechanistic_aa_transport)).asNumber(CONC_UNITS)
+			exchange_rates = import_rates - export_rates
+			aa_uptake_package = (exchange_rates[aa_in_media], self.aa_exchange_names[aa_in_media], True)
 
 		# Update FBA problem based on current state
 		## Set molecule availability (internal and external)
@@ -516,7 +534,7 @@ class FluxBalanceAnalysisModel(object):
 
 		if aa_uptake_package:
 			levels, molecules, force = aa_uptake_package
-			self.fba.setExternalMoleculeLevels(levels, molecules=molecules, force=force)
+			self.fba.setExternalMoleculeLevels(levels, molecules=molecules, force=force, allow_export=True)
 
 
 	def set_reaction_bounds(self, catalyst_counts, counts_to_molar, coefficient,
