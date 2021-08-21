@@ -111,7 +111,8 @@ class TfBinding(wholecell.processes.process.Process):
 
 		for tf_idx, tf_id in enumerate(self.tf_ids):
 			# Free all DNA-bound transcription factors into free active
-			# transcription factors
+			# transcription factors (this should already be taken care of in
+			# tf_unbinding)
 			active_tf_view = self.active_tf_view[tf_id]
 			bound_tf_counts = n_bound_TF[tf_idx]
 			active_tf_view.countInc(bound_tf_counts)

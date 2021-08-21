@@ -21,6 +21,7 @@ from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
 from models.ecoli.processes.equilibrium import Equilibrium
 from models.ecoli.processes.tf_binding import TfBinding
+from models.ecoli.processes.tf_unbinding import TfUnbinding
 from models.ecoli.processes.two_component_system import TwoComponentSystem
 
 # Listeners
@@ -45,6 +46,7 @@ from models.ecoli.sim.initial_conditions import calcInitialConditions
 from wholecell.sim.divide_cell import divide_cell
 from models.ecoli.sim.initial_conditions import setDaughterInitialConditions
 
+
 class EcoliSimulation(Simulation):
 	_internalStateClasses = (
 		BulkMolecules,
@@ -57,6 +59,18 @@ class EcoliSimulation(Simulation):
 
 	_processClasses = (
 		(
+			TfUnbinding,
+		),
+		# Must run after TfUnbinding and before TfBinding
+		(
+			Equilibrium,
+			TwoComponentSystem,
+		),
+		# Must run before TranscriptInitiation
+		(
+			TfBinding,
+		),
+		(
 			RnaDegradation,
 			TranscriptInitiation,
 			TranscriptElongation,
@@ -65,9 +79,6 @@ class EcoliSimulation(Simulation):
 			ChromosomeReplication,
 			ProteinDegradation,
 			Complexation,
-			Equilibrium,
-			TfBinding,
-			TwoComponentSystem,
 		),
 		(
 			ChromosomeStructure,
