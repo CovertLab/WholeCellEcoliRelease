@@ -42,7 +42,7 @@ METADATA_KEYS = (
 	'recycle_stalled_elongation',
 	'mechanistic_replisome',
 	'mechanistic_translation_supply',
-	'mechanistic_aa_uptake',
+	'mechanistic_aa_transport',
 	'trna_attenuation',
 	'adjust_timestep_for_charging',
 	)
@@ -76,7 +76,7 @@ SIM_KEYS = (
 	'recycle_stalled_elongation',
 	'mechanistic_replisome',
 	'mechanistic_translation_supply',
-	'mechanistic_aa_uptake',
+	'mechanistic_aa_transport',
 	'trna_attenuation',
 	'raise_on_time_limit',
 	'log_to_shell',
@@ -490,7 +490,7 @@ class ScriptBase(metaclass=abc.ABCMeta):
 		add_bool_option('mechanistic_translation_supply', 'mechanistic_translation_supply',
 			help='if true, amino acid translation supply is mechanistic (depends on'
 				 ' concentrations of enzymes and amino acids)')
-		add_bool_option('mechanistic_aa_uptake', 'mechanistic_aa_uptake',
+		add_bool_option('mechanistic_aa_transport', 'mechanistic_aa_transport',
 			help='if true, amino acid uptake is mechanistic (depends on'
 				 ' concentrations of transporter enzymes and amino acids)')
 		add_bool_option('trna_attenuation', 'trna_attenuation',

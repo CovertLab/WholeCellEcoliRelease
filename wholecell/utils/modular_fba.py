@@ -1063,7 +1063,7 @@ class FluxBalanceAnalysis(object):
 		return self._externalMoleculeIDs
 
 
-	def setExternalMoleculeLevels(self, levels, molecules=None, force=False):
+	def setExternalMoleculeLevels(self, levels, molecules=None, force=False, allow_export=False):
 		"""
 		Sets levels of external molecules that the cell can access. A positive
 		level indicates molcules that are available for uptake while a negative
@@ -1091,7 +1091,8 @@ class FluxBalanceAnalysis(object):
 			lb = None
 			ub = None
 			if level < 0:
-				print("Setting a negative external molecule level - be sure this is intended behavior.")
+				if not allow_export:
+					print("Setting a negative external molecule level for {} - be sure this is intended behavior.".format(moleculeID))
 
 				ub = -level
 				if force:
