@@ -54,12 +54,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		normalized_supply = (supply / time_step / dry_mass / expected_supply).T
 		normalized_synthesis = (synthesis / time_step / dry_mass / expected_supply).T
 		normalized_imported = (imported / time_step / dry_mass / expected_supply).T
-		normalized_exported = (exported / time_step / dry_mass).T
+		normalized_exported = (exported / time_step / dry_mass/ expected_supply).T
 		normalized_use = (aas_used / time_step / dry_mass / expected_supply).T
 		normalized_targets = (aa_targets * counts_to_mol).T
 		normalized_targets /= aa_conc[:, 0:1]
 		aa_conc /= aa_conc[:, 0:1]
-		normalized_exported /= normalized_exported[:,0:1]
 
 
 		# Plot data
