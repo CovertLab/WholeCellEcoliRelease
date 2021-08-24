@@ -54,9 +54,10 @@ class Metabolism(wholecell.processes.process.Process):
 		environment = self._external_states['Environment']
 		self.use_trna_charging = sim._trna_charging
 		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging
+
 		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
 		metabolism = sim_data.process.metabolism
-		
+	
 		# Create model to use to solve metabolism updates
 		self.model = FluxBalanceAnalysisModel(
 			sim_data,
