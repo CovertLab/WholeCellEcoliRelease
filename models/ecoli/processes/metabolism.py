@@ -55,7 +55,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.use_trna_charging = sim._trna_charging
 		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging
 		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
-
+		metabolism = sim_data.process.metabolism
+		
 		# Create model to use to solve metabolism updates
 		self.model = FluxBalanceAnalysisModel(
 			sim_data,
@@ -85,7 +86,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
 		# Molecules with concentration updates for listener
-		self.linked_metabolites = sim_data.process.metabolism.concentration_updates.linked_metabolites
+		self.linked_metabolites = metabolism.concentration_updates.linked_metabolites
 		doubling_time = self.nutrientToDoublingTime.get(
 			environment.current_media_id,
 			self.nutrientToDoublingTime["minimal"])
@@ -109,10 +110,11 @@ class Metabolism(wholecell.processes.process.Process):
 			for aa in self.aa_exchange_names
 			])
 
-		self.amino_acid_import = sim_data.process.metabolism.amino_acid_import
-		self.amino_acid_export = sim_data.process.metabolism.amino_acid_export
-		self.aa_transporters_names = sim_data.process.metabolism.aa_transporters_names
-		self.aa_export_transporters_names = sim_data.process.metabolism.aa_export_transporters_names
+		self.amino_acid_import = metabolism.amino_acid_import
+		self.amino_acid_export = .metabolism.amino_acid_export
+		self.aa_transporters_names = metabolism.aa_transporters_names
+		self.aa_export_transporters_names = metabolism.aa_export_transporters_names
+
 		self.aa_transporters_container = self.bulkMoleculesView(self.aa_transporters_names)
 		self.aa_export_transporters_container = self.bulkMoleculesView(self.aa_export_transporters_names)
 
@@ -525,7 +527,6 @@ class FluxBalanceAnalysisModel(object):
 		if aa_uptake_package:
 			levels, molecules, force = aa_uptake_package
 			self.fba.setExternalMoleculeLevels(levels, molecules=molecules, force=force, allow_export=True)
-
 
 	def set_reaction_bounds(self, catalyst_counts, counts_to_molar, coefficient,
 			gtp_to_hydrolyze):
