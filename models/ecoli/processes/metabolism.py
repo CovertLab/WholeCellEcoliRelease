@@ -111,7 +111,7 @@ class Metabolism(wholecell.processes.process.Process):
 			])
 
 		self.amino_acid_import = metabolism.amino_acid_import
-		self.amino_acid_export = .metabolism.amino_acid_export
+		self.amino_acid_export = metabolism.amino_acid_export
 		self.aa_transporters_names = metabolism.aa_transporters_names
 		self.aa_export_transporters_names = metabolism.aa_export_transporters_names
 
