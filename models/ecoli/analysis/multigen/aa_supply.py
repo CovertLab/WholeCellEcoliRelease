@@ -26,6 +26,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			sim_data = pickle.load(f)
 
 		# Amino acid data
+		enzyme_to_amino_acid = sim_data.process.metabolism.enzyme_to_amino_acid
 		aa_ids = sim_data.molecule_groups.amino_acids
 		n_aas = len(aa_ids)
 
@@ -54,7 +55,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		normalized_synthesis = (synthesis / time_step / dry_mass / expected_supply).T
 		normalized_imported = (imported / time_step / dry_mass / expected_supply).T
 		normalized_use = (aas_used / time_step / dry_mass / expected_supply).T
-		enzyme_conc = (enzyme_counts * counts_to_mol).T
+		enzyme_conc = (enzyme_counts @ enzyme_to_amino_acid * counts_to_mol).T
 		enzyme_conc /= enzyme_conc[:, 0:1]
 		aa_conc /= aa_conc[:, 0:1]
 

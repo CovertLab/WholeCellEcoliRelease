@@ -31,15 +31,20 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.ntpIds = sim_data.molecule_groups.ntps
 		self.uncharged_trna_ids = sim_data.process.transcription.rna_data['id'][sim_data.process.transcription.rna_data['is_tRNA']].tolist()
 		self.charged_trna_ids = sim_data.process.transcription.charged_trna_names
+		self.aa_enzymes = list(sim_data.process.metabolism.aa_enzymes)
+		self.aa_exporter_names = list(sim_data.process.metabolism.aa_export_transporters_names)
 
 	# Allocate memory
 	def allocate(self):
 		super(GrowthLimits, self).allocate()
 
+		n_aa = len(self.aaIds)
+		n_enzymes = len(self.aa_enzymes)
+		n_exporters = len(self.aa_exporter_names)
+
 		# For translation
 		self.activeRibosomeAllocated = 0
 
-		n_aa = len(self.aaIds)
 		self.aaPoolSize = np.zeros(n_aa, np.float64)
 		self.aaRequestSize = np.zeros(n_aa, np.float64)
 		self.aaAllocated = np.zeros(n_aa, np.float64)
@@ -72,13 +77,16 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.spot_syn = 0.
 		self.spot_deg = 0.
 
+		self.original_aa_supply = np.zeros(n_aa, np.float64)
 		self.aa_supply = np.zeros(n_aa, np.float64)
 		self.aa_synthesis = np.zeros(n_aa, np.float64)
 		self.aa_import = np.zeros(n_aa, np.float64)
 		self.aa_export = np.zeros(n_aa, np.float64)
-		self.aa_supply_enzymes = np.zeros(n_aa, int)
+		self.aa_supply_enzymes = np.zeros(n_enzymes, int)
+		self.aa_exporters = np.zeros(n_exporters, int)
 		self.aa_supply_aa_conc = np.zeros(n_aa, np.float64)
 		self.aa_supply_fraction = np.zeros(n_aa, np.float64)
+		self.aa_in_media = np.zeros(n_aa, bool)
 
 		self.aaCountDiff = np.zeros(n_aa, np.float64)
 		self.trnaCharged = np.zeros(n_aa, np.float64)
@@ -103,13 +111,16 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			'ntpRequestSize': 'ntpIds',
 			'ntpAllocated': 'ntpIds',
 			'ntpUsed': 'ntpIds',
+			'original_aa_supply': 'aaIds',
 			'aa_supply': 'aaIds',
 			'aa_synthesis': 'aaIds',
 			'aa_import': 'aaIds',
 			'aa_export': 'aaIds',
-			'aa_supply_enzymes': 'aaIds',
+			'aa_supply_enzymes': 'aa_enzymes',
+			'aa_exporters': 'aa_exporter_names',
 			'aa_supply_aa_conc': 'aaIds',
 			'aa_supply_fraction': 'aaIds',
+			'aa_in_media': 'aaIds',
 			'trnaCharged':'aaIds',
 			'aaCountDiff':'aaIds'
 			}
@@ -118,7 +129,10 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			aaIds = self.aaIds,
 			uncharged_trna_ids = self.uncharged_trna_ids,
 			ntpIds = self.ntpIds,
-			subcolumns = subcolumns)
+			subcolumns = subcolumns,
+			aa_enzymes = self.aa_enzymes,
+			aa_exporter_names = self.aa_exporter_names,
+			)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
@@ -147,13 +161,16 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			rela_syn = self.rela_syn,
 			spot_syn = self.spot_syn,
 			spot_deg = self.spot_deg,
+			original_aa_supply = self.aa_supply,
 			aa_supply = self.aa_supply,
 			aa_synthesis = self.aa_synthesis,
 			aa_import = self.aa_import,
 			aa_export = self.aa_export,
 			aa_supply_enzymes = self.aa_supply_enzymes,
+			aa_exporters = self.aa_exporters,
 			aa_supply_aa_conc = self.aa_supply_aa_conc,
 			aa_supply_fraction = self.aa_supply_fraction,
+			aa_in_media = self.aa_in_media,
 			aaCountDiff = self.aaCountDiff,
 			trnaCharged = self.trnaCharged,
 			)

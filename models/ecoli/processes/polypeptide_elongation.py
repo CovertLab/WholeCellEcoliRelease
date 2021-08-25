@@ -7,7 +7,9 @@ TODO:
 - see the initiation process for more TODOs
 """
 
-from typing import Any, Dict, Optional, Set
+from __future__ import annotations
+
+from typing import Any, Callable, Dict, Optional, Set
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -458,26 +460,16 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		export_rates = self.amino_acid_export(export_transporter_counts, aa_conc, self.process.mechanistic_aa_transport)
 		exchange_rates = import_rates - export_rates
 
-		# Create functions that are only dependent on amino acid concentrations for more stable
-		# charging and amino acid concentrations
-		if self.process.aa_supply_in_charging:
-			counts_to_molar = self.counts_to_molar.asNumber(CONC_UNITS)
-			if self.process.mechanistic_translation_supply:
-				if self.process.mechanistic_aa_transport:
-					supply_function = lambda aa_conc: counts_to_molar * (
-						self.amino_acid_synthesis(enzyme_counts, aa_conc)[0]
-						+ import_rates
-						- self.amino_acid_export(export_transporter_counts, aa_conc, self.process.mechanistic_aa_transport))
-				else:
-					supply_function = lambda aa_conc: counts_to_molar * (
-						self.amino_acid_synthesis(enzyme_counts, aa_conc)[0]
-						+ exchange_rates)
-			else:
-				supply = self.process.aa_supply.copy()
-				supply_function = lambda aa_conc: counts_to_molar * supply * self.aa_supply_scaling(aa_conc, aa_in_media)
-		# Maintain constant amino acid concentrations throughout charging
-		else:
-			supply_function = None
+		supply_function = get_charging_supply_function(
+			self.process.aa_supply_in_charging, self.process.mechanistic_translation_supply,
+			self.process.mechanistic_aa_transport, self.amino_acid_synthesis,
+			self.amino_acid_export, self.aa_supply_scaling, self.counts_to_molar,
+			self.process.aa_supply, enzyme_counts, export_transporter_counts,
+			exchange_rates, import_rates, aa_in_media,
+			)
+
+		self.process.writeToListener('GrowthLimits', 'original_aa_supply', self.process.aa_supply)
+		self.process.writeToListener('GrowthLimits', 'aa_in_media', aa_in_media)
 
 		# Calculate steady state tRNA levels and resulting elongation rate
 		fraction_charged, v_rib, supplied_in_charging = calculate_trna_charging(
@@ -533,7 +525,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.process.writeToListener('GrowthLimits', 'aa_synthesis', synthesis * self.process.timeStepSec())
 		self.process.writeToListener('GrowthLimits', 'aa_import', import_rates * self.process.timeStepSec())
 		self.process.writeToListener('GrowthLimits', 'aa_export', export_rates * self.process.timeStepSec())
-		self.process.writeToListener('GrowthLimits', 'aa_supply_enzymes', enzyme_counts_per_aa)
+		self.process.writeToListener('GrowthLimits', 'aa_supply_enzymes', enzyme_counts)
+		self.process.writeToListener('GrowthLimits', 'aa_exporters', export_transporter_counts)
 		self.process.writeToListener('GrowthLimits', 'aa_supply_aa_conc', aa_conc.asNumber(units.mmol/units.L))
 		self.process.writeToListener('GrowthLimits', 'aa_supply_fraction', saturation)
 
@@ -1049,3 +1042,62 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 	total_supply = c_sol[-1, 2*n_aas_masked+n_aas:2*n_aas_masked+2*n_aas]
 
 	return new_fraction_charged, v_rib, total_supply
+
+def get_charging_supply_function(
+		supply_in_charging: bool,
+		mechanistic_supply: bool,
+		mechanistic_aa_transport: bool,
+		amino_acid_synthesis: Callable,
+		amino_acid_export: Callable,
+		aa_supply_scaling: Callable,
+		counts_to_molar: units.Unum,
+		aa_supply: np.ndarray,
+		enzyme_counts: np.ndarray,
+		exporter_counts: np.ndarray,
+		exchange_rates: np.ndarray,
+		import_rates: np.ndarray,
+		aa_in_media: np.ndarray,
+		) -> Optional[Callable[[np.ndarray], np.ndarray]]:
+	"""
+	Get a function mapping internal amino acid concentrations to the amount of
+	amino acid supply expected.
+
+	Args:
+		supply_in_charging: True if using the aa_supply_in_charging option
+		mechanistic_supply: True if using the mechanistic_translation_supply option
+		mechanistic_aa_transport: True if using the mechanistic_aa_transport option
+		amino_acid_synthesis: function to provide rates of synthesis for amino
+			acids based on the internal state
+		aa_supply_scaling: function to scale the amino acid supply based
+			on the internal state
+		counts_to_molar: conversion factor for counts to molar in units of counts/volume
+		aa_supply: rate of amino acid supply expected
+		enzyme_counts: counts for amino acid synthesis enzymes
+		exporter_counts: counts for amino acid exporters
+		exchange_rates: rates of amino acid transport (import - export)
+		import_rates: rates of amino acid import
+		aa_in_media: True for each amino acid that is present in the media
+
+	Returns:
+		supply_function: function that provides the amount of supply (synthesis and transport)
+			for each amino acid based on the internal state of the cell
+	"""
+
+	# Create functions that are only dependent on amino acid concentrations for more stable
+	# charging and amino acid concentrations.  If supply_in_charging is not set, then
+	# setting None will maintain constant amino acid concentrations throughout charging.
+	supply_function = None
+	if supply_in_charging:
+		counts_to_molar = counts_to_molar.asNumber(CONC_UNITS)
+		if mechanistic_supply:
+			if mechanistic_aa_transport:
+				supply_function = lambda aa_conc: counts_to_molar * (
+					amino_acid_synthesis(enzyme_counts, aa_conc)[0] + import_rates
+					- amino_acid_export(exporter_counts, aa_conc, mechanistic_aa_transport))
+			else:
+				supply_function = lambda aa_conc: counts_to_molar * (
+					amino_acid_synthesis(enzyme_counts, aa_conc)[0] + exchange_rates)
+		else:
+			supply_function = lambda aa_conc: counts_to_molar * aa_supply * aa_supply_scaling(aa_conc, aa_in_media)
+
+	return supply_function

@@ -49,7 +49,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Calculate derived quantities
 		start = times[0, 0]
 		end = times[-1, 0]
-		enzyme_conc = (enzyme_counts * counts_to_mol).T
+		enzyme_conc = (enzyme_counts @ enzyme_to_amino_acid * counts_to_mol).T
 
 		# Plot data
 		plt.figure(figsize=(16, 12))
