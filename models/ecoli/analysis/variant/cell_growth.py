@@ -27,12 +27,28 @@ GROWTH_UNITS = MASS_UNITS / units.s
 AXIS_LIMITS = [0.5, 1.5]
 
 
-def plot_bar(gs, x, y, ylabel, reference, bottom=True, yerr=None):
+def get_fraction_growth_rate(reader, column, time_step):
+	fraction_mass = reader.readColumn(column)
+	growth = np.diff(fraction_mass) / fraction_mass[:-1] / time_step
+	weighted_growth = growth @ time_step / time_step.sum()
+	return weighted_growth
+
+def mean_and_std(data, factor=1):
+	all_data = np.vstack(data) * factor
+	return all_data.mean(axis=1), all_data.std(axis=1)
+
+def plot_bar(gs, x, y, ylabel, reference, xlabels=None, yerr=None, normalized=None):
 	ax = plt.subplot(gs)
+	if normalized is not None:
+		y = y / normalized
 	plt.bar(x, y, yerr=yerr)
 	if reference is not None and reference in x:
 		plt.axhline(y[x.index(reference)], linestyle='--', linewidth=0.5, color='k', alpha=0.5)
 	plt.ylabel(ylabel, fontsize=8)
+	bottom = True
+	if xlabels is not None:
+		plt.xticks(x, xlabels, rotation=45, fontsize=6, ha='right')
+		bottom = False
 	remove_border(ax, bottom=bottom)
 
 def plot_validation(mean, std, labels, val_rates, val_std, val_aa_ids, label, text_highlight=None):
@@ -91,15 +107,23 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		variant_lengths = []
 		variant_counts = []
 		variant_growth_rates = []
+		variant_rna_growth_rates = []
+		variant_protein_growth_rates = []
+		variant_small_mol_growth_rates = []
 		variant_elong_rates = []
 		variant_glc_yields = []
+		variant_ppgpp = []
 		labels = []
 		reference_variant = None
 		for variant in variants:
 			lengths = []
 			growth_rates = []
+			rna_growth_rates = []
+			protein_growth_rates = []
+			small_mol_growth_rates = []
 			elong_rates = []
 			glc_yields = []
+			ppgpps = []
 			count = 0
 			for sim_dir in ap.get_cells(variant=[variant]):
 				glc_yield = 0
@@ -111,6 +135,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					mass_reader = TableReader(os.path.join(sim_out_dir, 'Mass'))
 					ribosome_reader = TableReader(os.path.join(sim_out_dir, 'RibosomeData'))
 					fba_results = TableReader(os.path.join(sim_out_dir, 'FBAResults'))
+					growth_reader = TableReader(os.path.join(sim_out_dir, 'GrowthLimits'))
 
 					# Load data
 					time = main_reader.readColumn('time')
@@ -118,8 +143,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					cycle_length = time[-1] - time[0]
 					growth_rate = mass_reader.readColumn('instantaneous_growth_rate')[1:]
 					weighted_growth = growth_rate @ time_step / (time[-1] - time[1])
+					rna_weighted_growth = get_fraction_growth_rate(mass_reader, 'rnaMass', time_step)
+					protein_weighted_growth = get_fraction_growth_rate(mass_reader, 'proteinMass', time_step)
+					small_mol_weighted_growth = get_fraction_growth_rate(mass_reader, 'smallMoleculeMass', time_step)
 					elong_rate = ribosome_reader.readColumn('effectiveElongationRate')[1:]
 					weighted_elong = elong_rate @ time_step / (time[-1] - time[1])
+					ppgpp = growth_reader.readColumn('ppgpp_conc')[1:]
+					weighted_ppgpp = ppgpp @ time_step / (time[-1] - time[1])
 					ex_molecules = fba_results.readAttribute('externalMoleculeIDs')
 					if 'GLC[p]' in ex_molecules:
 						glc_idx = ex_molecules.index(GLC_ID)
@@ -140,7 +170,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 						  f' or FBAResults/externalExchangeFluxes: {e!r}')
 					cycle_length = 0
 					weighted_growth = 0
+					rna_weighted_growth = 0
+					protein_weighted_growth = 0
+					small_mol_weighted_growth = 0
 					weighted_elong = 0
+					weighted_ppgpp = 0
 
 				# Filter out cell cycle lengths that are too short (likely failed)
 				# TODO: better way to test for failure
@@ -151,14 +185,22 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					lengths.append(cycle_length / 60)
 					count += 1
 				growth_rates.append(weighted_growth)
+				rna_growth_rates.append(rna_weighted_growth)
+				protein_growth_rates.append(protein_weighted_growth)
+				small_mol_growth_rates.append(small_mol_weighted_growth)
 				elong_rates.append(weighted_elong)
 				glc_yields.append(glc_yield)
+				ppgpps.append(weighted_ppgpp)
 
 			variant_lengths.append(lengths)
 			variant_counts.append(count)
 			variant_growth_rates.append(growth_rates)
+			variant_rna_growth_rates.append(rna_growth_rates)
+			variant_protein_growth_rates.append(protein_growth_rates)
+			variant_small_mol_growth_rates.append(small_mol_growth_rates)
 			variant_elong_rates.append(elong_rates)
 			variant_glc_yields.append(glc_yields)
+			variant_ppgpp.append(ppgpps)
 			label = aa_ids[variant][:-3]
 			labels.append(label)
 			if label == CONTROL_LABEL:
@@ -167,15 +209,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		all_lengths = np.vstack(variant_lengths)
 		mean_lengths = np.array([np.mean(row[np.isfinite(row) & (row > 0)]) for row in all_lengths])
 		std_lengths = np.array([np.std(row[np.isfinite(row) & (row > 0)]) for row in all_lengths])
-		all_growth_rates = np.vstack(variant_growth_rates) * 3600
-		mean_growth_rates = all_growth_rates.mean(axis=1)
-		std_growth_rates = all_growth_rates.std(axis=1)
-		all_elong_rates = np.vstack(variant_elong_rates)
-		mean_elong_rates = all_elong_rates.mean(axis=1)
-		std_elong_rates = all_elong_rates.std(axis=1)
-		all_glc_yields = np.vstack(variant_glc_yields)
-		mean_glc_yields = all_glc_yields.mean(axis=1)
-		std_glc_yields = all_glc_yields.std(axis=1)
+		mean_growth_rates, std_growth_rates = mean_and_std(variant_growth_rates, factor=3600)
+		mean_rna_growth_rates, std_rna_growth_rates = mean_and_std(variant_rna_growth_rates, factor=3600)
+		mean_protein_growth_rates, std_protein_growth_rates = mean_and_std(variant_protein_growth_rates, factor=3600)
+		mean_small_mol_growth_rates, std_small_mol_growth_rates = mean_and_std(variant_small_mol_growth_rates, factor=3600)
+		mean_elong_rates, std_elong_rates = mean_and_std(variant_elong_rates)
+		mean_glc_yields, std_glc_yields = mean_and_std(variant_glc_yields)
+		mean_ppgpp, std_ppgpp = mean_and_std(variant_ppgpp)
 
 		# Load validation growth rates
 		all_aa_ids = {aa[:-3] for aa in aa_ids}
@@ -193,22 +233,40 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		val_normalized_std = np.array(val_normalized_std)
 
 		# Create plots
-		plt.figure(figsize=(16, 10))
-		gs = gridspec.GridSpec(5, 3)
+		plt.figure(figsize=(20, 8))
+		gs = gridspec.GridSpec(4, 5)
 
 		## Bar plots of cell properties
-		plot_bar(gs[0, 0], variants, mean_lengths, 'Average cell cycle length (min)', reference_variant, yerr=std_lengths)
-		plot_bar(gs[1, 0], variants, mean_growth_rates, 'Average growth rate (1/hr)', reference_variant, yerr=std_growth_rates)
-		plot_bar(gs[2, 0], variants, mean_elong_rates, 'Average elongation rate (AA/s)', reference_variant, yerr=std_elong_rates)
-		plot_bar(gs[3, 0], variants, mean_glc_yields, 'Glc yield (1 / uptake)', reference_variant, yerr=std_glc_yields)
-		plot_bar(gs[4, 0], variants, variant_counts, 'Number of variants', reference_variant, bottom=False)
 		xlabels = np.array(labels)
 		xlabels[xlabels == CONTROL_LABEL] = 'Control'
-		plt.xticks(variants, xlabels, rotation=45, fontsize=6, ha='right')
+		plot_bar(gs[0, 0], variants, mean_lengths, 'Average cell\ncycle length (min)',
+			reference_variant, yerr=std_lengths)
+		plot_bar(gs[1, 0], variants, mean_elong_rates, 'Average elongation\nrate (AA/s)',
+			reference_variant, yerr=std_elong_rates)
+		plot_bar(gs[2, 0], variants, mean_glc_yields, 'Glc yield (1 / uptake)',
+			reference_variant, yerr=std_glc_yields)
+		plot_bar(gs[3, 0], variants, variant_counts, 'Number of variants',
+			reference_variant, xlabels=xlabels)
+		plot_bar(gs[0, 1], variants, mean_growth_rates, 'Average cell\ngrowth rate (1/hr)',
+			reference_variant, yerr=std_growth_rates)
+		plot_bar(gs[1, 1], variants, mean_rna_growth_rates, 'Average RNA\ngrowth rate (1/hr)',
+			reference_variant, yerr=std_rna_growth_rates)
+		plot_bar(gs[2, 1], variants, mean_protein_growth_rates, 'Average protein\ngrowth rate (1/hr)',
+			reference_variant, yerr=std_protein_growth_rates)
+		plot_bar(gs[3, 1], variants, mean_small_mol_growth_rates, 'Average small mol\ngrowth rate (1/hr)',
+			reference_variant, yerr=std_small_mol_growth_rates, xlabels=xlabels)
+		plot_bar(gs[0, 2], variants, mean_ppgpp, 'Average ppGpp\nconc (uM)',
+			reference_variant, yerr=std_ppgpp)
+		plot_bar(gs[1, 2], variants, mean_rna_growth_rates, 'RNA/cell\ngrowth rate',
+			reference_variant, normalized=mean_growth_rates)
+		plot_bar(gs[2, 2], variants, mean_protein_growth_rates, 'Protein/cell\ngrowth rate',
+			reference_variant, normalized=mean_growth_rates)
+		plot_bar(gs[3, 2], variants, mean_small_mol_growth_rates, 'Small mol/cell\ngrowth rate',
+			reference_variant, normalized=mean_growth_rates, xlabels=xlabels)
 
 		## Validation comparison for each amino acid addition
-		if metadata.get('variant', '') == 'add_one_aa':
-			ax = plt.subplot(gs[:, 1:])
+		if 'add_one_aa' in metadata.get('variant', ''):
+			ax = plt.subplot(gs[:, 3:])
 			highlight = {
 				label: count != max(variant_counts)
 				for label, count in zip(labels, variant_counts)

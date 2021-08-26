@@ -18,7 +18,8 @@ from wholecell.utils import units
 
 
 CONTROL_LABEL = 'L-SELENOCYSTEINE'  # control because SEL is already included for uptake in minimal media
-MOVING_WINDOW = 300
+MOVING_WINDOW = 301  # Needs to be an odd number for even contribution from both sides
+HALF_WINDOW = MOVING_WINDOW // 2
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
@@ -68,8 +69,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				color = cmap(seed)
 				cell_paths = ap.get_cells(variant=[variant], seed=[seed])
 				times = read_stacked_columns(cell_paths, 'Main', 'time', remove_first=True, ignore_exception=True) / 3600
-				growth_rates = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate', remove_first=True, ignore_exception=True)
-				averaged_rates = np.convolve(growth_rates.squeeze(), np.ones(MOVING_WINDOW), mode='same') / MOVING_WINDOW
+				growth_rates = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate',
+					remove_first=True, ignore_exception=True).squeeze()
+				padded_growth = np.hstack((
+					np.full(HALF_WINDOW, growth_rates[:HALF_WINDOW].mean()),
+					growth_rates,
+					np.full(HALF_WINDOW, growth_rates[-HALF_WINDOW:].mean())
+					))
+				averaged_rates = np.convolve(padded_growth, np.ones(MOVING_WINDOW) / MOVING_WINDOW, mode='valid')
 				ax.plot(times, averaged_rates / control_growth_rate, '-', color=color, alpha=0.4)
 				ax.axhline(growth_rates.mean() / control_growth_rate, color=color, linestyle='--', linewidth=0.5, alpha=0.8)
 
