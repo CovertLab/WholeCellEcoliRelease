@@ -39,7 +39,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		control_variant = aa_ids.index(CONTROL_LABEL)
 		if control_variant in variants:
 			cell_paths = ap.get_cells(variant=[control_variant])
-			control_growth_rate = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate', remove_first=True).mean()
+			control_growth_rate = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate', remove_first=True, ignore_exception=True).mean()
 		else:
 			control_growth_rate = 1
 

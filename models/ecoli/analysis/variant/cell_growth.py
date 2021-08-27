@@ -34,8 +34,14 @@ def get_fraction_growth_rate(reader, column, time_step):
 	return weighted_growth
 
 def mean_and_std(data, factor=1):
+	# Filter out any values that were not read (default value of 0)
+	filter_mean = lambda ar: ar[ar != 0].mean()
+	filter_std = lambda ar: ar[ar != 0].std()
+
 	all_data = np.vstack(data) * factor
-	return all_data.mean(axis=1), all_data.std(axis=1)
+	mean = np.apply_along_axis(filter_mean, 1, all_data)
+	std = np.apply_along_axis(filter_std, 1, all_data)
+	return mean, std
 
 def plot_bar(gs, x, y, ylabel, reference, xlabels=None, yerr=None, normalized=None):
 	ax = plt.subplot(gs)
@@ -66,7 +72,10 @@ def plot_validation(mean, std, labels, val_rates, val_std, val_aa_ids, label, te
 		])
 
 	# Statistics
-	r, p = pearsonr(val_rates, wcm_normalized_growth_rates)
+	try:
+		r, p = pearsonr(val_rates, wcm_normalized_growth_rates)
+	except ValueError:
+		r, p = np.nan, np.nan
 	n = len(val_rates)
 
 	plt.errorbar(val_rates, wcm_normalized_growth_rates,
@@ -141,15 +150,16 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					time = main_reader.readColumn('time')
 					time_step = main_reader.readColumn('timeStepSec')[1:]
 					cycle_length = time[-1] - time[0]
+					total_time_steps = time_step.sum()
 					growth_rate = mass_reader.readColumn('instantaneous_growth_rate')[1:]
-					weighted_growth = growth_rate @ time_step / (time[-1] - time[1])
+					weighted_growth = growth_rate @ time_step / total_time_steps
 					rna_weighted_growth = get_fraction_growth_rate(mass_reader, 'rnaMass', time_step)
 					protein_weighted_growth = get_fraction_growth_rate(mass_reader, 'proteinMass', time_step)
 					small_mol_weighted_growth = get_fraction_growth_rate(mass_reader, 'smallMoleculeMass', time_step)
 					elong_rate = ribosome_reader.readColumn('effectiveElongationRate')[1:]
-					weighted_elong = elong_rate @ time_step / (time[-1] - time[1])
+					weighted_elong = elong_rate @ time_step / total_time_steps
 					ppgpp = growth_reader.readColumn('ppgpp_conc')[1:]
-					weighted_ppgpp = ppgpp @ time_step / (time[-1] - time[1])
+					weighted_ppgpp = ppgpp @ time_step / total_time_steps
 					ex_molecules = fba_results.readAttribute('externalMoleculeIDs')
 					if 'GLC[p]' in ex_molecules:
 						glc_idx = ex_molecules.index(GLC_ID)
