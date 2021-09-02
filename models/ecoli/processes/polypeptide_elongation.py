@@ -164,8 +164,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.active_ribosomes.request_access(self.EDIT_DELETE_ACCESS)
 
 	def evolveState(self):
-		# Set value to 0 for metabolism in case of early return
+		# Set values for metabolism in case of early return
 		self.gtp_to_hydrolyze = 0
+		self.aa_count_diff = {}
 
 		# Write allocation data to listener
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())

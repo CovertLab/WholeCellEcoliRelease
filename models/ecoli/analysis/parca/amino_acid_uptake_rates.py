@@ -19,6 +19,13 @@ FLUX_UNITS = units.mmol / units.g / units.h
 
 
 def subplot(x, y, x_err, labels, y_label, title):
+	# Filter out values that will causes error with log
+	mask = (x > 0) & (y > 0)
+	x = x[mask]
+	y = y[mask]
+	x_err = x_err[:, mask]
+	labels = labels[mask]
+
 	# Statistics
 	r, p = pearsonr(np.log10(x), np.log10(y))
 	n = len(labels)
@@ -62,6 +69,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			val_rates.append(rates['uptake'].asNumber(FLUX_UNITS))
 			val_lb.append(rates['LB'].asNumber(FLUX_UNITS))
 			val_ub.append(rates['UB'].asNumber(FLUX_UNITS))
+		aa_ids = np.array(aa_ids)
 		val_rates = np.array(val_rates)
 		val_error = np.vstack((val_rates - np.array(val_lb), np.array(val_ub) - val_rates))
 

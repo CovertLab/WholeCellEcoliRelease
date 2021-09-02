@@ -81,7 +81,9 @@ class TranscriptionRegulation(object):
 				binding to a promoter for each gene (n genes, m TFs)
 		"""
 
-		scaling_factor = self.basal_prob.sum() if ppgpp else 1.
+		ppgpp_scaling = self.basal_prob[self.delta_prob['deltaI']]
+		ppgpp_scaling[ppgpp_scaling == 0] = 1
+		scaling_factor = ppgpp_scaling if ppgpp else 1.
 		delta_prob = sparse.csr_matrix(
 			(self.delta_prob['deltaV'] / scaling_factor,
 			(self.delta_prob['deltaI'], self.delta_prob['deltaJ'])),

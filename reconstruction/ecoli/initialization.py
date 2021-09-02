@@ -609,18 +609,28 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	# Number of rnaPoly to activate
 	n_RNAPs_to_activate = np.int64(fracActiveRnap * inactive_RNAP_counts)
 
-	# Parameters for rnaSynthProb
-	basal_prob = sim_data.process.transcription_regulation.basal_prob.copy()
-	if trna_attenuation:
-		basal_prob[sim_data.process.transcription.attenuated_rna_indices] += sim_data.process.transcription.attenuation_basal_prob_adjustments
-	n_TUs = len(basal_prob)
-	delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True, ppgpp=ppgpp_regulation)
-
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection("promoter")
 	n_promoters = len(promoters)
 	TU_index, bound_TF, domain_index_promoters = promoters.attrs(
 		"TU_index", "bound_TF", "domain_index")
+
+	# Parameters for rnaSynthProb
+	if ppgpp_regulation:
+		doubling_time = sim_data.condition_to_doubling_time[sim_data.condition]
+		ppgpp_conc = sim_data.growth_rate_parameters.get_ppGpp_conc(doubling_time)
+		basal_prob, _= sim_data.process.transcription.synth_prob_from_ppgpp(
+			ppgpp_conc, sim_data.process.replication.get_average_copy_number)
+		ppgpp_scale = basal_prob[TU_index]
+		ppgpp_scale[ppgpp_scale == 0] = 1  # Use original delta prob if no ppGpp basal prob
+	else:
+		basal_prob = sim_data.process.transcription_regulation.basal_prob.copy()
+		ppgpp_scale = 1
+
+	if trna_attenuation:
+		basal_prob[sim_data.process.transcription.attenuated_rna_indices] += sim_data.process.transcription.attenuation_basal_prob_adjustments
+	n_TUs = len(basal_prob)
+	delta_prob_matrix = sim_data.process.transcription_regulation.get_delta_prob_matrix(dense=True, ppgpp=ppgpp_regulation)
 
 	# Construct matrix that maps promoters to transcription units
 	TU_to_promoter = scipy.sparse.csr_matrix(
@@ -663,7 +673,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	idx_rnap = np.where(sim_data.process.transcription.rna_data['is_RNAP'])[0]
 
 	# Calculate probabilities of the RNAP binding to the promoters
-	promoter_init_probs = (basal_prob[TU_index] +
+	promoter_init_probs = (basal_prob[TU_index] + ppgpp_scale *
 		np.multiply(delta_prob_matrix[TU_index, :], bound_TF).sum(axis=1))
 
 	if len(genetic_perturbations) > 0:

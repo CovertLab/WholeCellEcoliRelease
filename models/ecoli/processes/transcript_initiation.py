@@ -129,12 +129,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				if self.trna_attenuation:
 					basal_prob[self.attenuated_rna_indices] += self.attenuation_adjustments
 				self.fracActiveRnap = self.get_rnap_active_fraction_from_ppGpp(ppgpp_conc)
+				ppgpp_scale = basal_prob[TU_index]
+				ppgpp_scale[ppgpp_scale == 0] = 1  # Use original delta prob if no ppGpp basal prob
 			else:
 				basal_prob = self.basal_prob
 				self.fracActiveRnap = self.fracActiveRnapDict[current_media_id]
+				ppgpp_scale = 1
 
 			# Calculate probabilities of the RNAP binding to each promoter
-			self.promoter_init_probs = (basal_prob[TU_index] +
+			self.promoter_init_probs = (basal_prob[TU_index] + ppgpp_scale *
 				np.multiply(self.delta_prob_matrix[TU_index, :], bound_TF).sum(axis=1))
 
 			if len(self.genetic_perturbations) > 0:

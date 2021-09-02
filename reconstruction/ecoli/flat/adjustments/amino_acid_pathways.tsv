@@ -2,6 +2,7 @@
 "ARG"	"km_reverse"	10
 "ARG"	"kms"	0.1
 "ASN"	"km_reverse"	5	"Fit for positive import"
+"L-ASPARTATE"	"km_reverse"	0.5	"Fit for positive import"
 "CYS"	"kms"	0.1	"Fit for positive import"
 "GLN"	"km_reverse"	5	"Fit for positive kcat"
 "ILE"	"ki"	5	"Fit for positive import"
