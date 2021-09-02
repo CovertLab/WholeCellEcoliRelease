@@ -278,7 +278,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			supply=supply_function,
 			time_limit=timestep_size,
 			)
-		fraction_charged_per_aa = fraction_charged @ self.aa_from_trna
+		fraction_charged_per_trna = fraction_charged @ self.aa_from_trna
 		adjusted_v_rib = v_rib / ribosome_conc.asNumber(CONC_UNITS)
 
 		# Update tRNA concentrations to reflect charging
@@ -287,7 +287,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 		updated_charged_trna_conc = total_trna_conc * fraction_charged
 
 		# Calculate ppGpp reaction rates
-		_, n_synthesis, n_degradation, _, _, _ = ppgpp_metabolite_changes(
+		_, n_synthesis, n_degradation, *_ = ppgpp_metabolite_changes(
 			updated_uncharged_trna_conc,
 			updated_charged_trna_conc,
 			ribosome_conc,
@@ -302,7 +302,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			timestep_size,
 			)
 
-		return fraction_charged_per_aa, fraction_charged, adjusted_v_rib, n_synthesis, n_degradation
+		return fraction_charged_per_trna, fraction_charged, adjusted_v_rib, n_synthesis, n_degradation
 
 	def validation(self, n_steps: int) -> None:
 		"""
