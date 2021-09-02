@@ -172,6 +172,16 @@ class Transcription(object):
 			print('Supplement value (FC-): {:.2f}'.format(self._fit_ppgpp_fc))
 			print('Supplement value (FC+): {:.2f}'.format(average_positive_fc))
 
+		# Calculate the expected active fraction when RNAP is bound to ppGpp or free
+		doubling_times = units.min * np.linspace(25, 100, 10)
+		ppgpp = sim_data.growth_rate_parameters.get_ppGpp_conc(doubling_times)
+		fraction_active = sim_data.growth_rate_parameters.get_fraction_active_rnap(doubling_times)
+		fraction_bound = self.fraction_rnap_bound_ppgpp(ppgpp)
+		A = np.vstack((fraction_bound, 1 - fraction_bound)).T
+		self.fraction_active_rnap_bound, self.fraction_active_rnap_free = np.linalg.lstsq(A, fraction_active, rcond=None)[0]
+		assert 0 < self.fraction_active_rnap_bound < 1
+		assert 0 < self.fraction_active_rnap_free < 1
+
 	def _build_rna_data(self, raw_data, sim_data):
 		"""
 		Build RNA-associated simulation data from raw data.
@@ -1081,3 +1091,7 @@ class Transcription(object):
 		prob = normalize((self.exp_free * (1 - f_ppgpp) + self.exp_ppgpp * f_ppgpp) * factor)
 
 		return prob, factor
+
+	def get_rnap_active_fraction_from_ppGpp(self, ppgpp):
+		f_ppgpp = self.fraction_rnap_bound_ppgpp(ppgpp)
+		return self.fraction_active_rnap_bound * f_ppgpp + self.fraction_active_rnap_free * (1 - f_ppgpp)

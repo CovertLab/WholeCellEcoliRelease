@@ -13,6 +13,7 @@ variants = [
 	'metabolism_secretion_penalty',
 	'monomer_deg_rate_shuffle_params',
 	'param_sensitivity',
+	'ppgpp_conc',
 	'remove_aa_inhibition',
 	'remove_one_aa',
 	'remove_one_aa_shift',

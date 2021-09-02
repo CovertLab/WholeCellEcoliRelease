@@ -49,6 +49,7 @@ LIST_OF_DICT_FILENAMES = (
 	"molecular_weight_keys.tsv",
 	"ppgpp_fc.tsv",
 	"ppgpp_regulation.tsv",
+	"ppgpp_regulation_removed.tsv",
 	"protein_half_lives_measured.tsv",
 	"protein_half_lives_n_end_rule.tsv",
 	"proteins.tsv",
@@ -116,6 +117,7 @@ REMOVED_DATA = {
 	'fold_changes_nca': 'fold_changes_removed',
 	'metabolic_reactions': 'metabolic_reactions_removed',
 	'metabolite_concentrations': 'metabolite_concentrations_removed',
+	'ppgpp_regulation': 'ppgpp_regulation_removed',
 	'transcriptional_attenuation': 'transcriptional_attenuation_removed',
 	'trna_charging_reactions': 'trna_charging_reactions_removed',
 	}

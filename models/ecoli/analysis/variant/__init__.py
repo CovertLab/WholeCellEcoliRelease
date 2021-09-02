@@ -15,6 +15,7 @@ ACTIVE = [
 	"metabolism_kinetic_objective_weight.py",
 	"metabolism_secretion_penalty.py",
 	"param_sensitivity.py",
+	"ppgpp_conc.py",
 	"remove_aa_inhibition.py",
 	"tfFit.py",
 	"tfFitComparison.py",
@@ -57,6 +58,9 @@ TAGS = {
 		],
 	'PARAM_SENSITIVITY': [
 		'param_sensitivity.py',
+		],
+	'PPGPP_CONC': [
+		'ppgpp_conc',
 		],
 	'REMOVE_AA_INHIBITION': [
 		'remove_aa_inhibition.py',

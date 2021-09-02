@@ -107,7 +107,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.ppgpp = self.bulkMoleculeView(sim_data.molecule_ids.ppGpp)
 		self.synth_prob = sim_data.process.transcription.synth_prob_from_ppgpp
 		self.copy_number = sim_data.process.replication.get_average_copy_number
-		self.get_rnap_active_fraction_from_ppGpp = sim_data.growth_rate_parameters.get_rnap_active_fraction_from_ppGpp
+		self.get_rnap_active_fraction_from_ppGpp = sim_data.process.transcription.get_rnap_active_fraction_from_ppGpp
 
 	def calculateRequest(self):
 		# Get all inactive RNA polymerases
@@ -335,10 +335,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		allFractionTimeInactive = 1 - (
 			1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber() / allTranscriptionTimestepCounts
 		averageFractionTimeInactive = np.dot(allFractionTimeInactive, synthProb)
-		effectiveFracActiveRnap = fracActiveRnap * 1/(1 - averageFractionTimeInactive)
+		effectiveFracActiveRnap = fracActiveRnap / (1 - averageFractionTimeInactive)
 
 		# Return activation probability that will balance out the expected termination rate
-		return effectiveFracActiveRnap * expectedTerminationRate /(1 - effectiveFracActiveRnap)
+		activation_prob = effectiveFracActiveRnap * expectedTerminationRate / (1 - effectiveFracActiveRnap)
+
+		if activation_prob > 1:
+			activation_prob = 1.
+
+		return activation_prob
 
 
 	def _rescale_initiation_probs(

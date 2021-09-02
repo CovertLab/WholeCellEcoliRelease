@@ -48,16 +48,18 @@ class Metabolism(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(Metabolism, self).initialize(sim, sim_data)
 
-		# Use information from the environment and sim
+		metabolism = sim_data.process.metabolism
+
+		# Sim options
+		self.use_trna_charging = sim._trna_charging
+		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging or getattr(metabolism, 'force_constant_ppgpp', False)
+		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
+
+		# Use information from the environment
 		self.get_import_constraints = sim_data.external_state.get_import_constraints
 		self.nutrientToDoublingTime = sim_data.nutrient_to_doubling_time
 		environment = self._external_states['Environment']
-		self.use_trna_charging = sim._trna_charging
-		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging
 
-		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
-		metabolism = sim_data.process.metabolism
-	
 		# Create model to use to solve metabolism updates
 		self.model = FluxBalanceAnalysisModel(
 			sim_data,
