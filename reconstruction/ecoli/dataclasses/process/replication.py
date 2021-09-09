@@ -63,17 +63,17 @@ class Replication(object):
 
 		names, name_dtype = extract_data(raw_data.genes, 'id')
 		symbols, symbol_dtype = extract_data(raw_data.genes, 'symbol')
-		rna_ids, rna_dtype = extract_data(raw_data.genes, 'rna_id')
+		cistron_ids, cistron_dtype = extract_data(raw_data.genes, 'rna_id')
 
 		self.gene_data = np.zeros(
 			len(raw_data.genes),
 			dtype=[('name', name_dtype),
 				('symbol', symbol_dtype),
-				('rna_id', rna_dtype)])
+				('cistron_id', cistron_dtype)])
 
 		self.gene_data['name'] = names
 		self.gene_data['symbol'] = symbols
-		self.gene_data['rna_id'] = rna_ids
+		self.gene_data['cistron_id'] = cistron_ids
 
 	def _build_sites(self, raw_data, sim_data):
 		"""

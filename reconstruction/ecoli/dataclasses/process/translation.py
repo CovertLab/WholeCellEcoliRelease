@@ -52,13 +52,28 @@ class Translation(object):
 			self.translation_sequences[i, :len(seq)] = seq
 
 	def _build_monomer_data(self, raw_data, sim_data):
-		valid_mRNA_ids = {
-			rna['id'] for rna in raw_data.rnas
-			if rna['type'] == 'mRNA' and sim_data.getter.is_valid_molecule(rna['id'])
+		# Get set of all cistrons IDs with an associated gene and right and left
+		# end positions
+		rna_id_to_gene_id = {
+			gene['rna_id']: gene['id'] for gene in raw_data.genes}
+		gene_id_to_left_end_pos = {
+			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
+			}
+		gene_id_to_right_end_pos = {
+			gene['id']: gene['right_end_pos'] for gene in raw_data.genes
 			}
 
-		# Get mappings from monomer IDs to RNA IDs
-		monomer_id_to_rna_id = {
+		all_mRNA_cistrons = {
+			rna['id'] for rna in raw_data.rnas
+			if rna['id'] in rna_id_to_gene_id
+			    and gene_id_to_left_end_pos[rna_id_to_gene_id[rna['id']]] is not None
+			    and gene_id_to_right_end_pos[rna_id_to_gene_id[rna['id']]] is not None
+				and rna['type'] == 'mRNA'
+			}
+
+		# Get mappings from monomer IDs to cistron IDs
+		# TODO (ggsun): Handle cistrons with two or more associated proteins
+		monomer_id_to_cistron_id = {
 			rna['monomer_ids'][0]: rna['id']
 			for rna in raw_data.rnas
 			if len(rna['monomer_ids']) > 0}
@@ -68,10 +83,10 @@ class Translation(object):
 		for protein in raw_data.proteins:
 			if sim_data.getter.is_valid_molecule(protein['id']):
 				try:
-					rna_id = monomer_id_to_rna_id[protein['id']]
+					rna_id = monomer_id_to_cistron_id[protein['id']]
 				except KeyError:
 					continue
-				if rna_id in valid_mRNA_ids:
+				if rna_id in all_mRNA_cistrons:
 					all_proteins.append(protein)
 
 		# Get protein IDs with compartments
@@ -83,16 +98,10 @@ class Translation(object):
 			in zip(protein_ids, protein_compartments)
 			]
 		n_proteins = len(protein_ids)
-
-		# Get RNA IDs with compartments
-		rna_ids = [
-			monomer_id_to_rna_id[protein['id']]
-			for protein in all_proteins]
-		rna_compartments = sim_data.getter.get_compartments(rna_ids)
-		assert all([len(loc) == 1 for loc in rna_compartments])
-		rna_ids_with_compartments = [
-			f'{rna_id}[{loc[0]}]'
-			for (rna_id, loc) in zip(rna_ids, rna_compartments)]
+		
+		# Get cistron IDs associated to each monomer
+		cistron_ids = [
+			monomer_id_to_cistron_id[protein['id']] for protein in all_proteins]
 
 		# Get lengths and amino acids counts of each protein
 		protein_seqs = sim_data.getter.get_sequences(protein_ids)
@@ -135,13 +144,13 @@ class Translation(object):
 
 		max_protein_id_length = max(
 			len(protein_id) for protein_id in protein_ids_with_compartments)
-		max_rna_id_length = max(
-			len(rna_id) for rna_id in rna_ids_with_compartments)
+		max_cistron_id_length = max(
+			len(cistron_id) for cistron_id in cistron_ids)
 		monomer_data = np.zeros(
 			n_proteins,
 			dtype = [
 				('id', 'U{}'.format(max_protein_id_length)),
-				('rna_id', 'U{}'.format(max_rna_id_length)),
+				('cistron_id', 'U{}'.format(max_cistron_id_length)),
 				('deg_rate', 'f8'),
 				('length', 'i8'),
 				('aa_counts', '{}i8'.format(n_amino_acids)),
@@ -150,19 +159,19 @@ class Translation(object):
 			)
 
 		monomer_data['id'] = protein_ids_with_compartments
-		monomer_data['rna_id'] = rna_ids_with_compartments
+		monomer_data['cistron_id'] = cistron_ids
 		monomer_data['deg_rate'] = deg_rate
 		monomer_data['length'] = lengths
 		monomer_data['aa_counts'] = aa_counts
 		monomer_data['mw'] = mws
 
 		field_units = {
-			'id'		:	None,
-			'rna_id'		:	None,
-			'deg_rate'	:	deg_rate_units,
-			'length'	:	units.aa,
-			'aa_counts'	:	units.aa,
-			'mw'		:	units.g / units.mol,
+			'id': None,
+			'cistron_id': None,
+			'deg_rate': deg_rate_units,
+			'length': units.aa,
+			'aa_counts': units.aa,
+			'mw': units.g / units.mol,
 			}
 
 		self.monomer_data = UnitStructArray(monomer_data, field_units)

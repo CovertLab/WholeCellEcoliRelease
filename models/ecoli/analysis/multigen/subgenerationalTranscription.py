@@ -95,11 +95,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
 		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
-		simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
 		mRnaIdsOrdered = mRnaIds[indexingOrder]
-		transcriptionIndex = sim_data.process.transcription.rna_data["id"].tolist()
-		geneIdsOrdered = [sim_data.process.transcription.rna_data['gene_id'][transcriptionIndex.index(x)] for x in mRnaIdsOrdered]
 
 		## Commented code is used when PLOT_GENES_OF_INTEREST is True
 		# raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))

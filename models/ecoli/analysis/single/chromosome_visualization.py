@@ -33,16 +33,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		replichore_lengths = sim_data.process.replication.replichore_lengths
 
 		# Read gene coordinates from sim_data
-		gene_start_coordinates = sim_data.process.transcription.rna_data['replication_coordinate']
-		gene_direction = sim_data.process.transcription.rna_data['direction']
+		gene_start_coordinates = sim_data.process.transcription.cistron_data['replication_coordinate']
+		gene_direction = sim_data.process.transcription.cistron_data['direction']
 		gene_direction_rescaled = (2 * (gene_direction - 0.5)).astype(np.int64)
-		gene_length = sim_data.process.transcription.rna_data['length'].asNumber(units.nt)
+		gene_length = sim_data.process.transcription.cistron_data['length'].asNumber(units.nt)
 		gene_end_coordinates = gene_start_coordinates + np.multiply(
-			gene_direction_rescaled, gene_length)
+			gene_direction_rescaled, gene_length) - 1
 
 		# Get common names of genes
 		gene_names = []
-		for gene_id in sim_data.process.transcription.rna_data['gene_id']:
+		for gene_id in sim_data.process.transcription.cistron_data['gene_id']:
 			gene_names.append(sim_data.common_names.get_common_name(gene_id))
 
 		# Listeners used

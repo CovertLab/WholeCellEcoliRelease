@@ -26,6 +26,7 @@ ACTIVE = [
 	"massShift.py",
 	"mene_limitations.py",
 	# "probProteinExistAndDouble.py",
+	"polycistronic_transcription.py",
 	"ppgpp_regulation.py",
 	"proteinAvgCountVsBurstSize.py",
 	"proteinCountVsFoldChange.py",

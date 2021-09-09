@@ -29,10 +29,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		relativeCounts = avgCounts / avgCounts.sum()
 
+		protein_loss_rates = (
+			np.log(2) / sim_data.doubling_time.asNumber(units.s)
+			+ sim_data.process.translation.monomer_data['deg_rate'].asNumber(1 / units.s)
+			)
 		expectedCountsArbitrary = normalize(
-			sim_data.process.transcription.rna_expression[sim_data.condition][sim_data.relation.RNA_to_monomer_mapping] *
-			sim_data.process.translation.translation_efficiencies_by_monomer /
-			(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomer_data['deg_rate'].asNumber(1 / units.s))
+			sim_data.process.transcription.cistron_tu_mapping_matrix.dot(
+				sim_data.process.transcription.rna_expression[sim_data.condition])[
+				sim_data.relation.cistron_to_monomer_mapping]
+			* sim_data.process.translation.translation_efficiencies_by_monomer
+			/ protein_loss_rates
 			)
 
 		expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()

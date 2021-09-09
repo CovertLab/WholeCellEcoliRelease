@@ -21,15 +21,15 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		(rnapCountsBulk,) = read_bulk_molecule_counts(simOutDir, (rnapId,))
 
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
-		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-		mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		mRNA_cistron_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_cistron_ids'))}
 
-		RNAP_RNA_IDS = [
-			"EG10893_RNA[c]", "EG10894_RNA[c]",
-			"EG10895_RNA[c]", "EG10896_RNA[c]"]
+		RNAP_cistron_IDS = [
+			"EG10893_RNA", "EG10894_RNA",
+			"EG10895_RNA", "EG10896_RNA"]
 
-		rnapRnaIndexes = np.array([mRNA_idx[rnapRnaId] for rnapRnaId in RNAP_RNA_IDS], int)
-		rnapRnaCounts = mRNA_counts[:, rnapRnaIndexes]
+		rnap_cistron_indexes = np.array([mRNA_cistron_idx[rnapRnaId] for rnapRnaId in RNAP_cistron_IDS], int)
+		rnap_cistron_counts = mRNA_cistron_counts[:, rnap_cistron_indexes]
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
@@ -57,10 +57,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			plt.subplot(5, 1, subplotIdx)
 
-			plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])
+			plt.plot(time / 60., rnap_cistron_counts[:, rnapRnaCountsIdx])
 			plt.xlabel("Time (min)")
 			plt.ylabel("mRNA counts")
-			plt.title(RNAP_RNA_IDS[rnapRnaCountsIdx])
+			plt.title(RNAP_cistron_IDS[rnapRnaCountsIdx])
 
 		plt.subplots_adjust(hspace = 0.5, top = 0.95, bottom = 0.05)
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

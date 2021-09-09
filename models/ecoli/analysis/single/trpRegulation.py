@@ -8,7 +8,6 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import six
 from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
@@ -48,9 +47,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get indexes of trpR and its target RNAs
 		trpRIndex = tf_ids.index("CPLX-125")
-		target_ids = six.viewkeys(sim_data.tf_to_fold_change["CPLX-125"])
+		target_ids = sim_data.relation.tf_id_to_target_RNAs["CPLX-125"]
 		target_idx = np.array(
-			[rna_idx[target_id + "[c]"] for target_id in target_ids])
+			[rna_idx[target_id] for target_id in target_ids])
 
 		trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
 		bulk_ids = (
@@ -84,8 +83,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		proteomeMassFraction = trpAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 		# Get the synthesis probability for all regulated genes
-		synthProbIds = [target + "[c]" for target in sim_data.tf_to_fold_change["CPLX-125"].keys()]
-		synthProbIndex = np.array([rna_idx[x] for x in synthProbIds])
+		synthProbIndex = np.array([rna_idx[x] for x in target_ids])
 		synthProbs = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, synthProbIndex]
 
 		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")

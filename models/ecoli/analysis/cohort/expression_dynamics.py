@@ -170,8 +170,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			counts = (
 				proteinMonomerCounts[:, protein_idx],
 				proteinMonomerCounts[:, protein_idx_burst],
-				rnaMonomerCounts[:, sim_data.relation.RNA_to_monomer_mapping][:, protein_idx],
-				rnaMonomerCounts[:, sim_data.relation.RNA_to_monomer_mapping][:, protein_idx_burst]
+				rnaMonomerCounts[:, sim_data.relation.cistron_to_monomer_mapping][:, protein_idx],
+				rnaMonomerCounts[:, sim_data.relation.cistron_to_monomer_mapping][:, protein_idx_burst]
 				)
 			line_color = (
 				EXP_COLOR,

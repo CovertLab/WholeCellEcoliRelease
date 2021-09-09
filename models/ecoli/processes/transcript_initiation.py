@@ -87,8 +87,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.idx_rRNA = np.where(sim_data.process.transcription.rna_data['is_rRNA'])[0]
 		self.idx_mRNA = np.where(sim_data.process.transcription.rna_data['is_mRNA'])[0]
 		self.idx_tRNA = np.where(sim_data.process.transcription.rna_data['is_tRNA'])[0]
-		self.idx_rprotein = np.where(sim_data.process.transcription.rna_data['is_ribosomal_protein'])[0]
-		self.idx_rnap = np.where(sim_data.process.transcription.rna_data['is_RNAP'])[0]
+		self.idx_rprotein = np.where(sim_data.process.transcription.rna_data['includes_ribosomal_protein'])[0]
+		self.idx_rnap = np.where(sim_data.process.transcription.rna_data['includes_RNAP'])[0]
 
 		# Synthesis probabilities for different categories of genes
 		self.rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction

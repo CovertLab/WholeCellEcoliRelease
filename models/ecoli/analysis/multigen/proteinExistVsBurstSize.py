@@ -51,7 +51,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
 			# Map transcription initiation events to monomers
-			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.RNA_to_monomer_mapping]
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.cistron_to_monomer_mapping]
 
 			# Log data
 			monomerExistMultigen[gen_idx,:] = monomerExist

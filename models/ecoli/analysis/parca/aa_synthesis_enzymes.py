@@ -44,9 +44,9 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			for subunit in complexation.get_monomers(enzyme)['subunitIds']
 			]
 
-		monomer_to_rna = {monomer['id']: monomer['rna_id'][:-3] for monomer in translation.monomer_data}
-		rna_to_symbol = {gene['rna_id']: gene['symbol'] for gene in replication.gene_data}
-		synthesis_symbols = [rna_to_symbol[monomer_to_rna[monomer]] for monomer in synthesis_monomers]
+		monomer_to_cistron = {monomer['id']: monomer['cistron_id'] for monomer in translation.monomer_data}
+		cistron_to_symbol = {gene['cistron_id']: gene['symbol'] for gene in replication.gene_data}
+		synthesis_symbols = [cistron_to_symbol[monomer_to_cistron[monomer]] for monomer in synthesis_monomers]
 
 		complexation_stoich = complexation.stoich_matrix_monomers()
 

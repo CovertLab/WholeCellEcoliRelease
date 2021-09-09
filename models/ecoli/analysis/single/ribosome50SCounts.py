@@ -25,7 +25,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		proteinIds = sim_data.molecule_groups.s50_proteins
-		rnaIds = [sim_data.process.translation.monomer_data['rna_id'][np.where(sim_data.process.translation.monomer_data['id'] == pid)[0][0]] for pid in proteinIds]
+		cistron_ids = [sim_data.process.translation.monomer_data['cistron_id'][np.where(sim_data.process.translation.monomer_data['id'] == pid)[0][0]] for pid in proteinIds]
 		rRnaIds = sim_data.molecule_groups.s50_23s_rRNA
 		rRnaIds.extend(sim_data.molecule_groups.s50_5s_rRNA)
 		complexIds = sim_data.molecule_groups.s50_protein_complexes
@@ -33,10 +33,11 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load count data for mRNAs
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
-		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-		all_mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
-		rnaIndexes = np.array([all_mRNA_idx[rna] for rna in rnaIds], int)
-		rnaCounts = mRNA_counts[:, rnaIndexes]
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		all_mRNA_cistron_indexes = {rna: i for i, rna in
+			enumerate(mRNA_counts_reader.readAttribute('mRNA_cistron_ids'))}
+		rna_indexes = np.array([all_mRNA_cistron_indexes[rna] for rna in cistron_ids], int)
+		rna_cistron_counts = mRNA_cistron_counts[:, rna_indexes]
 		(freeProteinCounts, freeRRnaCounts, complexCounts) = read_bulk_molecule_counts(
 			simOutDir, (proteinIds, rRnaIds, complexIds))
 
@@ -56,8 +57,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		for idx in range(len(proteinIds)):
 			rna_axis = plt.subplot(16, 3, idx + 1)
 
-			sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', '-', 'b')
-			setAxisMaxMinY(rna_axis, rnaCounts[:, idx])
+			sparklineAxis(rna_axis, time / 60., rna_cistron_counts[:, idx], 'left', '-', 'b')
+			setAxisMaxMinY(rna_axis, rna_cistron_counts[:, idx])
 
 			protein_axis = rna_axis.twinx()
 			sparklineAxis(protein_axis, time / 60., freeProteinCounts[:, idx], 'right', '-', 'r')

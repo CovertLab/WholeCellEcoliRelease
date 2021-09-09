@@ -26,14 +26,17 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		protein_30s = molecule_groups.s30_proteins
 		protein_50s = molecule_groups.s50_proteins
 		rrna = molecule_groups.s30_16s_rRNA + molecule_groups.s50_23s_rRNA + molecule_groups.s50_5s_rRNA
-		protein_to_rna = {p['id']: p['rna_id'] for p in sim_data.process.translation.monomer_data}
-		rna_ribosome = {protein_to_rna[p] for p in (protein_30s + protein_50s)}
+		protein_to_cistron = {p['id']: p['cistron_id'] for p in sim_data.process.translation.monomer_data}
+		cistron_ribosome = [protein_to_cistron[p] for p in (protein_30s + protein_50s)]
+		rna_ids = sim_data.process.transcription.rna_data['id']
+		rna_ribosome = {
+			rna_ids[i] for cistron_id in cistron_ribosome
+			for i in sim_data.process.transcription.cistron_id_to_rna_indexes(cistron_id)}
 		rna_ribosome.update(rrna)
 		ribosome_mask = np.array([r in rna_ribosome for r in sim_data.process.transcription.rna_data['id']])
 
 		# Labels for points
-		rna_to_gene = {g['rna_id']: g['symbol'] for g in sim_data.process.replication.gene_data}
-		labels = np.array([rna_to_gene[r[:-3]] for r in sim_data.process.transcription.rna_data['id']])
+		labels = np.array([sim_data.common_names.get_common_name(r[:-3]) for r in sim_data.process.transcription.rna_data['id']])
 
 		# Conditions to calculate expression for - will be individual subplots
 		conditions = list(sim_data.condition_active_tfs.keys())

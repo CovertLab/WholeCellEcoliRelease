@@ -37,7 +37,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		enzymeComplexId = "MENE-CPLX[c]"
 		enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
-		enzymeRnaId = "EG12437_RNA[c]"
+		enzyme_rna_cistron_id = "EG12437_RNA"
 		reactionId = "O-SUCCINYLBENZOATE-COA-LIG-RXN"
 		metaboliteIds = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
 
@@ -52,7 +52,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		cellDensity = sim_data.constants.cell_density
 
-		rnaIds = sim_data.process.transcription.rna_data["id"]
+		cistron_ids = sim_data.process.transcription.cistron_data["id"]
 
 		simOutDir = os.path.join(allDir[0], "simOut")
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -63,14 +63,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		mRNA_counts_reader = TableReader(
 			os.path.join(simOutDir, 'mRNACounts'))
-		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-		enzymeRnaIndex = all_mRNA_ids.index(enzymeRnaId)
+		all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+		enzyme_rna_cistron_index = all_mRNA_cistron_ids.index(enzyme_rna_cistron_id)
 
 		time = []
 		enzymeFluxes = []
 		enzymeComplexCounts = []
 		enzymeMonomerCounts = []
-		enzymeRnaCounts = []
+		enzyme_rna_cistron_counts = []
 		enzymeRnaInitEvent = []
 		metaboliteCounts = np.array([])
 
@@ -103,8 +103,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-			enzymeRnaCounts += mRNA_counts[:, enzymeRnaIndex].tolist()
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+			enzyme_rna_cistron_counts += mRNA_cistron_counts[:, enzyme_rna_cistron_index].tolist()
 
 			if gen == 0:
 				metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
@@ -117,7 +117,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			rnaInitEventsInThisGen = rnapDataReader.readColumn("rnaInitEvent")[:, np.where(rnaIds == enzymeRnaId)[0][0]].tolist()
+			rnaInitEventsInThisGen = rnapDataReader.readColumn("rna_init_event_per_cistron")[:, np.where(cistron_ids == enzyme_rna_cistron_id)[0][0]].tolist()
 
 			enzymeRnaInitEvent += rnaInitEventsInThisGen
 			nTranscriptionInitEventsPerGen.append(np.sum(rnaInitEventsInThisGen))
@@ -149,7 +149,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		rnaInitAxis.yaxis.set_label_coords(-.1, 0.25)
 		whitePadSparklineAxis(rnaInitAxis, xAxis = False)
 
-		rnaLine = rnaAxis.plot(time / 3600., enzymeRnaCounts)
+		rnaLine = rnaAxis.plot(time / 3600., enzyme_rna_cistron_counts)
 		rnaAxis.set_ylabel("menE mRNA\ncounts", fontsize = FONTSIZE, rotation = 0)
 		rnaAxis.yaxis.set_label_coords(-.1, 0.25)
 		whitePadSparklineAxis(rnaAxis, xAxis = False)

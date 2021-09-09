@@ -60,7 +60,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
 		degradationRates = sim_data.process.transcription.rna_data['deg_rate'].asNumber(1 / units.s)
-		degradationRatesByMonomer = degradationRates[sim_data.relation.RNA_to_monomer_mapping]
+		degradationRatesByMonomer = degradationRates[sim_data.relation.cistron_to_monomer_mapping]
 		uniqueDegRate = np.unique(degradationRatesByMonomer)
 
 		# burstSizeToPlot = np.zeros(0)

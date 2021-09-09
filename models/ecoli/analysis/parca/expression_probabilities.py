@@ -40,8 +40,9 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		reg_j = t_reg.delta_prob['deltaJ']
 		reg_v = t_reg.delta_prob['deltaV']
 		rna_ids = transcription.rna_data['id']
-		gene_ids = transcription.rna_data['gene_id']
-		gene_to_symbol = {d['name']: d['symbol'] for d in replication.gene_data}
+		gene_symbols = [
+			sim_data.common_names.get_common_name(rna_id[:-3])
+			for rna_id in rna_ids]
 		rna_expression = transcription.rna_expression['basal']
 
 		## ppGpp expression
@@ -140,7 +141,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			for idx in np.argsort(basal_prob):
 				writer.writerow([
 					rna_ids[idx],
-					gene_to_symbol[gene_ids[idx]],
+					gene_symbols[idx],
 					basal_prob[idx],
 					ppgpp_prob[idx],
 					rna_expression[idx],
@@ -154,7 +155,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 					writer.writerow([
 						tf_ids[tf_sorted_j[idx]],
 						rna_ids[tf_sorted_i[idx]],
-						gene_to_symbol[gene_ids[tf_sorted_i[idx]]],
+						gene_symbols[tf_sorted_i[idx]],
 						tf_sorted_v[idx],
 						])
 

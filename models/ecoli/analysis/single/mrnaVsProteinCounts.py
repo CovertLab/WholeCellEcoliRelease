@@ -25,20 +25,20 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 
-		proteinIds = sim_data.process.translation.monomer_data["id"]
-		rnaIds = sim_data.process.translation.monomer_data['rna_id']
+		protein_ids = sim_data.process.translation.monomer_data["id"]
+		cistron_ids = sim_data.process.translation.monomer_data['cistron_id']
 
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
-		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-		all_mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		all_mRNA_cistron_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_cistron_ids'))}
 
-		rnaIndexes = np.array([all_mRNA_idx[moleculeId] for moleculeId in rnaIds], int)
-		rnaCountsBulk = mRNA_counts[:, rnaIndexes]
+		rna_cistron_indexes = np.array([all_mRNA_cistron_idx[moleculeId] for moleculeId in cistron_ids], int)
+		rna_cistron_counts_bulk = mRNA_cistron_counts[:, rna_cistron_indexes]
 
-		(proteinCountsBulk,) = read_bulk_molecule_counts(simOutDir, (proteinIds,))
+		(protein_counts_bulk,) = read_bulk_molecule_counts(simOutDir, (protein_ids,))
 
-		relativeMRnaCounts = rnaCountsBulk[-1, :]
-		relativeProteinCounts = proteinCountsBulk[-1, :]
+		relativeMRnaCounts = rna_cistron_counts_bulk[-1, :]
+		relativeProteinCounts = protein_counts_bulk[-1, :]
 
 		plt.figure(figsize = (8.5, 11))
 

@@ -30,13 +30,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load count data for mRNAs
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
-		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
 
 		# Get counts for RNase proteins and mRNAs
 		(RNase_counts,) = read_bulk_molecule_counts(simOutDir, (RNase_IDS,))
-		rnaIndexes = np.array([all_mRNA_ids.index(rna) for rna in RNase_RnaIDS], int)
-		RNase_RNA_counts = mRNA_counts[:, rnaIndexes]
+		rnaIndexes = np.array([all_mRNA_cistron_ids.index(rna) for rna in RNase_RnaIDS], int)
+		RNase_RNA_cistron_counts = mRNA_cistron_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
@@ -54,7 +54,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			if not subplotIdx % 2:
 				plt.plot(time / 60., RNase_counts[:, subplotIdx // 2])
 			else:
-				plt.plot(time / 60., RNase_RNA_counts[:, subplotIdx // 2])
+				plt.plot(time / 60., RNase_RNA_cistron_counts[:, subplotIdx // 2])
 
 			if not subplotIdx >= n_subplots - 2:
 				frame = plt.gca()

@@ -35,22 +35,19 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 		self.variable_elongation = sim._variable_elongation_translation
 		self.make_elongation_rates = sim_data.process.translation.make_elongation_rates
+		self.rna_id_to_cistron_indexes = sim_data.process.transcription.rna_id_to_cistron_indexes
+		self.cistron_start_end_pos_in_tu = sim_data.process.transcription.cistron_start_end_pos_in_tu
+		self.tu_ids = sim_data.process.transcription.rna_data['id']
+		self.n_TUs = len(self.tu_ids)
 
-		# Get indexes from proteins to transcription units
-		self.protein_index_to_TU_index = sim_data.relation.RNA_to_monomer_mapping
-
-		# Build matrix to convert transcription unit counts to mRNA counts
-		all_TU_ids = sim_data.process.transcription.rna_data['id']
-		all_mRNA_ids = sim_data.process.translation.monomer_data['rna_id']
-		self.n_TUs = len(all_TU_ids)
-		self.n_mRNAs = len(all_mRNA_ids)
-
-		self.TU_counts_to_mRNA_counts = np.zeros(
-			(self.n_mRNAs, self.n_TUs), dtype=np.float64)
-
-		TU_id_to_index = {TU_id: i for i, TU_id in enumerate(all_TU_ids)}
-		for i, mRNA_id in enumerate(all_mRNA_ids):
-			self.TU_counts_to_mRNA_counts[i, TU_id_to_index[mRNA_id]] = 1
+		# Get mapping from cistrons to protein monomers and TUs
+		self.cistron_to_monomer_mapping = sim_data.relation.cistron_to_monomer_mapping
+		self.cistron_tu_mapping_matrix = sim_data.process.transcription.cistron_tu_mapping_matrix
+		self.monomer_index_to_cistron_index = {
+			i: sim_data.process.transcription._cistron_id_to_index[monomer['cistron_id']]
+			for (i, monomer) in enumerate(sim_data.process.translation.monomer_data)
+			}
+		self.monomer_index_to_tu_indexes = sim_data.relation.monomer_index_to_tu_indexes
 
 		# Determine changes from parameter shuffling variant
 		if (hasattr(sim_data.process.translation, "translationEfficienciesShuffleIdxs")
@@ -102,21 +99,44 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			self.ribosome50S.count().sum(),
 			])
 
+		# Calculate actual number of ribosomes that should be activated based on
+		# probabilities
 		# Get attributes of active (translatable) mRNAs
-		TU_index_RNAs, can_translate, unique_index_RNAs = self.RNAs.attrs(
-			'TU_index', 'can_translate', 'unique_index')
-		TU_index_active_mRNAs = TU_index_RNAs[can_translate]
-		unique_index_active_mRNAs = unique_index_RNAs[can_translate]
+		TU_index_RNAs, transcript_lengths, can_translate, is_full_transcript, unique_index_RNAs = self.RNAs.attrs(
+			'TU_index', 'transcript_length', 'can_translate', 'is_full_transcript', 'unique_index')
+		TU_index_mRNAs = TU_index_RNAs[can_translate]
+		length_mRNAs = transcript_lengths[can_translate]
+		unique_index_mRNAs = unique_index_RNAs[can_translate]
+		is_full_transcript_mRNAs = is_full_transcript[can_translate]
+		is_incomplete_transcript_mRNAs = np.logical_not(is_full_transcript_mRNAs)
 
-		# Get counts of each type of active mRNA
-		TU_counts = np.bincount(TU_index_active_mRNAs, minlength=self.n_TUs)
-		mRNA_counts = self.TU_counts_to_mRNA_counts.dot(TU_counts)
+		# Calculate counts of each mRNA cistron from fully transcribed
+		# transcription units
+		TU_index_full_mRNAs = TU_index_mRNAs[is_full_transcript_mRNAs]
+		TU_counts_full_mRNAs = np.bincount(
+			TU_index_full_mRNAs, minlength=self.n_TUs)
+		cistron_counts = self.cistron_tu_mapping_matrix.dot(
+			TU_counts_full_mRNAs)
+
+		# Calculate counts of each mRNA cistron from partially transcribed
+		# transcription units
+		TU_index_incomplete_mRNAs = TU_index_mRNAs[is_incomplete_transcript_mRNAs]
+		length_incomplete_mRNAs = length_mRNAs[is_incomplete_transcript_mRNAs]
+
+		for (TU_index, length) in zip(TU_index_incomplete_mRNAs, length_incomplete_mRNAs):
+			cistron_indexes = self.rna_id_to_cistron_indexes(self.tu_ids[TU_index])
+			cistron_start_positions = np.array([
+				self.cistron_start_end_pos_in_tu[(cistron_index, TU_index)][0]
+				for cistron_index in cistron_indexes
+				])
+
+			cistron_counts[cistron_indexes] += length > cistron_start_positions
 
 		# Calculate initiation probabilities for ribosomes based on mRNA counts
 		# and associated mRNA translational efficiencies
 		proteinInitProb = normalize(
-			mRNA_counts * self.translationEfficiencies
-			)
+			cistron_counts[self.cistron_to_monomer_mapping] * self.translationEfficiencies
+		)
 
 		# Calculate actual number of ribosomes that should be activated based
 		# on probabilities
@@ -137,14 +157,11 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		n_new_proteins = self.randomState.multinomial(
 			n_ribosomes_to_activate,
 			proteinInitProb
-			)
+		)
 
-		# Build attributes for active ribosomes.
-		# Each ribosome is assigned a protein index for the protein that
-		# corresponds to the polypeptide it will polymerize. This is done in
-		# blocks of protein ids for efficiency.
 		protein_indexes = np.empty(n_ribosomes_to_activate, np.int64)
 		mRNA_indexes = np.empty(n_ribosomes_to_activate, np.int64)
+		positions_on_mRNA = np.empty(n_ribosomes_to_activate, np.int64)
 		nonzeroCount = (n_new_proteins > 0)
 		start_index = 0
 
@@ -152,19 +169,37 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 				np.arange(n_new_proteins.size)[nonzeroCount],
 				n_new_proteins[nonzeroCount]):
 			# Set protein index
-			protein_indexes[start_index:start_index+counts] = protein_index
+			protein_indexes[start_index:start_index + counts] = protein_index
 
-			# Get mask for active mRNA molecules that produce this protein
-			mask = (TU_index_active_mRNAs == self.protein_index_to_TU_index[protein_index])
-			n_mRNAs = np.count_nonzero(mask)
+			cistron_index = self.monomer_index_to_cistron_index[protein_index]
+
+			attribute_indexes = []
+			cistron_start_positions = []
+
+			for TU_index in self.monomer_index_to_tu_indexes[protein_index]:
+				attribute_indexes_this_TU = np.where(TU_index_mRNAs == TU_index)[0]
+				cistron_start_position = self.cistron_start_end_pos_in_tu[
+					(cistron_index, TU_index)][0]
+
+				is_transcript_long_enough = length_mRNAs[attribute_indexes_this_TU] >= cistron_start_position
+
+				attribute_indexes.extend(attribute_indexes_this_TU[is_transcript_long_enough])
+				cistron_start_positions.extend(
+					[cistron_start_position] * len(attribute_indexes_this_TU[is_transcript_long_enough]))
+
+			n_mRNAs = len(attribute_indexes)
 
 			# Distribute ribosomes among these mRNAs
 			n_ribosomes_per_RNA = self.randomState.multinomial(
-				counts, np.full(n_mRNAs, 1./n_mRNAs))
+				counts, np.full(n_mRNAs, 1. / n_mRNAs))
 
 			# Get unique indexes of each mRNA
 			mRNA_indexes[start_index:start_index + counts] = np.repeat(
-				unique_index_active_mRNAs[mask], n_ribosomes_per_RNA)
+				unique_index_mRNAs[attribute_indexes], n_ribosomes_per_RNA)
+
+			positions_on_mRNA[start_index:start_index + counts] = np.repeat(
+				cistron_start_positions, n_ribosomes_per_RNA
+				)
 
 			start_index += counts
 
@@ -172,10 +207,10 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.active_ribosomes.moleculesNew(
 			n_ribosomes_to_activate,
 			protein_index=protein_indexes,
-			peptide_length=np.zeros(cast(int, n_ribosomes_to_activate), dtype=np.int64),
+			peptide_length=np.zeros(n_ribosomes_to_activate, dtype=np.int64),
 			mRNA_index=mRNA_indexes,
-			pos_on_mRNA=np.zeros(cast(int, n_ribosomes_to_activate), dtype=np.int64)
-			)
+			pos_on_mRNA=positions_on_mRNA,
+		)
 
 		# Decrement free 30S and 70S ribosomal subunit counts
 		self.ribosome30S.countDec(n_new_proteins.sum())
@@ -185,7 +220,9 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "didInitialize", n_new_proteins.sum())
 		self.writeToListener("RibosomeData", "probTranslationPerTranscript", proteinInitProb)
 
-	def _calculateActivationProb(self, fracActiveRibosome, proteinLengths, ribosomeElongationRates, proteinInitProb, timeStepSec):
+	def _calculateActivationProb(
+			self, fracActiveRibosome, proteinLengths, ribosomeElongationRates,
+			proteinInitProb, timeStepSec):
 		"""
 		Calculates the expected ribosome termination rate based on the ribosome
 		elongation rate

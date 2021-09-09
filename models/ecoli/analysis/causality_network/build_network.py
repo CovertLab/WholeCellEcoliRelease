@@ -294,7 +294,7 @@ class BuildNetwork(object):
 		Add gene state nodes to the node list.
 		"""
 		# Loop through all genes (in the order listed in transcription)
-		for gene_id in self.sim_data.process.transcription.rna_data['gene_id']:
+		for gene_id in self.sim_data.process.transcription.cistron_data['gene_id']:
 
 			# Initialize a single gene node
 			gene_node = Node()
@@ -333,9 +333,9 @@ class BuildNetwork(object):
 
 		# Loop through all genes (in the order listed in transcription)
 		for rna_id, gene_id, is_mrna in zip(
-				self.sim_data.process.transcription.rna_data["id"],
-				self.sim_data.process.transcription.rna_data['gene_id'],
-				self.sim_data.process.transcription.rna_data['is_mRNA']):
+				self.sim_data.process.transcription.cistron_data["id"],
+				self.sim_data.process.transcription.cistron_data['gene_id'],
+				self.sim_data.process.transcription.cistron_data['is_mRNA']):
 
 			# Initialize a single transcript node
 			rna_node = Node()
@@ -432,14 +432,14 @@ class BuildNetwork(object):
 		# Construct dictionary to get corrensponding gene IDs from RNA IDs
 		rna_id_to_gene_id = {}
 		for rna_id, gene_id in zip(
-				self.sim_data.process.transcription.rna_data["id"],
-				self.sim_data.process.transcription.rna_data['gene_id']):
+				self.sim_data.process.transcription.cistron_data["id"],
+				self.sim_data.process.transcription.cistron_data['gene_id']):
 			rna_id_to_gene_id[rna_id] = gene_id
 
 		# Loop through all translatable genes
 		for monomer_id, rna_id in zip(
 				self.sim_data.process.translation.monomer_data["id"],
-				self.sim_data.process.translation.monomer_data['rna_id']):
+				self.sim_data.process.translation.monomer_data['cistron_id']):
 
 			gene_id = rna_id_to_gene_id[rna_id]
 
@@ -923,7 +923,7 @@ class BuildNetwork(object):
 		rna_id_to_gene_id = {}
 
 		for rna_id, gene_id in zip(
-				self.sim_data.process.replication.gene_data['rna_id'],
+				self.sim_data.process.replication.gene_data['cistron_id'],
 				self.sim_data.process.replication.gene_data["name"]):
 			rna_id_to_gene_id[rna_id + "[c]"] = gene_id
 

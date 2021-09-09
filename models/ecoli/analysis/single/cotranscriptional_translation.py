@@ -37,40 +37,44 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data
 		initial_time = main_reader.readAttribute('initialTime')
 		time = main_reader.readColumn('time') - initial_time
-		mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+		mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
 		all_mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
 		full_mRNA_counts = mRNA_counts_reader.readColumn('full_mRNA_counts')
 		partial_mRNA_counts = mRNA_counts_reader.readColumn('partial_mRNA_counts')
+		all_mRNA_cistron_counts = mRNA_counts_reader.readColumn(
+			'mRNA_cistron_counts')
+		partial_mRNA_cistron_counts = mRNA_counts_reader.readColumn(
+			'partial_mRNA_cistron_counts')
 		protein_ids = ribosome_reader.readAttribute('monomerIds')
 		all_ribosome_counts = ribosome_reader.readColumn('n_ribosomes_per_transcript')
 		chromosome_bound_ribosome_counts = ribosome_reader.readColumn(
 			'n_ribosomes_on_partial_mRNA_per_transcript')
 
-		# Load mappings between mRNA, protein, and gene ids
-		mRNA_id_to_gene_id = {
-			mRNA_id: gene_id for (mRNA_id, gene_id)
-			in zip(sim_data.process.transcription.rna_data['id'],
-				sim_data.process.transcription.rna_data['gene_id'])
+		# Load mappings between cistron, protein, and gene ids
+		cistron_id_to_gene_id = {
+			cistron_id: gene_id for (cistron_id, gene_id)
+			in zip(sim_data.process.transcription.cistron_data['id'],
+				sim_data.process.transcription.cistron_data['gene_id'])
 			}
-		protein_id_to_mRNA_id = {
-			protein_id: mRNA_id for (protein_id, mRNA_id)
+		protein_id_to_cistron_id = {
+			protein_id: cistron_id for (protein_id, cistron_id)
 			in zip(sim_data.process.translation.monomer_data['id'],
-				sim_data.process.translation.monomer_data['rna_id'])
+				sim_data.process.translation.monomer_data['cistron_id'])
 			}
 		protein_id_to_gene_id = {
-			protein_id: mRNA_id_to_gene_id[mRNA_id] for (protein_id, mRNA_id)
-			in protein_id_to_mRNA_id.items()
+			protein_id: cistron_id_to_gene_id[cistron_id] for (protein_id, cistron_id)
+			in protein_id_to_cistron_id.items()
 			}
 
 		# Load mapping from protein id to genomic coordinates
-		rna_id_to_coordinates = {
+		cistron_id_to_coordinates = {
 			rna_id: coordinates for (rna_id, coordinates)
-			in zip(sim_data.process.transcription.rna_data['id'],
-				sim_data.process.transcription.rna_data['replication_coordinate'])
+			in zip(sim_data.process.transcription.cistron_data['id'],
+				sim_data.process.transcription.cistron_data['replication_coordinate'])
 			}
 		protein_id_to_coordinates = {
-			protein_id: rna_id_to_coordinates[rna_id] for (protein_id, rna_id)
-			in protein_id_to_mRNA_id.items()
+			protein_id: cistron_id_to_coordinates[cistron_id] for (protein_id, cistron_id)
+			in protein_id_to_cistron_id.items()
 			}
 
 		# Get mask and genomic coordinates of membrane-bound proteins
@@ -113,14 +117,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get top N genes with the highest average count of active partially
 		# transcribed mRNAs
-		partial_mRNA_counts_mean = partial_mRNA_counts.mean(axis=0)
-		rank = np.argsort(partial_mRNA_counts_mean)[::-1][:PLOT_TOP_N_GENES]
+		partial_mRNA_cistron_counts_mean = partial_mRNA_cistron_counts.mean(axis=0)
+		rank = np.argsort(partial_mRNA_cistron_counts_mean)[::-1][:PLOT_TOP_N_GENES]
 		ranked_genes = [
-			sim_data.common_names.get_common_name(mRNA_id_to_gene_id[mRNA_ids[i]])
+			sim_data.common_names.get_common_name(cistron_id_to_gene_id[mRNA_cistron_ids[i]])
 			for i in rank]
 
 		ax = plt.subplot(gs[1, 0])
-		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_counts_mean[rank])
+		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_cistron_counts_mean[rank])
 		ax.set_xticks(list(range(PLOT_TOP_N_GENES)))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title(
@@ -131,21 +135,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get top N genes with the highest proportions of active mRNAs that are
 		# partially transcribed (minimum 10 average total transcripts)
-		all_mRNA_counts_mean = all_mRNA_counts.mean(axis=0)
-		partial_mRNA_proportions_all_mRNAs = partial_mRNA_counts_mean.sum()/all_mRNA_counts_mean.sum()
-		partial_mRNA_proportions = np.nan_to_num(
-			partial_mRNA_counts_mean/all_mRNA_counts_mean)
-		partial_mRNA_proportions[all_mRNA_counts_mean < 10] = 0
-		rank = np.argsort(partial_mRNA_proportions)[::-1][:PLOT_TOP_N_GENES]
+		all_mRNA_cistron_counts_mean = all_mRNA_cistron_counts.mean(axis=0)
+		partial_mRNA_cistron_proportions_all_mRNAs = partial_mRNA_cistron_counts_mean.sum()/all_mRNA_cistron_counts_mean.sum()
+		partial_mRNA_cistron_proportions = np.nan_to_num(
+			partial_mRNA_cistron_counts_mean/all_mRNA_cistron_counts_mean)
+		partial_mRNA_cistron_proportions[all_mRNA_cistron_counts_mean < 10] = 0
+		rank = np.argsort(partial_mRNA_cistron_proportions)[::-1][:PLOT_TOP_N_GENES]
 		ranked_genes = [
-			sim_data.common_names.get_common_name(mRNA_id_to_gene_id[mRNA_ids[i]])
+			sim_data.common_names.get_common_name(cistron_id_to_gene_id[mRNA_cistron_ids[i]])
 			for i in rank]
 
 		ax = plt.subplot(gs[2, 0])
-		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_proportions[rank])
+		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_cistron_proportions[rank])
 		ax.axhline(
-			partial_mRNA_proportions_all_mRNAs, ls='--', lw=2, color='k',
-			label="All mRNAs: %.2f" % (partial_mRNA_proportions_all_mRNAs, )
+			partial_mRNA_cistron_proportions_all_mRNAs, ls='--', lw=2, color='k',
+			label="All mRNAs: %.2f" % (partial_mRNA_cistron_proportions_all_mRNAs, )
 			)
 		ax.legend()
 		ax.set_xticks(list(range(PLOT_TOP_N_GENES)))
@@ -174,6 +178,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		mRNA_transcription_time = mRNA_lengths.astype(np.float64)/elongation_rate
 		expected_partial_mRNA_proportions = np.ones_like(mRNA_deg_rates) - np.exp(
 			-np.multiply(mRNA_deg_rates, mRNA_transcription_time))
+		all_mRNA_counts_mean = all_mRNA_counts.mean(axis=0)
+		partial_mRNA_counts_mean = partial_mRNA_counts.mean(axis=0)
+		partial_mRNA_proportions = np.nan_to_num(
+			partial_mRNA_counts_mean / all_mRNA_counts_mean)
 		mask = all_mRNA_counts_mean > 10  # Plot only the highly-expressed mRNAs
 
 		ax = plt.subplot(gs[3:5, 0])

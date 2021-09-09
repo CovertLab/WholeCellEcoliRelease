@@ -40,21 +40,22 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		basal_reference = metabolism.aa_supply_enzyme_conc_basal.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid
 
 		# Get RNAs associated with each enzyme
-		monomer_to_rna = {m['id']: m['rna_id'] for m in translation.monomer_data}
+		# TODO (ggsun): This part may need to be adjusted for operons
+		monomer_to_cistron = {m['id']: m['cistron_id'] for m in translation.monomer_data}
 		mat_i = []
 		mat_j = []
-		rna_mapping_indices = {}
+		cistron_mapping_indices = {}
 		for j, enzyme in enumerate(metabolism.aa_enzymes):
 			for monomer in complexation.get_monomers(enzyme)['subunitIds']:
-				rna = monomer_to_rna[monomer]
-				rna_mapping_indices[rna] = rna_mapping_indices.get(rna, len(rna_mapping_indices))
-				mat_i.append(rna_mapping_indices[rna])
+				cistron = monomer_to_cistron[monomer]
+				cistron_mapping_indices[cistron] = cistron_mapping_indices.get(cistron, len(cistron_mapping_indices))
+				mat_i.append(cistron_mapping_indices[cistron])
 				mat_j.append(j)
 		rna_to_enzyme = np.zeros((np.max(mat_i) + 1, np.max(mat_j) + 1))
 		rna_to_enzyme[mat_i, mat_j] = 1
-		rnas = list(rna_mapping_indices.keys())
+		cistrons = list(cistron_mapping_indices.keys())
 		rna_data_indices = {rna: i for i, rna in enumerate(transcription.rna_data['id'])}
-		enzyme_rna_indices = np.array([rna_data_indices[rna] for rna in rnas])
+		enzyme_rna_indices = np.array([rna_data_indices[cistron + '[c]'] for cistron in cistrons])
 
 		# Attenuation information
 		attenuated_indices = transcription.attenuated_rna_indices

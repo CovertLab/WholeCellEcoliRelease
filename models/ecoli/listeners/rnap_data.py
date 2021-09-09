@@ -28,6 +28,9 @@ class RnapData(wholecell.listeners.listener.Listener):
 
 		self.rnaIds = sim_data.process.transcription.rna_data['id']
 		self.nRnaSpecies = self.rnaIds.size
+		self.cistron_ids = sim_data.process.transcription.cistron_data['id']
+		self.n_cistrons = self.cistron_ids.size
+		self.cistron_tu_mapping_matrix = sim_data.process.transcription.cistron_tu_mapping_matrix
 		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 
@@ -41,6 +44,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.didInitialize = 0
 		self.terminationLoss = 0
 		self.rnaInitEvent = np.zeros(self.nRnaSpecies, np.int64)
+		self.rna_init_event_per_cistron = np.zeros(self.n_cistrons, np.int64)
 		self.didStall = 0
 
 		# Collisions with replisomes
@@ -89,15 +93,20 @@ class RnapData(wholecell.listeners.listener.Listener):
 			[RNA_index_counts.get(partial_RNA_unique_indexes[i], 0)
 				for i in partial_RNA_to_RNAP_mapping])
 
+		# Calculate hypothetical RNA initiation events per cistron
+		self.rna_init_event_per_cistron = self.cistron_tu_mapping_matrix.dot(
+			self.rnaInitEvent)
 
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
 			'rnaInitEvent': 'rnaIds',
+			'rna_init_event_per_cistron': 'cistron_ids',
 			}
 
 		tableWriter.writeAttributes(
 			rnaIds = list(self.rnaIds),
+			cistron_ids = list(self.cistron_ids),
 			subcolumns = subcolumns)
 
 		tableWriter.set_variable_length_columns(
@@ -124,6 +133,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 			didStall = self.didStall,
 			terminationLoss = self.terminationLoss,
 			rnaInitEvent = self.rnaInitEvent,
+			rna_init_event_per_cistron = self.rna_init_event_per_cistron,
 			n_total_collisions=self.n_total_collisions,
 			n_headon_collisions=self.n_headon_collisions,
 			n_codirectional_collisions=self.n_codirectional_collisions,

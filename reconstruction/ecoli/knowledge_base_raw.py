@@ -14,6 +14,8 @@ from reconstruction.spreadsheets import read_tsv
 from wholecell.io import tsv
 from wholecell.utils import units  # used by eval()
 
+# TODO (ggsun): Replace this with new ParCa variant framework
+WITH_OPERONS = False
 
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
@@ -60,6 +62,9 @@ LIST_OF_DICT_FILENAMES = (
 	"sequence_motifs.tsv",
 	"transcription_factors.tsv",
 	"transcription_units.tsv",
+	"transcription_units_modified.tsv",
+	"transcription_units_removed.tsv",
+	"transcription_units_removed_all.tsv",
 	"transcriptional_attenuation.tsv",
 	"transcriptional_attenuation_removed.tsv",
 	"tf_one_component_bound.tsv",
@@ -118,17 +123,27 @@ REMOVED_DATA = {
 	'metabolic_reactions': 'metabolic_reactions_removed',
 	'metabolite_concentrations': 'metabolite_concentrations_removed',
 	'ppgpp_regulation': 'ppgpp_regulation_removed',
+	'transcription_units': 'transcription_units_removed_all',
 	'transcriptional_attenuation': 'transcriptional_attenuation_removed',
 	'trna_charging_reactions': 'trna_charging_reactions_removed',
-	}
-# TODO: move added rows from some flat files to new files and add here
-ADDED_DATA = {
-	'trna_charging_reactions': 'trna_charging_reactions_added',
-	'metabolic_reactions': 'metabolic_reactions_added',
 	}
 MODIFIED_DATA = {
 	'complexation_reactions': 'complexation_reactions_modified',
 	'metabolic_reactions': 'metabolic_reactions_modified',
+	}
+
+if WITH_OPERONS:
+	REMOVED_DATA.update({
+		'transcription_units': 'transcription_units_removed',
+		})
+	MODIFIED_DATA.update({
+		'transcription_units': 'transcription_units_modified',
+		})
+
+# TODO: move added rows from some flat files to new files and add here
+ADDED_DATA = {
+	'trna_charging_reactions': 'trna_charging_reactions_added',
+	'metabolic_reactions': 'metabolic_reactions_added',
 	}
 
 class DataStore(object):

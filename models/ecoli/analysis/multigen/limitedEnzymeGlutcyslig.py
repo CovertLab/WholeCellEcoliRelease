@@ -19,7 +19,7 @@ from models.ecoli.analysis import multigenAnalysisPlot
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		enzymeMonomerId = "GLUTCYSLIG-MONOMER[c]"
-		enzymeRnaId = "EG10418_RNA[c]"
+		enzyme_rna_cistron_id = "EG10418_RNA"
 		reactionId = "GLUTCYSLIG-RXN"
 		transcriptionFreq = 1.0
 		metaboliteId = "GLUTATHIONE[c]"
@@ -36,18 +36,19 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		mRNA_counts_reader = TableReader(
 			os.path.join(simOutDir, 'mRNACounts'))
-		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-		enzymeRnaIndex = all_mRNA_ids.index(enzymeRnaId)
+		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+		enzyme_rna_cistron_index = all_mRNA_ids.index(enzyme_rna_cistron_id)
 
+		# TODO (ggsun): Should be tweaked with operons
 		rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-		rnap_data_rna_ids = rnapDataReader.readAttribute('rnaIds')
-		enzyme_RNA_index_rnap_data = rnap_data_rna_ids.index(enzymeRnaId)
+		rnap_data_cistron_ids = rnapDataReader.readAttribute('cistron_ids')
+		enzyme_RNA_cistron_index_rnap_data = rnap_data_cistron_ids.index(enzyme_rna_cistron_id)
 
 		time = []
 		enzymeFluxes = []
 		enzymeMonomerCounts = []
 		enzymeRnaCounts = []
-		enzymeRnaInitEvent = []
+		enzyme_cistron_init_event = []
 		metaboliteCounts = []
 
 		for gen, simDir in enumerate(allDir):
@@ -62,8 +63,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-			enzymeRnaCounts += mRNA_counts[:, enzymeRnaIndex].tolist()
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+			enzymeRnaCounts += mRNA_cistron_counts[:, enzyme_rna_cistron_index].tolist()
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
@@ -71,7 +72,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			enzymeRnaInitEvent += rnapDataReader.readColumn("rnaInitEvent")[:, enzyme_RNA_index_rnap_data].tolist()
+			enzyme_cistron_init_event += rnapDataReader.readColumn("rna_init_event_per_cistron")[:, enzyme_RNA_cistron_index_rnap_data].tolist()
 
 		time = np.array(time)
 
@@ -84,13 +85,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		fluxAxis = plt.subplot(5, 1, 4, sharex = rnaInitAxis)
 		metAxis = plt.subplot(5, 1, 5, sharex = rnaInitAxis)
 
-		rnaInitAxis.plot(time / 3600., enzymeRnaInitEvent)
-		rnaInitAxis.set_title("%s transcription initiation events" % enzymeRnaId, fontsize = 10)
+		rnaInitAxis.plot(time / 3600., enzyme_cistron_init_event)
+		rnaInitAxis.set_title("%s transcription initiation events" % enzyme_rna_cistron_id, fontsize = 10)
 		rnaInitAxis.set_ylim([0, rnaInitAxis.get_ylim()[1] * 1.1])
 		rnaInitAxis.set_xlim([0, time[-1] / 3600.])
 
 		rnaAxis.plot(time / 3600., enzymeRnaCounts)
-		rnaAxis.set_title("%s counts" % enzymeRnaId, fontsize = 10)
+		rnaAxis.set_title("%s counts" % enzyme_rna_cistron_id, fontsize = 10)
 
 		monomerAxis.plot(time / 3600., enzymeMonomerCounts)
 		monomerAxis.set_title("%s counts" % enzymeMonomerId, fontsize = 10)

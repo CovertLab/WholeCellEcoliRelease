@@ -27,8 +27,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			'is_rRNA',
 			'is_tRNA',
 			'is_mRNA',
-			'is_ribosomal_protein',
-			'is_RNAP',
+			'includes_ribosomal_protein',
+			'includes_RNAP',
 			]
 		n_fractions = len(fractions)
 		synthase_rna_idx_all_rnas = np.array([

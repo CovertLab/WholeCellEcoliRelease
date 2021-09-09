@@ -6,6 +6,7 @@ ACTIVE = [
 	'aa_synthesis_enzymes.py',
 	'aa_synthesis_pathways.py',
 	'amino_acid_uptake_rates.py',
+	'expression_least_square_residuals.py',
 	'expression_probabilities.py',
 	'fold_changes.py',
 	'interpolation.py',
@@ -35,5 +36,6 @@ TAGS = {
 	'VALIDATION': [
 		'aa_synthesis_enzymes.py',
 		'amino_acid_uptake_rates.py',
+		'expression_least_square_residuals.py',
 		],
 	}

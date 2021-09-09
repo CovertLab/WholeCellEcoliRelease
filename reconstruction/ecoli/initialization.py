@@ -120,7 +120,8 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 		rnaExpression[transcription.attenuated_rna_indices] *= readthrough / basal_adjustment
 
 	monomerExpression = normalize(
-		rnaExpression[sim_data.relation.RNA_to_monomer_mapping] *
+		sim_data.process.transcription.cistron_tu_mapping_matrix.dot(rnaExpression)[
+			sim_data.relation.cistron_to_monomer_mapping] *
 		sim_data.process.translation.translation_efficiencies_by_monomer /
 		(np.log(2) / sim_data.condition_to_doubling_time[sim_data.condition].asNumber(units.s) + sim_data.process.translation.monomer_data['deg_rate'].asNumber(1 / units.s))
 		)
@@ -583,16 +584,16 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		ppgpp_regulation, trna_attenuation):
 	"""
 	Activate RNA polymerases as unique molecules, and distribute them along
-	length of genes, while decreasing counts of unactivated RNA polymerases
-	(APORNAP-CPLX[c]). Also initialize unique molecule representations of fully
-	transcribed mRNAs and partially transcribed RNAs, using counts of mRNAs
-	initialized as bulk molecules, and the attributes of initialized RNA
-	polymerases. The counts of full mRNAs represented as bulk molecules are
-	reset to zero.
+	lengths of trancription units, while decreasing counts of unactivated RNA
+	polymerases (APORNAP-CPLX[c]). Also initialize unique molecule
+	representations of fully transcribed mRNAs and partially transcribed RNAs,
+	using counts of mRNAs initialized as bulk molecules, and the attributes of
+	initialized RNA polymerases. The counts of full mRNAs represented as bulk
+	molecules are reset to zero.
 
-	RNA polymerases are placed randomly across the length of each gene, with
-	the synthesis probabilities for each gene determining the number of RNA
-	polymerases placed at each gene.
+	RNA polymerases are placed randomly across the length of each transcription
+	unit, with the synthesis probabilities for each TU determining the number of
+	RNA polymerases placed at each gene.
 	"""
 	# Load parameters
 	rnaLengths = sim_data.process.transcription.rna_data['length'].asNumber()
@@ -669,8 +670,8 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	idx_rRNA = np.where(sim_data.process.transcription.rna_data['is_rRNA'])[0]
 	idx_mRNA = np.where(sim_data.process.transcription.rna_data['is_mRNA'])[0]
 	idx_tRNA = np.where(sim_data.process.transcription.rna_data['is_tRNA'])[0]
-	idx_rprotein = np.where(sim_data.process.transcription.rna_data['is_ribosomal_protein'])[0]
-	idx_rnap = np.where(sim_data.process.transcription.rna_data['is_RNAP'])[0]
+	idx_rprotein = np.where(sim_data.process.transcription.rna_data['includes_ribosomal_protein'])[0]
+	idx_rnap = np.where(sim_data.process.transcription.rna_data['includes_RNAP'])[0]
 
 	# Calculate probabilities of the RNAP binding to the promoters
 	promoter_init_probs = (basal_prob[TU_index] + ppgpp_scale *
@@ -753,8 +754,8 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	starting_coordinates = replication_coordinate[TU_index_partial_RNAs]
 	direction = transcription_direction[TU_index_partial_RNAs]
 
-	# Randomly advance RNAPs along the gene
-	# TODO (Eran): make sure there aren't any RNAPs at same location on same gene
+	# Randomly advance RNAPs along the transcription units
+	# TODO (Eran): make sure there aren't any RNAPs at same location on same TU
 	updated_lengths = np.array(
 		randomState.rand(n_RNAPs_to_activate) * rnaLengths[TU_index_partial_RNAs],
 		dtype=int)
@@ -1019,38 +1020,52 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		sim_data.process.translation.translation_efficiencies_by_monomer)
 	aaWeightsIncorporated = sim_data.process.translation.translation_monomer_weights
 	endWeight = sim_data.process.translation.translation_end_weight
+	cistron_lengths = sim_data.process.transcription.cistron_data['length'].asNumber(units.nt)
+	TU_ids = sim_data.process.transcription.rna_data['id']
+	monomer_index_to_tu_indexes = sim_data.relation.monomer_index_to_tu_indexes
+	monomer_index_to_cistron_index = {
+		i: sim_data.process.transcription._cistron_id_to_index[monomer['cistron_id']]
+		for (i, monomer) in enumerate(sim_data.process.translation.monomer_data)
+		}
 
 	# Get attributes of RNAs
 	all_RNAs = uniqueMolCntr.objectsInCollection('RNA')
-	TU_index_all_RNAs, length_all_RNAs, is_mRNA, unique_index_all_RNAs = all_RNAs.attrs(
-		'TU_index', 'transcript_length', 'is_mRNA', 'unique_index')
+	TU_index_all_RNAs, length_all_RNAs, is_mRNA, is_full_transcript_all_RNAs, unique_index_all_RNAs = all_RNAs.attrs(
+		'TU_index', 'transcript_length', 'is_mRNA', 'is_full_transcript', 'unique_index')
 	TU_index_mRNAs = TU_index_all_RNAs[is_mRNA]
 	length_mRNAs = length_all_RNAs[is_mRNA]
+	is_full_transcript_mRNAs = is_full_transcript_all_RNAs[is_mRNA]
 	unique_index_mRNAs = unique_index_all_RNAs[is_mRNA]
 
-	# Get conversion matrix between transcription units and mRNA templates
-	# for each monomer
-	# TODO (ggsun): This should be modified when transcription unit structures
-	# 	are incorporated - the matrix would not be one-on-one, and the lengths
-	# 	of each transcript will affect the availabilities of mRNAs on that
-	# 	transcript.
-	all_TU_ids = sim_data.process.transcription.rna_data['id']
-	all_mRNA_ids = sim_data.process.translation.monomer_data['rna_id']
-	TU_counts_to_mRNA_counts = np.zeros(
-		(len(all_mRNA_ids), len(all_TU_ids)), dtype=np.int64)
+	# Calculate available template lengths of each mRNA cistron from fully
+	# transcribed mRNA transcription units
+	TU_index_full_mRNAs = TU_index_mRNAs[is_full_transcript_mRNAs]
+	TU_counts_full_mRNAs = np.bincount(TU_index_full_mRNAs, minlength=len(TU_ids))
+	cistron_counts_full_mRNAs = sim_data.process.transcription.cistron_tu_mapping_matrix.dot(
+		TU_counts_full_mRNAs)
+	available_cistron_lengths = np.multiply(
+		cistron_counts_full_mRNAs, cistron_lengths)
 
-	TU_id_to_index = {TU_id: i for i, TU_id in enumerate(all_TU_ids)}
-	protein_index_to_TU_index = {}
-	for i, mRNA_id in enumerate(all_mRNA_ids):
-		TU_counts_to_mRNA_counts[i, TU_id_to_index[mRNA_id]] = 1
-		protein_index_to_TU_index[i] = TU_id_to_index[mRNA_id]
+	# Add available template lengths from each partially transcribed mRNAs
+	TU_index_incomplete_mRNAs = TU_index_mRNAs[np.logical_not(is_full_transcript_mRNAs)]
+	length_incomplete_mRNAs = length_mRNAs[np.logical_not(is_full_transcript_mRNAs)]
 
-	# Calculate available template lengths of each mRNA
-	TU_total_length = np.zeros(len(all_TU_ids), dtype=np.int64)
-	for index, length in zip(TU_index_mRNAs, length_mRNAs):
-		TU_total_length[index] += length
+	TU_index_to_mRNA_lengths = {}
+	for (TU_index, length) in zip(TU_index_incomplete_mRNAs, length_incomplete_mRNAs):
+		TU_index_to_mRNA_lengths.setdefault(TU_index, []).append(length)
 
-	mRNA_total_length = TU_counts_to_mRNA_counts.dot(TU_total_length)
+	for (TU_index, available_lengths) in TU_index_to_mRNA_lengths.items():
+		cistron_indexes = sim_data.process.transcription.rna_id_to_cistron_indexes(
+			TU_ids[TU_index])
+		cistron_start_positions = np.array([
+			sim_data.process.transcription.cistron_start_end_pos_in_tu[(cistron_index, TU_index)][0]
+			for cistron_index in cistron_indexes
+			])
+
+		for length in available_lengths:
+			available_cistron_lengths[cistron_indexes] += np.clip(
+				length - cistron_start_positions,
+				0, cistron_lengths[cistron_indexes])
 
 	# Find number of ribosomes to activate
 	ribosome30S = bulkMolCntr.countsView([sim_data.molecule_ids.s30_full_complex]).counts()[0]
@@ -1059,7 +1074,9 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	n_ribosomes_to_activate = np.int64(fracActiveRibosome * inactiveRibosomeCount)
 
 	# Add total available template lengths as weights and normalize
-	protein_init_probs = normalize(mRNA_total_length*translationEfficiencies)
+	protein_init_probs = normalize(
+		available_cistron_lengths[sim_data.relation.cistron_to_monomer_mapping]
+		* translationEfficiencies)
 
 	# Sample a multinomial distribution of synthesis probabilities to determine
 	# which types of mRNAs are initialized
@@ -1068,7 +1085,8 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Build attributes for active ribosomes
 	protein_indexes = np.empty(n_ribosomes_to_activate, np.int64)
-	positions_on_mRNA = np.empty(n_ribosomes_to_activate, np.int64)
+	cistron_start_positions_on_mRNA = np.empty(n_ribosomes_to_activate, np.int64)
+	positions_on_mRNA_from_cistron_start_site = np.empty(n_ribosomes_to_activate, np.int64)
 	mRNA_indexes = np.empty(n_ribosomes_to_activate, np.int64)
 	start_index = 0
 	nonzeroCount = (n_new_proteins > 0)
@@ -1079,16 +1097,38 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		# Set protein index
 		protein_indexes[start_index:start_index+counts] = protein_index
 
+		# Get index of cistron corresponding to this protein
+		cistron_index = monomer_index_to_cistron_index[protein_index]
+
+		# Initialize list of available lengths for each transcript and the
+		# indexes of each transcript in the list of mRNA attributes
+		available_lengths = []
+		attribute_indexes = []
+		cistron_start_positions = []
+
 		# Distribute ribosomes among mRNAs that produce this protein, weighted
 		# by their lengths
-		mask = (TU_index_mRNAs == protein_index_to_TU_index[protein_index])
-		lengths = length_mRNAs[mask]
+		for TU_index in monomer_index_to_tu_indexes[protein_index]:
+			attribute_indexes_this_TU = np.where(TU_index_mRNAs == TU_index)[0]
+			cistron_start_position = sim_data.process.transcription.cistron_start_end_pos_in_tu[
+				(cistron_index, TU_index)][0]
+			available_lengths.extend(np.clip(
+				length_mRNAs[attribute_indexes_this_TU] - cistron_start_position,
+				0, cistron_lengths[cistron_index]))
+			attribute_indexes.extend(attribute_indexes_this_TU)
+			cistron_start_positions.extend(
+				[cistron_start_position] * len(attribute_indexes_this_TU))
+
+		available_lengths = np.array(available_lengths)
+		attribute_indexes =	np.array(attribute_indexes)
+		cistron_start_positions = np.array(cistron_start_positions)
+
 		n_ribosomes_per_RNA = randomState.multinomial(
-			counts, normalize(lengths))
+			counts, normalize(available_lengths))
 
 		# Get unique indexes of each mRNA
 		mRNA_indexes[start_index:start_index+counts] = np.repeat(
-			unique_index_mRNAs[mask], n_ribosomes_per_RNA)
+			unique_index_mRNAs[attribute_indexes], n_ribosomes_per_RNA)
 
 		# Get full length of this polypeptide
 		peptide_full_length = protein_lengths[protein_index]
@@ -1096,17 +1136,18 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		# Randomly place ribosomes along the length of each mRNA, capped by the
 		# mRNA length expected from the full polypeptide length to prevent
 		# ribosomes from overshooting full peptide lengths
-		positions_on_mRNA[start_index:start_index+counts] = np.floor(
-			randomState.rand(counts)
-			* np.repeat(np.minimum(lengths, peptide_full_length*3), n_ribosomes_per_RNA)
+		cistron_start_positions_on_mRNA[start_index:start_index+counts] = np.repeat(
+			cistron_start_positions, n_ribosomes_per_RNA)
+		positions_on_mRNA_from_cistron_start_site[start_index:start_index+counts] = np.floor(
+			randomState.rand(counts) * np.repeat(np.minimum(available_lengths, peptide_full_length*3), n_ribosomes_per_RNA)
 			)
 
 		start_index += counts
 
 	# Calculate the lengths of the partial polypeptide, and rescale position on
 	# mRNA to be a multiple of three using this peptide length
-	peptide_lengths = np.floor_divide(positions_on_mRNA, 3)
-	positions_on_mRNA = 3*peptide_lengths
+	peptide_lengths = np.floor_divide(positions_on_mRNA_from_cistron_start_site, 3)
+	positions_on_mRNA = cistron_start_positions_on_mRNA + 3*peptide_lengths
 
 	# Update masses of partially translated proteins
 	sequences = proteinSequences[protein_indexes]

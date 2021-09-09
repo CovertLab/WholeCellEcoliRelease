@@ -29,7 +29,7 @@ REQUIRED_COLUMNS = [
 	("Main", "time"),
 	("Mass", "cellMass"),
 	("Mass", "dryMass"),
-	("mRNACounts", "mRNA_counts"),
+	("mRNACounts", "mRNA_cistron_counts"),
 	("RnaSynthProb", "pPromoterBound"),
 	("RnaSynthProb", "rnaSynthProb"),
 	("RnaSynthProb", "gene_copy_number"),
@@ -87,15 +87,15 @@ def convert_dynamics(simOutDir, seriesOutDir, simDataFile, node_list, edge_list)
 			os.path.join(simOutDir, "BulkMolecules")).readAttribute("objectNames")
 		indexes["BulkMolecules"] = build_index_dict(molecule_ids)
 
-		gene_ids = sim_data.process.transcription.rna_data['gene_id']
+		gene_ids = sim_data.process.transcription.cistron_data['gene_id']
 		indexes["Genes"] = build_index_dict(gene_ids)
 
-		mRNA_ids = sim_data.process.transcription.rna_data["id"][
-			sim_data.process.transcription.rna_data['is_mRNA']
+		mRNA_ids = sim_data.process.transcription.cistron_data["id"][
+			sim_data.process.transcription.cistron_data['is_mRNA']
 		]
 		indexes["mRNAs"] = build_index_dict(mRNA_ids)
 
-		translated_rna_ids = sim_data.process.translation.monomer_data['rna_id']
+		translated_rna_ids = sim_data.process.translation.monomer_data['cistron_id']
 		indexes["TranslatedRnas"] = build_index_dict(translated_rna_ids)
 
 		metabolism_rxn_ids = TableReader(
@@ -241,10 +241,10 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 
 	# If RNA is an mRNA, get counts from mRNA counts listener
 	if node_id in indexes["mRNAs"]:
-		counts = columns[("mRNACounts", "mRNA_counts")][:, indexes["mRNAs"][node_id]]
+		counts = columns[("mRNACounts", "mRNA_cistron_counts")][:, indexes["mRNAs"][node_id]]
 	# If not, get counts from bulk molecules listener
 	else:
-		counts = columns[("BulkMolecules", "counts")][:, indexes["BulkMolecules"][node_id]]
+		counts = columns[("BulkMolecules", "counts")][:, indexes["BulkMolecules"][node_id + '[c]']]
 
 	dynamics = {
 		"counts": counts,
@@ -320,7 +320,7 @@ def read_translation_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	"""
 	Reads dynamics data for translation nodes from a simulation output.
 	"""
-	rna_id = node_id.split(NODE_ID_SUFFIX["translation"])[0] + "_RNA[c]"
+	rna_id = node_id.split(NODE_ID_SUFFIX["translation"])[0] + "_RNA"
 	translation_idx = indexes["TranslatedRnas"][rna_id]
 
 	dynamics = {

@@ -47,10 +47,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			np.logical_not(np.isnan(codirectional_coordinates))].flatten()
 
 		# Get gene data from sim_data
-		gene_ids = sim_data.process.transcription.rna_data['gene_id']
-		gene_coordinates = sim_data.process.transcription.rna_data['replication_coordinate']
-		gene_directions = sim_data.process.transcription.rna_data["direction"]
-		gene_lengths = sim_data.process.transcription.rna_data["length"].asNumber(units.nt)
+		gene_ids = sim_data.process.transcription.cistron_data['gene_id']
+		gene_coordinates = sim_data.process.transcription.cistron_data['replication_coordinate']
+		gene_directions = sim_data.process.transcription.cistron_data["direction"]
+		gene_lengths = sim_data.process.transcription.cistron_data["length"].asNumber(units.nt)
 
 		# Load replichore lengths
 		replichore_lengths = sim_data.process.replication.replichore_lengths

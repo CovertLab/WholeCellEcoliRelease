@@ -99,13 +99,13 @@ class TranscriptionRegulation(object):
 		Builds dictionaries for mapping transcription factor abbreviations to
 		their RNA IDs, and to their active form.
 		"""
-		geneIdToRnaId = {x["id"]: x['rna_id'] for x in raw_data.genes}
+		gene_id_to_cistron_id = {x['id']: x['rna_id'] for x in raw_data.genes}
 
 		self.abbr_to_rna_id = {}
 		for lookupInfo in raw_data.transcription_factors:
-			if len(lookupInfo["geneId"]) == 0 or lookupInfo["geneId"] not in geneIdToRnaId:
+			if len(lookupInfo["geneId"]) == 0 or lookupInfo["geneId"] not in gene_id_to_cistron_id:
 				continue
-			self.abbr_to_rna_id[lookupInfo["TF"]] = geneIdToRnaId[lookupInfo["geneId"]]
+			self.abbr_to_rna_id[lookupInfo["TF"]] = gene_id_to_cistron_id[lookupInfo["geneId"]]
 
 		self.abbr_to_active_id = {
 			x["TF"]: x["activeId"].split(", ")
