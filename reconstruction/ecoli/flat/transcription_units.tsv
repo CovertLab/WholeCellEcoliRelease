@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 25.5
-# Date and time generated: July 20, 2021, 17:32:42
+# Version: 25.1
+# Date and time generated: September 10, 2021, 12:54:24
 "id"	"common_name"	"genes"	"left_end_pos"	"right_end_pos"	"direction"
 "TU-8381"	"spy"	["G6939"]	1825057	1825688	"-"
 "TU-8382"	"ycaC"	["EG11241"]	944931	945557	"-"

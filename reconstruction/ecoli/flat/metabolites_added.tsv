@@ -1,0 +1,3 @@
+"id"	"common_name"	"synonyms"	"chemical_formula"	"mw"	"_comments"
+"glycogen-monomer"				163.149	"Currently part of biomass - needs to be included along with metabolic reaction glycogen-monomer-extension"
+"4FE-4S"				351.642	"Required to produce 1CS TF FNR-4FE-4S-CPLX, along with equilibrium reaction FNR-4FE-4S_RXN"

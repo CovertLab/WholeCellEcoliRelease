@@ -97,7 +97,7 @@ class Transcription(object):
 
 		# Read regulation data from raw_data
 		# Treats ppGpp and DksA-ppGpp regulation the same
-		gene_to_rna = {g['symbol']: g['rna_id'] for g in raw_data.genes}
+		gene_to_rna = {g['symbol']: g['rna_ids'][0] for g in raw_data.genes}
 		regulation = {}
 		for reg in raw_data.ppgpp_regulation:
 			# Convert to regulated RNA
@@ -213,7 +213,7 @@ class Transcription(object):
 		# Get list of all cistrons with an associated gene and right and left
 		# end positions
 		cistron_id_to_gene_id = {
-			gene['rna_id']: gene['id'] for gene in raw_data.genes}
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		gene_id_to_left_end_pos = {
 			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
 			}
@@ -242,11 +242,11 @@ class Transcription(object):
 		cistron_id_to_coordinate = {}
 		cistron_id_to_direction = {}
 		for gene in raw_data.genes:
-			cistron_id_to_direction[gene['rna_id']] = gene['direction']
+			cistron_id_to_direction[gene['rna_ids'][0]] = gene['direction']
 			if gene['direction'] == '+':
-				cistron_id_to_coordinate[gene['rna_id']] = gene['left_end_pos']
+				cistron_id_to_coordinate[gene['rna_ids'][0]] = gene['left_end_pos']
 			else:
-				cistron_id_to_coordinate[gene['rna_id']] = gene['right_end_pos']
+				cistron_id_to_coordinate[gene['rna_ids'][0]] = gene['right_end_pos']
 
 		# Get location of each cistron on the chromosome relative to the origin
 		replication_coordinate = [
@@ -356,7 +356,7 @@ class Transcription(object):
 		# Load expression levels of individual cistrons from sequencing data
 		cistron_expression = []
 		cistron_id_to_gene_id = {
-			gene['rna_id']: gene['id'] for gene in raw_data.genes}
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		seq_data = {
 			x['Gene']: x[sim_data.basal_expression_condition]
 			for x in getattr(raw_data.rna_seq_data, f'rnaseq_{RNA_SEQ_ANALYSIS}_mean')}
@@ -397,7 +397,7 @@ class Transcription(object):
 		# Get mapping from transcription unit IDs to list of constituent
 		# cistrons
 		gene_id_to_rna_id = {
-			gene['id']: gene['rna_id'] for gene in raw_data.genes
+			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes
 			}
 		tu_id_to_cistron_ids = {
 			tu['id']: [gene_id_to_rna_id[gene] for gene in tu['genes']]
@@ -503,11 +503,11 @@ class Transcription(object):
 		rna_id_to_coordinate = {}
 		rna_id_to_direction = {}
 		for gene in raw_data.genes:
-			rna_id_to_direction[gene['rna_id']] = gene['direction']
+			rna_id_to_direction[gene['rna_ids'][0]] = gene['direction']
 			if gene['direction'] == '+':
-				rna_id_to_coordinate[gene['rna_id']] = gene['left_end_pos']
+				rna_id_to_coordinate[gene['rna_ids'][0]] = gene['left_end_pos']
 			else:
-				rna_id_to_coordinate[gene['rna_id']] = gene['right_end_pos']
+				rna_id_to_coordinate[gene['rna_ids'][0]] = gene['right_end_pos']
 
 		# Further extend the dictionaries to include mappings from transcription
 		# unit IDs to coordinate and direction
@@ -933,7 +933,7 @@ class Transcription(object):
 		"""
 		# Load data from file
 		aa_rna_pair_to_fcs = {}
-		gene_symbol_to_cistron_id = {g['symbol']: g['rna_id'] for g in raw_data.genes}
+		gene_symbol_to_cistron_id = {g['symbol']: g['rna_ids'][0] for g in raw_data.genes}
 		for row in raw_data.transcriptional_attenuation:
 			trna_aa = row['tRNA'].split('-')[1].upper() + '[c]'
 			gene = row['Target']

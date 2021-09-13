@@ -132,15 +132,15 @@ class Protein(object):
 		protein_id_to_compartment_tag = {}
 
 		for protein in knowledge_base_raw.proteins:
-			exp_location = protein['exp_location']
-			comp_location = protein['comp_location']
+			exp_compartment = protein['experimental_compartment']
+			comp_compartment = protein['computational_compartment']
 
-			if len(exp_location) + len(comp_location) == 0:
+			if len(exp_compartment) + len(comp_compartment) == 0:
 				compartment = 'CCO-CYTOSOL'
-			elif len(exp_location) > 0:
-				compartment = exp_location[0]
+			elif len(exp_compartment) > 0:
+				compartment = exp_compartment[0]
 			else:
-				compartment = comp_location[0]
+				compartment = comp_compartment[0]
 
 			protein_id_to_compartment_tag.update({
 				protein['id']: [compartment_ids_to_abbreviations[compartment]]
@@ -148,7 +148,7 @@ class Protein(object):
 
 		# Build and save a dict from gene ID to monomerId
 		rna_id_to_gene_id = {
-			gene['rna_id']: gene['id'] for gene in knowledge_base_raw.genes}
+			gene['rna_ids'][0]: gene['id'] for gene in knowledge_base_raw.genes}
 
 		self.geneIdToMonomerId = {}
 

@@ -115,16 +115,16 @@ class SimulationDataEcoli(object):
 	def _add_condition_data(self, raw_data):
 		abbrToActiveId = {x["TF"]: x["activeId"].split(", ") for x in raw_data.transcription_factors if len(x["activeId"]) > 0}
 		gene_id_to_rna_id = {
-			gene['id']: gene['rna_id'] for gene in raw_data.genes}
+			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes}
 		gene_symbol_to_rna_id = {
-			gene['symbol']: gene['rna_id'] for gene in raw_data.genes}
+			gene['symbol']: gene['rna_ids'][0] for gene in raw_data.genes}
 		gene_symbol_to_rna_id.update({
 			x["name"]: gene_id_to_rna_id[x["geneId"]]
 			for x in raw_data.translation_efficiency
 			if x["geneId"] != "#N/A"})
 
 		rna_ids_with_coordinates = {
-			gene['rna_id'] for gene in raw_data.genes
+			gene['rna_ids'][0] for gene in raw_data.genes
 			if gene['left_end_pos'] is not None and gene['right_end_pos'] is not None}
 
 		self.tf_to_fold_change = {}

@@ -220,7 +220,7 @@ class GetterFunctions(object):
 		# transcription unit (these genes are assumed to be transcribed as
 		# monocistronic transcription units)
 		rna_id_to_gene_id = {
-			gene['rna_id']: gene['id'] for gene in raw_data.genes}
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		gene_id_to_left_end_pos = {
 			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
 			}
@@ -379,7 +379,7 @@ class GetterFunctions(object):
 		mws = nt_counts.dot(polymerized_ntp_mws) + ppi_mw  # Add end weight
 
 		gene_id_to_rna_id = {
-			gene['id']: gene['rna_id'] for gene in raw_data.genes
+			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes
 			}
 		rna_id_to_type = {rna['id']: rna['type'] for rna in raw_data.rnas}
 		for tu in raw_data.transcription_units:
@@ -620,15 +620,15 @@ class GetterFunctions(object):
 		# information is given, the protein is assumed to localize to the
 		# cytosol.
 		for protein in raw_data.proteins:
-			exp_location = protein['exp_location']
-			comp_location = protein['comp_location']
+			exp_compartment = protein['experimental_compartment']
+			comp_compartment = protein['computational_compartment']
 
-			if len(exp_location) + len(comp_location) == 0:
+			if len(exp_compartment) + len(comp_compartment) == 0:
 				compartment = 'CCO-CYTOSOL'
-			elif len(exp_location) > 0:
-				compartment = exp_location[0]
+			elif len(exp_compartment) > 0:
+				compartment = exp_compartment[0]
 			else:
-				compartment = comp_location[0]
+				compartment = comp_compartment[0]
 
 			self._all_compartments.update({
 				protein['id']: [compartment_ids_to_abbreviations[compartment]]

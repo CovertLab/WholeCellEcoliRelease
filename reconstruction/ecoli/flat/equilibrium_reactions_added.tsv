@@ -1,0 +1,12 @@
+"id"	"stoichiometry"	"common_name"	"_comments"
+"PUTA-CPLXBND_RXN"	{"PUTA-CPLXBND": 1, "PUTA-CPLX": -1, "PRO": -2}	"Reaction required to produce 1CS TF PUTA-CPLXBND"
+"FNR-4FE-4S_RXN"	{"FNR-4FE-4S-CPLX": 1, "CPLX0-7797": -1, "4FE-4S": -1}	"Reaction required to produce 1CS TF FNR-4FE-4S-CPLX"
+"CPLX0-7796_EQUILIBRIUM_RXN"	{"CPLX0-7796": 1, "CPLX0-7796APO": -1, "S-ADENOSYLMETHIONINE": -2}	"Reaction required along with complexation reaction CPLX0-7796APO_RXN to produce 1CS TF CPLX0-7796"
+# TODO (ggsun): Have the 2CS process handle these reactions
+"ARCB-OXYGEN_RXN"	{"ARCB-OXYGEN-CPLX": 1, "ARCB-CPLX": -1, "OXYGEN-MOLECULE": -1}	"Reaction required to produce 2CS TF ARCB-OXYGEN-CPLX"
+"BAES-INDOLE_RXN"	{"BAES-INDOLE-CPLX": 1, "BAES-MONOMER": -1, "INDOLE": -1}	"Reaction required to produce 1CS TF BAES-INDOLE-CPLX"
+"BASS-FE+3_RXN"	{"BASS-FE+3-CPLX": 1, "BASS-MONOMER": -1, "FE+3": -1}	"Reaction required to produce 1CS TF BASS-FE+3-CPLX"
+"DCUS-SUC_RXN"	{"DCUS-SUC-CPLX": 1, "DCUS-MONOMER": -1, "SUC": -1}	"Reaction required to produce 1CS TF DCUS-SUC-CPLX"
+"NARX-NITRATE_RXN"	{"NARX-NITRATE-CPLX": 1, "NARX-CPLX": -1, "NITRATE": -1}	"Reaction required to produce 1CS TF NARX-NITRATE-CPLX"
+"PHOQ-CA+2_RXN"	{"PHOQ-CA+2-CPLX": 1, "CPLX0-8168": -1, "CA+2": -1}	"Reaction required to produce 1CS TF PHOQ-CA+2-CPLX"
+"PHOR-Pi-CPLX_RXN"	{"PHOR-Pi-CPLX": 1, "PHOR-CPLX": -1, "Pi": -1}	"Reaction required to produce 1CS TF PHOR-Pi-CPLX"

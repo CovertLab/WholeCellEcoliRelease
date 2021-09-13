@@ -55,7 +55,7 @@ class Translation(object):
 		# Get set of all cistrons IDs with an associated gene and right and left
 		# end positions
 		rna_id_to_gene_id = {
-			gene['rna_id']: gene['id'] for gene in raw_data.genes}
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		gene_id_to_left_end_pos = {
 			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
 			}
@@ -214,7 +214,7 @@ class Translation(object):
 			for rna in raw_data.rnas
 			if len(rna['monomer_ids']) > 0}
 		rna_id_to_gene_id = {
-			gene['rna_id']: gene['id'] for gene in raw_data.genes}
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		monomer_id_to_gene_id = {
 			monomer_id: rna_id_to_gene_id[monomer_id_to_rna_id[monomer_id]]
 			for monomer_id in monomer_ids}

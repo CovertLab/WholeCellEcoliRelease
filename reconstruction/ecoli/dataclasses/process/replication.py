@@ -56,14 +56,18 @@ class Replication(object):
 		Build gene-associated simulation data from raw data.
 		"""
 
-		def extract_data(raw, key):
-			data = [row[key] for row in raw]
+		def extract_data(raw, key, use_first_from_list=False):
+			if use_first_from_list:
+				data = [row[key][0] for row in raw]
+			else:
+				data = [row[key] for row in raw]
 			dtype = 'U{}'.format(max(len(d) for d in data if d is not None))
 			return data, dtype
 
 		names, name_dtype = extract_data(raw_data.genes, 'id')
 		symbols, symbol_dtype = extract_data(raw_data.genes, 'symbol')
-		cistron_ids, cistron_dtype = extract_data(raw_data.genes, 'rna_id')
+		cistron_ids, cistron_dtype = extract_data(
+			raw_data.genes, 'rna_ids', use_first_from_list=True)
 
 		self.gene_data = np.zeros(
 			len(raw_data.genes),

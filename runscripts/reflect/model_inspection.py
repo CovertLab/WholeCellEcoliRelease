@@ -175,7 +175,7 @@ def save_genes(raw_data, sim_data, output):
 	monomers = set([x for x in monomers if x in validMonomers])
 
 	# Get gene names for each monomer implemented
-	rnaIdToSymbol = {x['rna_id']: x['symbol'] for x in raw_data.genes}
+	rnaIdToSymbol = {x['rna_ids'][0]: x['symbol'] for x in raw_data.genes}
 	monomerToRna = {x['id'][:-3]: x['rna_id'][:-3] for x in sim_data.process.translation.monomer_data}
 	geneNames = [rnaIdToSymbol[monomerToRna[monomer[:-3]]] for monomer in monomers]
 
