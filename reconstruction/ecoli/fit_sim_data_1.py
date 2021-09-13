@@ -40,7 +40,7 @@ PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
 PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
 PROMOTER_MAX_ITERATIONS = 100
 PROMOTER_CONVERGENCE_THRESHOLD = 1e-9
-ECOS_0_TOLERANCE = 1e-9  # Tolerance to adjust solver output to 0
+ECOS_0_TOLERANCE = 1e-10  # Tolerance to adjust solver output to 0
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
@@ -2888,7 +2888,9 @@ def fitPromoterBoundProbability(sim_data, cell_specs):
 			# Calculate average copy number of gene for this condition
 			n_avg_copy = sim_data.process.replication.get_average_copy_number(tau, rnaCoordinate)
 
-			sim_data.process.transcription.rna_synth_prob[condition][rna_idx] = k_value * n_avg_copy
+			# Multiply copy number by k_value to get synthesis probability
+			# (if k_value is negative clip at zero)
+			sim_data.process.transcription.rna_synth_prob[condition][rna_idx] = max(0, k_value) * n_avg_copy
 
 		# Normalize values such that probabilities for each condition sum to one
 		for condition in sim_data.process.transcription.rna_synth_prob:
@@ -2994,7 +2996,6 @@ def fitPromoterBoundProbability(sim_data, cell_specs):
 			0 <= PROMOTER_SCALING * P, PROMOTER_SCALING * P <= PROMOTER_SCALING,
 			np.diag(D) @ (PROMOTER_SCALING * P) == PROMOTER_SCALING * Drhs,
 			pdiff @ (PROMOTER_SCALING * P) >= PROMOTER_SCALING * PROMOTER_PDIFF_THRESHOLD,
-			H @ (PROMOTER_SCALING * P) >= 0,
 			]
 
 		# Solve optimization problem
@@ -3017,9 +3018,8 @@ def fitPromoterBoundProbability(sim_data, cell_specs):
 		# Update pPromoterBound with fit p
 		fromArray(p, pPromoterBound, pPromoterBoundIdxs)
 
-		# Break from loop if parameters have converged and all values in vector
-		# k are nonnegative
-		if np.abs(np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE) - lastNorm) < PROMOTER_CONVERGENCE_THRESHOLD and np.all(np.dot(H, p) >= 0):
+		# Break from loop if parameters have converged
+		if np.abs(np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE) - lastNorm) < PROMOTER_CONVERGENCE_THRESHOLD:
 			break
 		else:
 			lastNorm = np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE)
