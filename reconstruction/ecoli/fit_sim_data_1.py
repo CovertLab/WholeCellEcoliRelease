@@ -65,6 +65,13 @@ def fitSimData_1(raw_data, **kwargs):
 		debug (bool) - if True, fit only one arbitrarily-chosen transcription
 			factor in order to speed up a debug cycle (should not be used for
 			an actual simulation)
+		save_intermediates (bool) - if True, save the state (sim_data and cell_specs)
+			to disk in intermediates_directory after each Parca step
+		intermediates_directory (str) - path to the directory to save intermediate
+			sim_data and cell_specs files to
+		load_intermediate (str) - the function name of the Parca step to load
+			sim_data and cell_specs from; functions prior to and including this
+			will be skipped but all following functions will run
 		variable_elongation_transcription (bool) - enable variable elongation
 			for transcription
 		variable_elongation_translation (bool) - enable variable elongation for

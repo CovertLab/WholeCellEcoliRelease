@@ -26,6 +26,7 @@ class ParcaTask(FiretaskBase):
 		'ribosome_fitting',
 		'rnapoly_fitting']
 	optional_params = [
+		'operons',
 		'load_intermediate',
 		'save_intermediates',
 		'intermediates_directory',
@@ -50,10 +51,11 @@ class ParcaTask(FiretaskBase):
 			kb_directory, constants.SERIALIZED_RAW_VALIDATION_DATA)
 		validation_data_file = os.path.join(
 			kb_directory, constants.SERIALIZED_VALIDATION_DATA)
-		intermediates_dir = self.get('intermediates_directory') if self.get('intermediates_directory') else kb_directory
+		intermediates_dir = self.get('intermediates_directory') or kb_directory
 
 		tasks = [
 			InitRawDataTask(
+				operons=self.get('operons'),
 				output=raw_data_file),
 
 			FitSimDataTask(
@@ -82,5 +84,4 @@ class ParcaTask(FiretaskBase):
 		for task in tasks:
 			task.run_task(fw_spec)
 
-		print('Wrote: {}'.format([metrics_data_file, raw_data_file,
-			sim_data_file, raw_validation_data_file, validation_data_file]))
+		print(f'Wrote: {kb_directory}')

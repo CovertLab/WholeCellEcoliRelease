@@ -89,8 +89,8 @@ def pool(num_processes=None, nestable=False):
 	interpreter process, avoiding threading problems and cross-platform
 	inconsistencies.
 
-	nestable can create a pool that is not a daemon process so that you can nest
-	multiple pool calls.
+	nestable can create a pool of non-daemon worker processes that can spawn
+	nested processes and have have nested pools.
 
 	See `cpus()` on figuring the number of usable processes.
 	See `InlinePool` about why running in-process is important.
@@ -102,7 +102,7 @@ def pool(num_processes=None, nestable=False):
 	elif nestable:
 		return NoDaemonPool()
 	else:
-		return mp.get_context('spawn').Pool(processes=usable)
+		return mp.get_context(method='spawn').Pool(processes=usable)
 
 
 class InlinePool(object):

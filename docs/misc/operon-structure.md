@@ -3,9 +3,9 @@ Summary of changes made to key files to support the addition of polycistronic RN
 
 * Raw flat files (`reconstruction/ecoli/flat/transcription_units.tsv`)
 
-A single flat file named `transcription_units.tsv` that is directly sourced from EcoCyc contains all the data that would be necessary to build structures of transcription units for the model. By default (`WITH_OPERONS = False`), the `transcription_units_removed_all.tsv` file, which lists out the IDs of all transcription units in the `transcription_units.tsv` file, will be used to remove all polycistronic RNAs and thus have all transcripts be monocistronic.
+A single flat file named `transcription_units.tsv` that is directly sourced from EcoCyc contains all the data that would be necessary to build structures of transcription units for the model. When `KnowledgeBaseEcoli` builds the knowledge base with `operons_on=False`, it substitutes an empty list of transcription units, thus removing all polycistronic RNAs to make all transcripts be monocistronic.
 
-The `transcription_units_removed.tsv` and `transcription_units_modified.tsv` files are each used to remove and modify some problematic operons in EcoCyc's file when the `WITH_OPERONS` option is set to `True`. Explanations on why each operon had to be removed/modified are provided in the files themselves.
+With `operons_on=True`, `KnowledgeBaseEcoli` uses `transcription_units_removed.tsv` and `transcription_units_modified.tsv` to remove and modify some problematic operons in EcoCyc's file. Explanations on why each operon had to be removed/modified are provided in the files themselves.
 
 ---
 

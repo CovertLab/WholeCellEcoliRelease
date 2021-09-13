@@ -54,6 +54,8 @@ class InvalidProteinComplexError(Exception):
 class GetterFunctions(object):
 	""" getterFunctions """
 
+	_compartment_tag = re.compile(r'\[[a-z]]')
+
 	def __init__(self, raw_data, sim_data):
 		self._n_submass_indexes = len(sim_data.submass_name_to_index)
 		self._submass_name_to_index = sim_data.submass_name_to_index
@@ -308,7 +310,6 @@ class GetterFunctions(object):
 			)
 
 		self._mass_units = units.g / units.mol
-		self._compartment_tag = re.compile(r'\[[a-z]]')
 
 		# Build dictionary of total masses of each molecule
 		self._all_total_masses = {

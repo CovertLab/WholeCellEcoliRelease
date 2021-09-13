@@ -134,7 +134,7 @@ class Process(object):
 							attributeName,
 							listenerName))
 				else:
-					raise warnings.warn("The {} process attempted to write {} to the {} listener, but used an invalid write method: {}".format(
+					warnings.warn("The {} process attempted to write {} to the {} listener, but used an invalid write method: {}".format(
 						self._name,
 						attributeName,
 						listenerName,

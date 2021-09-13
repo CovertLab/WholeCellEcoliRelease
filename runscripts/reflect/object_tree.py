@@ -27,6 +27,7 @@ NULP = 0  # float comparison tolerance, in Number of Units in the Last Place
 # Objects with a list of attributes to compare
 SPECIAL_OBJECTS = {
 	scipy.interpolate._cubic.CubicSpline: ['x', 'c', 'axis'],
+	wholecell.utils.unit_struct_array.UnitStructArray: ['struct_array', 'units'],
 	}
 
 LEAF_TYPES = (
@@ -347,6 +348,12 @@ def compare_ndarrays(array1, array2):
 	TODO(jerry): Allow tolerance for float elements of structured arrays and
 	  handle NaN and Inf values.
 	'''
+
+	def summarize_array(ndarray):
+		return Repr(f"array({ndarray.shape} {ndarray.dtype})")
+
+	if array1.shape != array2.shape:
+		return summarize_array(array1), summarize_array(array2)
 
 	object_dtype = np.dtype(object)
 	if issubclass(array1.dtype.type, np.floating):

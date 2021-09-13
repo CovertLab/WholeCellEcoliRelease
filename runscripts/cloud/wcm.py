@@ -144,6 +144,7 @@ class WcmWorkflow(Workflow):
 			_git_branch="$IMAGE_GIT_BRANCH",
 			workflow_git_branch=git_branch,
 			description=args['description'] or 'WCM',
+			operons=args['operons'],
 			time=self.timestamp,
 			_time="$IMAGE_TIMESTAMP",
 			python=sys.version.splitlines()[0],

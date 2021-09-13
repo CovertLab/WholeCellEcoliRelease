@@ -9,16 +9,14 @@ from __future__ import absolute_import, division, print_function
 import io
 import os
 import json
+from typing import List
 
 from reconstruction.spreadsheets import read_tsv
 from wholecell.io import tsv
 from wholecell.utils import units  # used by eval()
 
-# TODO (ggsun): Replace this with new ParCa variant framework
-WITH_OPERONS = False
-
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
-LIST_OF_DICT_FILENAMES = (
+LIST_OF_DICT_FILENAMES = [
 	"amino_acid_export_kms.tsv",
 	"amino_acid_pathways.tsv",
 	"biomass.tsv",
@@ -64,10 +62,9 @@ LIST_OF_DICT_FILENAMES = (
 	"secretions.tsv",
 	"sequence_motifs.tsv",
 	"transcription_factors.tsv",
-	"transcription_units.tsv",
+	# "transcription_units.tsv",  # special cased in the constructor
 	"transcription_units_modified.tsv",
 	"transcription_units_removed.tsv",
-	"transcription_units_removed_all.tsv",
 	"transcriptional_attenuation.tsv",
 	"transcriptional_attenuation_removed.tsv",
 	"tf_one_component_bound.tsv",
@@ -110,7 +107,7 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("adjustments", "rna_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "protein_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "relative_metabolite_concentrations_changes.tsv"),
-	)
+	]
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = (
 	"dna_supercoiling.tsv",
@@ -126,7 +123,6 @@ REMOVED_DATA = {
 	'metabolic_reactions': 'metabolic_reactions_removed',
 	'metabolite_concentrations': 'metabolite_concentrations_removed',
 	'ppgpp_regulation': 'ppgpp_regulation_removed',
-	'transcription_units': 'transcription_units_removed_all',
 	'transcriptional_attenuation': 'transcriptional_attenuation_removed',
 	'trna_charging_reactions': 'trna_charging_reactions_removed',
 	}
@@ -134,14 +130,6 @@ MODIFIED_DATA = {
 	'complexation_reactions': 'complexation_reactions_modified',
 	'metabolic_reactions': 'metabolic_reactions_modified',
 	}
-
-if WITH_OPERONS:
-	REMOVED_DATA.update({
-		'transcription_units': 'transcription_units_removed',
-		})
-	MODIFIED_DATA.update({
-		'transcription_units': 'transcription_units_modified',
-		})
 
 ADDED_DATA = {
 	'complexation_reactions': 'complexation_reactions_added',
@@ -158,8 +146,20 @@ class DataStore(object):
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
-	def __init__(self):
-		self.compartments = []  # mypy can't track setattr(self, attr_name, rows)
+	def __init__(self, operons_on: bool):
+		self.operons_on = operons_on
+
+		self.compartments: List[dict] = []  # mypy can't track setattr(self, attr_name, rows)
+		self.transcription_units: List[dict] = []
+
+		if self.operons_on:
+			LIST_OF_DICT_FILENAMES.append('transcription_units.tsv')
+			REMOVED_DATA.update({
+				'transcription_units': 'transcription_units_removed',
+				})
+			MODIFIED_DATA.update({
+				'transcription_units': 'transcription_units_modified',
+				})
 
 		# Load raw data from TSV files
 		for filename in LIST_OF_DICT_FILENAMES:

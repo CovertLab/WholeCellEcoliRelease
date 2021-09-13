@@ -71,6 +71,7 @@ class RunParca(scriptBase.ScriptBase):
 			'git_hash': fp.git_hash(),
 			'git_branch': fp.git_branch(),
 			'description': args.description,
+			'operons': args.operons,
 			'time': args.time,
 			'python': sys.version.splitlines()[0],
 		}

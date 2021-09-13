@@ -17,10 +17,11 @@ import os
 import pprint as pp
 import time
 import traceback
-from typing import Any, Callable, Iterable, List, Optional, Tuple
+from typing import Any, Callable, cast, Iterable, List, Optional, Tuple
 
 import wholecell.utils.filepath as fp
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
+from wholecell.utils import constants
 from wholecell.utils.py3 import monotonic_seconds, process_time_seconds
 
 
@@ -50,6 +51,7 @@ METADATA_KEYS = (
 PARCA_KEYS = (
 	'ribosome_fitting',
 	'rnapoly_fitting',
+	'operons',
 	'cpus',
 	'variable_elongation_transcription',
 	'variable_elongation_translation')
@@ -261,23 +263,33 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			action='store_false',
 			help='Sets --{} to False'.format(name))
 
-	def define_option(self, parser, underscore_name, datatype, default=None,
-			help='', default_key=None, flag=''):
-		# type: (argparse.ArgumentParser, str, Callable, Any, str, Optional[str], str) -> None
+	def define_option(
+			self,
+			parser: argparse.ArgumentParser,
+			underscore_name: str,
+			datatype: Callable[[Any], Any],
+			default: Any = None,
+			help: str = '',
+			default_key: Optional[str] = None,
+			flag: str = '',
+			choices: Optional[Iterable[Any]] = None) -> None:
 		"""Add an option with the given name and datatype to the parser.
 
-		The parameter's `underscore_name` can contain underscores for easy
-		searching in the code. This converts them to dashes for CLI convention.
+		The parameter's `underscore_name` can contain underscores to enable
+		searching for references to it in the code. This method converts
+		underscores to dashes per CLI conventions.
 		ArgumentParser does the reverse conversion when storing into `args`.
 
 		Setting `default_key` copies the default value from
-		`DEFAULT_SIMULATION_KWARGS[default_key]`.
+		`DEFAULT_SIMULATION_KWARGS[default_key]` in preference to the `default`
+		argument.
 		"""
 		names = (('-' + flag,) if flag else ()) + (dashize('--' + underscore_name),)
 		default = DEFAULT_SIMULATION_KWARGS[default_key] if default_key else default
 		parser.add_argument(*names,
 			type=datatype,
 			default=default,
+			choices=cast(Iterable[Any], choices),
 			help='({}; default {!r}) {}'.format(datatype.__name__, default, help)
 			)
 
@@ -310,7 +322,7 @@ class ScriptBase(metaclass=abc.ABCMeta):
 		Call this in overridden define_parameters() methods as needed.
 		"""
 		int1 = int  # type: Callable
-		parser.add_argument('-v', '--variant-index', type=int1,
+		parser.add_argument('-v', dashize('--variant_index'), type=int1,
 			help='The simulation variant number (int), e.g. 1 to find a'
 				 ' subdirectory like "condition_000001".')
 
@@ -352,6 +364,13 @@ class ScriptBase(metaclass=abc.ABCMeta):
 				 ' (currently increases rates for ribosomal proteins).'
 				 ' Usually set this consistently between runParca and runSim.')
 
+	def define_parameter_operons(self, parser: argparse.ArgumentParser) -> None:
+		self.define_option(parser,
+			'operons', str,
+			default=constants.DEFAULT_OPERON_OPTION,
+			choices=constants.OPERON_OPTIONS,
+			help='Turn operons off/on (actually monocistronic/polycistronic).')
+
 	def define_parca_options(self, parser, run_parca_option=False):
 		# type: (argparse.ArgumentParser, bool) -> None
 		"""Define Parca task options EXCEPT the elongation options."""
@@ -367,6 +386,7 @@ class ScriptBase(metaclass=abc.ABCMeta):
 					 ' other Parca CLI options irrelevant (the options below,'
 					 ' through --no-debug-parca).')
 
+		self.define_parameter_operons(parser)
 		self.define_parameter_bool(parser, 'ribosome_fitting', True,
 			help="Fit ribosome expression to protein synthesis demands.")
 		self.define_parameter_bool(parser, 'rnapoly_fitting', True,

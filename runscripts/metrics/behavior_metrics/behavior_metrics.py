@@ -17,7 +17,7 @@ from unum import Unum
 from six.moves import cPickle, range, zip
 
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath, units, toya
+from wholecell.utils import constants, filepath, units, toya
 from wholecell.utils.dependency_graph import DependencyGraph
 from wholecell.utils.protein_counts import get_simulated_validation_counts
 from wholecell.utils.py3 import String
@@ -151,10 +151,10 @@ SIM_OUT_DIR = path.join(
 	"simOut")
 
 #: Path to pickle that stores validation data for correlation checks
-VALIDATION_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", "validationData.cPickle")
+VALIDATION_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", constants.SERIALIZED_VALIDATION_DATA)
 
 #: Path to pickle that stores pickle of data for metrics computation
-METRICS_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", "metricsData.cPickle")
+METRICS_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", constants.SERIALIZED_METRICS_DATA_FILENAME)
 
 #: Map from mode names to the functions that handle the mode
 MODE_FUNC_MAP: Dict[str, Callable] = {
