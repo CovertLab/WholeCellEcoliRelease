@@ -41,14 +41,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get fork counts
 			pairsOfForks = np.logical_not(np.isnan(fork_coordinates)).sum(axis=1) / 2
 
-			# Down sample dna polymerase position, every position is only plotted once here
-			# using numpy ninja-ness
-			unique, index, value = np.unique(fork_coordinates, return_index=True, return_inverse=True)
-			m = np.zeros_like(value, dtype=bool)
-			m[index] = True
-			m = m.reshape(fork_coordinates.shape)
-			fork_coordinates[~m] = np.nan
-
 			# Skip plot if there are no replication forks in this generation
 			if fork_coordinates.shape[1] > 0:
 				axesList[0].plot(time, fork_coordinates, marker=',', markersize=1, linewidth=0)
