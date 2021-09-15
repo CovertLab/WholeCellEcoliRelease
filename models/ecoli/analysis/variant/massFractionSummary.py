@@ -7,11 +7,11 @@ from matplotlib import pyplot as plt
 from six.moves import zip
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
-
+from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.analysis.analysis_tools import exportFigure
-from models.ecoli.analysis import variantAnalysisPlot
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import constants
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
@@ -48,7 +48,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		currentMaxTime = 0
 		for cellIdx, simDir in enumerate(all_cells):
 			variant_dir = os.path.join(simDir, '..', '..', '..')
-			with open(os.path.join(variant_dir, 'metadata', 'short_name')) as f:
+			with open(os.path.join(variant_dir, constants.METADATA_DIR, 'short_name')) as f:
 				variant_name = list(f)[0]
 
 			simOutDir = os.path.join(simDir, "simOut")

@@ -1092,7 +1092,7 @@ class Metabolism(object):
 		Args:
 			aa_transporters_counts: counts of each transporter
 			aa_conc: concentrations of each amino acid with mol/volume units
-			mechanisitc_uptake: if true, the uptake is calculated based on transporters
+			mechanistic_uptake: if true, the uptake is calculated based on transporters
 
 		Returns:
 			rate of export for each amino acid. array is unitless but

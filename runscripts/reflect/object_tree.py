@@ -400,7 +400,7 @@ def load_fit_tree(out_subdir):
 
 	path = os.path.join(
 		out_subdir,
-		'kb',
+		constants.KB_DIR,
 		constants.SERIALIZED_SIM_DATA_FILENAME)
 
 	return load_tree(path)

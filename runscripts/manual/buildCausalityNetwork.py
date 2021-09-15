@@ -61,7 +61,8 @@ class BuildCausalityNetwork(AnalysisBase):
 
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
 		input_dir = os.path.join(input_variant_directory, dirs, 'simOut')
-		sim_data_modified = os.path.join(input_variant_directory, 'kb',
+		sim_data_modified = os.path.join(input_variant_directory,
+			constants.VKB_DIR,
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
 		dynamics_output_dir = os.path.join(input_variant_directory, dirs, 'seriesOut')
 

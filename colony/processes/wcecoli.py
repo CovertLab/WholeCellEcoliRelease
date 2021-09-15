@@ -40,9 +40,9 @@ def initialize_ecoli(config):
 	cell_id = config['cell_id']
 
 	sim_data_fit = os.path.join(
-		sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
+		sim_out_path, 'manual', constants.KB_DIR, constants.SERIALIZED_SIM_DATA_FILENAME)
 	variant_sim_data_directory = fp.makedirs(
-		sim_out_path, 'agent', outer_id, 'kb', cell_id)
+		sim_out_path, 'agent', outer_id, constants.VKB_DIR, cell_id)
 	variant_sim_data_modified_file = os.path.join(
 		variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 
@@ -130,7 +130,7 @@ def ecoli_boot_config(agent_config):
 		sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id,
 		'simOut'
 	)
-	metadata_dir = fp.makedirs(sim_out_path, 'agent', 'metadata')
+	metadata_dir = fp.makedirs(sim_out_path, 'agent', constants.METADATA_DIR)
 	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 
 	options = {

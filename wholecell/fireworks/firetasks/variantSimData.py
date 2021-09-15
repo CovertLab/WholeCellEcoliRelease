@@ -21,12 +21,6 @@ class VariantSimDataTask(FiretaskBase):
 		"variant_metadata_directory",  # the output variant metadata directory
 		]
 
-	# Recommended output_sim_data and variant_metadata_directory output subdirs
-	# within a directory like 'out/manual/wildtype_000000/'.
-	# TODO(jerry): Combine the directories?
-	OUTPUT_SUBDIR_KB = 'kb'
-	OUTPUT_SUBDIR_METADATA = 'metadata'
-
 	def run_task(self, fw_spec):
 		fp.makedirs(os.path.dirname(self["output_sim_data"]))
 		fp.makedirs(self["variant_metadata_directory"])

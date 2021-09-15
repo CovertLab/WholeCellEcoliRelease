@@ -35,8 +35,6 @@ class ParcaTask(FiretaskBase):
 		'variable_elongation_transcription',
 		'variable_elongation_translation']
 
-	OUTPUT_SUBDIR = 'kb'  # the task's recommended output directory
-
 	def _get_default(self, key):
 		return self.get(key, DEFAULT_SIMULATION_KWARGS[key])
 

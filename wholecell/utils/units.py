@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 import scipy.constants
 import numpy as np
+# noinspection PyUnresolvedReferences
 from unum.units import dmol, fg, g, h, J, K, L, min, mol, mmol, umol, s  # satisfy mypy
 from unum.units import *
 from unum import Unum

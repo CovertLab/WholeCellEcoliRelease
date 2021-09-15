@@ -28,7 +28,7 @@ def run_sim(args):
 	sim_args = data.select_keys(args, scriptBase.SIM_KEYS)
 
 	variant_directory = args['variant directory']
-	variant_sim_data_directory = os.path.join(variant_directory, VariantSimDataTask.OUTPUT_SUBDIR_KB)
+	variant_sim_data_directory = os.path.join(variant_directory, constants.VKB_DIR)
 	variant_sim_data_modified_file = os.path.join(variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 
 	# TODO: should this be applied before sim_data parameters are updated?
@@ -359,7 +359,7 @@ class BaseSolver(abc.ABC):
 			kb_dir = fp.makedirs(self._sim_dir, constants.KB_DIR)
 			sim_data_filename = constants.SERIALIZED_SIM_DATA_FILENAME
 		else:
-			kb_dir = fp.makedirs(self.get_variant_dir(variant), VariantSimDataTask.OUTPUT_SUBDIR_KB)
+			kb_dir = fp.makedirs(self.get_variant_dir(variant), constants.VKB_DIR)
 			sim_data_filename = constants.SERIALIZED_SIM_DATA_MODIFIED
 
 		raw_data = os.path.join(kb_dir, constants.SERIALIZED_RAW_DATA)

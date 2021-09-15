@@ -34,7 +34,7 @@ _unused = [np, units]
 
 # Parse the first arg as simulation root directory, use cached sim_data as default
 if len(sys.argv) > 1:
-	data_dir = os.path.join(sys.argv[1], 'kb')
+	data_dir = os.path.join(sys.argv[1], constants.KB_DIR)
 else:
 	data_dir = os.path.join(filepath.ROOT_PATH, 'cached')
 raw_data_filename = constants.SERIALIZED_RAW_DATA

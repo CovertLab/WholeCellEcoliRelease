@@ -98,7 +98,7 @@ class RunParameterSearch(scriptBase.ScriptBase):
 
 	def run(self, args):
 		fp.makedirs(args.sim_path, constants.KB_DIR)
-		fp.makedirs(args.sim_path, 'metadata')  # TODO: write metadata?
+		fp.makedirs(args.sim_path, constants.METADATA_DIR)  # TODO: write metadata?
 
 		method = PARAMETER_METHODS[args.method]()
 		solver = SOLVERS[args.solver](method, args)

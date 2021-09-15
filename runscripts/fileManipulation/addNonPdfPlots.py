@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import argparse
 
+from wholecell.utils import constants
 import wholecell.utils.filepath as fp
 
 
@@ -31,11 +32,11 @@ def main(out_directory):
 
 	for sim_dir in allSimulations:
 		all_seeds = findDirectories(sim_dir)
-		all_seeds.pop(all_seeds.index(os.path.join(sim_dir, 'kb')))
-		all_seeds.pop(all_seeds.index(os.path.join(sim_dir, 'metadata')))
+		all_seeds.pop(all_seeds.index(os.path.join(sim_dir, constants.KB_DIR)))
+		all_seeds.pop(all_seeds.index(os.path.join(sim_dir, constants.METADATA_DIR)))
 
 		for seed_idx, seed in enumerate(all_seeds):
-			plotDir = os.path.join(seed, 'plotOut')
+			plotDir = os.path.join(seed, constants.PLOTOUT_DIR)
 			print('Working on {}/{}: {}'.format(seed_idx,len(all_seeds),seed))
 			if os.path.exists(plotDir):
 				allPdfPlots = findFiles(plotDir, '.pdf')

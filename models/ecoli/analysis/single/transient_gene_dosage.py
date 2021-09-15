@@ -11,7 +11,7 @@ import os
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-from six.moves import cPickle, zip
+from six.moves import cPickle
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure

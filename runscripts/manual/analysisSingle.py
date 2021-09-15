@@ -49,9 +49,10 @@ class AnalysisSingle(AnalysisBase):
 
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
 		input_dir = os.path.join(input_variant_directory, dirs, 'simOut')
-		sim_data_modified = os.path.join(input_variant_directory, 'kb',
-			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		output_dir = os.path.join(input_variant_directory, dirs, self.OUTPUT_SUBDIR)
+		sim_data_modified = os.path.join(input_variant_directory,
+			constants.VKB_DIR, constants.SERIALIZED_SIM_DATA_MODIFIED)
+		output_dir = os.path.join(input_variant_directory, dirs,
+			constants.PLOTOUT_DIR)
 
 		task = AnalysisSingleTask(
 			input_results_directory=input_dir,

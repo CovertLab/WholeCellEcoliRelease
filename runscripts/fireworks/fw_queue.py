@@ -335,16 +335,16 @@ else:
 
 SUBMISSION_TIME = filepath.timestamp()
 INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
-KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "kb")
-METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "metadata")
+KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, constants.KB_DIR)
+METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, constants.METADATA_DIR)
 
 
 log_info("Building filestructure.")
 
 for i in VARIANTS_TO_RUN:
 	VARIANT_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
-	VARIANT_SIM_DATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "kb")
-	VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "metadata")
+	VARIANT_SIM_DATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.VKB_DIR)
+	VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.METADATA_DIR)
 	VARIANT_COHORT_PLOT_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "plotOut")
 
 	for j in range(SEED, SEED + N_INIT_SIMS):
@@ -620,8 +620,8 @@ fw_this_variant_this_gen_this_sim_compression = None
 for i in VARIANTS_TO_RUN:
 	log_info("Queueing Variant {} {}".format(VARIANT, i))
 	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
-	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
-	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
+	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.VKB_DIR)
+	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.METADATA_DIR)
 	md_cohort = dict(metadata, variant_function = VARIANT, variant_index = i)
 
 	# Variant simData creation task

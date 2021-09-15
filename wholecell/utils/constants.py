@@ -19,9 +19,12 @@ SERIALIZED_SIM_DATA_MODIFIED = "simData_Modified.cPickle"
 SERIALIZED_INHERITED_STATE = "Daughter%d_inherited_state.cPickle"
 
 # Workflow directories
-# TODO: add 'plotOut', etc.
 KB_PLOT_OUTPUT_DIR = 'kb_plot_out'
-KB_DIR = 'kb'  # TODO: replace hardcoded 'kb' strings with this variable in codebase
+KB_DIR = 'kb'
+VKB_DIR = 'kb'  # VARIANTTYPE_INDEX/kb/ directory containing simData_Modified.cPickle
+
+METADATA_DIR = 'metadata'  # in KB_DIR and VKB_DIR
+PLOTOUT_DIR = 'plotOut'
 
 JSON_METADATA_FILE = 'metadata.json'
 GIT_DIFF_FILE = 'git_diff.txt'

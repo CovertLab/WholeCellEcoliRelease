@@ -53,7 +53,7 @@ class MakeVariants(scriptBase.ScriptBase):
 				Default = wildtype 0 0''')
 
 	def run(self, args):
-		kb_directory = os.path.join(args.sim_path, 'kb')
+		kb_directory = os.path.join(args.sim_path, constants.KB_DIR)
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		fp.verify_file_exists(sim_data_file, 'Run runParca?')
 
@@ -64,9 +64,9 @@ class MakeVariants(scriptBase.ScriptBase):
 		# args.sim_path is called INDIV_OUT_DIRECTORY in fw_queue.
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_sim_data_directory = os.path.join(args.sim_path, subdir,
-				VariantSimDataTask.OUTPUT_SUBDIR_KB)
+				constants.VKB_DIR)
 			variant_metadata_directory = os.path.join(args.sim_path, subdir,
-				VariantSimDataTask.OUTPUT_SUBDIR_METADATA)
+				constants.METADATA_DIR)
 
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)

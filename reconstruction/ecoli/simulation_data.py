@@ -10,7 +10,6 @@ from __future__ import annotations
 import collections
 
 import numpy as np
-import scipy
 
 # Data classes
 from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions

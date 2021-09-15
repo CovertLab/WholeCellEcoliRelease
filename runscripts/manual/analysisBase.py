@@ -23,8 +23,6 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 	run() is still an abstract method.
 	"""
 
-	OUTPUT_SUBDIR = 'plotOut'  # recommended
-
 	def __init__(self, analysis_plotter=None):
 		# type: (Optional[AnalysisPlot]) -> None
 		"""Instantiate with an optional specific AnalysisPlot to run (this only
@@ -98,10 +96,10 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 			args.plot = [self.plot_name]
 
 		args.input_validation_data = os.path.join(
-			args.sim_path, 'kb', constants.SERIALIZED_VALIDATION_DATA)
+			args.sim_path, constants.KB_DIR, constants.SERIALIZED_VALIDATION_DATA)
 
 		args.metadata_path = os.path.join(
-			args.sim_path, 'metadata', constants.JSON_METADATA_FILE)
+			args.sim_path, constants.METADATA_DIR, constants.JSON_METADATA_FILE)
 		args.metadata = filepath.read_json_file(args.metadata_path)
 
 		if 'variant_dir' in args:

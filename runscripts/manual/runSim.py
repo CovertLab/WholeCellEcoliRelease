@@ -78,7 +78,7 @@ class RunSimulation(scriptBase.ScriptBase):
 		self.define_elongation_options(parser)
 
 	def run(self, args):
-		kb_directory = os.path.join(args.sim_path, 'kb')
+		kb_directory = os.path.join(args.sim_path, constants.KB_DIR)
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		fp.verify_file_exists(sim_data_file, 'Run runParca?')
 
@@ -102,7 +102,7 @@ class RunSimulation(scriptBase.ScriptBase):
 			variant=variant_type,
 			total_variants=str(variant_spec[2] + 1 - variant_spec[1]),
 			total_gens=args.total_gens or args.generations)
-		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
+		metadata_dir = fp.makedirs(args.sim_path, constants.METADATA_DIR)
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 		fp.write_json_file(metadata_path, metadata)
 
@@ -111,7 +111,7 @@ class RunSimulation(scriptBase.ScriptBase):
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_directory = os.path.join(args.sim_path, subdir)
 			variant_sim_data_directory = os.path.join(variant_directory,
-				VariantSimDataTask.OUTPUT_SUBDIR_KB)
+				constants.VKB_DIR)
 
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
@@ -121,7 +121,7 @@ class RunSimulation(scriptBase.ScriptBase):
 					variant_sim_data_modified_file, 'Run makeVariants?')
 			else:
 				variant_metadata_directory = os.path.join(variant_directory,
-					VariantSimDataTask.OUTPUT_SUBDIR_METADATA)
+					constants.METADATA_DIR)
 				task = VariantSimDataTask(
 					variant_function=variant_type,
 					variant_index=i,

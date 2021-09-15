@@ -38,9 +38,10 @@ class AnalysisMultigen(AnalysisBase):
 
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
 		input_path = os.path.join(input_variant_directory, args.seed_str)
-		sim_data_modified = os.path.join(input_variant_directory, 'kb',
+		sim_data_modified = os.path.join(input_variant_directory,
+			constants.VKB_DIR,
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		output_dir = os.path.join(input_path, self.OUTPUT_SUBDIR)
+		output_dir = os.path.join(input_path, constants.PLOTOUT_DIR)
 
 		task = AnalysisMultiGenTask(
 			input_seed_directory=input_path,

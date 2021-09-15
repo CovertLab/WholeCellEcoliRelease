@@ -64,7 +64,7 @@ class RunParca(scriptBase.ScriptBase):
 		return args
 
 	def run(self, args):
-		kb_directory = os.path.join(args.sim_path, ParcaTask.OUTPUT_SUBDIR)
+		kb_directory = os.path.join(args.sim_path, constants.KB_DIR)
 
 		# Write the metadata file.
 		metadata = {
@@ -75,7 +75,7 @@ class RunParca(scriptBase.ScriptBase):
 			'time': args.time,
 			'python': sys.version.splitlines()[0],
 		}
-		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
+		metadata_dir = fp.makedirs(args.sim_path, constants.METADATA_DIR)
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 		fp.write_json_file(metadata_path, metadata)
 

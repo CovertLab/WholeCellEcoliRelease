@@ -60,7 +60,8 @@ class MetabolismDebug(scriptBase.ScriptBase):
 		input_variant_directory = os.path.join(args.sim_path, variant_dir_name)
 
 		# Set paths from args
-		args.sim_data_file = os.path.join(input_variant_directory, 'kb',
+		args.sim_data_file = os.path.join(input_variant_directory,
+			constants.VKB_DIR,
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
 		args.sim_out_dir = os.path.join(input_variant_directory, dirs, 'simOut')
 

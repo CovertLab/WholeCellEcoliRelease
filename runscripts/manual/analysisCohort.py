@@ -26,9 +26,10 @@ class AnalysisCohort(AnalysisBase):
 		variant_dir_name = args.variant_dir_name
 
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
-		sim_data_modified = os.path.join(input_variant_directory, 'kb',
+		sim_data_modified = os.path.join(input_variant_directory,
+			constants.VKB_DIR,
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		output_dir = os.path.join(input_variant_directory, self.OUTPUT_SUBDIR)
+		output_dir = os.path.join(input_variant_directory, constants.PLOTOUT_DIR)
 
 		task = AnalysisCohortTask(
 			input_variant_directory=input_variant_directory,

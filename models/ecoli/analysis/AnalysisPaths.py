@@ -22,13 +22,17 @@ class AnalysisPaths(object):
 
 	Example:
 		from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-		ap = AnalysisPaths(simOutDir)
+		ap = AnalysisPaths(simOutDir, variant_plot=True)
 		ap.get_cells(variant = [0,3], seed = [0], generation = [1,2])
 
 	Above example should return all paths corresponding to variants
 	0 and 3, seed 0, and generations 1 and 2. If a field is left blank
 	it is assumed that all values for that field are desired. If all
 	fields are left blank all cells will be returned.
+
+	For a variant_plot, out_dir should be a top level simulation output dir.
+	For a cohort_plot, out_dir should be a variant output dir.
+	For a multi_gen_plot, out_dir should be a seed output dir.
 	'''
 
 	def __init__(self, out_dir, variant_plot = False, multi_gen_plot = False, cohort_plot = False):
@@ -37,31 +41,31 @@ class AnalysisPaths(object):
 
 		generation_dirs = []  # type: List[str]
 		if variant_plot:
-			# Final all variant files
+			# Find all variant directories in the given simulation output dir
 			all_dirs = listdir(out_dir)
 			variant_out_dirs = []
 			# Consider only those directories which are variant directories
 			for directory in all_dirs:
 				# Accept directories which have a string, an underscore, and then a string
 				# of digits exactly 6 units long
-				if match(r'.*_\d{6}$', directory) is not None:
+				if match(r'.*_\d{6}$', directory):
 					variant_out_dirs.append(join(out_dir, directory))
 
-			# Check to see if only wildtype variant exists
+			# Check to see if only wildtype variants exist that didn't match the pattern
 			if len(variant_out_dirs) == 0:
 				for directory in all_dirs:
 					if directory.startswith("wildtype_"):
 						variant_out_dirs.append(join(out_dir, directory))
 
 			if len(variant_out_dirs) == 0:
-				raise Exception("Variant directory specified has no variant files in it!")
+				raise Exception("Variant out_dir doesn't contain variants!")
 
 			# Get all seed directories in each variant directory
 			seed_out_dirs = []
 			for variant_dir in variant_out_dirs:
 				all_dirs = listdir(variant_dir)
 				for directory in all_dirs:
-					if match(r'^\d{6}$', directory) is not None:
+					if match(r'^\d{6}$', directory):
 						seed_out_dirs.append(join(variant_dir, directory))
 
 			# Get all generation files for each seed
@@ -70,11 +74,11 @@ class AnalysisPaths(object):
 				generation_dirs.extend(chain.from_iterable(self._get_generations(seed_dir)))
 
 		elif cohort_plot:
-			# Get all seed directories in each variant directory
+			# Find all seed directories in the given variant directory
 			seed_out_dirs = []
 			all_dirs = listdir(out_dir)
 			for directory in all_dirs:
-				if match(r'^\d{6}$', directory) is not None:
+				if match(r'^\d{6}$', directory):
 					seed_out_dirs.append(join(out_dir, directory))
 
 			# Get all generation files for each seed
@@ -84,6 +88,7 @@ class AnalysisPaths(object):
 
 
 		elif multi_gen_plot:
+			# Find all generation directories in the given seed directory
 			generation_dirs = list(chain.from_iterable(self._get_generations(out_dir)))
 
 		self._path_data = np.zeros(len(generation_dirs), dtype=[
@@ -105,16 +110,21 @@ class AnalysisPaths(object):
 				raise Exception("Expected only one match for generation!")
 			generations.append(int(matches[0][-6:]))
 
-			# Find seed
-			seeds.append(int(filePath[filePath.rfind('generation_')-7:filePath.rfind('generation_')-1]))
+			# TODO(jerry): Parse the path instead of using hardwired string offsets.
+			gen_subdir_index = filePath.rfind('generation_')
 
-			# Find variant
-			variants.append(int(filePath[filePath.rfind('generation_')-14:filePath.rfind('generation_')-8]))
+			# Extract the seed index
+			# Assumes: 6-digit seed index SSSSSS in 'SSSSSS/generation_...'
+			seeds.append(int(filePath[gen_subdir_index - 7 : gen_subdir_index - 1]))
 
-			# Find variant kb
+			# Extract the variant index
+			# Assumes: 6-digit variant index VVVVVV in 'VARIANT-TYPE_VVVVVV/SSSSSS/generation_...'
+			variants.append(int(filePath[gen_subdir_index - 14 : gen_subdir_index - 8]))
+
+			# Find the variant kb pickle
 			variant_kb.append(
-				join(filePath[:filePath.rfind('generation_') - 8], "kb",
-					constants.SERIALIZED_SIM_DATA_MODIFIED))
+				join(filePath[: gen_subdir_index - 8],
+					 constants.VKB_DIR, constants.SERIALIZED_SIM_DATA_MODIFIED))
 
 		self._path_data["path"] = generation_dirs
 		self._path_data["variant"] = variants

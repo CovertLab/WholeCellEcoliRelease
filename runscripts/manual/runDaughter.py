@@ -57,7 +57,7 @@ class RunDaughter(scriptBase.ScriptBase):
 		args.variant_dir_name, variant_type, variant_index = args.variant_dir
 		input_variant_directory = os.path.join(args.sim_path, args.variant_dir_name)
 
-		kb_directory = os.path.join(args.sim_path, 'kb')
+		kb_directory = os.path.join(args.sim_path, constants.KB_DIR)
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		fp.verify_file_exists(sim_data_file, 'Run runParca?')
 
@@ -73,7 +73,8 @@ class RunDaughter(scriptBase.ScriptBase):
 				' generation sim and for more options, use runSim')
 
 		# Directory paths
-		variant_sim_data_directory = fp.makedirs(input_variant_directory, "kb")
+		variant_sim_data_directory = fp.makedirs(
+			input_variant_directory, constants.VKB_DIR)
 		variant_sim_data_modified_file = os.path.join(
 			variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 		seed_directory = fp.makedirs(input_variant_directory, "%06d" % j)

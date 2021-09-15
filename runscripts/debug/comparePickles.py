@@ -34,8 +34,8 @@ if __name__ == '__main__':
 	path1, path2 = args.path
 
 	if args.final_sim_data:
-		path1 = os.path.join(path1, 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
-		path2 = os.path.join(path2, 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
+		path1 = os.path.join(path1, constants.KB_DIR, constants.SERIALIZED_SIM_DATA_FILENAME)
+		path2 = os.path.join(path2, constants.KB_DIR, constants.SERIALIZED_SIM_DATA_FILENAME)
 
 	if os.path.isfile(path1):
 		diff_count = diff_files(path1, path2, print_diff_lines=not args.count)

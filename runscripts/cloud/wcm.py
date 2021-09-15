@@ -27,7 +27,6 @@ from wholecell.fireworks.firetasks import (
 	WriteJsonTask)
 from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
-from runscripts.manual.analysisBase import AnalysisBase
 from runscripts.cloud.util import workflow_cli
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
@@ -109,7 +108,7 @@ class WcmWorkflow(Workflow):
 
 		# Joining with '' gets a path that ends with the path separator, which
 		# tells DockerTask to fetch or store an entire directory tree.
-		kb_dir = self.internal(ParcaTask.OUTPUT_SUBDIR, '')
+		kb_dir = self.internal(constants.KB_DIR, '')
 		sim_data_file = pp.join(kb_dir, constants.SERIALIZED_SIM_DATA_FILENAME)
 		validation_data_file = pp.join(kb_dir, constants.SERIALIZED_VALIDATION_DATA)
 
@@ -131,7 +130,8 @@ class WcmWorkflow(Workflow):
 		# variables. Analysis Firetasks will call data.expand_keyed_env_vars()
 		# to expand those _keyed $VARs and update the un-_keyed dict entries.
 		# When run outside a Docker Image, the initial dict values are good.
-		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
+		metadata_file = self.internal(
+			constants.METADATA_DIR, constants.JSON_METADATA_FILE)
 		git_hash = fp.git_hash()
 		git_branch = fp.git_branch()
 		metadata = data.select_keys(
@@ -161,7 +161,8 @@ class WcmWorkflow(Workflow):
 
 		diff_source_file = self.internal(
 			pp.sep, 'wcEcoli', 'source-info', constants.GIT_DIFF_FILE)
-		diff_dest_file = self.internal('metadata', constants.GIT_DIFF_FILE)
+		diff_dest_file = self.internal(
+			constants.METADATA_DIR, constants.GIT_DIFF_FILE)
 		copy_diff_task = self.add_shell_task(
 			name='copy_git_diff',
 			inputs=[metadata_file],  # this task requires the metadata/ dir
@@ -202,9 +203,9 @@ class WcmWorkflow(Workflow):
 
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_sim_data_dir = self.internal(subdir,
-				VariantSimDataTask.OUTPUT_SUBDIR_KB, '')
+				constants.VKB_DIR, '')
 			variant_metadata_dir = self.internal(subdir,
-				VariantSimDataTask.OUTPUT_SUBDIR_METADATA, '')
+				constants.METADATA_DIR, '')
 			variant_sim_data_modified_file = pp.join(
 				variant_sim_data_dir, constants.SERIALIZED_SIM_DATA_MODIFIED)
 			md_cohort = dict(metadata, variant_function=variant_type,
@@ -275,7 +276,7 @@ class WcmWorkflow(Workflow):
 						this_variant_this_seed_multigen_analysis_inputs.append(cell_sim_out_dir)
 
 						if run_analysis:
-							plot_dir = pp.join(cell_dir, AnalysisBase.OUTPUT_SUBDIR, '')
+							plot_dir = pp.join(cell_dir, constants.PLOTOUT_DIR, '')
 							python_args = data.select_keys(
 								args, scriptBase.ANALYSIS_KEYS,
 								input_results_directory=cell_sim_out_dir,
@@ -303,7 +304,7 @@ class WcmWorkflow(Workflow):
 								outputs=[cell_series_out_dir])
 
 				if run_analysis:
-					multigen_plot_dir = pp.join(seed_dir, AnalysisBase.OUTPUT_SUBDIR, '')
+					multigen_plot_dir = pp.join(seed_dir, constants.PLOTOUT_DIR, '')
 					python_args = data.select_keys(
 						args, scriptBase.ANALYSIS_KEYS,
 						input_seed_directory=seed_dir,
@@ -318,7 +319,7 @@ class WcmWorkflow(Workflow):
 						outputs=[multigen_plot_dir])
 
 			if run_analysis:
-				cohort_plot_dir = self.internal(subdir, AnalysisBase.OUTPUT_SUBDIR, '')
+				cohort_plot_dir = self.internal(subdir, constants.PLOTOUT_DIR, '')
 				python_args = data.select_keys(
 					args, scriptBase.ANALYSIS_KEYS,
 					input_variant_directory=self.internal(subdir),
@@ -333,7 +334,7 @@ class WcmWorkflow(Workflow):
 					outputs=[cohort_plot_dir])
 
 		if run_analysis:
-			variant_plot_dir = self.internal(AnalysisBase.OUTPUT_SUBDIR, '')
+			variant_plot_dir = self.internal(constants.PLOTOUT_DIR, '')
 			python_args = data.select_keys(
 				args, scriptBase.ANALYSIS_KEYS,
 				input_directory=self.internal(''),
