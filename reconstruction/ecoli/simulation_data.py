@@ -38,6 +38,8 @@ class SimulationDataEcoli(object):
 		self.doubling_time = None
 
 	def initialize(self, raw_data, basal_expression_condition="M9 Glucose minus AAs"):
+		self.operons_on = raw_data.operons_on
+
 		self._add_condition_data(raw_data)
 		self.condition = "basal"
 		self.doubling_time = self.condition_to_doubling_time[self.condition]
