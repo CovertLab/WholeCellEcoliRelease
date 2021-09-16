@@ -82,10 +82,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		average_timepoint = np.log(
 			sim_data.mass.avg_cell_to_initial_cell_conversion_factor) / np.log(2)
 		existing_outer_mem_protein_ids = [
-			mol_id + sim_data.getter.get_compartment_tag(mol_id)
-			for mol_id in OUTER_MEM_PROTEIN.keys()
+			mol_id for mol_id in OUTER_MEM_PROTEIN.keys()
 			if sim_data.getter.is_valid_molecule(mol_id)
 		]
+		existing_outer_mem_protein_ids_with_compartment_tag = [
+			mol_id + sim_data.getter.get_compartment_tag(mol_id)
+			for mol_id in existing_outer_mem_protein_ids
+			]
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
@@ -96,7 +99,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		initial_time = main_reader.readAttribute('initialTime')
 		time = (main_reader.readColumn('time') - initial_time) / 60
 		(counts,) = read_bulk_molecule_counts(
-			simOutDir, (existing_outer_mem_protein_ids,))
+			simOutDir, (existing_outer_mem_protein_ids_with_compartment_tag,))
 		counts = counts.astype(float).T
 
 
@@ -111,18 +114,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# calculate SA based off of molecule counts
 		# surface_area_LPS = SURFACE_AREA_PER_MOLECULE['LPS'] * counts[
-		# 	existing_outer_mem_protein_ids.index('CPD0-939[c]')]
-		# TODO (ggsun): Remove hardcoded compartment tags
+		# 	existing_outer_mem_protein_ids.index('CPD0-939')]
 		surface_area_porins_and_ompA = SURFACE_AREA_PER_MOLECULE['porins_and_ompA'] * np.sum(
-			counts[[existing_outer_mem_protein_ids.index('CPLX0-7533[o]'),
-					existing_outer_mem_protein_ids.index('CPLX0-7534[o]'),
-					existing_outer_mem_protein_ids.index('EG10669-MONOMER[p]')], :], axis = 0)
+			counts[[existing_outer_mem_protein_ids.index('CPLX0-7533'),
+					existing_outer_mem_protein_ids.index('CPLX0-7534'),
+					existing_outer_mem_protein_ids.index('EG10669-MONOMER')], :], axis = 0)
 		surface_area_phospholipids = SURFACE_AREA_PER_MOLECULE['phospholipids'] * 0.5 * np.sum(
-			counts[[existing_outer_mem_protein_ids.index('CPD-12819[j]'),
-					existing_outer_mem_protein_ids.index('CPD-12824[j]'),
-					existing_outer_mem_protein_ids.index('CPD-8260[j]')], :], axis = 0)
+			counts[[existing_outer_mem_protein_ids.index('CPD-12819'),
+					existing_outer_mem_protein_ids.index('CPD-12824'),
+					existing_outer_mem_protein_ids.index('CPD-8260')], :], axis = 0)
 		surface_area_lipoprotein = SURFACE_AREA_PER_MOLECULE['lipoprotein'] * counts[
-			existing_outer_mem_protein_ids.index('EG10544-MONOMER[p]')]
+			existing_outer_mem_protein_ids.index('EG10544-MONOMER')]
 
 		surface_area_outer_leaflet = surface_area_porins_and_ompA
 		surface_area_inner_leaflet = np.add(np.add(surface_area_phospholipids,

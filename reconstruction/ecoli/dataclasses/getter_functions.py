@@ -26,6 +26,12 @@ RNA_TYPE_TO_SUBMASS = {
 # Mapping of compartment IDs to abbreviations for compartments undefined in
 # flat/compartments.tsv
 UNDEFINED_COMPARTMENT_IDS_TO_ABBREVS = {
+	'CCI-PERI-BAC-GN': 'p',
+	'CCI-PM-BAC-NEG-GN': 'i',
+	'CCO-PM-BAC-ACT': 'i',
+	'CCO-OUT': 'e',
+	'CCO-IN': 'c',
+	'NIL': 'c',
 	'CCO-CW-BAC-NEG': 'o',
 	'CCO-CE-BAC': 'm',
 	'CCO-BAC-NUCLEOID': 'c',
@@ -642,13 +648,34 @@ class GetterFunctions(object):
 			for protein in raw_data.modified_proteins
 			})
 
-		# Metabolites and polymerized subunits can localize to all compartments
-		# being modeled
-		# TODO (ggsun): Limit metabolite compartments to those that actually
-		#   exist in reaction stoichiometries
-		self._all_compartments.update({
-			met['id']: all_compartments for met in raw_data.metabolites
-			})
+		# Metabolites localize to the cytosol plus any other compartment that
+		# is specified in the list of metabolic reactions, or the periplasm if
+		# the metabolite is a 2CS ligand
+		metabolite_compartments = {
+			met['id']: ['c'] for met in raw_data.metabolites}
+
+		# Loop through list of metabolic reactions and add missing compartments
+		# for each metabolite
+		for rxn in raw_data.metabolic_reactions:
+			for met in rxn['stoichiometry'].keys():
+				met_id, compartment, _ = re.split('[\[\]]', met)
+				compartment_tag = compartment_ids_to_abbreviations[compartment]
+
+				if (met_id in metabolite_compartments and
+						compartment_tag not in metabolite_compartments[met_id]):
+					metabolite_compartments[met_id].append(compartment_tag)
+
+		# Add periplasm as valid compartment for 2CS ligands
+		two_component_system_ligands = [
+			l["molecules"]["LIGAND"] for l in raw_data.two_component_systems]
+
+		for met in two_component_system_ligands:
+			if 'p' not in metabolite_compartments[met]:
+				metabolite_compartments[met].append('p')
+
+		self._all_compartments.update(metabolite_compartments)
+
+		# Polymerized subunits can localize to all compartments being modeled
 		self._all_compartments.update({
 			subunit_id[:-3]: all_compartments
 			for subunit_id in sim_data.molecule_groups.polymerized_subunits
