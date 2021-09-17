@@ -79,11 +79,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		start = times[0, 0]
 		end = times[-1, 0]
 		enzyme_conc = (enzyme_counts @ enzyme_to_amino_acid * counts_to_mol).T
-		full_attenuation = np.ones((attenuation.shape[0], n_rnas))
+		full_attenuation = np.zeros((attenuation.shape[0], n_rnas))
 		full_attenuation[:, attenuated_indices] = attenuation
-		attenuation_probabilities = full_attenuation[:, enzyme_rna_indices]
+		no_attenuation_probabilities = 1 - full_attenuation[:, enzyme_rna_indices]
 		rnas_per_amino_acid = (rna_to_enzyme @ enzyme_to_amino_acid).sum(axis=0)
-		probability_per_amino_acid = (probabilities * attenuation_probabilities @ rna_to_enzyme @ enzyme_to_amino_acid / rnas_per_amino_acid).T
+		probability_per_amino_acid = (probabilities * no_attenuation_probabilities @ rna_to_enzyme @ enzyme_to_amino_acid / rnas_per_amino_acid).T
 
 		# Plot data
 		plt.figure(figsize=(16, 12))
