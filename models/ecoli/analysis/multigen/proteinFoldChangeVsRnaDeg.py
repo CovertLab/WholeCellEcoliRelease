@@ -45,13 +45,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Calculate if monomer comes close to doubling
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(float) + 1)
 
-			# Load transcription initiation event data
-			# rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-			# initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
-
-			# Map transcription initiation events to monomers
-			# initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
-
 			# Log data
 			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
 
@@ -59,7 +52,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
 
 		# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
-		degradationRates = sim_data.process.transcription.rna_data['deg_rate'].asNumber(1 / units.s)
+		degradationRates = sim_data.process.transcription.cistron_data['deg_rate'].asNumber(1 / units.s)
 		degradationRatesByMonomer = degradationRates[sim_data.relation.cistron_to_monomer_mapping]
 		uniqueDegRate = np.unique(degradationRatesByMonomer)
 

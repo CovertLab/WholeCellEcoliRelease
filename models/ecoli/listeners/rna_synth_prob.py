@@ -28,8 +28,11 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 		self.transcriptInitiation = sim.processes["TranscriptInitiation"]
-		self.rnaIds = sim_data.process.transcription.rna_data["id"]
-		self.n_TU = len(self.rnaIds)
+		self.rna_ids = sim_data.process.transcription.rna_data["id"]
+		self.n_TU = len(self.rna_ids)
+		self.cistron_ids = sim_data.process.transcription.cistron_data["id"]
+		self.n_cistron = len(self.cistron_ids)
+		self.cistron_tu_mapping_matrix = sim_data.process.transcription.cistron_tu_mapping_matrix
 
 		self.tf_ids = sim_data.process.transcription_regulation.tf_ids
 		self.n_TF = len(self.tf_ids)
@@ -41,6 +44,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 
 		self.rnaSynthProb = np.zeros(self.n_TU, np.float64)
 		self.gene_copy_number = np.zeros(self.n_TU, np.int16)
+		self.rna_synth_prob_per_cistron = np.zeros(self.n_cistron, np.float64)
 
 		self.pPromoterBound = np.zeros(self.n_TF, np.float64)
 		self.nPromoterBound = np.zeros(self.n_TF, np.float64)
@@ -71,11 +75,15 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		self.bound_TF_coordinates = all_coordinates[bound_promoter_indexes]
 		self.bound_TF_domains = all_domains[bound_promoter_indexes]
 
+		self.rna_synth_prob_per_cistron = self.cistron_tu_mapping_matrix.dot(
+			self.rnaSynthProb)
+
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
 			'gene_copy_number': 'rnaIds',
 			'rnaSynthProb': 'rnaIds',
+			'rna_synth_prob_per_cistron': 'cistron_ids',
 			'pPromoterBound': 'tf_ids',
 			'nPromoterBound': 'tf_ids',
 			'nActualBound': 'tf_ids',
@@ -83,7 +91,8 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			'n_bound_TF_per_TU': 'rnaIds'}
 
 		tableWriter.writeAttributes(
-			rnaIds = list(self.rnaIds),
+			rnaIds = list(self.rna_ids),
+			cistron_ids = list(self.cistron_ids),
 			tf_ids = list(self.tf_ids),
 			subcolumns = subcolumns)
 
@@ -99,6 +108,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			simulationStep = self.simulationStep(),
 			rnaSynthProb = self.rnaSynthProb,
+			rna_synth_prob_per_cistron = self.rna_synth_prob_per_cistron,
 			gene_copy_number = self.gene_copy_number,
 			pPromoterBound = self.pPromoterBound,
 			nPromoterBound = self.nPromoterBound,

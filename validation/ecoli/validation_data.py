@@ -316,12 +316,12 @@ class EssentialGenes(object):
 
 	def _load_essential_genes(self, validation_data_raw):
 		self.essential_genes = []
-		self.essential_RNAs = []
+		self.essential_cistrons = []
 		self.essential_proteins = []
 
 		for row in validation_data_raw.essential_genes:
 			self.essential_genes.append(row["FrameID"])
-			self.essential_RNAs.append(row["rnaID"] + "[c]")
+			self.essential_cistrons.append(row["rnaID"])
 			self.essential_proteins.append(row["proteinID"] + "[" + row["proteinLoc"] + "]")
 
 class GeneFunctions(object):

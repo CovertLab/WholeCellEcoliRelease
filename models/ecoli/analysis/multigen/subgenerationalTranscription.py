@@ -46,11 +46,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-		# Get mRNA data
-		rnaIds = sim_data.process.transcription.rna_data["id"]
-		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
-		mRnaIndexes = np.where(isMRna)[0]
-		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
+		# Get mRNA cistrons data
+		cistron_ids = sim_data.process.transcription.cistron_data["id"]
+		is_mRNA = sim_data.process.transcription.cistron_data['is_mRNA']
+		mRNA_cistron_indexes = np.where(is_mRNA)[0]
+		mRNA_cistron_ids = np.array([cistron_ids[x] for x in mRNA_cistron_indexes])
 
 		time = []
 		time_eachGen = []
@@ -67,18 +67,18 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				time_eachGen.append(main_reader.readColumn("time").tolist()[0])
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
+			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rna_synth_prob_per_cistron")[:, mRNA_cistron_indexes], axis = 0)
 			simulatedSynthProbs.append(simulatedSynthProb)
 
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_cistron_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 			transcribedBool.append(mRnasTranscribed)
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")[:, mRnaIndexes]
+			rnaInitEvent = rnapDataReader.readColumn("rna_init_event_per_cistron")[:, mRNA_cistron_indexes]
 
 			if gen == 0:
 				transcriptionEvents = (rnaInitEvent != 0)
@@ -96,7 +96,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
 		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
-		mRnaIdsOrdered = mRnaIds[indexingOrder]
+		mRNA_cistron_ids_ordered = mRNA_cistron_ids[indexingOrder]
 
 		## Commented code is used when PLOT_GENES_OF_INTEREST is True
 		# raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))
@@ -166,12 +166,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		if PLOT_GENES_OF_INTEREST:
 			## Identifying particular genes
-			dcurId = "G7826_RNA[c]"
-			clppId = "EG10158_RNA[c]"
-			dcucId = "G6347_RNA[c]"
-			dcurIndex = np.where(mRnaIdsOrdered == dcurId)[0]
-			clppIndex = np.where(mRnaIdsOrdered == clppId)[0]
-			dcucIndex = np.where(mRnaIdsOrdered == dcucId)[0]
+			dcurId = "G7826_RNA"
+			clppId = "EG10158_RNA"
+			dcucId = "G6347_RNA"
+			dcurIndex = np.where(mRNA_cistron_ids_ordered == dcurId)[0]
+			clppIndex = np.where(mRNA_cistron_ids_ordered == clppId)[0]
+			dcucIndex = np.where(mRNA_cistron_ids_ordered == dcucId)[0]
 
 			scatterAxis.scatter(dcurIndex, transcribedBoolOrdered[dcurIndex], facecolor = "orange", edgecolors = "none")
 			scatterAxis.scatter(clppIndex, transcribedBoolOrdered[clppIndex], facecolor = "orange", edgecolors = "none")
@@ -238,13 +238,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		plotGreen = 0
 		plotBlue = 0
 
-		mRNA_id_set = set(mRnaIdsOrdered)
+		mRNA_id_set = set(mRNA_cistron_ids_ordered)
 
-		essential_genes_rna = validation_data.essential_genes.essential_RNAs
-		for g in essential_genes_rna:
+		essential_genes_cistrons = validation_data.essential_genes.essential_cistrons
+		for g in essential_genes_cistrons:
 			if g not in mRNA_id_set:
 				continue
-			i = np.where(mRnaIdsOrdered == str(g))[0][0]
+			i = np.where(mRNA_cistron_ids_ordered == str(g))[0][0]
 			f = transcribedBoolOrdered[i]
 
 			if f == 0.0:
@@ -258,15 +258,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		fig = plt.figure()
 		ax = plt.subplot(1, 1, 1)
-		ax.bar(xloc + width, [plotRed / float(len(essential_genes_rna)), plotGreen / float(len(essential_genes_rna)), plotBlue / float(len(essential_genes_rna))], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
+		ax.bar(xloc + width, [plotRed / float(len(essential_genes_cistrons)), plotGreen / float(len(essential_genes_cistrons)), plotBlue / float(len(essential_genes_cistrons))], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 		whitePadSparklineAxis(ax)
 		ax.spines["left"].set_position(("outward", 0))
 		ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
 		ax.set_yticklabels(["0%", "20%", "40%", "60%", "80%"])
 		ax.set_ylabel("Percentage of essential genes")
 		ax.set_xticks(xloc + 1.5 * width)
-		ax.set_xticklabels(["%s / %s" % (plotRed, len(essential_genes_rna)), "%s / %s" % (plotGreen, len(essential_genes_rna)), "%s / %s" % (plotBlue, len(essential_genes_rna))])
-		ax.set_xlabel("Total number of essential genes: %s" % len(essential_genes_rna))
+		ax.set_xticklabels(["%s / %s" % (plotRed, len(essential_genes_cistrons)), "%s / %s" % (plotGreen, len(essential_genes_cistrons)), "%s / %s" % (plotBlue, len(essential_genes_cistrons))])
+		ax.set_xlabel("Total number of essential genes: %s" % len(essential_genes_cistrons))
 		plt.subplots_adjust(right = 0.9, bottom = 0.15, left = 0.2, top = 0.9)
 		exportFigure(plt, plotOutDir, "figure5E", metadata)
 
@@ -296,7 +296,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		resistance = {"r": 0, "g": 0, "b": 0}
 		for frameID, function_ in six.viewitems(geneFunctions):
 			try:
-				i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
+				i = np.where([frameID in x for x in mRNA_cistron_ids_ordered])[0][0]
 			# Skip over genes that aren't used in the simulation
 			except IndexError:
 				continue

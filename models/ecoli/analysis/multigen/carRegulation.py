@@ -67,8 +67,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from mRNA counts listener
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+			all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
 
 			# Load data from RnaSynthProb listener
 			rna_synth_prob_reader = TableReader(
@@ -112,10 +112,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in carAComplexId])
 			carAComplexCounts = bulkMoleculeCounts[:, carAComplexIndex].reshape(-1)
 
-			# Get the amount of carA mRNA
-			carARnaId = ["EG10134_RNA[c]"]
-			carARnaIndex = np.array([all_mRNA_ids.index(x) for x in carARnaId])
-			carARnaCounts = mRNA_counts[:, carARnaIndex].reshape(-1)
+			# Get the amount of carA mRNA cistron
+			carA_rna_cistron_id = ["EG10134_RNA"]
+			carA_rna_cistron_index = np.array([all_mRNA_cistron_ids.index(x) for x in carA_rna_cistron_id])
+			carA_rna_cistron_counts = mRNA_cistron_counts[:, carA_rna_cistron_index].reshape(-1)
 
 			# Compute total counts and concentration of carA in monomeric and complexed form
 			# (we know the stoichiometry)
@@ -124,8 +124,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carAProteinTotalConcentration = carAProteinTotalMols * 1. / volume
 
 			# Compute concentration of carA mRNA
-			carARnaMols = 1. / nAvogadro * carARnaCounts
-			carARnaConcentration = carARnaMols * 1. / volume
+			carA_rna_mols = 1. / nAvogadro * carA_rna_cistron_counts
+			carA_rna_concentration = carA_rna_mols * 1. / volume
 
 			# Compute the carA mass in the cell
 			carAMw = sim_data.getter.get_masses(carAProteinId)
@@ -244,8 +244,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			##############################################################
 			ax = self.subplot(nRows, 1, 7)
-			ax.plot(time, carARnaCounts, color = "b")
-			plt.ylabel("CarA mRNA Counts", fontsize = 6)
+			ax.plot(time, carA_rna_cistron_counts, color = "b")
+			plt.ylabel("CarA mRNA cistron counts", fontsize = 6)
 
 			ymin, ymax = ax.get_ylim()
 			ax.set_yticks([ymin, ymax])
@@ -259,8 +259,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			##############################################################
 			ax = self.subplot(nRows, 1, 8)
-			ax.plot(time, carARnaConcentration.asNumber(units.umol / units.L), color = "b")
-			plt.ylabel("CarA mRNA\nConcentration", fontsize = 6)
+			ax.plot(time, carA_rna_concentration.asNumber(units.umol / units.L), color = "b")
+			plt.ylabel("CarA mRNA cistron\nConcentration", fontsize = 6)
 
 			ymin, ymax = ax.get_ylim()
 			ax.set_yticks([ymin, ymax])

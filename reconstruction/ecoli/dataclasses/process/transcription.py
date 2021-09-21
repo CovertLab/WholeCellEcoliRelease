@@ -227,6 +227,7 @@ class Transcription(object):
 			   and gene_id_to_left_end_pos[cistron_id_to_gene_id[rna['id']]] is not None
 			   and gene_id_to_right_end_pos[cistron_id_to_gene_id[rna['id']]] is not None
 			]
+		all_cistron_ids = [cistron['id'] for cistron in all_cistrons]
 
 		# Load gene IDs associated with each cistron
 		gene_id = np.array(
@@ -257,14 +258,48 @@ class Transcription(object):
 		direction = [
 			cistron_id_to_direction[cistron['id']] == '+' for cistron in all_cistrons]
 
+		# Get boolean arrays for each RNA type
+		is_mRNA = [
+			RNA_TYPE_TO_SUBMASS[rna["type"]] == "mRNA" for rna in all_cistrons]
+		is_miscRNA = [
+			RNA_TYPE_TO_SUBMASS[rna["type"]] == "miscRNA" for rna in all_cistrons]
+		is_rRNA = [
+			RNA_TYPE_TO_SUBMASS[rna["type"]] == "rRNA" for rna in all_cistrons]
+		is_tRNA = [
+			RNA_TYPE_TO_SUBMASS[rna["type"]] == "tRNA" for rna in all_cistrons]
+
+		# Load set of mRNA cistron ids
+		mRNA_cistron_ids = set(np.array(all_cistron_ids)[is_mRNA])
+
+		# Load cistron half lives
+		cistron_id_to_half_life = {}
+		reported_mRNA_cistron_half_lives = []
+
+		for cistron in raw_data.rna_half_lives:
+			cistron_id_to_half_life[cistron['id']] = cistron['half_life']
+			if cistron['id'] in mRNA_cistron_ids:
+				reported_mRNA_cistron_half_lives.append(cistron['half_life'])
+
+		# Calculate averaged reported half life of mRNAs
+		average_mRNA_cistron_half_life = np.mean(reported_mRNA_cistron_half_lives)
+
+		# Get half life of each RNA cistron - if the half life is not given, use
+		# the averaged reported half life of mRNAs
+		self._cistron_half_lives = np.array([
+			cistron_id_to_half_life.get(cistron_id, average_mRNA_cistron_half_life).asNumber(units.s)
+			for cistron_id in all_cistron_ids])
+
+		# Calculate expected first-order degradation rates of each cistron
+		cistron_deg_rates = np.log(2) / self._cistron_half_lives
+
 		# Construct boolean arrays for ribosomal protein and RNAP-encoding
 		# cistrons
 		n_cistrons = len(all_cistrons)
 
 		is_ribosomal_protein = np.zeros(n_cistrons, dtype=np.bool)
 		is_RNAP = np.zeros(n_cistrons, dtype=np.bool)
-		for i, rna in enumerate(all_cistrons):
-			for monomer_id in rna['monomer_ids']:
+		for i, cistron in enumerate(all_cistrons):
+			for monomer_id in cistron['monomer_ids']:
 				if monomer_id + '[c]' in sim_data.molecule_groups.ribosomal_proteins:
 					is_ribosomal_protein[i] = True
 				if monomer_id + '[c]' in sim_data.molecule_groups.RNAP_subunits:
@@ -278,14 +313,14 @@ class Transcription(object):
 		idx_16S = []
 		idx_5S = []
 
-		for rnaIndex, rna in enumerate(all_cistrons):
-			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
+		for rnaIndex, cistron in enumerate(all_cistrons):
+			if cistron["type"] == "rRNA" and cistron["id"].startswith("RRL"):
 				is_23S[rnaIndex] = True
 				idx_23S.append(rnaIndex)
-			if rna["type"] == "rRNA" and rna["id"].startswith("RRS"):
+			if cistron["type"] == "rRNA" and cistron["id"].startswith("RRS"):
 				is_16S[rnaIndex] = True
 				idx_16S.append(rnaIndex)
-			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
+			if cistron["type"] == "rRNA" and cistron["id"].startswith("RRF"):
 				is_5S[rnaIndex] = True
 				idx_5S.append(rnaIndex)
 
@@ -300,6 +335,7 @@ class Transcription(object):
 				('length', 'i8'),
 				('replication_coordinate', 'i8'),
 				('direction', 'bool'),
+				('deg_rate', 'f8'),
 				('is_mRNA', 'bool'),
 				('is_miscRNA', 'bool'),
 				('is_rRNA', 'bool'),
@@ -317,14 +353,11 @@ class Transcription(object):
 		cistron_data['length'] = cistron_lengths
 		cistron_data['replication_coordinate'] = replication_coordinate
 		cistron_data['direction'] = direction
-		cistron_data['is_mRNA'] = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "mRNA" for rna in all_cistrons]
-		cistron_data['is_miscRNA'] = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "miscRNA" for rna in all_cistrons]
-		cistron_data['is_rRNA'] = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "rRNA" for rna in all_cistrons]
-		cistron_data['is_tRNA'] = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "tRNA" for rna in all_cistrons]
+		cistron_data['deg_rate'] = cistron_deg_rates
+		cistron_data['is_mRNA'] = is_mRNA
+		cistron_data['is_miscRNA'] = is_miscRNA
+		cistron_data['is_rRNA'] = is_rRNA
+		cistron_data['is_tRNA'] = is_tRNA
 		cistron_data['is_23S_rRNA'] = is_23S
 		cistron_data['is_16S_rRNA'] = is_16S
 		cistron_data['is_5S_rRNA'] = is_5S
@@ -337,6 +370,7 @@ class Transcription(object):
 			'length': units.nt,
 			'replication_coordinate': None,
 			'direction': None,
+			'deg_rate': 1 / units.s,
 			'is_mRNA': None,
 			'is_miscRNA': None,
 			'is_rRNA': None,
@@ -442,31 +476,10 @@ class Transcription(object):
 			f'{rna_id}[{loc[0]}]' for (rna_id, loc)
 			in zip(rna_ids, compartments)]
 
-		# Load set of mRNA cistron ids
-		mRNA_ids = set(self.cistron_data['id'][self.cistron_data['is_mRNA']])
-
-		# Load RNA half lives
-		rna_id_to_half_life = {}
-		reported_mRNA_half_lives = []
-
-		for rna in raw_data.rna_half_lives:
-			rna_id_to_half_life[rna['id']] = rna['half_life']
-			if rna['id'] in mRNA_ids:
-				reported_mRNA_half_lives.append(rna['half_life'])
-
-		# Calculate averaged reported half life of mRNAs
-		average_mRNA_half_life = np.mean(reported_mRNA_half_lives)
-
-		# Get half life of each RNA cistron - if the half life is not given, use
-		# the averaged reported half life of mRNAs
-		cistron_half_lives = np.array([
-			rna_id_to_half_life.get(cistron_id, average_mRNA_half_life).asNumber(units.s)
-			for cistron_id in self.cistron_data['id']])
-
 		# Calculate the half life of each transcription unit. For polycistronic
 		# transcription units, take the average of all constituent cistrons.
 		rna_half_lives = np.divide(
-			cistron_half_lives @ self.cistron_tu_mapping_matrix,
+			self._cistron_half_lives @ self.cistron_tu_mapping_matrix,
 			np.array(self.cistron_tu_mapping_matrix.sum(axis=0)).flatten())
 
 		# Convert to degradation rates

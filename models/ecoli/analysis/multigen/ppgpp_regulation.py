@@ -13,8 +13,8 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_bulk_molecules, read_stacked_columns
 
 
-RELA_RNA = 'EG10835_RNA[c]'
-SPOT_RNA = 'EG10966_RNA[c]'
+RELA_RNA = 'EG10835_RNA'
+SPOT_RNA = 'EG10966_RNA'
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -22,23 +22,23 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# sim_data values
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
-		rna_data = sim_data.process.transcription.rna_data
+		cistron_data = sim_data.process.transcription.cistron_data
 		fractions = [
 			'is_rRNA',
 			'is_tRNA',
 			'is_mRNA',
-			'includes_ribosomal_protein',
-			'includes_RNAP',
+			'is_ribosomal_protein',
+			'is_RNAP',
 			]
 		n_fractions = len(fractions)
-		synthase_rna_idx_all_rnas = np.array([
-			np.where(rna_data['id'] == RELA_RNA)[0][0],
-			np.where(rna_data['id'] == SPOT_RNA)[0][0],
+		synthase_cistron_idx_all_cistrons = np.array([
+			np.where(cistron_data['id'] == RELA_RNA)[0][0],
+			np.where(cistron_data['id'] == SPOT_RNA)[0][0],
 			])
-		mrna_ids = rna_data['id'][rna_data['is_mRNA']]
-		synthase_rna_idx_mrnas = np.array([
-			np.where(mrna_ids == RELA_RNA)[0][0],
-			np.where(mrna_ids == SPOT_RNA)[0][0],
+		mrna_cistron_ids = cistron_data['id'][cistron_data['is_mRNA']]
+		synthase_cistron_idx_mrnas = np.array([
+			np.where(mrna_cistron_ids == RELA_RNA)[0][0],
+			np.where(mrna_cistron_ids == SPOT_RNA)[0][0],
 			])
 		synthase_order = ['relA', 'spoT']
 
@@ -47,7 +47,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		cell_paths = ap.get_cells()
 		time = read_stacked_columns(cell_paths, 'Main', 'time').squeeze() / 60  # min
 		counts_to_molar = read_stacked_columns(cell_paths, 'EnzymeKinetics', 'countsToMolar').squeeze()
-		synth_prob = read_stacked_columns(cell_paths, 'RnaSynthProb', 'rnaSynthProb')
+		synth_prob_per_cistron = read_stacked_columns(cell_paths, 'RnaSynthProb', 'rna_synth_prob_per_cistron')
 		reaction_rates = np.vstack((
 			read_stacked_columns(cell_paths, 'GrowthLimits', 'rela_syn').sum(axis=1),
 			read_stacked_columns(cell_paths, 'GrowthLimits', 'spot_syn').squeeze(),
@@ -55,8 +55,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			)).T
 		ppgpp_count, = read_stacked_bulk_molecules(cell_paths, [sim_data.molecule_ids.ppGpp])
 		ppgpp_conc = ppgpp_count * counts_to_molar * 1000  # uM
-		mrna_count = read_stacked_columns(cell_paths, 'mRNACounts', 'mRNA_counts')
-		synthase_counts = mrna_count[:, synthase_rna_idx_mrnas]
+		mrna_cistron_count = read_stacked_columns(cell_paths, 'mRNACounts', 'mRNA_cistron_counts')
+		synthase_counts = mrna_cistron_count[:, synthase_cistron_idx_mrnas]
 
 		extra_plots = 4  # traces in addition to fractions
 		grid_spec = GridSpec(n_fractions+extra_plots, 1)
@@ -81,7 +81,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Synthase probabilities
 		ax = plt.subplot(grid_spec[2, 0])
-		ax.plot(time, synth_prob[:, synthase_rna_idx_all_rnas], alpha=0.8)
+		ax.plot(time, synth_prob_per_cistron[:, synthase_cistron_idx_all_cistrons], alpha=0.8)
 		ax.legend(synthase_order, fontsize=8)
 		ax.set_ylabel('RNA synth prob', fontsize=10)
 		self.remove_border(ax=ax, bottom=True)
@@ -96,7 +96,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Sum of probabilities for RNA fractions
 		for i, fraction in enumerate(fractions):
 			ax = plt.subplot(grid_spec[i+extra_plots, 0])
-			ax.plot(time, synth_prob[:, rna_data[fraction]].sum(1))
+			ax.plot(time, synth_prob_per_cistron[:, cistron_data[fraction]].sum(1))
 			ax.set_ylabel(fraction, fontsize=10)
 			self.remove_border(ax=ax, bottom=(i != n_fractions - 1))
 

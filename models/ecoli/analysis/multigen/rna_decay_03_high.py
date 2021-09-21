@@ -1,16 +1,16 @@
 """
 Plot dynamic traces of genes with high expression (> 20 counts of mRNA)
 
-EG10367_RNA[c]	24.8	gapA	Glyceraldehyde 3-phosphate dehydrogenase
-EG11036_RNA[c]	25.2	tufA	Elongation factor Tu
-EG50002_RNA[c]	26.2	rpmA	50S Ribosomal subunit protein L27
-EG10671_RNA[c]	30.1	ompF	Outer membrane protein F
-EG50003_RNA[c]	38.7	acpP	Apo-[acyl carrier protein]
-EG10669_RNA[c]	41.1	ompA	Outer membrane protein A
-EG10873_RNA[c]	44.7	rplL	50S Ribosomal subunit protein L7/L12 dimer
-EG12179_RNA[c]	46.2	cspE	Transcription antiterminator and regulator of RNA stability
-EG10321_RNA[c]	53.2	fliC	Flagellin
-EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
+EG10367_RNA	24.8	gapA	Glyceraldehyde 3-phosphate dehydrogenase
+EG11036_RNA	25.2	tufA	Elongation factor Tu
+EG50002_RNA	26.2	rpmA	50S Ribosomal subunit protein L27
+EG10671_RNA	30.1	ompF	Outer membrane protein F
+EG50003_RNA	38.7	acpP	Apo-[acyl carrier protein]
+EG10669_RNA	41.1	ompA	Outer membrane protein A
+EG10873_RNA	44.7	rplL	50S Ribosomal subunit protein L7/L12 dimer
+EG12179_RNA	46.2	cspE	Transcription antiterminator and regulator of RNA stability
+EG10321_RNA	53.2	fliC	Flagellin
+EG10544_RNA	97.5	lpp		Murein lipoprotein
 """
 
 from __future__ import absolute_import, division, print_function
@@ -32,11 +32,11 @@ from six.moves import zip
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		allRnaIds = sim_data.process.transcription.rna_data["id"].tolist()
+		all_cistron_ids = sim_data.process.transcription.cistron_data["id"].tolist()
 
-		rnaIds = [
-			"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
-			"EG10669_RNA[c]", "EG10873_RNA[c]", "EG12179_RNA[c]", "EG10321_RNA[c]", "EG10544_RNA[c]",
+		cistron_ids = [
+			"EG10367_RNA", "EG11036_RNA", "EG50002_RNA", "EG10671_RNA", "EG50003_RNA",
+			"EG10669_RNA", "EG10873_RNA", "EG12179_RNA", "EG10321_RNA", "EG10544_RNA",
 			]
 		names = [
 			"gapA - Glyceraldehyde 3-phosphate dehydrogenase",
@@ -51,16 +51,16 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			"lpp - Murein lipoprotein",
 		]
 
-		rnaIdxs = [allRnaIds.index(x) for x in rnaIds]
-		degRates = sim_data.process.transcription.rna_data['deg_rate'][rnaIdxs]
+		cistron_idxs = [all_cistron_ids.index(x) for x in cistron_ids]
+		deg_rates = sim_data.process.transcription.cistron_data['deg_rate'][cistron_idxs]
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get all cells
 		allDir = ap.get_cells()
 
-		rnaDegradedCounts = []
-		rnaCounts = []
+		rna_cistron_degraded_counts = []
+		rna_cistron_counts = []
 		dts = []
 
 		N = 100
@@ -75,18 +75,18 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			dts.append(main_reader.readColumn("timeStepSec"))
 
 			rnaDegradationListener = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
-			rnaDegradedCounts.append(rnaDegradationListener.readColumn('countRnaDegraded')[:, rnaIdxs])
+			rna_cistron_degraded_counts.append(rnaDegradationListener.readColumn('count_RNA_degraded_per_cistron')[:, cistron_idxs])
 
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			rnaIndexes = np.array([all_mRNA_ids.index(x) for x in rnaIds], int)
-			rnaCounts.append(mRNA_counts_reader.readColumn("mRNA_counts")[:, rnaIndexes])
+			all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+			cistron_indexes = np.array([all_mRNA_cistron_ids.index(x) for x in cistron_ids], int)
+			rna_cistron_counts.append(mRNA_counts_reader.readColumn("mRNA_cistron_counts")[:, cistron_indexes])
 
 		rnaDegradedCountsAveraged = []
 		rnaCountsAveraged = []
 
-		for dt, rnaDegradedCount, rnaCount in zip(dts, rnaDegradedCounts, rnaCounts):
+		for dt, rnaDegradedCount, rnaCount in zip(dts, rna_cistron_degraded_counts, rna_cistron_counts):
 			tmpArray = np.nan * np.ones_like(rnaDegradedCount)
 			for colIdx in range(tmpArray.shape[1]):
 				tmpArray[:, colIdx] = np.convolve(rnaDegradedCount[:, colIdx] / dt, np.ones(N) / N, mode = "same")
@@ -127,7 +127,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			plt.title(names[subplotIdx].split(" - ")[0] +
 				"\n" +
 				"kdeg meas: %0.1e\n" % (kdeg,) +
-				"kdeg exp:  %0.1e" % degRates[subplotIdx].asNumber(1 / units.s),
+				"kdeg exp:  %0.1e" % deg_rates[subplotIdx].asNumber(1 / units.s),
 				size = 10,
 				)
 

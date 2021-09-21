@@ -12,7 +12,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import (exportFigure, read_stacked_columns)
 from wholecell.io.tablereader import TableReader
 
-TU_ID = 'EG10001_RNA[c]'
+TU_ID = 'EG10397_RNA[c]'
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):

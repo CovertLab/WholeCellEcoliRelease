@@ -36,8 +36,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 
 		trpRIndex = tf_ids.index("CPLX-125")
-		target_ids = six.viewkeys(sim_data.tf_to_fold_change["CPLX-125"])
-		target_idx = np.array([rna_ids.index(target_id + "[c]") for target_id in target_ids])
+		target_ids = sim_data.relation.tf_id_to_target_RNAs["CPLX-125"]
+		target_idx = np.array([rna_ids.index(target_id) for target_id in target_ids])
 
 		plt.figure(figsize = (10, 15))
 		nRows = 10
@@ -67,8 +67,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from mRNA counts listener
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+			all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
 
 			# Load data from RnaSynthProb listener
 			rna_synth_prob_reader = TableReader(
@@ -112,10 +112,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			trpABComplexIndex = np.array([bulkMoleculeIds.index(x) for x in trpABComplexId])
 			trpABComplexCounts = bulkMoleculeCounts[:, trpABComplexIndex].reshape(-1)
 
-			# Get the amount of trpA mRNA
-			trpARnaId = ["EG11024_RNA[c]"]
-			trpARnaIndex = np.array([all_mRNA_ids.index(x) for x in trpARnaId])
-			trpARnaCounts = mRNA_counts[:, trpARnaIndex].reshape(-1)
+			# Get the amount of trpA mRNA cistrons
+			trpA_cistron_id = ["EG11024_RNA"]
+			trpA_cistron_index = np.array([all_mRNA_cistron_ids.index(x) for x in trpA_cistron_id])
+			trpA_cistron_counts = mRNA_cistron_counts[:, trpA_cistron_index].reshape(-1)
 
 			# Compute total counts and concentration of trpA in monomeric and complexed form
 			# (we know the stoichiometry)
@@ -124,8 +124,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			trpAProteinTotalConcentration = trpAProteinTotalMols * 1. / volume
 
 			# Compute concentration of trpA mRNA
-			trpARnaMols = 1. / nAvogadro * trpARnaCounts
-			trpARnaConcentration = trpARnaMols * 1. / volume
+			trpA_cistron_mols = 1. / nAvogadro * trpA_cistron_counts
+			trpA_cistron_concentration = trpA_cistron_mols * 1. / volume
 
 			# Compute the trpA mass in the cell
 			trpAMw = sim_data.getter.get_masses(trpAProteinId)
@@ -136,8 +136,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Get the synthesis probability for all regulated genes
 			synthProbs = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, target_idx]
-
-			trpRBound = rna_synth_prob_reader.readColumn("nActualBound")[:,trpRIndex]
+			trpRBound = rna_synth_prob_reader.readColumn("nActualBound")[:, trpRIndex]
 
 			rna_synth_prob_reader.close()
 
@@ -248,8 +247,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			##############################################################
 			ax = self.subplot(nRows, 1, 7)
-			ax.plot(time, trpARnaCounts, color = "b")
-			plt.ylabel("TrpA mRNA Counts", fontsize = 6)
+			ax.plot(time, trpA_cistron_counts, color = "b")
+			plt.ylabel("TrpA mRNA cistron counts", fontsize = 6)
 
 			ymin, ymax = ax.get_ylim()
 			ax.set_yticks([ymin, ymax])
@@ -263,8 +262,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			##############################################################
 			ax = self.subplot(nRows, 1, 8)
-			ax.plot(time, trpARnaConcentration.asNumber(units.umol / units.L), color = "b")
-			plt.ylabel("TrpA mRNA Concentration", fontsize = 6)
+			ax.plot(time, trpA_cistron_concentration.asNumber(units.umol / units.L), color = "b")
+			plt.ylabel("TrpA mRNA cistron\nconcentration", fontsize = 6)
 
 			ymin, ymax = ax.get_ylim()
 			ax.set_yticks([ymin, ymax])

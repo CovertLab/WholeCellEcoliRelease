@@ -26,14 +26,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
-		essential_RNAs = validation_data.essential_genes.essential_RNAs
+		essential_cistrons = validation_data.essential_genes.essential_cistrons
 
-		# Get mRNA data
+		# Get mRNA cistron data
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rna_data["id"]
-		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
-		mRnaIndexes = np.where(isMRna)[0]
-		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
+		cistron_ids = sim_data.process.transcription.cistron_data["id"]
+		is_mRNA = sim_data.process.transcription.cistron_data['is_mRNA']
+		mRNA_cistron_indexes = np.where(is_mRNA)[0]
+		mRNA_cistron_ids = np.array([cistron_ids[x] for x in mRNA_cistron_indexes])
 
 		# Get whether or not mRNAs were transcribed
 		time = []
@@ -46,20 +46,18 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
-			rnaSynthProb.close()
+			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rna_synth_prob_per_cistron")[:, mRNA_cistron_indexes], axis = 0)
 			simulatedSynthProbs.append(simulatedSynthProb)
 
 			mRNA_counts_reader = TableReader(
 				os.path.join(simOutDir, 'mRNACounts'))
-			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_cistron_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 			transcribedBool.append(mRnasTranscribed)
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")[:, mRnaIndexes]
-			rnapDataReader.close()
+			rnaInitEvent = rnapDataReader.readColumn("rna_init_event_per_cistron")[:, mRNA_cistron_indexes]
 
 			if gen == 0:
 				transcriptionEvents = (rnaInitEvent != 0)
@@ -73,7 +71,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
 		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
-		mRnaIdsOrdered = mRnaIds[indexingOrder]
+		mRNA_cistron_ids_ordered = mRNA_cistron_ids[indexingOrder]
 
 		alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
 		neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
@@ -90,7 +88,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if transcriptionEventsOrdered[:, i].sum() == 0:
 				v = [-1]
 
-			if mRnaIdsOrdered[i] in essential_RNAs:
+			if mRNA_cistron_ids_ordered[i] in essential_cistrons:
 				alwaysTranscriptionEvents_E.append(v)
 			else:
 				alwaysTranscriptionEvents_N.append(v)
@@ -102,7 +100,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if transcriptionEventsOrdered[:, i].sum() == 0:
 				v = [-1]
 
-			if mRnaIdsOrdered[i] in essential_RNAs:
+			if mRNA_cistron_ids_ordered[i] in essential_cistrons:
 				neverTranscriptionEvents_E.append(v)
 			else:
 				neverTranscriptionEvents_N.append(v)
@@ -115,7 +113,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if transcriptionEventsOrdered[:, i].sum() == 0:
 				v = [-1]
 
-			if mRnaIdsOrdered[i] in essential_RNAs:
+			if mRNA_cistron_ids_ordered[i] in essential_cistrons:
 				sometimesTranscriptionEvents_E.append(v)
 			else:
 				sometimesTranscriptionEvents_N.append(v)

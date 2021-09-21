@@ -1014,13 +1014,22 @@ def setRNADegRates(sim_data):
 	sim_data. It takes their current degradation rate and multiplies them by the
 	factor specified in adjustments.
 	"""
-	cistron_ids = set(sim_data.process.transcription.cistron_data['id'])
+	cistron_id_to_index = {
+		cistron_id: i for (i, cistron_id)
+		in enumerate(sim_data.process.transcription.cistron_data['id'])
+		}
 	rna_id_to_index = {
 		rna_id[:-3]: i for (i, rna_id)
 		in enumerate(sim_data.process.transcription.rna_data['id'])}
 
 	for mol_id in sim_data.adjustments.rna_deg_rates_adjustments:
-		if mol_id in cistron_ids:
+		if mol_id in cistron_id_to_index:
+			# Multiply the cistron degradation rate with the specified
+			# adjustment factor (Note: these rates are not actually used by the
+			# simulation but are still adjusted for bookkeeping purposes)
+			cistron_index = cistron_id_to_index[mol_id]
+			sim_data.process.transcription.cistron_data.struct_array["deg_rate"][cistron_index] *= sim_data.adjustments.rna_deg_rates_adjustments[mol_id]
+
 			# Find indexes of all RNAs containing the cistron
 			rna_indexes = sim_data.process.transcription.cistron_id_to_rna_indexes(mol_id)
 		elif mol_id in rna_id_to_index:

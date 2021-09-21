@@ -35,7 +35,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 
 		tyrRIndex = tf_ids.index("MONOMER0-162")
-		tyrA_rna_index = rna_ids.index("EG11039_RNA[c]")
+		tyrA_cistron_id = "EG11039_RNA"
+		tyrA_rna_indexes = sim_data.process.transcription.cistron_id_to_rna_indexes(
+			tyrA_cistron_id)
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -84,7 +86,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrRInactiveCounts = bulkMoleculeCounts[:, tyrRInactiveIndex].reshape(-1)
 
 			# Get the promoter-bound status of the tyrA gene
-			tyrATfBoundCounts = n_bound_TF_per_TU[:, tyrA_rna_index, tyrRIndex].reshape(-1)
+			tyrATfBoundCounts = n_bound_TF_per_TU[:, tyrA_rna_indexes, tyrRIndex].reshape(-1)
 
 			# Get the amount of monomeric tyrA
 			tyrAProteinId = ["CHORISMUTPREPHENDEHYDROG-MONOMER[c]"]
@@ -106,11 +108,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Get the tyrA synthesis probability
 			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-
-			rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
-			tyrASynthProbId = ["EG11039_RNA[c]"]
-			tyrASynthProbIndex = np.array([rnaIds.index(x) for x in tyrASynthProbId])
-			tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tyrASynthProbIndex].reshape(-1)
+			cistron_ids = rnaSynthProbReader.readAttribute("cistron_ids")
+			tyrA_cistron_synth_prob_id = ["EG11039_RNA"]
+			tyrA_cistron_synth_prob_index = np.array([
+				cistron_ids.index(x) for x in tyrA_cistron_synth_prob_id])
+			tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[
+				:, tyrA_cistron_synth_prob_index].reshape(-1)
 
 			tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
 
