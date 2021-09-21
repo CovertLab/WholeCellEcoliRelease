@@ -25,6 +25,10 @@ def apply_variant(sim_data_file, variant_type, variant_index):
 
 	info, sim_data = nameToFunctionMapping[variant_type](sim_data, variant_index)
 
+	if getattr(sim_data, 'operons_on', ''):
+		info["shortName"] += ", operons"
+		info["desc"] += ", operons"
+
 	print("Variant short name:", info["shortName"])
 
 	return info, sim_data
