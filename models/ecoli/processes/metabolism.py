@@ -140,6 +140,7 @@ class Metabolism(wholecell.processes.process.Process):
 		translation_gtp = self._sim.processes["PolypeptideElongation"].gtp_to_hydrolyze
 		cell_mass = self.readFromListener("Mass", "cellMass") * units.fg
 		dry_mass = self.readFromListener("Mass", "dryMass") * units.fg
+		rp_ratio = self.readFromListener('Mass', 'rnaMass') / self.readFromListener('Mass', 'proteinMass')
 
 		## Get environment updates
 		environment = self._external_states['Environment']
@@ -155,7 +156,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		## Determine updates to concentrations depending on the current state
 		doubling_time = self.nutrientToDoublingTime.get(current_media_id, self.nutrientToDoublingTime["minimal"])
-		conc_updates = self.model.getBiomassAsConcentrations(doubling_time)
+		conc_updates = self.model.getBiomassAsConcentrations(doubling_time, rp_ratio=rp_ratio)
 		if self.use_trna_charging:
 			conc_updates.update(self.update_amino_acid_targets(counts_to_molar))
 		if self.include_ppgpp:
@@ -332,7 +333,7 @@ class FluxBalanceAnalysisModel(object):
 		self.exchange_constraints = metabolism.exchange_constraints
 
 		self._biomass_concentrations = {}  # type: dict
-		self._getBiomassAsConcentrations = mass.getBiomassAsConcentrations
+		self.getBiomassAsConcentrations = mass.getBiomassAsConcentrations
 
 		# Include ppGpp concentration target in objective if not handled kinetically in other processes
 		self.ppgpp_id = sim_data.molecule_ids.ppGpp
@@ -427,26 +428,6 @@ class FluxBalanceAnalysisModel(object):
 		self.metabolite_names = {met: i for i, met in enumerate(self.fba.getOutputMoleculeIDs())}
 		self.aa_names_no_location = [x[:-3] for x in sorted(sim_data.amino_acid_code_to_id_ordered.values())]
 
-	def getBiomassAsConcentrations(self, doubling_time):
-		"""
-		Caches the result of the sim_data function to improve performance since
-		function requires computation but won't change for a given doubling_time.
-
-		Args:
-			doubling_time (float with time units): doubling time of the cell to
-				get the metabolite concentrations for
-
-		Returns:
-			dict {str : float with concentration units}: dictionary with metabolite
-				IDs as keys and concentrations as values
-		"""
-
-		minutes = doubling_time.asNumber(units.min)  # hashable
-		if minutes not in self._biomass_concentrations:
-			self._biomass_concentrations[minutes] = self._getBiomassAsConcentrations(doubling_time)
-
-		return self._biomass_concentrations[minutes]
-
 	def update_external_molecule_levels(self, objective,
 			metabolite_concentrations, external_molecule_levels):
 		"""
@@ -517,6 +498,7 @@ class FluxBalanceAnalysisModel(object):
 			current_media_id, unconstrained, constrained, conc_updates,
 			)
 		self.fba.update_homeostatic_targets(objective)
+		self.homeostatic_objective = objective
 
 		# Internal concentrations
 		metabolite_conc = counts_to_molar * metabolite_counts

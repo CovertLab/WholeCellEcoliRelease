@@ -94,14 +94,23 @@ class Mass(object):
 				/ sim_data.constants.n_avogadro
 			).asUnit(units.g)
 
-	def _getFitParameters(self, dryMassComposition, massFractionName):
-		massFraction = np.array([float(x[massFractionName]) for x in dryMassComposition])
+	def _getFitParameters(self, dry_mass_composition, mass_fraction_name):
+		mass_fraction = np.array([float(x[mass_fraction_name]) for x in dry_mass_composition])
+
+		# Doubling time interpolation
 		x = self._doubling_time_vector.asNumber(units.min)[::-1]
-		y = massFraction[::-1]
-		massParams = interpolate.splrep(x, y)
-		if np.sum(np.absolute(interpolate.splev(self._doubling_time_vector.asNumber(units.min), massParams) - massFraction)) / massFraction.size > 1.:
-			raise Exception("Fitting {} with double exponential, residuals are huge!".format(massFractionName))
-		return massParams
+		y = mass_fraction[::-1]
+		dt_params = interpolate.splrep(x, y)
+		if np.sum(np.absolute(interpolate.splev(self._doubling_time_vector.asNumber(units.min), dt_params) - mass_fraction)) / mass_fraction.size > 1.:
+			raise Exception("Fitting {} with double exponential, residuals are huge!".format(mass_fraction_name))
+
+		# RNA/protein ratio interpolation
+		rna = np.array([float(x['rnaMassFraction']) for x in dry_mass_composition])
+		protein = np.array([float(x['proteinMassFraction']) for x in dry_mass_composition])
+		rp_ratio = rna / protein
+		rp_params = interpolate.splrep(rp_ratio, mass_fraction)
+
+		return dt_params, rp_params
 
 	def _build_CD_periods(self, raw_data, sim_data):
 		self._c_period = sim_data.constants.c_period
@@ -159,14 +168,14 @@ class Mass(object):
 		D["dna"] = dnaMassFraction.asNumber()
 
 		doubling_time = self._clipTau_d(doubling_time)
-		D["protein"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._proteinMassFractionParams))
-		D["rna"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._rnaMassFractionParams))
-		D["lipid"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._lipidMassFractionParams))
-		D["lps"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._lpsMassFractionParams))
-		D["murein"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._mureinMassFractionParams))
-		D["glycogen"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._glycogenMassFractionParams))
-		D["solublePool"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._solublePoolMassFractionParams))
-		D["inorganicIon"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._inorganicIonMassFractionParams))
+		D["protein"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._proteinMassFractionParams[0]))
+		D["rna"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._rnaMassFractionParams[0]))
+		D["lipid"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._lipidMassFractionParams[0]))
+		D["lps"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._lpsMassFractionParams[0]))
+		D["murein"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._mureinMassFractionParams[0]))
+		D["glycogen"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._glycogenMassFractionParams[0]))
+		D["solublePool"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._solublePoolMassFractionParams[0]))
+		D["inorganicIon"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._inorganicIonMassFractionParams[0]))
 
 		total = np.sum([y for y in six.viewvalues(D)])
 		for key, value in six.viewitems(D):
@@ -175,6 +184,15 @@ class Mass(object):
 		assert np.absolute(np.sum([x for x in six.viewvalues(D)]) - 1.) < 1e-3
 		return D
 
+	def get_mass_fractions_from_rna_protein_ratio(self, ratio):
+		D = {}
+		D["lipid"] = float(interpolate.splev(ratio, self._lipidMassFractionParams[1]))
+		D["lps"] = float(interpolate.splev(ratio, self._lpsMassFractionParams[1]))
+		D["murein"] = float(interpolate.splev(ratio, self._mureinMassFractionParams[1]))
+		D["glycogen"] = float(interpolate.splev(ratio, self._glycogenMassFractionParams[1]))
+		D["solublePool"] = float(interpolate.splev(ratio, self._solublePoolMassFractionParams[1]))
+		D["inorganicIon"] = float(interpolate.splev(ratio, self._inorganicIonMassFractionParams[1]))
+		return D
 
 	def get_component_masses(self, doubling_time):
 		D = {}
@@ -198,7 +216,7 @@ class Mass(object):
 			'mrna': self._mrna_mass_sub_fraction,
 			}
 
-	def getBiomassAsConcentrations(self, doubling_time):
+	def getBiomassAsConcentrations(self, doubling_time, rp_ratio=None):
 
 		avgCellDryMassInit = self.get_avg_cell_dry_mass(doubling_time) / self.avg_cell_to_initial_cell_conversion_factor
 		avgCellWaterMassInit = (avgCellDryMassInit / self.cell_dry_mass_fraction) * self.cell_water_mass_fraction
@@ -210,7 +228,10 @@ class Mass(object):
 
 		initCellVolume = initCellMass / self._cellDensity.asNumber(units.g / units.L) # L
 
-		massFraction = self.get_mass_fractions(doubling_time)
+		if rp_ratio is None:
+			massFraction = self.get_mass_fractions(doubling_time)
+		else:
+			massFraction = self.get_mass_fractions_from_rna_protein_ratio(rp_ratio)
 
 		metaboliteIDs = []
 		metaboliteConcentrations = []
