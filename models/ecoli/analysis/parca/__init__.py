@@ -6,8 +6,9 @@ ACTIVE = [
 	'aa_synthesis_enzymes.py',
 	'aa_synthesis_pathways.py',
 	'amino_acid_uptake_rates.py',
-	'expression_least_square_residuals.py',
+	'mRNA_cistron_expression.py',
 	'expression_probabilities.py',
+	'fit_cistron_expression_ls_residuals.py',
 	'fold_changes.py',
 	'interpolation.py',
 	'metabolite_concentrations.py',
@@ -36,6 +37,6 @@ TAGS = {
 	'VALIDATION': [
 		'aa_synthesis_enzymes.py',
 		'amino_acid_uptake_rates.py',
-		'expression_least_square_residuals.py',
+		'fit_cistron_expression_ls_residuals.py',
 		],
 	}

@@ -251,7 +251,8 @@ def tf_condition_specs(sim_data, cell_specs, cpus=1,
 
 		sim_data.process.transcription.rna_expression[conditionKey] = cell_specs[conditionKey]["expression"]
 		sim_data.process.transcription.rna_synth_prob[conditionKey] = cell_specs[conditionKey]["synthProb"]
-		sim_data.process.transcription.cistron_expression[conditionKey] = cell_specs[conditionKey]['cistron_expression']
+		sim_data.process.transcription.cistron_expression[conditionKey] = cell_specs[conditionKey]["cistron_expression"]
+		sim_data.process.transcription.fit_cistron_expression[conditionKey] = cell_specs[conditionKey]["fit_cistron_expression"]
 
 	buildCombinedConditionCellSpecifications(
 		sim_data,
@@ -475,9 +476,9 @@ def buildBasalCellSpecifications(
 	- dict {'basal': dict} with the following keys in the dict from key 'basal':
 		'concDict' {metabolite_name (str): concentration (float with units)} -
 			dictionary of concentrations for each metabolite with a concentration
-		'cistron_expression' (array of floats) - hypothetical expression for
-			each RNA cistron, total normalized to 1, if all transcription units
-			were monocistronic
+		'fit_cistron_expression' (array of floats) - hypothetical expression for
+			each RNA cistron post-fit, total normalized to 1, if all
+			transcription units were monocistronic
 		'expression' (array of floats) - expression for each RNA, total normalized to 1
 		'doubling_time' (float with units) - cell doubling time
 		'synthProb' (array of floats) - synthesis probability for each RNA,
@@ -502,7 +503,7 @@ def buildBasalCellSpecifications(
 		}
 
 	# Determine expression and synthesis probabilities
-	expression, synthProb, cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, _ = expressionConverge(
+	expression, synthProb, fit_cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, _ = expressionConverge(
 		sim_data,
 		cell_specs["basal"]["expression"],
 		cell_specs["basal"]["concDict"],
@@ -516,7 +517,7 @@ def buildBasalCellSpecifications(
 	# Store calculated values
 	cell_specs["basal"]["expression"] = expression
 	cell_specs["basal"]["synthProb"] = synthProb
-	cell_specs["basal"]["cistron_expression"] = cistron_expression
+	cell_specs["basal"]["fit_cistron_expression"] = fit_cistron_expression
 	cell_specs["basal"]["avgCellDryMassInit"] = avgCellDryMassInit
 	cell_specs["basal"]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
 	cell_specs["basal"]["bulkContainer"] = bulkContainer
@@ -530,7 +531,7 @@ def buildBasalCellSpecifications(
 	# Modify sim_data expression
 	sim_data.process.transcription.rna_expression["basal"][:] = cell_specs["basal"]["expression"]
 	sim_data.process.transcription.rna_synth_prob["basal"][:] = cell_specs["basal"]["synthProb"]
-	sim_data.process.transcription.cistron_expression["basal"][:] = cell_specs["basal"]["cistron_expression"]
+	sim_data.process.transcription.fit_cistron_expression["basal"] = cell_specs["basal"]["fit_cistron_expression"]
 
 	return cell_specs
 
@@ -574,8 +575,11 @@ def buildTfConditionCellSpecifications(
 		'synthProb' (array of floats) - synthesis probability for each RNA,
 			total normalized to 1
 		'cistron_expression' (array of floats) - hypothetical expression for
-			each RNA cistron, total normalized to 1, if all transcription units
-			were monocistronic
+			each RNA cistron, calculated from basal cistron expression levels
+			and fold change data
+		'fit_cistron_expression' (array of floats) - hypothetical expression for
+			each RNA cistron post-fit, total normalized to 1, if all
+			transcription units were monocistronic
 		'avgCellDryMassInit' (float with units) - average initial cell dry mass
 		'fitAvgSolubleTargetMolMass' (float with units) - the adjusted dry mass
 			of the soluble fraction of a cell
@@ -597,7 +601,7 @@ def buildTfConditionCellSpecifications(
 			fcDataTmp = sim_data.tf_to_fold_change[tf].copy()
 			for key, value in six.viewitems(fcDataTmp):
 				fcData[key] = 1. / value
-		expression = expressionFromConditionAndFoldChange(
+		expression, cistron_expression = expressionFromConditionAndFoldChange(
 			sim_data.process.transcription,
 			conditionValue["perturbations"],
 			fcData,
@@ -620,7 +624,7 @@ def buildTfConditionCellSpecifications(
 			}
 
 		# Determine expression and synthesis probabilities
-		expression, synthProb, cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
+		expression, synthProb, fit_cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
 			sim_data,
 			cell_specs[conditionKey]["expression"],
 			cell_specs[conditionKey]["concDict"],
@@ -635,7 +639,8 @@ def buildTfConditionCellSpecifications(
 		# Store calculated values
 		cell_specs[conditionKey]["expression"] = expression
 		cell_specs[conditionKey]["synthProb"] = synthProb
-		cell_specs[conditionKey]['cistron_expression'] = cistron_expression
+		cell_specs[conditionKey]["cistron_expression"] = cistron_expression
+		cell_specs[conditionKey]["fit_cistron_expression"] = fit_cistron_expression
 		cell_specs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
 		cell_specs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
 		cell_specs[conditionKey]["bulkContainer"] = bulkContainer
@@ -697,7 +702,7 @@ def buildCombinedConditionCellSpecifications(
 			for gene, fc in sim_data.tf_to_fold_change[tf].items():
 				fcData[gene] = fcData.get(gene, 1) / fc
 
-		expression = expressionFromConditionAndFoldChange(
+		expression, cistron_expression = expressionFromConditionAndFoldChange(
 			sim_data.process.transcription,
 			conditionValue["perturbations"],
 			fcData,
@@ -720,7 +725,7 @@ def buildCombinedConditionCellSpecifications(
 			}
 
 		# Determine expression and synthesis probabilities
-		expression, synthProb, cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
+		expression, synthProb, fit_cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
 			sim_data,
 			cell_specs[conditionKey]["expression"],
 			cell_specs[conditionKey]["concDict"],
@@ -734,7 +739,8 @@ def buildCombinedConditionCellSpecifications(
 		# Modify cell_specs for calculated values
 		cell_specs[conditionKey]["expression"] = expression
 		cell_specs[conditionKey]["synthProb"] = synthProb
-		cell_specs[conditionKey]['cistron_expression'] = cistron_expression
+		cell_specs[conditionKey]["cistron_expression"] = cistron_expression
+		cell_specs[conditionKey]["fit_cistron_expression"] = fit_cistron_expression
 		cell_specs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
 		cell_specs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
 		cell_specs[conditionKey]["bulkContainer"] = bulkContainer
@@ -742,7 +748,8 @@ def buildCombinedConditionCellSpecifications(
 		# Modify sim_data expression
 		sim_data.process.transcription.rna_expression[conditionKey] = cell_specs[conditionKey]["expression"]
 		sim_data.process.transcription.rna_synth_prob[conditionKey] = cell_specs[conditionKey]["synthProb"]
-		sim_data.process.transcription.cistron_expression[conditionKey] = cell_specs[conditionKey]['cistron_expression']
+		sim_data.process.transcription.cistron_expression[conditionKey] = cell_specs[conditionKey]["cistron_expression"]
+		sim_data.process.transcription.fit_cistron_expression[conditionKey] = cell_specs[conditionKey]["fit_cistron_expression"]
 
 def expressionConverge(
 		sim_data,
@@ -823,7 +830,7 @@ def expressionConverge(
 				variable_elongation_translation)
 
 		# Normalize expression and write out changes
-		expression, synthProb, cistron_expression, cistron_expression_res = fitExpression(
+		expression, synthProb, fit_cistron_expression, cistron_expression_res = fitExpression(
 			sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - expression)))
@@ -837,7 +844,7 @@ def expressionConverge(
 	else:
 		raise Exception("Fitting did not converge")
 
-	return expression, synthProb, cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
+	return expression, synthProb, fit_cistron_expression, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
 
 def fitCondition(sim_data, spec, condition):
 	"""
@@ -1681,9 +1688,9 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 
 	# Calculate current expression levels of each cistron given the RNA
 	# expression levels
-	cistron_expression = normalize(
+	fit_cistron_expression = normalize(
 		cistron_tu_mapping_matrix.dot(view_RNA.counts()))
-	mRNA_cistron_expression_frac = cistron_expression[
+	mRNA_cistron_expression_frac = fit_cistron_expression[
 		sim_data.process.transcription.cistron_data['is_mRNA']].sum()
 
 	# Calculate required mRNA expression from monomer counts
@@ -1700,14 +1707,14 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 		)
 
 	# Replace mRNA cistron expression with values calculated from monomer counts
-	cistron_expression[
+	fit_cistron_expression[
 		sim_data.process.transcription.cistron_data['is_mRNA']
 		] = mRNA_cistron_expression_frac * mRNA_cistron_distribution
 
 	# Use least squares to calculate expression of transcription units required
 	# to generate the given cistron expression levels and the residuals for
 	# the expression of each cistron
-	fit_tu_expression, cistron_expression_res = sim_data.process.transcription.fit_rna_expression(cistron_expression)
+	fit_tu_expression, cistron_expression_res = sim_data.process.transcription.fit_rna_expression(fit_cistron_expression)
 	fit_mRNA_tu_expression = fit_tu_expression[
 		sim_data.process.transcription.rna_data['is_mRNA']]
 
@@ -1749,7 +1756,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 
 	synthProb = normalize(rnaLossRate.asNumber(1 / units.min))
 
-	return expression, synthProb, cistron_expression, cistron_expression_res
+	return expression, synthProb, fit_cistron_expression, cistron_expression_res
 
 def fitMaintenanceCosts(sim_data, bulkContainer):
 	"""
@@ -2274,35 +2281,52 @@ def expressionFromConditionAndFoldChange(transcription, condPerturbations, tfFCs
 	included in tfFCs
 	"""
 	cistron_ids = transcription.cistron_data['id']
-	cistron_expression = transcription.cistron_expression['basal'].copy()
+	cistron_expression = transcription.fit_cistron_expression['basal'].copy()
 
 	# Gather indices and fold changes for each cistron that will be adjusted
 	cistron_id_to_index = {
 		cistron_id: i for (i, cistron_id) in enumerate(cistron_ids)
 		}
-	rna_indexes = []
-	rna_fcs = []
+	cistron_indexes = []
+	cistron_fcs = []
 
 	# Compile indexes and fold changes of each cistron
 	for cistron_id, fc_value in tfFCs.items():
 		if cistron_id in condPerturbations:
 			continue
-		rna_indexes.append(cistron_id_to_index[cistron_id])
-		rna_fcs.append(fc_value)
+		cistron_indexes.append(cistron_id_to_index[cistron_id])
+		cistron_fcs.append(fc_value)
 
-	# Sort fold changes and indices for the bool array indexing to work properly
-	rna_fcs = [fc for (cistron_idx, fc) in
-		sorted(zip(rna_indexes, rna_fcs), key = lambda pair: pair[0])]
-	rna_indexes = [cistron_idx for (cistron_idx, fc) in
-		sorted(zip(rna_indexes, rna_fcs), key = lambda pair: pair[0])]
+	def apply_fcs_to_expression(expression, indexes, fcs):
+		"""
+		Applys the fold-change values to an expression vector while keeping the
+		sum of expression values at one.
 
-	# Adjust expression based on fold change and normalize
-	rna_indexes_bool = np.zeros(len(cistron_ids), dtype = np.bool)
-	rna_indexes_bool[rna_indexes] = 1
-	rna_fcs = np.array(rna_fcs)
-	scaleTheRestBy = (1. - (cistron_expression[rna_indexes] * rna_fcs).sum()) / (1. - (cistron_expression[rna_indexes]).sum())
-	cistron_expression[rna_indexes_bool] *= rna_fcs
-	cistron_expression[~rna_indexes_bool] *= scaleTheRestBy
+		Args:
+			expression (np.ndarray of floats): Original expression vector of
+				cistrons or RNAs
+			indexes (List of floats): Indexes of cistrons/RNAs that the
+				fold-changes should be applied to
+			fcs (List of floats): Fold-changes of cistron/RNA expression
+		"""
+		fcs = [fc for (idx, fc) in
+			sorted(zip(indexes, fcs), key=lambda pair: pair[0])]
+		indexes = [idx for (idx, fc) in
+			sorted(zip(indexes, fcs), key=lambda pair: pair[0])]
+
+		# Adjust expression based on fold change and normalize
+		indexes_bool = np.zeros(len(expression), dtype=np.bool)
+		indexes_bool[indexes] = 1
+		fcs = np.array(fcs)
+		scaleTheRestBy = (1. - (expression[indexes] * fcs).sum()) / (
+			1. - (expression[indexes]).sum())
+		expression[indexes_bool] *= fcs
+		expression[~indexes_bool] *= scaleTheRestBy
+
+		return expression
+
+	cistron_expression = apply_fcs_to_expression(
+		cistron_expression, cistron_indexes, cistron_fcs)
 
 	# Use NNLS to map new cistron expression to RNA expression
 	expression, _ = transcription.fit_rna_expression(cistron_expression)
@@ -2311,27 +2335,22 @@ def expressionFromConditionAndFoldChange(transcription, condPerturbations, tfFCs
 	# Apply genotype perturbations to all RNAs that contain each cistron
 	rna_indexes = []
 	rna_fcs = []
+	cistron_perturbation_indexes = []
+	cistron_perturbation_values = []
 
 	for cistron_id, perturbation_value in condPerturbations.items():
 		rna_indexes_with_cistron = transcription.cistron_id_to_rna_indexes(cistron_id)
 		rna_indexes.extend(rna_indexes_with_cistron)
 		rna_fcs.extend([perturbation_value] * len(rna_indexes_with_cistron))
+		cistron_perturbation_indexes.append(cistron_id_to_index[cistron_id])
+		cistron_perturbation_values.append(perturbation_value)
 
-	# Sort fold changes and indices for the bool array indexing to work properly
-	rna_fcs = [fc for (cistron_idx, fc) in
-		sorted(zip(rna_indexes, rna_fcs), key=lambda pair: pair[0])]
-	rna_indexes = [cistron_idx for (cistron_idx, fc) in
-		sorted(zip(rna_indexes, rna_fcs), key=lambda pair: pair[0])]
+	expression = apply_fcs_to_expression(expression, rna_indexes, rna_fcs)
+	# Also apply perturbations to cistrons for bookkeeping purposes
+	cistron_expression = apply_fcs_to_expression(
+		cistron_expression, cistron_perturbation_indexes, cistron_perturbation_values)
 
-	# Adjust expression based on fold change and normalize
-	rna_indexes_bool = np.zeros(len(transcription.rna_data), dtype=np.bool)
-	rna_indexes_bool[rna_indexes] = 1
-	rna_fcs = np.array(rna_fcs)
-	scaleTheRestBy = (1. - (expression[rna_indexes] * rna_fcs).sum()) / (1. - (expression[rna_indexes]).sum())
-	expression[rna_indexes_bool] *= rna_fcs
-	expression[~rna_indexes_bool] *= scaleTheRestBy
-
-	return expression
+	return expression, cistron_expression
 
 def fitPromoterBoundProbability(sim_data, cell_specs):
 	r"""
