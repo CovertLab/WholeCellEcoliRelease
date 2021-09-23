@@ -140,7 +140,6 @@ class Metabolism(wholecell.processes.process.Process):
 		translation_gtp = self._sim.processes["PolypeptideElongation"].gtp_to_hydrolyze
 		cell_mass = self.readFromListener("Mass", "cellMass") * units.fg
 		dry_mass = self.readFromListener("Mass", "dryMass") * units.fg
-		rp_ratio = self.readFromListener('Mass', 'rnaMass') / self.readFromListener('Mass', 'proteinMass')
 
 		## Get environment updates
 		environment = self._external_states['Environment']
@@ -156,11 +155,20 @@ class Metabolism(wholecell.processes.process.Process):
 
 		## Determine updates to concentrations depending on the current state
 		doubling_time = self.nutrientToDoublingTime.get(current_media_id, self.nutrientToDoublingTime["minimal"])
-		conc_updates = self.model.getBiomassAsConcentrations(doubling_time, rp_ratio=rp_ratio)
+		if self.include_ppgpp:
+			# Sim does not include ppGpp regulation so do not update biomass by RNA/protein ratio
+			# and include ppGpp concentration as a homeostatic target
+			conc_updates = self.model.getBiomassAsConcentrations(doubling_time)
+			conc_updates[self.model.ppgpp_id] = self.model.getppGppConc(doubling_time).asUnit(CONC_UNITS)
+		else:
+			# Sim includes ppGpp regulation so update biomass based on RNA/protein ratio
+			# which is controlled by ppGpp and other growth regulation
+			rp_ratio = self.readFromListener('Mass', 'rnaMass') / self.readFromListener('Mass', 'proteinMass')
+			conc_updates = self.model.getBiomassAsConcentrations(doubling_time, rp_ratio=rp_ratio)
+
 		if self.use_trna_charging:
 			conc_updates.update(self.update_amino_acid_targets(counts_to_molar))
-		if self.include_ppgpp:
-			conc_updates[self.model.ppgpp_id] = self.model.getppGppConc(doubling_time).asUnit(CONC_UNITS)
+
 		## Converted from units to make reproduction from listener data
 		## accurate to model results (otherwise can have floating point diffs)
 		conc_updates = {
