@@ -16,13 +16,13 @@ class InitRawDataTask(FiretaskBase):
 	optional_params = ['operons']
 
 	def run_task(self, fw_spec):
-		print("%s: Instantiating raw_data" % (time.ctime(),))
+		operon_option = self.get('operons') or DEFAULT_OPERON_OPTION
+		print(f"{time.ctime()}: Instantiating raw_data with operons={operon_option}")
 
-		operons_on = (self.get('operons') or DEFAULT_OPERON_OPTION) == 'on'
 		raw_data = KnowledgeBaseEcoli(
-			operons_on=operons_on)
+			operons_on=(operon_option == 'on'))
 
-		print("%s: Saving raw_data" % (time.ctime(),))
+		print(f"{time.ctime()}: Saving raw_data")
 
 		with open(self["output"], "wb") as f:
 			cPickle.dump(raw_data, f, protocol = cPickle.HIGHEST_PROTOCOL)

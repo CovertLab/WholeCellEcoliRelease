@@ -30,9 +30,9 @@ class AnalysisPaths(object):
 	it is assumed that all values for that field are desired. If all
 	fields are left blank all cells will be returned.
 
-	For a variant_plot, out_dir should be a top level simulation output dir.
-	For a cohort_plot, out_dir should be a variant output dir.
-	For a multi_gen_plot, out_dir should be a seed output dir.
+	For a variant_plot, out_dir must be a top level simulation output dir.
+	For a cohort_plot, out_dir must be a variant output dir.
+	For a multi_gen_plot, out_dir must be a seed output dir.
 	'''
 
 	def __init__(self, out_dir, variant_plot = False, multi_gen_plot = False, cohort_plot = False):
@@ -46,9 +46,9 @@ class AnalysisPaths(object):
 			variant_out_dirs = []
 			# Consider only those directories which are variant directories
 			for directory in all_dirs:
-				# Accept directories which have a string, an underscore, and then a string
-				# of digits exactly 6 units long
-				if match(r'.*_\d{6}$', directory):
+				# Accept directories which have a variant type, an underscore, and
+				# a 6-digit variant index
+				if match(r'.+_\d{6}$', directory):
 					variant_out_dirs.append(join(out_dir, directory))
 
 			# Check to see if only wildtype variants exist that didn't match the pattern
@@ -165,10 +165,15 @@ class AnalysisPaths(object):
 
 	def get_variants(self):
 		# type: () -> List[Union[int, str]]
+		"""Return all the variants."""
 		return sorted(np.unique(self._path_data["variant"]))
 
 	def _get_generations(self, directory):
 		# type: (str) -> List[List[str]]
+		"""Get a sorted list of the directory's generation paths, each as a list
+		of daughter cell paths.
+		ASSUMES: directory contains "generation_000000" thru "generation_GGGGGG".
+		"""
 		generation_files = [
 			join(directory, f) for f in listdir(directory)
 			if isdir(join(directory, f)) and "generation" in f]  # type: List[str]
@@ -179,6 +184,11 @@ class AnalysisPaths(object):
 
 	def _get_individuals(self, directory):
 		# type: (str) -> List[str]
+		"""Get a sorted list of the directory's daughter cell paths, each of
+		them a place for simOut/ and plotOut/ subdirs.
+		ASSUMES: directory is a generation directory like "generation_000001",
+		each containing numbered daughter subdirs "000000" thru "DDDDDD".
+		"""
 		individual_files = [
 			join(directory, f) for f in listdir(directory)
 			if isdir(join(directory, f))]  # type: List[str]

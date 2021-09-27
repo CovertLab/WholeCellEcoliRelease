@@ -6,22 +6,26 @@ You can reach us at allencentercovertlab@gmail.com
 For docs on how to run the model, see the README.md in the repository.
 
 
-Inside this container you can run (the -h option provides command-line help):
+Inside this container you can run (the -h option provides full command-line help):
 
 > pytest
 
 > python runscripts/manual/runParca.py [-h] [sim_dir]
 
-> python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
+> python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--init-sims INIT_SIMS] [--seed SEED] [sim_dir]
 
-> python runscripts/manual/analysisParca.py [-h] [--verbose] [-p PLOT [PLOT ...]] [-o OUTPUT_PREFIX] [-c CPUS] [--compile | --no-compile] [sim_dir]
+> python runscripts/manual/runDaughter.py [-h] [--variant-index VARIANT_INDEX] [--generation GENERATION] [--seed SEED] [--daughter DAUGHTER] [sim_dir]
 
-> python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [--variant-index VARIANT_INDEX] [sim_dir]
+> python runscripts/manual/analysisParca.py [-h] [-p PLOT [PLOT ...]] [-o OUTPUT_PREFIX] [-c CPUS] [--compile | --no-compile] [sim_dir]
 
-> python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [--variant-index VARIANT_INDEX] [--seed SEED] [sim_dir]
+> python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--variant-range START_VARIANT END_VARIANT] [sim_dir]
 
-> python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [--variant-index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+> python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [--variant-range START_VARIANT END_VARIANT] [--seed-range START_SEED END_SEED] [sim_dir]
 
-> python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [sim_dir]
+> python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [--variant-range START_VARIANT END_VARIANT] [--seed-range START_SEED END_SEED] [--generation-range START_GENERATION END_GENERATION] [sim_dir]
+
+> python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [sim_dir]
 
 > python runscripts/manual/buildCausalityNetwork.py [-h] [--show] [sim_dir]
+
+> python runscripts/manual/analysis_interactive.py [-h] [sim_dir]

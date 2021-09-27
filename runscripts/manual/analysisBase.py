@@ -12,7 +12,8 @@ import sys
 from typing import Any, Dict, Optional
 
 from models.ecoli.analysis.analysisPlot import AnalysisPlot
-from wholecell.utils import constants, data, scriptBase, parallelization, filepath
+from wholecell.utils import constants, data, scriptBase, parallelization
+from wholecell.utils import filepath as fp
 
 
 class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
@@ -100,7 +101,7 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 
 		args.metadata_path = os.path.join(
 			args.sim_path, constants.METADATA_DIR, constants.JSON_METADATA_FILE)
-		args.metadata = filepath.read_json_file(args.metadata_path)
+		args.metadata = fp.read_json_file(args.metadata_path)
 
 		if 'variant_dir' in args:
 			args.variant_dir_name, variant_type, variant_index = args.variant_dir
@@ -109,19 +110,3 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 			metadata['variant_index'] = variant_index
 
 		args.cpus = parallelization.cpus(args.cpus)
-
-
-class TestAnalysis(AnalysisBase):
-	"""To test out the command line parser."""
-
-	def __init__(self):
-		self.plot = AnalysisPlot()
-		super(TestAnalysis, self).__init__(analysis_plotter=self.plot)
-
-	def run(self, analysis_args):
-		print("[TEST] Analysis args:", analysis_args)
-
-
-if __name__ == '__main__':
-	analysis = TestAnalysis()
-	analysis.cli()

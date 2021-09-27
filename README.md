@@ -79,19 +79,19 @@ These scripts have command line interfaces built on `argparse`, so you can use s
 
 To run the parameter calculator (ParCa), which is needed to prepare data for the simulation:
 ```bash
-python runscripts/manual/runParca.py [-h] [--cpus CPUS] [--cached] [sim_outdir]
+python runscripts/manual/runParca.py [-h] [--cpus CPUS] [sim_outdir]
 ```
 
 To simulate one or more cell generations with optional variants:
 
 ```bash
-python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
+python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--init-sims INIT_SIMS] [--seed SEED] [sim_dir]
 ```
 
 To interactively select from the data that is saved during a simulation for visualization:
 
 ```bash
-python runscripts/manual/analysis_interactive.py [-h] [--verbose] [sim_dir]
+python runscripts/manual/analysis_interactive.py [-h] [sim_dir]
 ```
 
 Running the command without any arguments will populate drop down menus for
@@ -105,13 +105,17 @@ To run predefined analysis plots on the simulation output in a given `sim_dir`
 (use the `-h` parameter to get complete help on the command line options):
 
 ```bash
+python runscripts/manual/analysisParca.py [-h] [-p PLOT [PLOT ...]] [--cpus CPUS] [sim_dir]
+
 python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [sim_dir]
 
-python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [sim_dir]
+python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--variant-range START_VARIANT END_VARIANT] [sim_dir]
 
-python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [sim_dir]
+python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [--variant-range START_VARIANT END_VARIANT] [--seed-range START_SEED END_SEED] [sim_dir]
 
-python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [--variant-range START_VARIANT END_VARIANT] [--seed-range START_SEED END_SEED] [--generation-range START_GENERATION END_GENERATION] [sim_dir]
+
+> python runscripts/manual/analysis_interactive.py [-h] [sim_dir]
 ```
 
 If you default the analysis parameters, these scripts will pick the latest simulation directory, the first variant, the first generation, and so on.
@@ -140,7 +144,7 @@ leaks when running the analysis plots.
 There's another way run an individual analysis plot:
 
 ```bash
-python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
+python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
 ```
 
 ## Causality
