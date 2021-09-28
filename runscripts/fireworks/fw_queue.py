@@ -38,7 +38,7 @@ Workflow options:
 		separate them with whitespace and remember shell quoting. ACTIVE
 		includes all active plots. CORE includes just the plots recommended for
 		everyday development. VARIANT runs analysis specific to the specified
-		variant. DEFAULT runs both CORE and VARIANT and is selected by default.
+		variant. "DEFAULT" runs both "CORE" and "VARIANT" and is selected by default.
 		You can also name specific analysis files but any analysis
 		categories that don't have such a filename will print error messages.
 	DISABLE_RIBOSOME_CAPACITY_FITTING (int, "0"): if nonzero, ribosome
@@ -123,7 +123,7 @@ Environment variables that matter when running the workflow:
 
 
 -------------------------------------------------
-Current dependency network of existing FireTasks (each task has a list of its
+Current dependency network of existing Firetasks (each task has a list of its
 immediate downstream dependencies):
 
 InitRawData (fw_init_raw_data)
@@ -142,10 +142,11 @@ FitSimData (fw_calculate_sim_data)
 * CompressRawData if COMPRESS_OUTPUT
 * VariantSimData * VARIANTS_TO_RUN
 * AnalysisParca if RUN_AGGREGATE_ANALYSIS
+* CompressFitSimData if COMPRESS_OUTPUT
 
 VariantSimData (fw_this_variant_sim_data)
 * CompressFitSimData if COMPRESS_OUTPUT
-* Simulation/SimulationDaughter * N_INIT_SIMS
+* Simulation * N_INIT_SIMS
 
 Simulation/SimulationDaughter (fw_this_variant_this_gen_this_sim)
 * SimulationDaughter (* 2 if not SINGLE_DAUGHTERS) if GEN < N_GENS - 1
@@ -198,14 +199,15 @@ CompressSimulationOutput (fw_this_variant_this_gen_this_sim_compression)
 
 '''
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
 import collections
 import os
 import sys
+from typing import Any, Dict, List, Optional, Union
 
 import yaml
-from fireworks import Firework, LaunchPad, Workflow, ScriptTask
+from fireworks import FiretaskBase, Firework, LaunchPad, Workflow, ScriptTask
 
 from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
@@ -223,7 +225,6 @@ from wholecell.fireworks.firetasks import BuildCausalityNetworkTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from wholecell.utils import constants
 from wholecell.utils import filepath
-from six.moves import range
 
 
 def get_environment(variable, default):
@@ -248,9 +249,9 @@ def get_environment(variable, default):
 
 	return value
 
-print('Parsed environmental variables:')
+### Read input options
 
-#### Initial setup ###
+print('Parsed environmental variables:')
 
 ### Set variant variables
 
@@ -316,10 +317,9 @@ def log_info(message):
 		print(message)
 
 
-### Set path variables and create directories
-
 OUT_DIRECTORY = filepath.makedirs(filepath.ROOT_PATH, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(filepath.ROOT_PATH, "cached")
+SUBMISSION_TIME = filepath.timestamp()
 
 # To run each analysis plot in a separate process, ask the analysis Firetasks
 # for several CPUs (it will clip to the number available) and allocate multiple
@@ -328,583 +328,533 @@ CACHED_SIM_DATA_DIRECTORY = os.path.join(filepath.ROOT_PATH, "cached")
 # in order to get proportionally more RAM, e.g. after running many generations.
 if "WC_ANALYZE_FAST" in os.environ:
 	analysis_cpus = 8
-	analysis_q_cpus = {"cpus_per_task": analysis_cpus}
 else:
 	analysis_cpus = 1
-	analysis_q_cpus = {}
-
-SUBMISSION_TIME = filepath.timestamp()
-INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
-KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, constants.KB_DIR)
-METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, constants.METADATA_DIR)
-
-
-log_info("Building filestructure.")
-
-for i in VARIANTS_TO_RUN:
-	VARIANT_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
-	VARIANT_SIM_DATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.VKB_DIR)
-	VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.METADATA_DIR)
-	VARIANT_COHORT_PLOT_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "plotOut")
-
-	for j in range(SEED, SEED + N_INIT_SIMS):
-		SEED_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "%06d" % j)
-		SEED_PLOT_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "plotOut")
-
-		for k in range(N_GENS):
-			GEN_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "generation_%06d" % k)
-
-			for l in (range(2**k) if not SINGLE_DAUGHTERS else [0]):
-				CELL_DIRECTORY = filepath.makedirs(GEN_DIRECTORY, "%06d" % l)
-				CELL_SIM_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "simOut")
-				CELL_PLOT_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "plotOut")
-				CELL_SERIES_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "seriesOut")
-
-### Write metadata
-metadata = {
-	"git_hash": filepath.git_hash(),
-	"git_branch": filepath.git_branch(),
-	"description": os.environ.get("DESC", ""),
-	"operons": OPERONS,
-	"time": SUBMISSION_TIME,
-	"python": sys.version.splitlines()[0],
-	"total_gens": N_GENS,
-	"analysis_type": None,
-	"variant": VARIANT,
-	"total_variants": str(len(VARIANTS_TO_RUN)),
-	"mass_distribution": MASS_DISTRIBUTION,
-	"growth_rate_noise": GROWTH_RATE_NOISE,
-	"d_period_division": D_PERIOD_DIVISION,
-	"variable_elongation_transcription": VARIABLE_ELONGATION_TRANSCRIPTION,
-	"variable_elongation_translation": VARIABLE_ELONGATION_TRANSLATION,
-	"translation_supply": TRANSLATION_SUPPLY,
-	"trna_charging": TRNA_CHARGING,
-	"aa_supply_in_charging": AA_SUPPLY_IN_CHARGING,
-	"ppgpp_regulation": PPGPP_REGULATION,
-	"superhelical_density": SUPERHELICAL_DENSITY,
-	"recycle_stalled_elongation": RECYCLE_STALLED_ELONGATION,
-	"mechanistic_replisome": MECHANISTIC_REPLISOME,
-	"mechanistic_translation_supply": MECHANISTIC_TRANSLATION_SUPPLY,
-	"mechanistic_aa_transport": MECHANISTIC_AA_TRANSPORT,
-	"trna_attenuation": TRNA_ATTENUATION,
-	"adjust_timestep_for_charging": ADJUST_TIMESTEP_FOR_CHARGING,
-	}
-
-metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
-filepath.write_json_file(metadata_path, metadata)
-
-git_diff = filepath.run_cmdline("git diff HEAD", trim=False)
-if git_diff:
-	filepath.write_file(os.path.join(METADATA_DIRECTORY, "git_diff.txt"), git_diff)
-
-#### Create workflow
-
-# Create launchpad
-with open(LAUNCHPAD_FILE) as f:
-	lpad = LaunchPad(**yaml.safe_load(f))
-
-# Store list of FireWorks
-wf_fws = []
-
-# Store links defining parent/child dependency relationships of FireWorks
-wf_links = collections.defaultdict(list)
-
-
-### Initialize KB
-
-filename_raw_data = constants.SERIALIZED_RAW_DATA
-filename_sim_data = constants.SERIALIZED_SIM_DATA_FILENAME
-filename_sim_data_modified = constants.SERIALIZED_SIM_DATA_MODIFIED
-
-fw_name = "InitRawData"
-
-log_info("Queueing {}".format(fw_name))
-
-fw_init_raw_data = Firework(
-	InitRawDataTask(
-		operons = OPERONS,
-		output = os.path.join(KB_DIRECTORY, filename_raw_data)
-		),
-	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
-	)
-
-wf_fws.append(fw_init_raw_data)
-
-### Fit (Level 1)
-
-fw_name = "CalculateSimData"
 
-log_info("Queueing {}".format(fw_name))
 
-cpusForParca = 8 if PARALLEL_PARCA else 1
-fw_calculate_sim_data = Firework(
-	FitSimDataTask(
-		input_data = os.path.join(KB_DIRECTORY, filename_raw_data),
-		output_data = os.path.join(KB_DIRECTORY, filename_sim_data),
-		cached = CACHED_SIM_DATA,
-		cached_data = os.path.join(CACHED_SIM_DATA_DIRECTORY, filename_sim_data),
-		cpus = cpusForParca,
-		debug = DEBUG_PARCA,
-		disable_ribosome_capacity_fitting = DISABLE_RIBOSOME_CAPACITY_FITTING,
-		disable_rnapoly_capacity_fitting = DISABLE_RNAPOLY_CAPACITY_FITTING,
-		output_metrics_data = os.path.join(
-			KB_DIRECTORY, constants.SERIALIZED_METRICS_DATA_FILENAME),
-		),
-	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForParca}, "_priority":1}
-	)
-
-wf_fws.append(fw_calculate_sim_data)
-wf_links[fw_init_raw_data].append(fw_calculate_sim_data)
-
-# Unfit KB compression
-fw_raw_data_compression = None
-if COMPRESS_OUTPUT:
-	fw_name = "ScriptTask_compression_raw_data"
-
-	log_info("Queueing {}".format(fw_name))
-
-	fw_raw_data_compression = Firework(
-		ScriptTask(
-			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_raw_data)
-			),
-		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-		)
-
-	wf_fws.append(fw_raw_data_compression)
-	wf_links[fw_calculate_sim_data].append(fw_raw_data_compression)
-
-# Fit Level 1 KB compression
-
-fw_sim_data_1_compression = None
-if COMPRESS_OUTPUT:
-	fw_name = "ScriptTask_compression_sim_data"
-
-	log_info("Queueing {}".format(fw_name))
-
-	fw_sim_data_1_compression = Firework(
-		ScriptTask(
-			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_sim_data)
-			),
-		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-		)
-
-	wf_fws.append(fw_sim_data_1_compression)
-
-
-### Initialize validation data
-
-# Initiate raw validation data
-filename_raw_validation_data = constants.SERIALIZED_RAW_VALIDATION_DATA
-
-fw_name = "InitValidationDataRaw"
-
-log_info("Queueing {}".format(fw_name))
-
-fw_raw_validation_data = Firework(
-	InitRawValidationDataTask(
-		output = os.path.join(KB_DIRECTORY, filename_raw_validation_data)
-		),
-	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
-	)
-
-wf_fws.append(fw_raw_validation_data)
-
-# Raw validation data compression
-fw_raw_validation_data_compression = None
-if COMPRESS_OUTPUT:
-	fw_name = "ScriptTask_compression_validation_data_raw"
-	fw_raw_validation_data_compression = Firework(
-		ScriptTask(
-			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_raw_validation_data)
-			),
-		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-		)
-
-	wf_fws.append(fw_raw_validation_data_compression)
-
-
-# Initialize full validation data
-filename_validation_data = constants.SERIALIZED_VALIDATION_DATA
-
-fw_name = "InitValidationData"
-
-log_info("Queueing {}".format(fw_name))
-
-fw_validation_data = Firework(
-	InitValidationDataTask(
-		validation_data_input = os.path.join(KB_DIRECTORY, filename_raw_validation_data),
-		knowledge_base_raw = os.path.join(KB_DIRECTORY, filename_raw_data),
-		output_data = os.path.join(KB_DIRECTORY, filename_validation_data),
-		),
-	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
-	)
-
-wf_fws.append(fw_validation_data)
-wf_links[fw_raw_validation_data].append(fw_validation_data)
-wf_links[fw_init_raw_data].append(fw_validation_data)
-fw_validation_data_compression = None
-
-# Full validation data compression
-if COMPRESS_OUTPUT:
-	fw_name = "ScriptTask_compression_validation_data"
-
-	log_info("Queueing {}".format(fw_name))
-
-	fw_validation_data_compression = Firework(
-		ScriptTask(
-			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_validation_data)
-			),
-		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-		)
-
-	wf_fws.append(fw_validation_data_compression)
-
-	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
-	wf_links[fw_validation_data].append(fw_raw_data_compression)
-
-# Variant analysis
-VARIANT_PLOT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "plotOut")
-fw_variant_analysis = None
-fw_parca_analysis = None
-
-if RUN_AGGREGATE_ANALYSIS:
-	fw_name = "AnalysisParcaTask"
-	fw_parca_analysis = Firework(
-		AnalysisParcaTask(
-			input_directory = KB_DIRECTORY,
-			input_sim_data = os.path.join(KB_DIRECTORY, filename_sim_data),
-			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
-			output_plots_directory = os.path.join(INDIV_OUT_DIRECTORY, constants.KB_PLOT_OUTPUT_DIR),
-			plot = PLOTS,
-			cpus = analysis_cpus,
-			metadata = metadata,
-			),
-		name = fw_name,
-		spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":5}
-		)
-	wf_fws.append(fw_parca_analysis)
-	wf_links[fw_calculate_sim_data].append(fw_parca_analysis)
-	wf_links[fw_validation_data].append(fw_parca_analysis)
-	if COMPRESS_OUTPUT:
-		wf_links[fw_parca_analysis].append(fw_sim_data_1_compression)
-		wf_links[fw_parca_analysis].append(fw_validation_data_compression)
-
-	fw_name = "AnalysisVariantTask"
-	fw_variant_analysis = Firework(
-		AnalysisVariantTask(
-			input_directory = os.path.join(INDIV_OUT_DIRECTORY),
-			input_sim_data = os.path.join(KB_DIRECTORY, filename_sim_data),
-			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
-			output_plots_directory = VARIANT_PLOT_DIRECTORY,
-			plot = PLOTS,
-			cpus = analysis_cpus,
-			metadata = metadata,
-			),
-		name = fw_name,
-		spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":5}
-		)
-	wf_fws.append(fw_variant_analysis)
-
-### Create variants and simulations
-fw_this_variant_sim_data_compression = None
-fw_this_variant_this_gen_this_sim_compression = None
-
-for i in VARIANTS_TO_RUN:
-	log_info("Queueing Variant {} {}".format(VARIANT, i))
-	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
-	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.VKB_DIR)
-	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.METADATA_DIR)
-	md_cohort = dict(metadata, variant_function = VARIANT, variant_index = i)
-
-	# Variant simData creation task
-	fw_name = "VariantSimDataTask_%06d" % (i,)
-	fw_this_variant_sim_data = Firework(
-		VariantSimDataTask(
-			variant_function = VARIANT,
-			variant_index = i,
-			input_sim_data = os.path.join(KB_DIRECTORY, filename_sim_data),
-			output_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-			variant_metadata_directory = VARIANT_METADATA_DIRECTORY,
-			),
-		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
-		)
-
-	wf_fws.append(fw_this_variant_sim_data)
-	wf_links[fw_calculate_sim_data].append(fw_this_variant_sim_data)
-
-	if COMPRESS_OUTPUT:
-		wf_links[fw_this_variant_sim_data].append(fw_sim_data_1_compression)
-
-		# Variant simData compression
-		fw_name = "ScriptTask_compression_variant_KB"
-		fw_this_variant_sim_data_compression = Firework(
-			ScriptTask(
-				script = "bzip2 -v " + os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified)
-				),
-			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-			)
-
-		wf_fws.append(fw_this_variant_sim_data_compression)
-
-	# Cohort analysis
-	COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
-
-	fw_this_variant_cohort_analysis = None
-
-	if RUN_AGGREGATE_ANALYSIS:
-		fw_name = "AnalysisCohortTask__Var_%02d" % (i,)
-		fw_this_variant_cohort_analysis = Firework(
-			AnalysisCohortTask(
-				input_variant_directory = VARIANT_DIRECTORY,
-				input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-				input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
-				output_plots_directory = COHORT_PLOT_DIRECTORY,
-				plot = PLOTS,
-				cpus = analysis_cpus,
-				metadata = md_cohort,
-				),
-			name = fw_name,
-			spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":4}
-			)
-		wf_fws.append(fw_this_variant_cohort_analysis)
-
-	fw_this_variant_this_seed_this_analysis = None
-
-	for j in range(SEED, SEED + N_INIT_SIMS):
-		log_info("\tQueueing Seed {}".format(j))
-		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
-		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
-		md_multigen = dict(md_cohort, seed = j)
+class WorkflowBuilder:
+	def __init__(self) -> None:
+		self.wf_fws: List[Firework] = []  # Fireworks in this workflow
+		self.wf_links: Dict[Firework, List[Firework]] = collections.defaultdict(list)  # dependencies
+
+	def add_firework(self, firetask: FiretaskBase,
+					 name: str, *,
+					 parents: Union[None, Firework, List[Firework]] = None,
+					 cpus: int = 1,
+					 priority: Optional[int] = None,
+					 indent: int = 0) -> Firework:
+		"""Construct a Firework and add it to the accumulating list.
+
+		Args:
+			firetask: add a Firework containing this Firetask.
+			name: the unique task name.
+			parents: parent Firework(s), that is, dependencies.
+			cpus: the number of CPUs to allocate to the job.
+			priority: the job priority; a larger number is higher priority; None
+				is lowest priority.
+			indent: indentation level for the "Queueing" log message.
+		"""
+		# TODO(jerry): In the operons=both case, distinguish all the operons
+		#  on vs. off fireworks via a name suffix like "_operons" or "_poly",
+		#  although they probably don't have to be unique.
+		TAB = '\t'
+		log_info(f"{TAB * indent}Queueing {name}")
+
+		queue_spec = {'job_name': name, 'cpus_per_task': cpus}
+		spec: Dict[str, Any] = {'_queueadapter': queue_spec}
+		if priority is not None:
+			spec['_priority'] = priority
+
+		firework = Firework(firetask, name=name, spec=spec, parents=parents)
+		self.wf_fws.append(firework)
+		return firework
+
+	def add_links(self, parent: Firework, *children: Firework) -> None:
+		"""Add parent -> child dependency links."""
+		self.wf_links[parent].extend(children)
+
+	def build_wcm(self) -> Firework:
+		"""Build a Whole Cell Model workflow (Parca, sims, analysis, and output
+		file compression).
+		"""
+		# TODO(jerry): Able to run more than once with different operon settings
+		#  into adjacent output directories.
+		self.make_output_directories()
+		self.write_metadata()
+		return self.build_wcm_firetasks()
+
+	# noinspection PyUnusedLocal
+	def make_output_directories(self) -> None:
+		"""Make the output directories for the Firetasks and set self.* fields
+		to some of those paths.
+		"""
+		log_info("Making the output directories.")
+
+		self.INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
+		self.KB_DIRECTORY = filepath.makedirs(self.INDIV_OUT_DIRECTORY, constants.KB_DIR)
+		self.VARIANT_PLOT_DIRECTORY = os.path.join(self.INDIV_OUT_DIRECTORY, constants.PLOTOUT_DIR)
+
+		for i in VARIANTS_TO_RUN:
+			VARIANT_DIRECTORY = filepath.makedirs(self.INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
+			VARIANT_SIM_DATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.VKB_DIR)
+			VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.METADATA_DIR)
+			VARIANT_COHORT_PLOT_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, constants.PLOTOUT_DIR)
+
+			for j in range(SEED, SEED + N_INIT_SIMS):
+				SEED_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "%06d" % j)
+				SEED_PLOT_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, constants.PLOTOUT_DIR)
+
+				for k in range(N_GENS):
+					GEN_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "generation_%06d" % k)
+
+					for l in (range(2**k) if not SINGLE_DAUGHTERS else [0]):
+						CELL_DIRECTORY = filepath.makedirs(GEN_DIRECTORY, "%06d" % l)
+						CELL_SIM_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "simOut")
+						CELL_PLOT_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, constants.PLOTOUT_DIR)
+						CELL_SERIES_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "seriesOut")
+
+	def write_metadata(self):
+		"""Write the metadata files and set self.metadata."""
+		self.metadata = {
+			"git_hash": filepath.git_hash(),
+			"git_branch": filepath.git_branch(),
+			"description": os.environ.get("DESC", ""),
+			"operons": OPERONS,
+			"time": SUBMISSION_TIME,
+			"python": sys.version.splitlines()[0],
+			"total_gens": N_GENS,
+			"analysis_type": None,
+			"variant": VARIANT,
+			"total_variants": str(len(VARIANTS_TO_RUN)),
+			"mass_distribution": MASS_DISTRIBUTION,
+			"growth_rate_noise": GROWTH_RATE_NOISE,
+			"d_period_division": D_PERIOD_DIVISION,
+			"variable_elongation_transcription": VARIABLE_ELONGATION_TRANSCRIPTION,
+			"variable_elongation_translation": VARIABLE_ELONGATION_TRANSLATION,
+			"translation_supply": TRANSLATION_SUPPLY,
+			"trna_charging": TRNA_CHARGING,
+			"aa_supply_in_charging": AA_SUPPLY_IN_CHARGING,
+			"ppgpp_regulation": PPGPP_REGULATION,
+			"superhelical_density": SUPERHELICAL_DENSITY,
+			"recycle_stalled_elongation": RECYCLE_STALLED_ELONGATION,
+			"mechanistic_replisome": MECHANISTIC_REPLISOME,
+			"mechanistic_translation_supply": MECHANISTIC_TRANSLATION_SUPPLY,
+			"mechanistic_aa_transport": MECHANISTIC_AA_TRANSPORT,
+			"trna_attenuation": TRNA_ATTENUATION,
+			"adjust_timestep_for_charging": ADJUST_TIMESTEP_FOR_CHARGING,
+			}
+
+		METADATA_DIRECTORY = filepath.makedirs(self.INDIV_OUT_DIRECTORY, constants.METADATA_DIR)
+		metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
+		filepath.write_json_file(metadata_path, self.metadata)
+
+		git_diff = filepath.run_cmdline("git diff HEAD", trim=False)
+		if git_diff:
+			filepath.write_file(os.path.join(METADATA_DIRECTORY, "git_diff.txt"), git_diff)
+
+	def build_wcm_firetasks(self) -> Firework:
+		"""Build the WCM Firetasks and their dependency links.
+
+		Call convert_to_fireworks_workflow() to convert the accumulated info to
+		a Fireworks Workflow object.
+
+		Returns a parent for comparison analysis (between this WCM and others)
+		Firetasks **only if RUN_AGGREGATE_ANALYSIS**.
+		"""
+		log_info("Building a WCM workflow.")
+		INDIV_OUT_DIRECTORY = self.INDIV_OUT_DIRECTORY
+		KB_DIRECTORY = self.KB_DIRECTORY
+		VARIANT_PLOT_DIRECTORY = self.VARIANT_PLOT_DIRECTORY
+
+		# Initialize KB
+		fw_init_raw_data = self.add_firework(
+			InitRawDataTask(
+				operons=OPERONS,
+				output=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_DATA)),
+			"InitRawData",
+			priority=1)
+
+		# CalculateSimData
+		cpusForParca = 8 if PARALLEL_PARCA else 1
+		fw_calculate_sim_data = self.add_firework(
+			FitSimDataTask(
+				input_data=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_DATA),
+				output_data=os.path.join(KB_DIRECTORY, constants.SERIALIZED_SIM_DATA_FILENAME),
+				cached=CACHED_SIM_DATA,
+				cached_data=os.path.join(CACHED_SIM_DATA_DIRECTORY,
+										 constants.SERIALIZED_SIM_DATA_FILENAME),
+				cpus=cpusForParca,
+				debug=DEBUG_PARCA,
+				disable_ribosome_capacity_fitting=DISABLE_RIBOSOME_CAPACITY_FITTING,
+				disable_rnapoly_capacity_fitting=DISABLE_RNAPOLY_CAPACITY_FITTING,
+				output_metrics_data=os.path.join(
+					KB_DIRECTORY, constants.SERIALIZED_METRICS_DATA_FILENAME)),
+			name="CalculateSimData",
+			parents=fw_init_raw_data,
+			cpus=cpusForParca,
+			priority=1)
+
+		# Raw KB compression
+		fw_raw_data_compression = None
+		if COMPRESS_OUTPUT:
+			fw_raw_data_compression = self.add_firework(
+				ScriptTask(
+					script="bzip2 -v " + os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_DATA)),
+				name="ScriptTask_compression_raw_data",
+				parents=fw_calculate_sim_data)
+
+		# SimData compression
+		fw_sim_data_1_compression = None
+		if COMPRESS_OUTPUT:
+			fw_sim_data_1_compression = self.add_firework(
+				ScriptTask(
+					script="bzip2 -v " + os.path.join(KB_DIRECTORY,
+													  constants.SERIALIZED_SIM_DATA_FILENAME)),
+				name="ScriptTask_compression_sim_data",
+				parents=fw_calculate_sim_data)
+
+		# Initiate raw validation data
+		fw_raw_validation_data = self.add_firework(
+			InitRawValidationDataTask(
+				output=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_VALIDATION_DATA)),
+			name="InitValidationDataRaw",
+			priority=1)
+
+		# Raw validation data compression
+		fw_raw_validation_data_compression = None
+		if COMPRESS_OUTPUT:
+			fw_raw_validation_data_compression = self.add_firework(
+				ScriptTask(
+					script="bzip2 -v " + os.path.join(KB_DIRECTORY,
+													  constants.SERIALIZED_RAW_VALIDATION_DATA)),
+				name="ScriptTask_compression_validation_data_raw")
+
+
+		# Initialize full validation data
+		fw_validation_data = self.add_firework(
+			InitValidationDataTask(
+				validation_data_input=os.path.join(KB_DIRECTORY,
+												   constants.SERIALIZED_RAW_VALIDATION_DATA),
+				knowledge_base_raw=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_DATA),
+				output_data=os.path.join(KB_DIRECTORY, constants.SERIALIZED_VALIDATION_DATA)),
+			name="InitValidationData",
+			parents=[fw_raw_validation_data, fw_init_raw_data],
+			priority=1)
+
+		# Full validation data compression
+		fw_validation_data_compression = None
+		if COMPRESS_OUTPUT:
+			fw_validation_data_compression = self.add_firework(
+				ScriptTask(
+					script="bzip2 -v " + os.path.join(KB_DIRECTORY,
+													  constants.SERIALIZED_VALIDATION_DATA)),
+				name="ScriptTask_compression_validation_data")
+			self.add_links(fw_validation_data,
+						   fw_raw_validation_data_compression, fw_raw_data_compression)
+
+		# Parca analysis
+		fw_variant_analysis = None
 
 		if RUN_AGGREGATE_ANALYSIS:
-			fw_name = "AnalysisMultiGenTask__Var_%02d__Seed_%06d" % (i, j)
-			fw_this_variant_this_seed_this_analysis = Firework(
-				AnalysisMultiGenTask(
-					input_seed_directory = SEED_DIRECTORY,
-					input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-					input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
-					output_plots_directory = SEED_PLOT_DIRECTORY,
-					plot = PLOTS,
-					cpus = analysis_cpus,
-					metadata = md_multigen,
-					),
-				name = fw_name,
-				spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":3}
-				)
-			wf_fws.append(fw_this_variant_this_seed_this_analysis)
+			fw_parca_analysis = self.add_firework(
+				AnalysisParcaTask(
+					input_directory=KB_DIRECTORY,
+					input_sim_data=os.path.join(KB_DIRECTORY,
+												constants.SERIALIZED_SIM_DATA_FILENAME),
+					input_validation_data=os.path.join(KB_DIRECTORY,
+													   constants.SERIALIZED_VALIDATION_DATA),
+					output_plots_directory=os.path.join(INDIV_OUT_DIRECTORY,
+														constants.KB_PLOT_OUTPUT_DIR),
+					plot=PLOTS,
+					cpus=analysis_cpus,
+					metadata=self.metadata),
+				name="AnalysisParcaTask",
+				parents=[fw_calculate_sim_data, fw_validation_data],
+				cpus=analysis_cpus,
+				priority=5)
+			if COMPRESS_OUTPUT:
+				self.add_links(fw_parca_analysis,
+							   fw_sim_data_1_compression, fw_validation_data_compression)
+
+			# Variant analysis
+			fw_variant_analysis = self.add_firework(
+				AnalysisVariantTask(
+					input_directory=os.path.join(INDIV_OUT_DIRECTORY),
+					input_sim_data=os.path.join(KB_DIRECTORY,
+												constants.SERIALIZED_SIM_DATA_FILENAME),
+					input_validation_data=os.path.join(KB_DIRECTORY,
+													   constants.SERIALIZED_VALIDATION_DATA),
+					output_plots_directory=VARIANT_PLOT_DIRECTORY,
+					plot=PLOTS,
+					cpus=analysis_cpus,
+					metadata=self.metadata),
+				name="AnalysisVariantTask",
+				cpus=analysis_cpus,
+				priority=5)
+
+		### Create variants and simulations
+		fw_this_variant_sim_data_compression = None
+		fw_this_variant_this_gen_this_sim_compression = None
+
+		for i in VARIANTS_TO_RUN:
+			VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
+			VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.VKB_DIR)
+			VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.METADATA_DIR)
+			md_cohort = dict(self.metadata, variant_function = VARIANT, variant_index = i)
+
+			# Variant simData creation task
+			fw_this_variant_sim_data = self.add_firework(
+				VariantSimDataTask(
+					variant_function=VARIANT,
+					variant_index=i,
+					input_sim_data=os.path.join(KB_DIRECTORY,
+												constants.SERIALIZED_SIM_DATA_FILENAME),
+					output_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+												 constants.SERIALIZED_SIM_DATA_MODIFIED),
+					variant_metadata_directory=VARIANT_METADATA_DIRECTORY),
+				name=f"VariantSimDataTask__{VARIANT}_{i:06d}",
+				parents=fw_calculate_sim_data,
+				priority=1)
 
 			if COMPRESS_OUTPUT:
-				wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
+				self.add_links(fw_this_variant_sim_data, fw_sim_data_1_compression)
 
-		sims_this_seed = collections.defaultdict(list)
+				# Variant simData compression
+				fw_this_variant_sim_data_compression = self.add_firework(
+					ScriptTask(
+						script="bzip2 -v " + os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+														  constants.SERIALIZED_SIM_DATA_MODIFIED)),
+					name="ScriptTask_compression_variant_KB")
 
-		for k in range(N_GENS):
-			log_info("\t\tQueueing Gen %02d." % (k,))
-			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
-			md_single = dict(md_multigen, gen = k)
+			# Cohort analysis
+			COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, constants.PLOTOUT_DIR)
 
-			for l in (range(2**k) if not SINGLE_DAUGHTERS else [0]):
+			fw_this_variant_cohort_analysis = None
 
-				log_info("\t\t\tQueueing Cell {}".format(l))
-				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
-				CELL_SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
-				CELL_PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
-				CELL_SERIES_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "seriesOut")
+			if RUN_AGGREGATE_ANALYSIS:
+				fw_this_variant_cohort_analysis = self.add_firework(
+					AnalysisCohortTask(
+						input_variant_directory=VARIANT_DIRECTORY,
+						input_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+													constants.SERIALIZED_SIM_DATA_MODIFIED),
+						input_validation_data=os.path.join(KB_DIRECTORY,
+														   constants.SERIALIZED_VALIDATION_DATA),
+						output_plots_directory=COHORT_PLOT_DIRECTORY,
+						plot=PLOTS,
+						cpus=analysis_cpus,
+						metadata=md_cohort),
+					name=f"AnalysisCohortTask__Var_{i:02d}",
+					cpus=analysis_cpus,
+					priority=4)
 
-				# TODO: Add conditional logic here for mother vs daughter cells
-				# Simulation task
-				fw_name = "SimulationTask__Var_%02d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
+			fw_this_variant_this_seed_this_analysis = None
 
-				if k == 0:
-					fw_this_variant_this_gen_this_sim = Firework(
-						SimulationTask(
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-							output_directory = CELL_SIM_OUT_DIRECTORY,
-							seed = j,
-							timeline = TIMELINE,
-							length_sec = WC_LENGTHSEC,
-							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
-							timestep_max = TIMESTEP_MAX,
-							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
-							adjust_timestep_for_charging = ADJUST_TIMESTEP_FOR_CHARGING,
-							log_to_disk_every = LOG_TO_DISK_EVERY,
-							jit=JIT,
-							mass_distribution = MASS_DISTRIBUTION,
-							growth_rate_noise = GROWTH_RATE_NOISE,
-							d_period_division = D_PERIOD_DIVISION,
-							variable_elongation_transcription = VARIABLE_ELONGATION_TRANSCRIPTION,
-							variable_elongation_translation = VARIABLE_ELONGATION_TRANSLATION,
-							translation_supply = TRANSLATION_SUPPLY,
-							trna_charging = TRNA_CHARGING,
-							aa_supply_in_charging = AA_SUPPLY_IN_CHARGING,
-							ppgpp_regulation = PPGPP_REGULATION,
-							superhelical_density = SUPERHELICAL_DENSITY,
-							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
-							mechanistic_replisome = MECHANISTIC_REPLISOME,
-							mechanistic_translation_supply = MECHANISTIC_TRANSLATION_SUPPLY,
-							mechanistic_aa_transport = MECHANISTIC_AA_TRANSPORT,
-							trna_attenuation = TRNA_ATTENUATION,
-							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
-							),
-						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":10}
-						)
-				elif k > 0:
-					PARENT_GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % (k - 1))
-					PARENT_CELL_DIRECTORY = os.path.join(PARENT_GEN_DIRECTORY, "%06d" % (l // 2))
-					PARENT_CELL_SIM_OUT_DIRECTORY = os.path.join(PARENT_CELL_DIRECTORY, "simOut")
-					DAUGHTER_STATE_PATH = os.path.join(PARENT_CELL_SIM_OUT_DIRECTORY,
-						constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
-
-					fw_this_variant_this_gen_this_sim = Firework(
-						SimulationDaughterTask(
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-							output_directory = CELL_SIM_OUT_DIRECTORY,
-							inherited_state_path = DAUGHTER_STATE_PATH,
-							seed = (j + 1) * ((2**k - 1) + l),
-							timeline = TIMELINE,
-							length_sec = WC_LENGTHSEC,
-							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
-							timestep_max = TIMESTEP_MAX,
-							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
-							adjust_timestep_for_charging = ADJUST_TIMESTEP_FOR_CHARGING,
-							log_to_disk_every = LOG_TO_DISK_EVERY,
-							jit=JIT,
-							mass_distribution = MASS_DISTRIBUTION,
-							growth_rate_noise = GROWTH_RATE_NOISE,
-							d_period_division = D_PERIOD_DIVISION,
-							variable_elongation_transcription = VARIABLE_ELONGATION_TRANSCRIPTION,
-							variable_elongation_translation = VARIABLE_ELONGATION_TRANSLATION,
-							translation_supply = TRANSLATION_SUPPLY,
-							trna_charging = TRNA_CHARGING,
-							aa_supply_in_charging = AA_SUPPLY_IN_CHARGING,
-							ppgpp_regulation = PPGPP_REGULATION,
-							superhelical_density = SUPERHELICAL_DENSITY,
-							recycle_stalled_elongation = RECYCLE_STALLED_ELONGATION,
-							mechanistic_replisome = MECHANISTIC_REPLISOME,
-							mechanistic_translation_supply = MECHANISTIC_TRANSLATION_SUPPLY,
-							mechanistic_aa_transport = MECHANISTIC_AA_TRANSPORT,
-							trna_attenuation = TRNA_ATTENUATION,
-							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
-							),
-						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":11}
-						)
-				else:
-					raise ValueError("k ({}) < 0".format(k))
-
-				wf_fws.append(fw_this_variant_this_gen_this_sim)
-				# Only add the last generation as dependencies for multiple sim analysis tasks
-				if RUN_AGGREGATE_ANALYSIS and k == N_GENS - 1:
-					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
-					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
-					wf_links[fw_this_variant_this_gen_this_sim].append(fw_variant_analysis)
-
-				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
-
-				if k == 0:
-					wf_links[fw_this_variant_sim_data].append(fw_this_variant_this_gen_this_sim)
-
-				elif k > 0:
-					fw_parent_sim = sims_this_seed[k - 1][l // 2]
-					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
-
-				if COMPRESS_OUTPUT:
-					# Output compression job
-					fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (
-					j, k, l)
-					fw_this_variant_this_gen_this_sim_compression = Firework(
-						ScriptTask(
-							script='for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(
-								CELL_SIM_OUT_DIRECTORY, "*")
-							),
-						name=fw_name,
-						spec={"_queueadapter": {"job_name": fw_name},
-							"_priority": 0}
-						)
-
-					wf_fws.append(
-						fw_this_variant_this_gen_this_sim_compression)
+			for j in range(SEED, SEED + N_INIT_SIMS):
+				SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
+				SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, constants.PLOTOUT_DIR)
+				md_multigen = dict(md_cohort, seed = j)
 
 				if RUN_AGGREGATE_ANALYSIS:
-					# AnalysisSingle task
-					fw_name = "AnalysisSingleTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
-					fw_this_variant_this_gen_this_sim_analysis = Firework(
-						AnalysisSingleTask(
-							input_results_directory = CELL_SIM_OUT_DIRECTORY,
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-							input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
-							output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
-							plot = PLOTS,
-							cpus = analysis_cpus,
-							metadata = md_single,
-							),
-						name = fw_name,
-						spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":2}
-						)
-
-					wf_fws.append(fw_this_variant_this_gen_this_sim_analysis)
-
-					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
+					fw_this_variant_this_seed_this_analysis = self.add_firework(
+						AnalysisMultiGenTask(
+							input_seed_directory=SEED_DIRECTORY,
+							input_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+														constants.SERIALIZED_SIM_DATA_MODIFIED),
+							input_validation_data=os.path.join(KB_DIRECTORY,
+															   constants.SERIALIZED_VALIDATION_DATA),
+							output_plots_directory=SEED_PLOT_DIRECTORY,
+							plot=PLOTS,
+							cpus=analysis_cpus,
+							metadata=md_multigen),
+						name=f"AnalysisMultiGenTask__Var_{i:02d}__Seed_{j:06d}",
+						cpus=analysis_cpus,
+						priority=3,
+						indent=1)
 
 					if COMPRESS_OUTPUT:
-						# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
-						compression_fws = [
-							fw_this_variant_sim_data_compression,
-							fw_validation_data_compression,
-							fw_this_variant_this_gen_this_sim_compression
-						]
-						data_fws = [
-							fw_this_variant_this_gen_this_sim_analysis,
-							fw_this_variant_this_seed_this_analysis,
-							fw_this_variant_cohort_analysis,
-							fw_variant_analysis]
-						for compression in compression_fws:
-							for data in data_fws:
-								wf_links[data].append(compression)
+						self.add_links(fw_this_variant_this_seed_this_analysis,
+									   fw_this_variant_sim_data_compression)
+
+				sims_this_seed = collections.defaultdict(list)
+
+				for k in range(N_GENS):
+					GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
+					md_single = dict(md_multigen, gen = k)
+
+					for l in (range(2**k) if not SINGLE_DAUGHTERS else [0]):
+						CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
+						CELL_SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
+						CELL_PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, constants.PLOTOUT_DIR)
+						CELL_SERIES_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "seriesOut")
+
+						# Simulation task
+						sim_fw_name = f"SimulationTask__Var_{i:02d}__Seed_{j:d}__Gen_{k:d}__Cell_{l:d}"
+						sim_task_args = dict(
+							input_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+														constants.SERIALIZED_SIM_DATA_MODIFIED),
+							output_directory=CELL_SIM_OUT_DIRECTORY,
+							timeline=TIMELINE,
+							length_sec=WC_LENGTHSEC,
+							timestep_safety_frac=TIMESTEP_SAFETY_FRAC,
+							timestep_max=TIMESTEP_MAX,
+							timestep_update_freq=TIMESTEP_UPDATE_FREQ,
+							adjust_timestep_for_charging=ADJUST_TIMESTEP_FOR_CHARGING,
+							log_to_disk_every=LOG_TO_DISK_EVERY,
+							jit=JIT,
+							mass_distribution=MASS_DISTRIBUTION,
+							growth_rate_noise=GROWTH_RATE_NOISE,
+							d_period_division=D_PERIOD_DIVISION,
+							variable_elongation_transcription=VARIABLE_ELONGATION_TRANSCRIPTION,
+							variable_elongation_translation=VARIABLE_ELONGATION_TRANSLATION,
+							translation_supply=TRANSLATION_SUPPLY,
+							trna_charging=TRNA_CHARGING,
+							aa_supply_in_charging=AA_SUPPLY_IN_CHARGING,
+							ppgpp_regulation=PPGPP_REGULATION,
+							superhelical_density=SUPERHELICAL_DENSITY,
+							recycle_stalled_elongation=RECYCLE_STALLED_ELONGATION,
+							mechanistic_replisome=MECHANISTIC_REPLISOME,
+							mechanistic_translation_supply=MECHANISTIC_TRANSLATION_SUPPLY,
+							mechanistic_aa_transport=MECHANISTIC_AA_TRANSPORT,
+							trna_attenuation=TRNA_ATTENUATION,
+							raise_on_time_limit=RAISE_ON_TIME_LIMIT)
+
+						if k == 0:
+							fw_this_variant_this_gen_this_sim = self.add_firework(
+								SimulationTask(
+									seed=j,
+									**sim_task_args),
+								name=sim_fw_name,
+								cpus=1,
+								priority=10,
+								indent=2)
+						elif k > 0:
+							PARENT_GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % (k - 1))
+							PARENT_CELL_DIRECTORY = os.path.join(PARENT_GEN_DIRECTORY, "%06d" % (l // 2))
+							PARENT_CELL_SIM_OUT_DIRECTORY = os.path.join(PARENT_CELL_DIRECTORY, "simOut")
+							DAUGHTER_STATE_PATH = os.path.join(PARENT_CELL_SIM_OUT_DIRECTORY,
+								constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
+
+							fw_this_variant_this_gen_this_sim = self.add_firework(
+								SimulationDaughterTask(
+									inherited_state_path=DAUGHTER_STATE_PATH,
+									seed=(j + 1) * ((2 ** k - 1) + l),
+									**sim_task_args),
+								name=sim_fw_name,
+								cpus=1,
+								priority=11,
+								indent=2)
+						else:
+							raise ValueError("k ({}) < 0".format(k))
+
+						# Only add the last generation as dependencies for multiple sim analysis tasks
+						if RUN_AGGREGATE_ANALYSIS and k == N_GENS - 1:
+							self.add_links(fw_this_variant_this_gen_this_sim,
+										   fw_this_variant_this_seed_this_analysis,
+										   fw_this_variant_cohort_analysis,
+										   fw_variant_analysis)
+
+						sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
+
+						if k == 0:
+							self.add_links(fw_this_variant_sim_data, fw_this_variant_this_gen_this_sim)
+
+						elif k > 0:
+							fw_parent_sim = sims_this_seed[k - 1][l // 2]
+							self.add_links(fw_parent_sim, fw_this_variant_this_gen_this_sim)
+
+						if COMPRESS_OUTPUT:
+							# Output compression job
+							fw_this_variant_this_gen_this_sim_compression = self.add_firework(
+								ScriptTask(
+									script='for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(
+										CELL_SIM_OUT_DIRECTORY, "*")),
+								name=f"ScriptTask_compression_simulation__Seed_{j:d}__Gen_{k:d}__Cell_{l:d}",
+								priority=0)
+
+						if RUN_AGGREGATE_ANALYSIS:
+							# AnalysisSingle task
+							fw_this_variant_this_gen_this_sim_analysis = self.add_firework(
+								AnalysisSingleTask(
+									input_results_directory=CELL_SIM_OUT_DIRECTORY,
+									input_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+																constants.SERIALIZED_SIM_DATA_MODIFIED),
+									input_validation_data=os.path.join(KB_DIRECTORY,
+																	   constants.SERIALIZED_VALIDATION_DATA),
+									output_plots_directory=CELL_PLOT_OUT_DIRECTORY,
+									plot=PLOTS,
+									cpus=analysis_cpus,
+									metadata=md_single),
+								name=f"AnalysisSingleTask__Var_{i:d}__Seed_{j:d}__Gen_{k:d}__Cell_{l:d}",
+								parents=fw_this_variant_this_gen_this_sim,
+								cpus=analysis_cpus,
+								priority=2,
+								indent=3)
+
+							if COMPRESS_OUTPUT:
+								# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
+								data_fws = [
+									fw_this_variant_this_gen_this_sim_analysis,
+									fw_this_variant_this_seed_this_analysis,
+									fw_this_variant_cohort_analysis,
+									fw_variant_analysis]
+								for data in data_fws:
+									self.add_links(data,
+										fw_this_variant_sim_data_compression,
+										fw_validation_data_compression,
+										fw_this_variant_this_gen_this_sim_compression)
 
 
-				if BUILD_CAUSALITY_NETWORK:
-					# BuildCausalityNetwork task
-					fw_name = "BuildCausalityNetworkTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
-					fw_this_variant_this_gen_this_sim_causality_network = Firework(
-						BuildCausalityNetworkTask(
-							input_results_directory = CELL_SIM_OUT_DIRECTORY,
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-							output_dynamics_directory = CELL_SERIES_OUT_DIRECTORY,
-							metadata = md_single,
-							),
-						name = fw_name,
-						spec = {"_queueadapter": dict(analysis_q_cpus,
-							job_name=fw_name), "_priority": 2}
-						)
+						if BUILD_CAUSALITY_NETWORK:
+							# BuildCausalityNetwork task
+							fw_this_variant_this_gen_this_sim_causality_network = self.add_firework(
+								BuildCausalityNetworkTask(
+									input_results_directory=CELL_SIM_OUT_DIRECTORY,
+									input_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
+																constants.SERIALIZED_SIM_DATA_MODIFIED),
+									output_dynamics_directory=CELL_SERIES_OUT_DIRECTORY,
+									metadata=md_single,
+									),
+								name=f"BuildCausalityNetworkTask__Var_{i:d}__Seed_{j:d}__Gen_{k:d}__Cell_{l:d}",
+								parents=fw_this_variant_this_gen_this_sim,
+								cpus=analysis_cpus,
+								priority=2,
+								indent=3)
 
-					wf_fws.append(fw_this_variant_this_gen_this_sim_causality_network)
+							if COMPRESS_OUTPUT:
+								# Don't compress any outputs or sim_data until
+								# causality network scripts have finished running
+								self.add_links(fw_this_variant_this_gen_this_sim_causality_network,
+											   fw_this_variant_sim_data_compression,
+											   fw_this_variant_this_gen_this_sim_compression)
 
-					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_causality_network)
+		return fw_variant_analysis
 
-					if COMPRESS_OUTPUT:
-						# Don't compress any outputs or sim_data until
-						# causality network scripts have finished running
-						compression_fws = [
-							fw_this_variant_sim_data_compression,
-							fw_this_variant_this_gen_this_sim_compression
-						]
-						wf_links[fw_this_variant_this_gen_this_sim_causality_network].extend(compression_fws)
+	def convert_to_fireworks_workflow(self) -> Workflow:
+		"""Build a Fireworks Workflow object from the Firetask and dependency
+		info accumulated by build_wcm().
+		"""
+		workflow = Workflow(self.wf_fws, links_dict=self.wf_links)
+		return workflow
 
-## Create workflow
-log_info("Creating workflow.")
 
-workflow = Workflow(wf_fws, links_dict = wf_links)
+def upload_workflow(workflow: Workflow):
+	"""Upload a Fireworks Workflow to the LaunchPad."""
+	with open(LAUNCHPAD_FILE) as f:
+		lpad = LaunchPad(**yaml.safe_load(f))
+	lpad.add_wf(workflow)
 
-lpad.add_wf(workflow)
+
+def main():
+	builder = WorkflowBuilder()
+
+	# TODO(jerry): For operons=both, build with operons=off and again with
+	#  operons=on, and add a ComparisonAnalysis Firetask to compare them.
+	builder.build_wcm()
+
+	wf = builder.convert_to_fireworks_workflow()
+	# (Could optionally dump wf as a YAML file here.)
+	upload_workflow(wf)
+
+
+if __name__ == '__main__':
+	main()
