@@ -39,7 +39,8 @@ def main():
 
 	subtitle(os)
 	print_dictionary("os.environ", os.environ, [
-		'OPENBLAS_NUM_THREADS', 'HOME', 'LIBRARY_PATH', 'PI_HOME', 'PYENV_ROOT',
+		'OPENBLAS_NUM_THREADS', 'HOME', 'SCRATCH', 'LIBRARY_PATH',
+		'GROUP_HOME', 'GROUP_SCRATCH', 'PI_HOME', 'PYENV_ROOT',
 		'PYTHONPATH', 'SHERLOCK'])
 	print("os.getcwd(): {}".format(os.getcwd()))
 	print("os.uname(): {}".format(os.uname()))

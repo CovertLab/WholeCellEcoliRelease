@@ -9,4 +9,4 @@ DESC="Anaerobic." VARIANT="condition" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1
 
 bash runscripts/jenkins/run-fireworks.sh
 
-runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/anaerobic/
+runscripts/jenkins/save_output.sh out/ /scratch/groups/mcovert/wc_ecoli/anaerobic/

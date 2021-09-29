@@ -26,4 +26,4 @@ DESC="Causality Network" BUILD_CAUSALITY_NETWORK=1 N_GENS=2 SEED=$RANDOM \
 
 bash runscripts/jenkins/run-fireworks.sh
 
-runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/optional_features/
+runscripts/jenkins/save_output.sh out/ /scratch/groups/mcovert/wc_ecoli/optional_features/

@@ -19,7 +19,7 @@ if [ $N_FAILS -gt 0 ]; then
   lpad get_fws -s FIZZLED
   echo
   sed '/^$/N;/^\n$/D' stderr.log  # Print errors but filter out multiple blank lines in a row
-  mv out/2* /scratch/PI/mcovert/wc_ecoli/failed/
+  mv out/2* /scratch/groups/mcovert/wc_ecoli/failed/
 fi
 
 test $N_FAILS = 0

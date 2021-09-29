@@ -5,7 +5,7 @@
 # Uses a relative month to now so that it can automatically remove old months when
 # scheduled to run in a Jenkins script.
 #
-# WARNING: will delete shared files in $PI_SCRATCH/wc_ecoli/
+# WARNING: will delete shared files in /scratch/groups/mcovert/wc_ecoli/
 #
 # Usage:
 #   ./purge.sh <directory> <months ago>
@@ -36,7 +36,7 @@ if ! [[ "$MONTHS_AGO_TO_PURGE" =~ $re ]] || [ "$MONTHS_AGO_TO_PURGE" -lt 6 ]; th
 	exit
 fi
 
-DIR="/scratch/PI/mcovert/wc_ecoli/$DIR_TO_PURGE"
+DIR="/scratch/groups/mcovert/wc_ecoli/$DIR_TO_PURGE"
 
 # Only deletes files from one month which is selected by MONTHS_AGO_TO_PURGE months prior to today
 MONTH=$((10#$(date +%m) - $MONTHS_AGO_TO_PURGE))

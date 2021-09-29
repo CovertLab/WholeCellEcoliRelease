@@ -9,4 +9,4 @@ DESC="With AAs." VARIANT="condition" FIRST_VARIANT_INDEX=2 LAST_VARIANT_INDEX=2 
 
 bash runscripts/jenkins/run-fireworks.sh
 
-runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/with_aa/
+runscripts/jenkins/save_output.sh out/ /scratch/groups/mcovert/wc_ecoli/with_aa/

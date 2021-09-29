@@ -10,7 +10,7 @@
 set -eu
 
 WC_MONGO_DB=$1
-LOG_DIR="/scratch/PI/mcovert/jenkins/fireworks/logs/launchpad"
+LOG_DIR="/scratch/groups/mcovert/jenkins/fireworks/logs/launchpad"
 
 mkdir -p $LOG_DIR
 {

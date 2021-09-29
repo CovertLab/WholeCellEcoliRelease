@@ -9,11 +9,11 @@ DESC="Daily build." SINGLE_DAUGHTERS=1 N_GENS=25 MASS_DISTRIBUTION=0 COMPRESS_OU
 
 bash runscripts/jenkins/run-fireworks.sh
 
-cp out/2*/kb/rawData.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/
-bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/rawData.cPickle.bz2
-chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/rawData.cPickle
-cp out/2*/kb/simData.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/
-bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/simData.cPickle.bz2
-chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/simData.cPickle
+cp out/2*/kb/rawData.cPickle.bz2 /scratch/groups/mcovert/wc_ecoli/cached/
+bunzip2 -f /scratch/groups/mcovert/wc_ecoli/cached/rawData.cPickle.bz2
+chmod 444 /scratch/groups/mcovert/wc_ecoli/cached/rawData.cPickle
+cp out/2*/kb/simData.cPickle.bz2 /scratch/groups/mcovert/wc_ecoli/cached/
+bunzip2 -f /scratch/groups/mcovert/wc_ecoli/cached/simData.cPickle.bz2
+chmod 444 /scratch/groups/mcovert/wc_ecoli/cached/simData.cPickle
 
-runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/daily_build/
+runscripts/jenkins/save_output.sh out/ /scratch/groups/mcovert/wc_ecoli/daily_build/

@@ -39,7 +39,7 @@ sudo apt install -y gcc make build-essential wget curl llvm
 you might not need to bother with Sherlock except to view Jenkins CI build logs.)
 
 The needed tools are already installed for the group.
-Look in `$PI_HOME/downloads/`, `$PI_HOME/installation_notes/`, and `$PI_HOME/modules/`.
+Look in `$GROUP_HOME/downloads/`, `$GROUP_HOME/installation_notes/`, and `$GROUP_HOME/modules/`.
 
 * Just add to your shell login script as described below.
 
@@ -130,6 +130,8 @@ required libraries and library versions.
    - Example `~/.bash_profile` lines for Sherlock:
 
      ```shell script
+     export PI_HOME=$GROUP_HOME
+
      ##### Add group-wide path settings #####
      if [ -f "${PI_HOME}/etc/bash_profile" ]; then
          . "${PI_HOME}/etc/bash_profile"

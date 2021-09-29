@@ -24,7 +24,7 @@ This page goes through the Python environment setup steps in more detail and wit
 `virtualenv` or `venv` in place of `pyenv`, be sure to put the environment
 *outside* the `wcEcoli/` directory. Otherwise `make clean` will break it!
 
-**Sherlock:** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip our Sherlock notes. Inside the lab, look in `$PI_HOME/downloads/` and `$PI_HOME/installation_notes/` for downloaded software packages and notes on recompiling them as needed to install new packages, new libraries, and new Python releases for the team.
+**Sherlock:** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip our Sherlock notes. Inside the lab, look in `$GROUP_HOME/downloads/` and `$GROUP_HOME/installation_notes/` for downloaded software packages and notes on recompiling them as needed to install new packages, new libraries, and new Python releases for the team.
 
 
 ## Prerequisites
@@ -90,6 +90,8 @@ This page goes through the Python environment setup steps in more detail and wit
    You'll need these newer git modules since they use a compatible version of `libressl`.
 
    ```shell script
+   export PI_HOME=$GROUP_HOME
+
    ##### Add group-wide path settings #####
    if [ -f "${PI_HOME}/etc/bash_profile" ]; then
        . "${PI_HOME}/etc/bash_profile"
@@ -118,14 +120,14 @@ This page goes through the Python environment setup steps in more detail and wit
 
 1. Install Python 3 **in a shared pyenv for the team** if it needs updating.
 
-   See `$PI_HOME/installation_notes/python3.txt`.
+   See `$GROUP_HOME/installation_notes/python3.txt`.
 
    If you need to update binary libraries like libressl, readline, or libffi,
-   see their `$PI_HOME/installation_notes/*.txt` files.
+   see their `$GROUP_HOME/installation_notes/*.txt` files.
 
    Each of these libraries and tools needs an _environment module_. We
    `module load` the module to make it accessible via environment variable paths
-   like `CPPFLAGS`. See for example `$PI_HOME/modules/xz/5.2.5.lua`.
+   like `CPPFLAGS`. See for example `$GROUP_HOME/modules/xz/5.2.5.lua`.
 
 ### On Ubuntu and other Linux environments
 
@@ -193,7 +195,7 @@ virtualenv.
    * Compiling from source with
      `make FC=gfortran && make PREFIX=/XYZ install` installs it in that specified `/XYZ`
      PREFIX directory.
-   * On Sherlock, it's installed in `$PI_HOME/downloads-sherlock2/compiled/openblas`.
+   * On Sherlock, it's installed in `$GROUP_HOME/downloads-sherlock2/compiled/openblas`.
      (Using an environment module to load the OpenBLAS when installing numpy and
      scipy works if the same environment module is loaded at runtime.)
 
@@ -375,8 +377,8 @@ source code, etc.
    ln -s $SCRATCH/wcEcoli_out out
    ```
 
-1. Create a symbolic link to a shared sim data cache directory on `$PI_SCRATCH` that should contain a copy of the newest sim data object (it should be updated by the daily build):
+1. Create a symbolic link to a shared sim data cache directory in `$GROUP_SCRATCH` that should contain a copy of the newest sim data object (it should be updated by the daily build):
 
    ```shell script
-   ln -s $PI_SCRATCH/wc_ecoli/cached cached
+   ln -s $GROUP_SCRATCH/wc_ecoli/cached cached
    ```
