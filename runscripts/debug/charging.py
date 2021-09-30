@@ -24,7 +24,7 @@ from models.ecoli.processes.polypeptide_elongation import (calculate_trna_chargi
 	CONC_UNITS, get_charging_params, get_charging_supply_function, get_ppgpp_params,
 	ppgpp_metabolite_changes)
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import constants, scriptBase, parallelization
+from wholecell.utils import constants, scriptBase, parallelization, units
 
 
 # Set of charging/ppGpp parameters that should not be modified by a slider
@@ -86,6 +86,9 @@ class ChargingDebug(scriptBase.ScriptBase):
 		self.define_parameter_bool(parser, 'mechanistic_aa_transport',
 			default_key='mechanistic_aa_transport',
 			help='set if sims were run with mechanistic_aa_transport')
+		self.define_parameter_bool(parser, 'ppgpp_regulation',
+			default_key='ppgpp_regulation',
+			help='set if sims were run with ppgpp_regulation')
 
 		# Debug options
 		parser.add_argument('-c', '--cpus', type=int, default=1,
@@ -136,6 +139,8 @@ class ChargingDebug(scriptBase.ScriptBase):
 		self.amino_acid_export = sim_data.process.metabolism.amino_acid_export
 		self.aa_supply_scaling = sim_data.process.metabolism.aa_supply_scaling
 		self.amino_acids = sim_data.molecule_groups.amino_acids
+		self.elong_rate = sim_data.growth_rate_parameters.get_ribosome_elongation_rate_by_ppgpp
+		self.basal_elong_rate = sim_data.constants.ribosome_elongation_rate_basal.asNumber(units.aa / units.s)
 
 		# Get charging parameters and separate to ones that will be adjusted or not
 		charging_params = get_charging_params(sim_data,
@@ -243,6 +248,11 @@ class ChargingDebug(scriptBase.ScriptBase):
 		charging_params = {}
 		for param, value in self.adjustable_charging_params.items():
 			charging_params[param] = value * param_adjustments.get(param, 1)
+		if self.ppgpp_regulation:
+			charging_params['max_elong_rate'] = self.elong_rate(self.ppgpp_conc[timestep],
+				self.basal_elong_rate).asNumber(units.aa / units.s)
+		else:
+			charging_params['max_elong_rate'] = self.basal_elong_rate
 		charging_params.update(self.constant_charging_params)
 		ppgpp_params = {}
 		for param, value in self.adjustable_ppgpp_params.items():
@@ -638,6 +648,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 		self.aa_supply_in_charging = args.aa_supply_in_charging
 		self.mechanistic_translation_supply = args.mechanistic_translation_supply
 		self.mechanistic_aa_transport = args.mechanistic_aa_transport
+		self.ppgpp_regulation = args.ppgpp_regulation
 
 		# Load data and check if required
 		if (args.grid_search or args.validation or args.interactive) and args.sim_dir is not None:

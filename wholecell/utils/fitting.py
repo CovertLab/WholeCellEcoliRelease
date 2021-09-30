@@ -262,6 +262,9 @@ def fit_linearized_transforms(
 			if verbose and abs_r > verbose:
 				print('{} {}: {:.3f} {:.1e}'.format(x_name, y_name, result.rvalue, result.pvalue))
 
+	if verbose:
+		print(f'Selected functions (r={best_r:.3f} p={best_p:.1e}):\n\tx: {x_transform}\n\ty: {y_transform}')
+
 	# Check tolerances to make sure the fit is as expected
 	if best_r < r_tol:
 		raise RuntimeError(f'Could not fit to the desired r: {best_r} < {r_tol}')

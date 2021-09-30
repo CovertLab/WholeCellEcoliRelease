@@ -118,7 +118,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		current_media_id = self._external_states['Environment'].current_media_id
 
 		# MODEL SPECIFIC: get ribosome elongation rate
-		self.ribosomeElongationRate = self.elongation_model.elongation_rate(current_media_id)
+		self.ribosomeElongationRate = self.elongation_model.elongation_rate()
 
 		# If there are no active ribosomes, return immediately
 		if self.active_ribosomes.total_count() == 0:
@@ -311,7 +311,8 @@ class BaseElongationModel(object):
 		self.proton = self.process.bulkMoleculeView(sim_data.molecule_ids.proton)
 		self.water = self.process.bulkMoleculeView(sim_data.molecule_ids.water)
 
-	def elongation_rate(self, current_media_id):
+	def elongation_rate(self):
+		current_media_id = self.process._external_states['Environment'].current_media_id
 		rate = self.process.elngRateFactor * self.ribosomeElongationRateDict[
 			current_media_id].asNumber(units.aa / units.s)
 		return np.min([self.basal_elongation_rate, rate])
@@ -353,7 +354,7 @@ class TranslationSupplyElongationModel(BaseElongationModel):
 	def __init__(self, sim_data, process):
 		super(TranslationSupplyElongationModel, self).__init__(sim_data, process)
 
-	def elongation_rate(self, current_media_id):
+	def elongation_rate(self):
 		return self.basal_elongation_rate
 
 	def amino_acid_counts(self, aasInSequences):
@@ -399,6 +400,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.rela = self.process.bulkMoleculeView(molecule_ids.RelA)
 		self.spot = self.process.bulkMoleculeView(molecule_ids.SpoT)
 		self.ppgpp = self.process.bulkMoleculeView(molecule_ids.ppGpp)
+		self.elong_rate_by_ppgpp = sim_data.growth_rate_parameters.get_ribosome_elongation_rate_by_ppgpp
 
 		# Parameters for tRNA charging, ribosome elongation and ppGpp reactions
 		self.charging_params = get_charging_params(sim_data,
@@ -427,6 +429,17 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.aa_transporters = self.process.bulkMoleculesView(metabolism.aa_transporters_names)
 		self.export_transporter_container = self.process.bulkMoleculesView(metabolism.aa_export_transporters_names)
 
+	def elongation_rate(self):
+		if self.process.ppgpp_regulation:
+			cell_mass = self.process.readFromListener("Mass", "cellMass") * units.fg
+			cell_volume = cell_mass / self.cellDensity
+			counts_to_molar = 1 / (self.process.n_avogadro * cell_volume)
+			ppgpp_conc = self.ppgpp.total_count() * counts_to_molar
+			rate = self.elong_rate_by_ppgpp(ppgpp_conc, self.basal_elongation_rate).asNumber(units.aa / units.s)
+		else:
+			rate = super().elongation_rate()
+		return rate
+
 	def request(self, aasInSequences):
 		self.max_time_step = min(self.process.max_time_step, self.max_time_step * self.time_step_increase)
 
@@ -435,6 +448,11 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		dry_mass = self.process.readFromListener("Mass", "dryMass") * units.fg
 		cell_volume = cell_mass / self.cellDensity
 		self.counts_to_molar = 1 / (self.process.n_avogadro * cell_volume)
+
+		# ppGpp related concentrations
+		ppgpp_conc = self.counts_to_molar * self.ppgpp.total_count()
+		rela_conc = self.counts_to_molar * self.rela.total_count()
+		spot_conc = self.counts_to_molar * self.spot.total_count()
 
 		# Get counts and convert synthetase and tRNA to a per AA basis
 		synthetase_counts = np.dot(self.aa_from_synthetase, self.synthetases.total_counts())
@@ -473,6 +491,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.process.writeToListener('GrowthLimits', 'aa_in_media', aa_in_media)
 
 		# Calculate steady state tRNA levels and resulting elongation rate
+		self.charging_params['max_elong_rate'] = self.elongation_rate()
 		fraction_charged, v_rib, supplied_in_charging = calculate_trna_charging(
 			synthetase_conc,
 			uncharged_trna_conc,
@@ -549,9 +568,6 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.water.requestIs(aa_counts_for_translation.sum())
 
 		# ppGpp reactions based on charged tRNA
-		ppgpp_conc = self.counts_to_molar * self.ppgpp.total_count()
-		rela_conc = self.counts_to_molar * self.rela.total_count()
-		spot_conc = self.counts_to_molar * self.spot.total_count()
 		self.process.writeToListener('GrowthLimits', 'ppgpp_conc', ppgpp_conc.asNumber(CONC_UNITS))
 		self.process.writeToListener('GrowthLimits', 'rela_conc', rela_conc.asNumber(CONC_UNITS))
 		self.process.writeToListener('GrowthLimits', 'spot_conc', spot_conc.asNumber(CONC_UNITS))
