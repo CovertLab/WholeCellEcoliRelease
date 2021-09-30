@@ -311,9 +311,9 @@ class GetterFunctions(object):
 		# These updates can be dependent on the masses calculated above
 		self._all_submass_arrays.update(self._build_modified_rna_masses(raw_data))
 		self._all_submass_arrays.update(self._build_protein_complex_masses(raw_data))
-		self._all_submass_arrays.update(
-			{x['id']: np.array(x['mw']) for x in raw_data.modified_proteins}
-			)
+
+		# This update can be dependent on the masses calculated above
+		self._all_submass_arrays.update(self._build_modified_protein_masses(raw_data, sim_data))
 
 		self._mass_units = units.g / units.mol
 
@@ -590,6 +590,71 @@ class GetterFunctions(object):
 			protein_complex_masses.update({complex_id: get_mw(complex_id)})
 
 		return protein_complex_masses
+
+
+	def _build_modified_protein_masses(self, raw_data, sim_data):
+		"""
+		Builds dictionary of molecular weights of modified proteins keyed with
+		the molecule IDs. Molecular weights are calculated from the
+		stoichiometries of the modification reactions.
+		"""
+		modified_protein_masses = {}
+
+		# List IDs of all metabolites involved in 2CS
+		ALL_2CS_METABOLITES = ['ATP', 'ADP', 'Pi', 'WATER', 'PROTON']
+
+		# Map types of modified proteins to their phosphorylation reactions that
+		# can be used to calculate their molecular weights
+		PROTEIN_TYPE_TO_PHOSPHORYLATION_RXN_ID = {
+			'PHOSPHO-HK': 'POS-HK-PHOSPHORYLATION_RXN',
+			'PHOSPHO-HK-LIGAND': 'POS-LIGAND-BOUND-HK-PHOSPHORYLATION_RXN',
+			'PHOSPHO-RR': 'POS-RR-DEPHOSPHORYLATION_RXN',
+			}
+
+		# Get stoichiometries of all 2CS reaction types
+		all_2cs_reaction_stoichs = {
+			rxn['id']: {mol['molecule']: mol['coeff'] for mol in rxn['stoichiometry']}
+			for rxn in raw_data.two_component_system_templates
+			}
+
+		all_2cs_systems = [
+			sys['molecules'] for sys in raw_data.two_component_systems
+			]
+
+		for system in all_2cs_systems:
+			for (mol_type, mol_id) in system.items():
+				# Skip molecules that are not modified proteins
+				if mol_type not in PROTEIN_TYPE_TO_PHOSPHORYLATION_RXN_ID:
+					continue
+				else:
+					# Get reaction stoichiometry of phosphorylation reaction
+					phosphorylation_reaction = PROTEIN_TYPE_TO_PHOSPHORYLATION_RXN_ID[mol_type]
+					reaction_stoich = all_2cs_reaction_stoichs[phosphorylation_reaction]
+
+					# Initialize submass array
+					mw = np.zeros(self._n_submass_indexes)
+					coeff_modified_protein = None
+
+					# Calculate mass such that reaction is mass balanced
+					for (mol, coeff) in reaction_stoich.items():
+						if mol == mol_type:
+							coeff_modified_protein = coeff
+							continue
+						elif mol in ALL_2CS_METABOLITES:
+							mw += -coeff * self._all_submass_arrays[mol]
+						else:
+							mw += -coeff * self._all_submass_arrays[system[mol]]
+
+					mw = mw / coeff_modified_protein
+
+					# Remove water submass and add to metabolite submass
+					if mw[sim_data.submass_name_to_index['water']] != 0:
+						mw[sim_data.submass_name_to_index['metabolite']] += mw[sim_data.submass_name_to_index['water']]
+						mw[sim_data.submass_name_to_index['water']] = 0
+
+					modified_protein_masses[mol_id] = mw
+
+		return modified_protein_masses
 
 
 	def _build_compartments(self, raw_data, sim_data):
