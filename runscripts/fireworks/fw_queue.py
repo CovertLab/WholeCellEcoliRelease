@@ -83,8 +83,8 @@ Modeling options:
 	D_PERIOD_DIVISION (int, "0"): if nonzero, ends simulation once D period has
 		occurred after chromosome termination; otherwise simulation terminates
 		once a given mass has been added to the cell
-	OPERONS (str, "off"): turn operons "off" or "on" (actually monocistronic or
-		polycistronic), or [future] run "both"
+	OPERONS (str, "off"): run with operons "off", "on" (actually monocistronic
+		or polycistronic), or "both" (into adjacent output directories)
 	VARIABLE_ELONGATION_TRANSCRIPTION (int, "1"): if nonzero, use variable
 		transcription elongation rates for each gene
 	VARIABLE_ELONGATION_TRANSLATION (int, "0"): if nonzero, use variable
@@ -277,7 +277,7 @@ MASS_DISTRIBUTION = bool(int(get_environment("MASS_DISTRIBUTION", DEFAULT_SIMULA
 GROWTH_RATE_NOISE = bool(int(get_environment("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
 D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
 OPERONS = get_environment("OPERONS", constants.DEFAULT_OPERON_OPTION)
-assert OPERONS in constants.OPERON_OPTIONS, f'{OPERONS=} needs to be in {constants.OPERON_OPTIONS}'
+assert OPERONS in constants.EXTENDED_OPERON_OPTIONS, f'{OPERONS=} needs to be in {constants.EXTENDED_OPERON_OPTIONS}'
 VARIABLE_ELONGATION_TRANSCRIPTION = bool(int(get_environment("VARIABLE_ELONGATION_TRANSCRIPTION", DEFAULT_SIMULATION_KWARGS["variable_elongation_transcription"])))
 VARIABLE_ELONGATION_TRANSLATION = bool(int(get_environment("VARIABLE_ELONGATION_TRANSLATION", DEFAULT_SIMULATION_KWARGS["variable_elongation_translation"])))
 TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
@@ -336,6 +336,8 @@ class WorkflowBuilder:
 	def __init__(self) -> None:
 		self.wf_fws: List[Firework] = []  # Fireworks in this workflow
 		self.wf_links: Dict[Firework, List[Firework]] = collections.defaultdict(list)  # dependencies
+		self.operons = ''
+		self.name_suffix = ''
 
 	def add_firework(self, firetask: FiretaskBase,
 					 name: str, *,
@@ -347,17 +349,17 @@ class WorkflowBuilder:
 
 		Args:
 			firetask: add a Firework containing this Firetask.
-			name: the unique task name.
+			name: the unique task name. (In the operons=both case, this gets a
+				suffix to distinguish the 'on' case, although it might not need
+				to be unique.)
 			parents: parent Firework(s), that is, dependencies.
 			cpus: the number of CPUs to allocate to the job.
 			priority: the job priority; a larger number is higher priority; None
 				is lowest priority (-∞).
 			indent: indentation level for the "Queueing" log message.
 		"""
-		# TODO(jerry): In the operons=both case, distinguish all the operons
-		#  on vs. off fireworks via a name suffix like "_operons" or "_poly",
-		#  although they probably don't have to be unique.
 		TAB = '\t'
+		name += self.name_suffix
 		log_info(f"{TAB * indent}Queueing {name}")
 
 		queue_spec = {'job_name': name, 'cpus_per_task': cpus}
@@ -373,12 +375,14 @@ class WorkflowBuilder:
 		"""Add parent -> child dependency links."""
 		self.wf_links[parent].extend(children)
 
-	def build_wcm(self) -> Firework:
+	def build_wcm(self, operons: str) -> Firework:
 		"""Build a Whole Cell Model workflow (Parca, sims, analysis, and output
 		file compression).
 		"""
-		# TODO(jerry): Able to run more than once with different operon settings
-		#  into adjacent output directories.
+		self.operons = operons
+		self.name_suffix = '_poly' if OPERONS == 'both' and operons == 'on' else ''
+
+		log_info(f"\n--- Building a WCM workflow with {operons=} ---")
 		self.make_output_directories()
 		self.write_metadata()
 		return self.build_wcm_firetasks()
@@ -390,7 +394,8 @@ class WorkflowBuilder:
 		"""
 		log_info("Making the output directories.")
 
-		self.INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
+		self.INDIV_OUT_DIRECTORY = filepath.makedirs(
+			OUT_DIRECTORY, f"{SUBMISSION_TIME}__{SIM_DESCRIPTION}{self.name_suffix}")
 		self.KB_DIRECTORY = filepath.makedirs(self.INDIV_OUT_DIRECTORY, constants.KB_DIR)
 		self.VARIANT_PLOT_DIRECTORY = os.path.join(self.INDIV_OUT_DIRECTORY, constants.PLOTOUT_DIR)
 
@@ -419,7 +424,7 @@ class WorkflowBuilder:
 			"git_hash": filepath.git_hash(),
 			"git_branch": filepath.git_branch(),
 			"description": os.environ.get("DESC", ""),
-			"operons": OPERONS,
+			"operons": self.operons,
 			"time": SUBMISSION_TIME,
 			"python": sys.version.splitlines()[0],
 			"total_gens": N_GENS,
@@ -465,7 +470,6 @@ class WorkflowBuilder:
 		(waiting on upstream tasks) by favoring tasks with more downstream tasks.
 		Parca and variant: 12, sim 10-11, analysis 2-5, compression ≤ 0.
 		"""
-		log_info("Building a WCM workflow.")
 		INDIV_OUT_DIRECTORY = self.INDIV_OUT_DIRECTORY
 		KB_DIRECTORY = self.KB_DIRECTORY
 		VARIANT_PLOT_DIRECTORY = self.VARIANT_PLOT_DIRECTORY
@@ -474,7 +478,7 @@ class WorkflowBuilder:
 		# Initialize KB
 		fw_init_raw_data = self.add_firework(
 			InitRawDataTask(
-				operons=OPERONS,
+				operons=self.operons,
 				output=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_DATA)),
 			"InitRawData",
 			priority=12)
@@ -853,9 +857,12 @@ def upload_workflow(workflow: Workflow):
 def main():
 	builder = WorkflowBuilder()
 
-	# TODO(jerry): For operons=both, build with operons=off and again with
-	#  operons=on, and add a ComparisonAnalysis Firetask to compare them.
-	builder.build_wcm()
+	if OPERONS == 'both':
+		builder.build_wcm(operons='off')
+		builder.build_wcm(operons='on')
+		# TODO(jerry): Add a ComparisonAnalysis Firetask to compare these two.
+	else:
+		builder.build_wcm(operons=OPERONS)
 
 	wf = builder.convert_to_fireworks_workflow()
 	# (Could optionally dump wf as a YAML file here.)
