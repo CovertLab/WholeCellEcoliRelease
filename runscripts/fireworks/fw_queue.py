@@ -48,7 +48,7 @@ Workflow options:
 	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
 		process
 	BUILD_CAUSALITY_NETWORK (int, "0"): if nonzero, causality network files are
-		generated from simulation output
+		generated from the first sim's output
 	RAISE_ON_TIME_LIMIT (int, "0"), if nonzero, the simulation raises an error
 		if the time limit (WC_LENGTHSEC) is reached before division
 
@@ -465,6 +465,7 @@ class WorkflowBuilder:
 		INDIV_OUT_DIRECTORY = self.INDIV_OUT_DIRECTORY
 		KB_DIRECTORY = self.KB_DIRECTORY
 		VARIANT_PLOT_DIRECTORY = self.VARIANT_PLOT_DIRECTORY
+		build_causality_network = BUILD_CAUSALITY_NETWORK
 
 		# Initialize KB
 		fw_init_raw_data = self.add_firework(
@@ -804,8 +805,9 @@ class WorkflowBuilder:
 										fw_this_variant_this_gen_this_sim_compression)
 
 
-						if BUILD_CAUSALITY_NETWORK:
+						if build_causality_network:
 							# BuildCausalityNetwork task
+							build_causality_network = False  # once per WCM is enough
 							fw_this_variant_this_gen_this_sim_causality_network = self.add_firework(
 								BuildCausalityNetworkTask(
 									input_results_directory=CELL_SIM_OUT_DIRECTORY,
