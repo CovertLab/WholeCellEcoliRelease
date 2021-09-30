@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function
 ACTIVE = [
 	'aa_synthesis_enzymes.py',
 	'aa_synthesis_pathways.py',
+	'all_operon_tu_structures.py',
 	'amino_acid_uptake_rates.py',
 	'mRNA_cistron_expression.py',
 	'expression_probabilities.py',

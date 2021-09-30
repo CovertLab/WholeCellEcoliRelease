@@ -196,19 +196,20 @@ class GetterFunctions(object):
 		# Set of gene IDs that are covered by listed transcription units
 		covered_gene_ids = set()
 
-		# Keep track of common names to remove duplicate TUs that cover the same
-		# set of genes but have different left & right end coordinates. The
-		# first TU that covers the given set of genes will always be selected.
+		# Keep track of gene tuples of TUs to remove duplicate TUs that cover
+		# the same set of genes but have different left & right end coordinates.
+		# The first TU that covers the given set of genes is always selected.
 		# TODO (ggsun): consider picking longest?
-		all_tu_common_names = set()
+		all_tu_gene_tuples = set()
 
 		# Add sequences from transcription_units file
 		for tu in raw_data.transcription_units:
 			# Skip duplicate TUs
-			if tu['common_name'] in all_tu_common_names:
+			gene_tuple = tuple(sorted(tu['genes']))
+			if gene_tuple in all_tu_gene_tuples:
 				continue
 			else:
-				all_tu_common_names.add(tu['common_name'])
+				all_tu_gene_tuples.add(gene_tuple)
 
 			# Skip TUs that cover any gene without specified positions
 			if not set(tu['genes']) < valid_gene_ids:
