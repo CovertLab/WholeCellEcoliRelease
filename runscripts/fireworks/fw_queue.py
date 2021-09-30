@@ -31,8 +31,8 @@ Workflow options:
 		expression levels, leaving the others at their input levels, for faster
 		Parca debugging; do not use this for an actual simulation
 	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
-	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
-		simulation output
+	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses (aggregate and
+		single gen) are run on simulation output
 	PLOTS (str, ""): Which analyses to run (if RUN_AGGREGATE_ANALYSIS is
 		true). This should name one or more tags. For more than one tag,
 		separate them with whitespace and remember shell quoting. ACTIVE
@@ -351,7 +351,7 @@ class WorkflowBuilder:
 			parents: parent Firework(s), that is, dependencies.
 			cpus: the number of CPUs to allocate to the job.
 			priority: the job priority; a larger number is higher priority; None
-				is lowest priority.
+				is lowest priority (-∞).
 			indent: indentation level for the "Queueing" log message.
 		"""
 		# TODO(jerry): In the operons=both case, distinguish all the operons
@@ -460,6 +460,10 @@ class WorkflowBuilder:
 
 		Returns a parent for comparison analysis (between this WCM and others)
 		Firetasks **only if RUN_AGGREGATE_ANALYSIS**.
+
+		**Priorities** are set to reduce possible worker starvation time
+		(waiting on upstream tasks) by favoring tasks with more downstream tasks.
+		Parca and variant: 12, sim 10-11, analysis 2-5, compression ≤ 0.
 		"""
 		log_info("Building a WCM workflow.")
 		INDIV_OUT_DIRECTORY = self.INDIV_OUT_DIRECTORY
@@ -473,7 +477,7 @@ class WorkflowBuilder:
 				operons=OPERONS,
 				output=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_DATA)),
 			"InitRawData",
-			priority=1)
+			priority=12)
 
 		# CalculateSimData
 		cpusForParca = 8 if PARALLEL_PARCA else 1
@@ -493,7 +497,7 @@ class WorkflowBuilder:
 			name="CalculateSimData",
 			parents=fw_init_raw_data,
 			cpus=cpusForParca,
-			priority=1)
+			priority=12)
 
 		# Raw KB compression
 		fw_raw_data_compression = None
@@ -519,7 +523,7 @@ class WorkflowBuilder:
 			InitRawValidationDataTask(
 				output=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_VALIDATION_DATA)),
 			name="InitValidationDataRaw",
-			priority=1)
+			priority=2)
 
 		# Raw validation data compression
 		fw_raw_validation_data_compression = None
@@ -540,7 +544,7 @@ class WorkflowBuilder:
 				output_data=os.path.join(KB_DIRECTORY, constants.SERIALIZED_VALIDATION_DATA)),
 			name="InitValidationData",
 			parents=[fw_raw_validation_data, fw_init_raw_data],
-			priority=1)
+			priority=2)
 
 		# Full validation data compression
 		fw_validation_data_compression = None
@@ -615,7 +619,7 @@ class WorkflowBuilder:
 					variant_metadata_directory=VARIANT_METADATA_DIRECTORY),
 				name=f"VariantSimDataTask__{VARIANT}_{i:06d}",
 				parents=fw_calculate_sim_data,
-				priority=1)
+				priority=12)
 
 			if COMPRESS_OUTPUT:
 				self.add_links(fw_this_variant_sim_data, fw_sim_data_1_compression)
