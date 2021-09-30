@@ -286,6 +286,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			f,
 			charging_params,
 			supply=supply_function,
+			limit_v_rib=True,
 			time_limit=timestep_size,
 			)
 		fraction_charged_per_trna = fraction_charged @ self.aa_from_trna
