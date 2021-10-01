@@ -381,7 +381,7 @@ class WorkflowBuilder:
 		file compression).
 		"""
 		self.operons = operons
-		self.name_suffix = '_poly' if OPERONS == 'both' and operons == 'on' else ''
+		self.name_suffix = '_operons' if OPERONS == 'both' and operons == 'on' else ''
 
 		log_info(f"\n--- Building a WCM workflow with {operons=} ---")
 		self.make_output_directories()
@@ -528,7 +528,7 @@ class WorkflowBuilder:
 			InitRawValidationDataTask(
 				output=os.path.join(KB_DIRECTORY, constants.SERIALIZED_RAW_VALIDATION_DATA)),
 			name="InitValidationDataRaw",
-			priority=2)
+			priority=12)
 
 		# Raw validation data compression
 		fw_raw_validation_data_compression = None
@@ -549,7 +549,7 @@ class WorkflowBuilder:
 				output_data=os.path.join(KB_DIRECTORY, constants.SERIALIZED_VALIDATION_DATA)),
 			name="InitValidationData",
 			parents=[fw_raw_validation_data, fw_init_raw_data],
-			priority=2)
+			priority=12)
 
 		# Full validation data compression
 		fw_validation_data_compression = None
