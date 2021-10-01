@@ -137,6 +137,7 @@ InitValidationData (fw_validation_data)
 * CompressRawValidationData if COMPRESS_OUTPUT
 * CompressRawData if COMPRESS_OUTPUT
 * AnalysisParca if RUN_AGGREGATE_ANALYSIS
+* VariantSimData [see the comment in the code]
 
 FitSimData (fw_calculate_sim_data)
 * CompressRawData if COMPRESS_OUTPUT
@@ -175,7 +176,7 @@ AnalysisCohort (fw_this_variant_cohort_analysis)
 * CompressValidationData if COMPRESS_OUTPUT
 * CompressSimulationOutput if COMPRESS_OUTPUT
 
-AnalysisMultiGen (fw_this_variant_this_seed_this_analysis)
+AnalysisMultiGen (fw_this_variant_this_seed_multigen_analysis)
 * CompressVariantSimData if COMPRESS_OUTPUT
 * CompressValidationData if COMPRESS_OUTPUT
 * CompressSimulationOutput if COMPRESS_OUTPUT
@@ -612,6 +613,9 @@ class WorkflowBuilder:
 			md_cohort = dict(self.metadata, variant_function = VARIANT, variant_index = i)
 
 			# Variant simData creation task
+			# Note: This task doesn't depend on fw_validation_data but such a
+			# link is lighter weight for Fireworks than making every analysis
+			# task directly depend on it.
 			fw_this_variant_sim_data = self.add_firework(
 				VariantSimDataTask(
 					variant_function=VARIANT,
@@ -622,7 +626,7 @@ class WorkflowBuilder:
 												 constants.SERIALIZED_SIM_DATA_MODIFIED),
 					variant_metadata_directory=VARIANT_METADATA_DIRECTORY),
 				name=f"VariantSimDataTask__{VARIANT}_{i:06d}",
-				parents=fw_calculate_sim_data,
+				parents=[fw_calculate_sim_data, fw_validation_data],
 				priority=12)
 
 			if COMPRESS_OUTPUT:
@@ -656,7 +660,7 @@ class WorkflowBuilder:
 					cpus=analysis_cpus,
 					priority=4)
 
-			fw_this_variant_this_seed_this_analysis = None
+			fw_this_variant_this_seed_multigen_analysis = None
 
 			for j in range(SEED, SEED + N_INIT_SIMS):
 				SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
@@ -664,7 +668,7 @@ class WorkflowBuilder:
 				md_multigen = dict(md_cohort, seed = j)
 
 				if RUN_AGGREGATE_ANALYSIS:
-					fw_this_variant_this_seed_this_analysis = self.add_firework(
+					fw_this_variant_this_seed_multigen_analysis = self.add_firework(
 						AnalysisMultiGenTask(
 							input_seed_directory=SEED_DIRECTORY,
 							input_sim_data=os.path.join(VARIANT_SIM_DATA_DIRECTORY,
@@ -681,7 +685,7 @@ class WorkflowBuilder:
 						indent=1)
 
 					if COMPRESS_OUTPUT:
-						self.add_links(fw_this_variant_this_seed_this_analysis,
+						self.add_links(fw_this_variant_this_seed_multigen_analysis,
 									   fw_this_variant_sim_data_compression)
 
 				sims_this_seed = collections.defaultdict(list)
@@ -758,7 +762,7 @@ class WorkflowBuilder:
 						# Only add the last generation as dependencies for multiple sim analysis tasks
 						if RUN_AGGREGATE_ANALYSIS and k == N_GENS - 1:
 							self.add_links(fw_this_variant_this_gen_this_sim,
-										   fw_this_variant_this_seed_this_analysis,
+										   fw_this_variant_this_seed_multigen_analysis,
 										   fw_this_variant_cohort_analysis,
 										   fw_variant_analysis)
 
@@ -803,7 +807,7 @@ class WorkflowBuilder:
 								# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
 								data_fws = [
 									fw_this_variant_this_gen_this_sim_analysis,
-									fw_this_variant_this_seed_this_analysis,
+									fw_this_variant_this_seed_multigen_analysis,
 									fw_this_variant_cohort_analysis,
 									fw_variant_analysis]
 								for data in data_fws:
