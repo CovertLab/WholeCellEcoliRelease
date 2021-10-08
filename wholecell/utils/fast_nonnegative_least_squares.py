@@ -1,9 +1,10 @@
 """
-Faster implementations of nonnegative least squares.
+Faster implementation of nonnegative least squares.
 """
 
 import numpy as np
 from scipy.optimize import nnls
+from scipy.sparse import issparse
 
 def fast_nnls(A, b):
 	"""
@@ -23,6 +24,14 @@ def fast_nnls(A, b):
 		r: numpy.ndarray of size (M, ), the residual vector (Ax - b) of the NNLS
 			problem.
 	"""
+	# Check input dimensions
+	if not issparse(A) or A.ndim != 2:
+		raise TypeError('Input array A must be a two-dimensional sparse csr_matrix')
+	elif not isinstance(b, np.ndarray) or b.ndim != 1:
+		raise TypeError('Input array b must be a one-dimensional ndarray.')
+	elif A.shape[0] != len(b):
+		raise TypeError('Dimensions of input arrays A and b do not match.')
+
 	# Divide matrix A into smaller submatrices
 	A_nonzero_row_indexes, A_nonzero_column_indexes = A.nonzero()
 
@@ -82,7 +91,7 @@ def fast_nnls(A, b):
 					A_nonzero_row_indexes[mask],
 					A_nonzero_column_indexes[mask],
 					A.data[mask]):
-				submatrix[np.where(row_indexes == i)[0][0], np.where(column_indexes == j)[0][0]] = 1
+				submatrix[np.where(row_indexes == i)[0][0], np.where(column_indexes == j)[0][0]] = v
 
 			# Solve the subproblem
 			x_subproblem, _ = nnls(submatrix, b[row_indexes])
