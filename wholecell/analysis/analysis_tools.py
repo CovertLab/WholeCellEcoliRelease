@@ -95,6 +95,20 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=Fa
 				str(metadata["description"])
 				])
 
+		elif analysis_type == 'comparison':
+			# Format metadata signature for a comparison figure
+			metadata_signature = "_".join([
+				str(metadata["time"][:13]),
+				str(metadata["total_variants"]),
+				"variants",
+				str(metadata["total_gens"]),
+				"gens",
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
+
 		else:
 			raise ValueError('Unknown analysis_type {}'.format(analysis_type))
 

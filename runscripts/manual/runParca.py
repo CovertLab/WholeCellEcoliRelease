@@ -27,7 +27,8 @@ class RunParca(scriptBase.ScriptBase):
 		# NOTE: Don't name this arg sim_dir since that makes parse_args() look
 		# for an existing sim_dir directory while here we aim to create one.
 		parser.add_argument('sim_outdir', nargs='?', default='manual',
-			help='The simulation "out/" subdirectory to write to.'
+			help='The simulation root directory to hold the "kb/" and'
+				 ' eventually simulation variants and generations.'
 				 ' Default = "manual".')
 
 		parser.add_argument('--timestamp', action='store_true',

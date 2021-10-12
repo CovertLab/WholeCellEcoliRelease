@@ -724,7 +724,7 @@ class GetterFunctions(object):
 		# for each metabolite
 		for rxn in raw_data.metabolic_reactions:
 			for met in rxn['stoichiometry'].keys():
-				met_id, compartment, _ = re.split('[\[\]]', met)
+				met_id, compartment, _ = re.split(r'[\[\]]', met)
 				compartment_tag = compartment_ids_to_abbreviations[compartment]
 
 				if (met_id in metabolite_compartments and

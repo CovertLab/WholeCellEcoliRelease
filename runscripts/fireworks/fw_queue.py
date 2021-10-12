@@ -167,6 +167,7 @@ AnalysisSingle (fw_this_variant_this_gen_this_sim_analysis)
 * CompressSimulationOutput if COMPRESS_OUTPUT
 
 AnalysisVariant (fw_variant_analysis)
+* AnalysisComparison if OPERONS == 'both'
 * CompressVariantSimData if COMPRESS_OUTPUT
 * CompressValidationData if COMPRESS_OUTPUT
 * CompressSimulationOutput if COMPRESS_OUTPUT
@@ -222,6 +223,7 @@ from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
+from wholecell.fireworks.firetasks import AnalysisComparisonTask
 from wholecell.fireworks.firetasks import BuildCausalityNetworkTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from wholecell.utils import constants
@@ -340,6 +342,10 @@ class WorkflowBuilder:
 		self.operons = ''
 		self.name_suffix = ''
 
+		# AnalysisComparisonTask depends on AnalysisVariantTask in order to
+		# depend (indirectly but light weight) on all the sim tasks.
+		self.fw_variant_analysis = None
+
 	def add_firework(self, firetask: FiretaskBase,
 					 name: str, *,
 					 parents: Union[None, Firework, List[Firework]] = None,
@@ -381,7 +387,8 @@ class WorkflowBuilder:
 		file compression).
 		"""
 		self.operons = operons
-		self.name_suffix = '_operons' if OPERONS == 'both' and operons == 'on' else ''
+		self.name_suffix = (
+			constants.OPERON_SUFFIX if OPERONS == 'both' and operons == 'on' else '')
 
 		log_info(f"\n--- Building a WCM workflow with {operons=} ---")
 		self.make_output_directories()
@@ -393,6 +400,9 @@ class WorkflowBuilder:
 		"""Make the output directories for the Firetasks and set self.* fields
 		to some of those paths.
 		"""
+		# NOTE: Beyond setting the instance variables, making the dirs should be
+		# superfluous now that these Firetasks make their output dirs to support
+		# cloud workflows.
 		log_info("Making the output directories.")
 
 		self.INDIV_OUT_DIRECTORY = filepath.makedirs(
@@ -458,7 +468,7 @@ class WorkflowBuilder:
 		if git_diff:
 			filepath.write_file(os.path.join(METADATA_DIRECTORY, "git_diff.txt"), git_diff)
 
-	def build_wcm_firetasks(self) -> Firework:
+	def build_wcm_firetasks(self):
 		"""Build the WCM Firetasks and their dependency links.
 
 		Call convert_to_fireworks_workflow() to convert the accumulated info to
@@ -587,9 +597,9 @@ class WorkflowBuilder:
 							   fw_sim_data_1_compression, fw_validation_data_compression)
 
 			# Variant analysis
-			fw_variant_analysis = self.add_firework(
+			self.fw_variant_analysis = fw_variant_analysis = self.add_firework(
 				AnalysisVariantTask(
-					input_directory=os.path.join(INDIV_OUT_DIRECTORY),
+					input_directory=INDIV_OUT_DIRECTORY,
 					input_sim_data=os.path.join(KB_DIRECTORY,
 												constants.SERIALIZED_SIM_DATA_FILENAME),
 					input_validation_data=os.path.join(KB_DIRECTORY,
@@ -841,7 +851,26 @@ class WorkflowBuilder:
 											   fw_this_variant_sim_data_compression,
 											   fw_this_variant_this_gen_this_sim_compression)
 
-		return fw_variant_analysis
+	def add_comparison_analysis(self, reference_sim_dir: str,
+			reference_variant_analysis: Firework) -> None:
+		"""Add an AnalysisComparisonTask that compares the WCM workflow results
+		against a reference WCM workflow's results.
+		"""
+		if RUN_AGGREGATE_ANALYSIS:
+			plot_out_dir = os.path.join(
+				self.INDIV_OUT_DIRECTORY, constants.COMPARISON_PLOTOUT_DIR)
+			self.add_firework(
+				AnalysisComparisonTask(
+					input_directory1=reference_sim_dir,
+					input_directory2=self.INDIV_OUT_DIRECTORY,
+					output_plots_directory=plot_out_dir,
+					metadata=self.metadata,
+					plot=PLOTS,
+					cpus=analysis_cpus),
+				name="AnalysisComparisonTask",
+				parents=[reference_variant_analysis, self.fw_variant_analysis],
+				cpus=analysis_cpus,
+				priority=2)
 
 	def convert_to_fireworks_workflow(self) -> Workflow:
 		"""Build a Fireworks Workflow object from the Firetask and dependency
@@ -863,8 +892,12 @@ def main():
 
 	if OPERONS == 'both':
 		builder.build_wcm(operons='off')
+		sim_dir1 = builder.INDIV_OUT_DIRECTORY
+		variant_analysis1 = builder.fw_variant_analysis
+
 		builder.build_wcm(operons='on')
-		# TODO(jerry): Add a ComparisonAnalysis Firetask to compare these two.
+
+		builder.add_comparison_analysis(sim_dir1, variant_analysis1)
 	else:
 		builder.build_wcm(operons=OPERONS)
 

@@ -10,14 +10,20 @@ TODO: Other shared code to simplify the subclasses, e.g. instantiate an
 AnalysisPaths (except for SingleAnalysisPlot subclasses), etc.
 """
 
+from __future__ import annotations
+
 import abc
 import os
+import pickle
+from typing import Tuple
 
 import matplotlib as mp
 from matplotlib import pyplot as plt
 import numpy as np
 
-from wholecell.utils import memory_debug, parallelization
+from reconstruction.ecoli.simulation_data import SimulationDataEcoli
+from validation.ecoli.validation_data import ValidationDataEcoli
+from wholecell.utils import constants, memory_debug, parallelization
 from wholecell.utils import filepath as fp
 
 
@@ -41,6 +47,24 @@ class AnalysisPlot(metaclass=abc.ABCMeta):
 	def __init__(self, cpus=0):
 		self.cpus = parallelization.cpus(cpus)
 		self._axeses = {}
+
+	@staticmethod
+	def read_sim_data_file(sim_path: str) -> SimulationDataEcoli:
+		"""Return the sim_data object read from sim_path."""
+		simDataFile = os.path.join(sim_path,
+								   constants.KB_DIR,
+								   constants.SERIALIZED_SIM_DATA_FILENAME)
+		with open(simDataFile, 'rb') as f:
+			return pickle.load(f)
+
+	@staticmethod
+	def read_validation_data_file(sim_path: str) -> ValidationDataEcoli:
+		"""Return the validation_data object read from sim_path."""
+		validationDataFile = os.path.join(sim_path,
+										  constants.KB_DIR,
+										  constants.SERIALIZED_VALIDATION_DATA)
+		with open(validationDataFile, 'rb') as f:
+			return pickle.load(f)
 
 	def subplot(self, *args):
 		"""

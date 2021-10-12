@@ -3,13 +3,14 @@ AnalysisPaths: object for easily accessing file paths to simulations based on
 variants, seeds, and generation.
 '''
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
 from os import listdir
 from os.path import isdir, join
-from re import match, findall
+import re
 from itertools import chain
 from typing import cast, Iterable, List, Optional, Union
+
 import numpy as np
 
 from wholecell.utils import constants
@@ -30,25 +31,26 @@ class AnalysisPaths(object):
 	it is assumed that all values for that field are desired. If all
 	fields are left blank all cells will be returned.
 
-	For a variant_plot, out_dir must be a top level simulation output dir.
-	For a cohort_plot, out_dir must be a variant output dir.
-	For a multi_gen_plot, out_dir must be a seed output dir.
+	* For a variant_plot, out_dir must be a top level simulation output dir.
+	* For a cohort_plot, out_dir must be a variant output dir.
+	* For a multi_gen_plot, out_dir must be a seed output dir.
 	'''
+	VARIANT_PATTERN = re.compile(r'.+_\d{6}')
+	SEED_PATTERN = re.compile(r'\d{6}')
 
-	def __init__(self, out_dir, variant_plot = False, multi_gen_plot = False, cohort_plot = False):
-		# type: (str, bool, bool, bool) -> None
-		assert sum((variant_plot, multi_gen_plot, cohort_plot)) == 1, "Must specify exactly one plot type!"
+	def __init__(self, out_dir, *,
+				 variant_plot: bool = False, multi_gen_plot: bool = False,
+				 cohort_plot: bool = False) -> None:
+		assert variant_plot + multi_gen_plot + cohort_plot == 1, (
+			"Must specify exactly one plot type!")
 
 		generation_dirs = []  # type: List[str]
 		if variant_plot:
 			# Find all variant directories in the given simulation output dir
 			all_dirs = listdir(out_dir)
 			variant_out_dirs = []
-			# Consider only those directories which are variant directories
 			for directory in all_dirs:
-				# Accept directories which have a variant type, an underscore, and
-				# a 6-digit variant index
-				if match(r'.+_\d{6}$', directory):
+				if self.VARIANT_PATTERN.fullmatch(directory):
 					variant_out_dirs.append(join(out_dir, directory))
 
 			# Check to see if only wildtype variants exist that didn't match the pattern
@@ -65,7 +67,7 @@ class AnalysisPaths(object):
 			for variant_dir in variant_out_dirs:
 				all_dirs = listdir(variant_dir)
 				for directory in all_dirs:
-					if match(r'^\d{6}$', directory):
+					if self.SEED_PATTERN.fullmatch(directory):
 						seed_out_dirs.append(join(variant_dir, directory))
 
 			# Get all generation files for each seed
@@ -78,7 +80,7 @@ class AnalysisPaths(object):
 			seed_out_dirs = []
 			all_dirs = listdir(out_dir)
 			for directory in all_dirs:
-				if match(r'^\d{6}$', directory):
+				if self.SEED_PATTERN.fullmatch(directory):
 					seed_out_dirs.append(join(out_dir, directory))
 
 			# Get all generation files for each seed
@@ -105,7 +107,7 @@ class AnalysisPaths(object):
 		variant_kb = []
 		for filePath in generation_dirs:
 			# Find generation
-			matches = findall(r'generation_\d{6}', filePath)
+			matches = re.findall(r'generation_\d{6}', filePath)
 			if len(matches) > 1:
 				raise Exception("Expected only one match for generation!")
 			generations.append(int(matches[0][-6:]))
@@ -138,8 +140,10 @@ class AnalysisPaths(object):
 
 	def get_cells(self, variant = None, seed = None, generation = None):
 		# type: (Optional[Iterable[Union[int, str]]], Optional[Iterable[int]], Optional[Iterable[int]]) -> np.ndarray
-		"""Returns file paths for all the simulated cells."""
-		# TODO: Rename this to get_cell_paths()?
+		"""Returns file paths for all the simulated cells matching the given
+		variant number, seed number, and generation number collections, where
+		None => all.
+		"""
 		if variant is None:
 			variantBool = np.ones(self._path_data.shape)
 		else:
@@ -165,8 +169,32 @@ class AnalysisPaths(object):
 
 	def get_variants(self):
 		# type: () -> List[Union[int, str]]
-		"""Return all the variants."""
+		"""Return all the variant indexes."""
 		return sorted(np.unique(self._path_data["variant"]))
+
+	def get_cell_variant(self, path: str) -> int:
+		"""Return the variant index for the given get_cells() sim path."""
+		return self._path_data['variant'][self._path_index(path)]
+
+	def get_cell_seed(self, path: str) -> int:
+		"""Return the seed for the given get_cells() sim path."""
+		return self._path_data['seed'][self._path_index(path)]
+
+	def get_cell_generation(self, path: str) -> int:
+		"""Return the generation number for the given get_cells() sim path."""
+		return self._path_data['generation'][self._path_index(path)]
+
+	def get_cell_variant_kb(self, path: str) -> str:
+		"""Return the variant kb path (simData_Modified.cPickle) for the given
+		get_cells() sim path.
+		"""
+		return self._path_data['variantkb'][self._path_index(path)]
+
+	def _path_index(self, path: str) -> int:
+		"""Return the index into _path_data for the given get_cells() sim path."""
+		indexes = np.where(self._path_data['path'] == path)[0]
+		assert indexes.size == 1
+		return indexes[0]
 
 	def _get_generations(self, directory):
 		# type: (str) -> List[List[str]]

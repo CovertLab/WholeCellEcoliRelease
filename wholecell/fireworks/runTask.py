@@ -21,6 +21,7 @@ from wholecell.fireworks.firetasks import (
 	AnalysisCohortTask,
 	AnalysisSingleTask,
 	AnalysisMultiGenTask,
+	AnalysisComparisonTask,
 	BuildCausalityNetworkTask,
 	WriteJsonTask,
 	)
@@ -36,6 +37,7 @@ FIRETASKS = (
 	AnalysisCohortTask,
 	AnalysisSingleTask,
 	AnalysisMultiGenTask,
+	AnalysisComparisonTask,
 	BuildCausalityNetworkTask,
 	WriteJsonTask,
 	)  # type: Sequence[Type[FiretaskBase]]
