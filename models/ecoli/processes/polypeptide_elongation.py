@@ -425,6 +425,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.amino_acid_synthesis = metabolism.amino_acid_synthesis
 		self.amino_acid_import = metabolism.amino_acid_import
 		self.amino_acid_export = metabolism.amino_acid_export
+		self.get_pathway_enzyme_counts_per_aa = metabolism.get_pathway_enzyme_counts_per_aa
 
 		self.aa_transporters = self.process.bulkMoleculesView(metabolism.aa_transporters_names)
 		self.export_transporter_container = self.process.bulkMoleculesView(metabolism.aa_export_transporters_names)
@@ -471,10 +472,11 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 
 		# Calculate amino acid supply
 		aa_in_media = self.aa_environment.import_present()
-		enzyme_counts = self.aa_enzymes.total_counts()
+		fwd_enzyme_counts, rev_enzyme_counts = self.get_pathway_enzyme_counts_per_aa(
+			self.aa_enzymes.total_counts())
 		transporter_counts = self.aa_transporters.total_counts()
 		export_transporter_counts = self.export_transporter_container.total_counts()
-		synthesis, enzyme_counts_per_aa, saturation = self.amino_acid_synthesis(enzyme_counts, aa_conc)
+		synthesis, fwd_saturation, rev_saturation = self.amino_acid_synthesis(fwd_enzyme_counts, rev_enzyme_counts, aa_conc)
 		import_rates = self.amino_acid_import(aa_in_media, dry_mass, transporter_counts, self.process.mechanistic_aa_transport)
 		export_rates = self.amino_acid_export(export_transporter_counts, aa_conc, self.process.mechanistic_aa_transport)
 		exchange_rates = import_rates - export_rates
@@ -483,8 +485,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			self.process.aa_supply_in_charging, self.process.mechanistic_translation_supply,
 			self.process.mechanistic_aa_transport, self.amino_acid_synthesis,
 			self.amino_acid_export, self.aa_supply_scaling, self.counts_to_molar,
-			self.process.aa_supply, enzyme_counts, export_transporter_counts,
-			exchange_rates, import_rates, aa_in_media,
+			self.process.aa_supply, fwd_enzyme_counts, rev_enzyme_counts,
+			export_transporter_counts, exchange_rates, import_rates, aa_in_media,
 			)
 
 		self.process.writeToListener('GrowthLimits', 'original_aa_supply', self.process.aa_supply)
@@ -546,10 +548,12 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.process.writeToListener('GrowthLimits', 'aa_synthesis', synthesis * self.process.timeStepSec())
 		self.process.writeToListener('GrowthLimits', 'aa_import', import_rates * self.process.timeStepSec())
 		self.process.writeToListener('GrowthLimits', 'aa_export', export_rates * self.process.timeStepSec())
-		self.process.writeToListener('GrowthLimits', 'aa_supply_enzymes', enzyme_counts)
+		self.process.writeToListener('GrowthLimits', 'aa_supply_enzymes_fwd', fwd_enzyme_counts)
+		self.process.writeToListener('GrowthLimits', 'aa_supply_enzymes_rev', rev_enzyme_counts)
 		self.process.writeToListener('GrowthLimits', 'aa_exporters', export_transporter_counts)
 		self.process.writeToListener('GrowthLimits', 'aa_supply_aa_conc', aa_conc.asNumber(units.mmol/units.L))
-		self.process.writeToListener('GrowthLimits', 'aa_supply_fraction', saturation)
+		self.process.writeToListener('GrowthLimits', 'aa_supply_fraction_fwd', fwd_saturation)
+		self.process.writeToListener('GrowthLimits', 'aa_supply_fraction_rev', rev_saturation)
 
 		# Only request molecules that will be consumed in the charging reactions
 		aa_from_uncharging = -self.charging_stoich_matrix @ charged_trna_request
@@ -1093,7 +1097,8 @@ def get_charging_supply_function(
 		aa_supply_scaling: Callable,
 		counts_to_molar: units.Unum,
 		aa_supply: np.ndarray,
-		enzyme_counts: np.ndarray,
+		fwd_enzyme_counts: np.ndarray,
+		rev_enzyme_counts: np.ndarray,
 		exporter_counts: np.ndarray,
 		exchange_rates: np.ndarray,
 		import_rates: np.ndarray,
@@ -1113,7 +1118,8 @@ def get_charging_supply_function(
 			on the internal state
 		counts_to_molar: conversion factor for counts to molar in units of counts/volume
 		aa_supply: rate of amino acid supply expected
-		enzyme_counts: counts for amino acid synthesis enzymes
+		fwd_enzyme_counts: counts for enzymes in forward reactions for each amino acid
+		rev_enzyme_counts: counts for enzymes in loss reactions for each amino acid
 		exporter_counts: counts for amino acid exporters
 		exchange_rates: rates of amino acid transport (import - export)
 		import_rates: rates of amino acid import
@@ -1133,11 +1139,11 @@ def get_charging_supply_function(
 		if mechanistic_supply:
 			if mechanistic_aa_transport:
 				supply_function = lambda aa_conc: counts_to_molar * (
-					amino_acid_synthesis(enzyme_counts, aa_conc)[0] + import_rates
+					amino_acid_synthesis(fwd_enzyme_counts, rev_enzyme_counts, aa_conc)[0] + import_rates
 					- amino_acid_export(exporter_counts, aa_conc, mechanistic_aa_transport))
 			else:
 				supply_function = lambda aa_conc: counts_to_molar * (
-					amino_acid_synthesis(enzyme_counts, aa_conc)[0] + exchange_rates)
+					amino_acid_synthesis(fwd_enzyme_counts, rev_enzyme_counts, aa_conc)[0] + exchange_rates)
 		else:
 			supply_function = lambda aa_conc: counts_to_molar * aa_supply * aa_supply_scaling(aa_conc, aa_in_media)
 

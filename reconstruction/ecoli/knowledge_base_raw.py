@@ -19,6 +19,8 @@ FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = [
 	"amino_acid_export_kms.tsv",
 	"amino_acid_pathways.tsv",
+	"amino_acid_uptake_rates.tsv",
+	"amino_acid_uptake_rates_removed.tsv",
 	"biomass.tsv",
 	"compartments.tsv",
 	"complexation_reactions.tsv",
@@ -116,6 +118,7 @@ LIST_OF_PARAMETER_FILENAMES = (
 	)
 
 REMOVED_DATA = {
+	'amino_acid_uptake_rates': 'amino_acid_uptake_rates_removed',
 	'complexation_reactions': 'complexation_reactions_removed',
 	'equilibrium_reactions': 'equilibrium_reactions_removed',
 	'fold_changes': 'fold_changes_removed',

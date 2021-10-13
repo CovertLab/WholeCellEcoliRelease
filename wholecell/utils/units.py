@@ -175,3 +175,6 @@ def strip_empty_units(value):
 
 def isnan(value):
 	return np.isnan(value._value) if hasUnit(value) else np.isnan(value)
+
+def isfinite(value):
+	return np.isfinite(value._value) if hasUnit(value) else np.isfinite(value)

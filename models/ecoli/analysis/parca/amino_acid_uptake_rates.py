@@ -1,6 +1,8 @@
 """
 Comparison of calculated amino acid uptake rates to measured uptake rates
-from Zampieri et al. 2019.  Useful as validation of calculated values.
+from Zampieri et al. 2019.  Useful as comparison to calculated values to see
+how much they vary but it is not a true validation comparison because measured
+uptake rates are used to calculate the uptake rates.
 """
 
 import pickle
@@ -27,8 +29,9 @@ def subplot(x, y, x_err, labels, y_label, title):
 	labels = labels[mask]
 
 	# Statistics
-	r, p = pearsonr(np.log10(x), np.log10(y))
-	n = len(labels)
+	included = (x > 0) & (y > 0)
+	r, p = pearsonr(np.log10(x[included]), np.log10(y[included]))
+	n = np.sum(included)
 
 	## Plot data
 	min_rate = min(x.min(), y.min())
@@ -51,20 +54,19 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 	def do_plot(self, input_dir, plot_out_dir, plot_out_filename, sim_data_file, validation_data_file, metadata):
 		with open(sim_data_file, 'rb') as f:
 			sim_data = pickle.load(f)
-		with open(validation_data_file, 'rb') as f:
-			validation_data = pickle.load(f)
 
 		# Attributes from sim_data
 		wcm_aa_ids = sim_data.molecule_groups.amino_acids
 		specific_import_rates = sim_data.process.metabolism.specific_import_rates
+		amino_acid_uptake_rates = sim_data.process.metabolism.amino_acid_uptake_rates
 		aa_supply_rates = sim_data.translation_supply_rate['minimal_plus_amino_acids']
 
-		# Load validation data
+		# Load measured uptake rates
 		aa_ids = []
 		val_rates = []
 		val_lb = []
 		val_ub = []
-		for aa, rates in validation_data.amino_acid_uptake_rates.items():
+		for aa, rates in amino_acid_uptake_rates.items():
 			aa_ids.append(aa)
 			val_rates.append(rates['uptake'].asNumber(FLUX_UNITS))
 			val_lb.append(rates['LB'].asNumber(FLUX_UNITS))
@@ -97,7 +99,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		plt.subplot(2, 1, 1)
 		subplot(val_rates, wcm_rates, val_error, aa_ids,
 			'WCM uptake flux\n(mmol/g DCW/hr)',
-			'Amino acid import rate validation')
+			'Amino acid import rate comparison')
 
 		plt.subplot(2, 1, 2)
 		subplot(val_rates, wcm_supply, val_error, aa_ids,

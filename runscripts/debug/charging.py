@@ -191,7 +191,8 @@ class ChargingDebug(scriptBase.ScriptBase):
 		self.spot_conc = CONC_UNITS * growth_reader.readColumn('spot_conc')[1:]
 
 		self.aa_supply = growth_reader.readColumn('original_aa_supply')[1:, :]
-		self.enzyme_counts = growth_reader.readColumn('aa_supply_enzymes')[1:, :]
+		self.enzyme_counts_fwd = growth_reader.readColumn('aa_supply_enzymes_fwd')[1:, :]
+		self.enzyme_counts_rev = growth_reader.readColumn('aa_supply_enzymes_rev')[1:, :]
 		self.aa_exporters = growth_reader.readColumn('aa_exporters')[1:, :]
 		self.aa_import = growth_reader.readColumn('aa_import')[1:, :] / self.time_step_sizes.reshape(-1, 1)
 		self.aa_exchange = self.aa_import - growth_reader.readColumn('aa_export')[1:, :] / self.time_step_sizes.reshape(-1, 1)
@@ -272,9 +273,10 @@ class ChargingDebug(scriptBase.ScriptBase):
 			self.aa_supply_in_charging, self.mechanistic_translation_supply,
 			self.mechanistic_aa_transport, self.amino_acid_synthesis,
 			self.amino_acid_export, self.aa_supply_scaling, self.counts_to_molar[timestep],
-			self.aa_supply[timestep, :], self.enzyme_counts[timestep, :],
-			self.aa_exporters[timestep, :], self.aa_exchange[timestep, :],
-			self.aa_import[timestep, :], self.aa_in_media[timestep, :],
+			self.aa_supply[timestep, :], self.enzyme_counts_fwd[timestep, :],
+			self.enzyme_counts_rev[timestep, :], self.aa_exporters[timestep, :],
+			self.aa_exchange[timestep, :], self.aa_import[timestep, :],
+			self.aa_in_media[timestep, :],
 			)
 
 		# Calculate tRNA charging and resulting values

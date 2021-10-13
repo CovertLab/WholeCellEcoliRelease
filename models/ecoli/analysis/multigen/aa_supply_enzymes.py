@@ -21,6 +21,40 @@ from wholecell.utils import units
 PLOT_UNITS = units.umol / units.L
 
 
+def plot(gs, rows, cols, times, with_aa_reference, basal_reference, enzyme_conc,
+		 probability_per_amino_acid, offset, label, aa_ids):
+	start = times[0, 0]
+	end = times[-1, 0]
+
+	for i, (with_aa, basal, sim, prob) in enumerate(
+			zip(with_aa_reference, basal_reference, enzyme_conc, probability_per_amino_acid)):
+		row = i // cols
+		col = i % cols
+		ax = plt.subplot(gs[row + offset, col])
+		ax_right = plt.twinx(ax)
+		mean = sim.mean()
+
+		ax.plot(times, sim, label='Simulation')
+		ax.plot([start, end], [mean, mean], 'k--', linewidth=1, label='Simulation, mean')
+		ax.plot([start, end], [with_aa, with_aa], 'r--', linewidth=1, label='Expected, with AA')
+		ax.plot([start, end], [basal, basal], 'g--', linewidth=1, label='Expected, basal')
+		ax_right.plot(times, prob, 'k', alpha=0.5, linewidth=0.5,
+					  label='Average RNA synth prob (right)')
+
+		ax.set_title(f'{aa_ids[i]} {label}', fontsize=8)
+		if row == rows - 1:
+			ax.set_xlabel('Time (min)', fontsize=8)
+		if col == 0:
+			ax.set_ylabel('Concentration (uM)', fontsize=8)
+		if col == cols - 1:
+			ax_right.set_ylabel('RNA probability', fontsize=8)
+
+		ax.tick_params(labelsize=6)
+		ax_right.tick_params(labelsize=6)
+
+	return ax, ax_right
+
+
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
@@ -35,9 +69,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		n_aas = len(aa_ids)
 
 		# Expected expression from parameter calculations
-		enzyme_to_amino_acid = metabolism.enzyme_to_amino_acid
-		with_aa_reference = metabolism.aa_supply_enzyme_conc_with_aa.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid
-		basal_reference = metabolism.aa_supply_enzyme_conc_basal.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid
+		enzyme_to_amino_acid_fwd = metabolism.enzyme_to_amino_acid_fwd
+		enzyme_to_amino_acid_rev = metabolism.enzyme_to_amino_acid_rev
+		with_aa_reference_fwd = metabolism.aa_supply_enzyme_conc_with_aa.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid_fwd
+		basal_reference_fwd = metabolism.aa_supply_enzyme_conc_basal.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid_fwd
+		with_aa_reference_rev = metabolism.aa_supply_enzyme_conc_with_aa.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid_rev
+		basal_reference_rev = metabolism.aa_supply_enzyme_conc_basal.asNumber(PLOT_UNITS) @ enzyme_to_amino_acid_rev
 
 		# Get RNA cistrons associated with each enzyme
 		monomer_to_cistron = {m['id']: m['cistron_id'] for m in translation.monomer_data}
@@ -70,57 +107,43 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		times = read_stacked_columns(cell_paths, 'Main', 'time', remove_first=True) / 60
 		counts_to_mol = (CONC_UNITS * read_stacked_columns(
 			cell_paths, 'EnzymeKinetics', 'countsToMolar', remove_first=True)).asNumber(PLOT_UNITS)
-		enzyme_counts = read_stacked_columns(
-			cell_paths, 'GrowthLimits', 'aa_supply_enzymes', remove_first=True)
+		enzyme_counts_fwd = read_stacked_columns(
+			cell_paths, 'GrowthLimits', 'aa_supply_enzymes_fwd', remove_first=True)
+		enzyme_counts_rev = read_stacked_columns(
+			cell_paths, 'GrowthLimits', 'aa_supply_enzymes_rev', remove_first=True)
 		probabilities = read_stacked_columns(
 			cell_paths, 'RnaSynthProb', 'rnaSynthProb', remove_first=True)
 		attenuation = read_stacked_columns(
 			cell_paths, 'TranscriptElongationListener', 'attenuation_probability', remove_first=True)
 
 		# Calculate derived quantities
-		start = times[0, 0]
-		end = times[-1, 0]
-		enzyme_conc = (enzyme_counts @ enzyme_to_amino_acid * counts_to_mol).T
+		enzyme_conc_fwd = (enzyme_counts_fwd * counts_to_mol).T
+		enzyme_conc_rev = (enzyme_counts_rev * counts_to_mol).T
 		full_attenuation = np.zeros((attenuation.shape[0], n_rnas))
 		full_attenuation[:, attenuated_indices] = attenuation
 		no_attenuation_probabilities = 1 - full_attenuation
 		probabilities_post_attenuation = probabilities * no_attenuation_probabilities
-		rnas_per_amino_acid = (cistron_to_enzyme @ enzyme_to_amino_acid).sum(axis=0)
-		probability_per_amino_acid = (
+		rnas_per_amino_acid_fwd = (cistron_to_enzyme @ enzyme_to_amino_acid_fwd).sum(axis=0)
+		probability_per_amino_acid_fwd = (
 			(probabilities_post_attenuation @ cistron_tu_mapping_matrix.T)[:, enzyme_cistron_indices]
-			@ cistron_to_enzyme @ enzyme_to_amino_acid / rnas_per_amino_acid).T
+			@ cistron_to_enzyme @ enzyme_to_amino_acid_fwd / rnas_per_amino_acid_fwd).T
+		rnas_per_amino_acid_rev = (cistron_to_enzyme @ enzyme_to_amino_acid_rev).sum(axis=0)
+		probability_per_amino_acid_rev = (
+			(probabilities_post_attenuation @ cistron_tu_mapping_matrix.T)[:, enzyme_cistron_indices]
+			@ cistron_to_enzyme @ enzyme_to_amino_acid_rev / rnas_per_amino_acid_rev).T
 
 		# Plot data
-		plt.figure(figsize=(16, 12))
+		plt.figure(figsize=(16, 24))
 		n_subplots = n_aas + 1  # 1 for legend
 		rows = int(np.ceil(np.sqrt(n_subplots)))
 		cols = int(np.ceil(n_subplots / rows))
-		gs = gridspec.GridSpec(nrows=rows, ncols=cols)
+		gs = gridspec.GridSpec(nrows=2*rows, ncols=cols)
 
 		## Plot data for each amino acid
-		for i, (with_aa, basal, sim, prob) in enumerate(zip(with_aa_reference, basal_reference, enzyme_conc, probability_per_amino_acid)):
-			row = i // cols
-			col = i % cols
-			ax = plt.subplot(gs[row, col])
-			ax_right = plt.twinx(ax)
-			mean = sim.mean()
-
-			ax.plot(times, sim, label='Simulation')
-			ax.plot([start, end], [mean, mean], 'k--', linewidth=1, label='Simulation, mean')
-			ax.plot([start, end], [with_aa, with_aa], 'r--', linewidth=1, label='Expected, with AA')
-			ax.plot([start, end], [basal, basal], 'g--', linewidth=1, label='Expected, basal')
-			ax_right.plot(times, prob, 'k', alpha=0.5, linewidth=0.5, label='Average RNA synth prob (right)')
-
-			ax.set_title(aa_ids[i], fontsize=8)
-			if row == rows - 1:
-				ax.set_xlabel('Time (min)', fontsize=8)
-			if col == 0:
-				ax.set_ylabel('Concentration (uM)', fontsize=8)
-			if col == cols - 1:
-				ax_right.set_ylabel('RNA probability', fontsize=8)
-
-			ax.tick_params(labelsize=6)
-			ax_right.tick_params(labelsize=6)
+		plot(gs, rows, cols, times, with_aa_reference_fwd, basal_reference_fwd,
+			 enzyme_conc_fwd, probability_per_amino_acid_fwd, 0, 'forward', aa_ids)
+		ax, ax_right = plot(gs, rows, cols, times, with_aa_reference_rev, basal_reference_rev,
+			 enzyme_conc_rev, probability_per_amino_acid_rev, rows, 'reverse', aa_ids)
 
 		## Display legend
 		handles, labels = ax.get_legend_handles_labels()

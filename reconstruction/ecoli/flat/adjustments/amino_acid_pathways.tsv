@@ -1,19 +1,1 @@
 "Amino acid"	"Parameter"	"Factor"	"_comments"
-"ARG"	"km_reverse"	10
-"ARG"	"kms"	0.1
-"ASN"	"km_reverse"	5	"Fit for positive import"
-"L-ASPARTATE"	"km_reverse"	0.5	"Fit for positive import"
-"CYS"	"kms"	0.1	"Fit for positive import"
-"GLN"	"km_reverse"	5	"Fit for positive kcat"
-"ILE"	"ki"	5	"Fit for positive import"
-"ILE"	"km_reverse"	5	"Fit for positive kcat"
-"LEU"	"ki"	5	"Fit for positive import"
-"LEU"	"km_reverse"	5
-"LYS"	"km_reverse"	10
-"LYS"	"kms"	0.1
-"MET"	"ki"	5	"Fit for positive kcat"
-"MET"	"km_degradation"	10	"Fit for positive kcat"
-"PHE"	"km_reverse"	5	"Fit for positive kcat"
-"PRO"	"km_reverse"	5
-"TYR"	"km_reverse"	5
-"VAL"	"km_reverse"	5	"Fit for positive kcat"
