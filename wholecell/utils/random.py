@@ -77,10 +77,7 @@ def make_elongation_rates_flat(
 	    rates: new array with base and adjusted rates.
 	'''
 
-	rates = np.full(
-		size,
-		base,
-		dtype=np.int64)
+	rates = np.full(size, base)
 
 	if variable_elongation:
 		rates[amplified] = ceiling
@@ -99,7 +96,7 @@ def make_elongation_rates(
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate. Also performs a stochastic rounding of values after applying the
-	provided time step. 
+	provided time step.
 
 	Args:
 		random (RandomState): for generating random numbers.

@@ -44,6 +44,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
 		self.ppgpp_regulation = sim._ppgpp_regulation
 		self.variable_elongation = sim._variable_elongation_translation
+		self.variable_polymerize = self.ppgpp_regulation or self.variable_elongation
 		translation_supply = sim._translationSupply
 		trna_charging = sim._trna_charging
 
@@ -208,7 +209,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			aa_counts_for_translation,
 			10000000, # Set to a large number, the limit is now taken care of in metabolism
 			self.randomState,
-			self.elongation_rates[protein_indexes])
+			self.elongation_rates[protein_indexes],
+			variable_elongation=self.variable_polymerize,
+			)
 
 		sequence_elongations = result.sequenceElongation
 		aas_used = result.monomerUsages
