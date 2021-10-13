@@ -389,6 +389,9 @@ def final_adjustments(sim_data, cell_specs, **kwargs):
 	sim_data.process.metabolism.set_mechanistic_uptake_constants(sim_data, cell_specs,
 		average_with_aa_container)
 
+	# Set ppGpp reaction parameters
+	sim_data.process.transcription.set_ppgpp_kinetics_parameters(average_basal_container, sim_data.constants)
+
 	return sim_data, cell_specs
 
 def apply_updates(func, args, labels, dest, cpus):

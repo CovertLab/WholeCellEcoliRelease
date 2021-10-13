@@ -1348,6 +1348,14 @@ class Transcription(object):
 		self.exp_free /= self.exp_free.sum()
 		self.exp_ppgpp /= self.exp_ppgpp.sum()
 
+	def set_ppgpp_kinetics_parameters(self, init_container, constants):
+		trna_counts = self.aa_from_trna @ init_container.counts(self.rna_data['id'][self.rna_data['is_tRNA']])
+		trna_ratio = trna_counts / trna_counts.sum()
+		adjustment_fraction = trna_ratio / trna_ratio.mean()
+
+		self.KD_RelA = constants.KD_RelA_ribosome * adjustment_fraction
+		self.KI_SpoT = constants.KI_SpoT_ppGpp_degradation * adjustment_fraction
+
 	def fraction_rnap_bound_ppgpp(self, ppgpp):
 		"""
 		Calculates the fraction of RNAP expected to be bound to ppGpp
