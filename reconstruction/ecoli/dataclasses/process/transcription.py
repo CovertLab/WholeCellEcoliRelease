@@ -858,6 +858,7 @@ class Transcription(object):
 		synthetase_names = []
 		synthetase_mapping_aa = []
 		synthetase_mapping_syn = []
+		synthetase_metabolites = {}
 		# Get IDs of all metabolites
 		metabolite_ids = {met['id'] for met in raw_data.metabolites}
 
@@ -878,7 +879,6 @@ class Transcription(object):
 			# Get molecule information
 			aa_idx = None
 			for mol_id, coeff in reaction['stoichiometry'].items():
-
 				if mol_id in metabolite_ids:
 					molecule_name = "{}[{}]".format(
 						mol_id, 'c'
@@ -911,6 +911,7 @@ class Transcription(object):
 
 			# Create mapping for synthetases catalyzing charging
 			for synthetase in reaction['catalyzed_by']:
+				synthetase_metabolites[synthetase] = synthetase_metabolites.get(synthetase, set()) | reaction['stoichiometry'].keys()
 				synthetase = '{}[{}]'.format(
 					synthetase, sim_data.getter.get_compartment(synthetase)[0])
 
@@ -919,6 +920,46 @@ class Transcription(object):
 
 				synthetase_mapping_aa.append(aa_idx)
 				synthetase_mapping_syn.append(synthetase_names.index(synthetase))
+
+		# Extract KM data for amino acids and tRNA in charging reactions
+		synthetase_names_without_tag = {name[:-3] for name in synthetase_names}
+		aa_names_without_tag = [aa[:-3] for aa in sim_data.molecule_groups.amino_acids]
+		aa_kms = {}
+		trna_kms = {}
+		skipped_reactions = {'RXN-16165'}  # Not correct MET charging reaction
+		for row in raw_data.metabolism_kinetics:
+			# Only look at data for charging reactions
+			if row['reactionID'] in skipped_reactions or row['enzymeID'] not in synthetase_names_without_tag:
+				continue
+
+			for met, km in zip(row['substrateIDs'], row['kM']):
+				if met in aa_names_without_tag:
+					# Prevent data from mismatched amino acid/synthetases being used
+					if met not in synthetase_metabolites[row['enzymeID']]:
+						continue
+					aa_kms[met] = aa_kms.get(met, []) + [km]
+				elif 'tRNA' in met:
+					# Exclude suspiciously high data
+					if km > 5 * sim_data.constants.Km_synthetase_uncharged_trna:
+						continue
+					aa = met.split('-')[0]
+					if aa == 'ALA':
+						aa = 'L-ALPHA-ALANINE'
+					elif aa == 'ASP':
+						aa = 'L-ASPARTATE'
+					elif aa == 'Elongation':
+						aa = 'MET'
+					trna_kms[aa] = trna_kms.get(aa, []) + [km]
+
+		# Save average KM values and use the default value if no data is available
+		km_units = units.umol / units.L
+		average_aa_kms = []
+		average_trna_kms = []
+		for aa_id in aa_names_without_tag:
+			average_aa_kms.append(np.mean(aa_kms.get(aa_id, sim_data.constants.Km_synthetase_amino_acid)).asNumber(km_units))
+			average_trna_kms.append(np.mean(trna_kms.get(aa_id, sim_data.constants.Km_synthetase_uncharged_trna)).asNumber(km_units))
+		self.aa_kms = km_units * np.array(average_aa_kms)
+		self.trna_kms = km_units * np.array(average_trna_kms)
 
 		# Save matrices and related lists of names
 		self._stoich_matrix_i = np.array(stoich_matrix_i)

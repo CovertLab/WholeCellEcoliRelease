@@ -932,6 +932,7 @@ def get_charging_params(
 	"""
 
 	constants = sim_data.constants
+	transcription = sim_data.process.transcription
 	if aa_removed_from_charging is None:
 		aa_removed_from_charging = REMOVED_FROM_CHARGING
 	aa_charging_mask = np.array([
@@ -943,8 +944,8 @@ def get_charging_params(
 
 	return dict(
 		kS=constants.synthetase_charging_rate.asNumber(1 / units.s),
-		KMaa=constants.Km_synthetase_amino_acid.asNumber(CONC_UNITS),
-		KMtf=constants.Km_synthetase_uncharged_trna.asNumber(CONC_UNITS),
+		KMaa=transcription.aa_kms.asNumber(CONC_UNITS),
+		KMtf=transcription.trna_kms.asNumber(CONC_UNITS),
 		krta=constants.Kdissociation_charged_trna_ribosome.asNumber(CONC_UNITS),
 		krtf=constants.Kdissociation_uncharged_trna_ribosome.asNumber(CONC_UNITS),
 		max_elong_rate=float(elongation_max.asNumber(units.aa / units.s)),
@@ -1020,8 +1021,8 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 		aa_conc = c[2*n_aas_masked:2*n_aas_masked+n_aas]
 		masked_aa_conc = aa_conc[mask]
 
-		v_charging = (params['kS'] * synthetase_conc * uncharged_trna_conc * masked_aa_conc / (params['KMaa'] * params['KMtf'])
-			/ (1 + uncharged_trna_conc/params['KMtf'] + masked_aa_conc/params['KMaa'] + uncharged_trna_conc*masked_aa_conc/params['KMtf']/params['KMaa']))
+		v_charging = (params['kS'] * synthetase_conc * uncharged_trna_conc * masked_aa_conc / (params['KMaa'][mask] * params['KMtf'][mask])
+			/ (1 + uncharged_trna_conc/params['KMtf'][mask] + masked_aa_conc/params['KMaa'][mask] + uncharged_trna_conc*masked_aa_conc/params['KMtf'][mask]/params['KMaa'][mask]))
 		with np.errstate(divide='ignore'):
 			numerator_ribosome = 1 + np.sum(f * (params['krta'] / charged_trna_conc + uncharged_trna_conc / charged_trna_conc * params['krta'] / params['krtf']))
 		v_rib = params['max_elong_rate'] * ribosome_conc / numerator_ribosome
