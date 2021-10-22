@@ -5,6 +5,9 @@ Biosynthesis in E. coli by Enforcing Enzyme Overabundance. 2019. Fig 1B.
 
 Associated variant to run:
 	remove_aa_inhibition
+
+TODO:
+	- add reference conc from Sander et al
 """
 
 import os
@@ -15,7 +18,7 @@ import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from models.ecoli.sim.variants.remove_aa_inhibition import AA_TO_ENZYME
+from models.ecoli.sim.variants.remove_aa_inhibition import AA_TO_ENZYME, get_aa_and_ki_factor
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
 
@@ -46,24 +49,38 @@ HEATMAP_COLS = [
 ]
 
 
-def subplot(gs, aa_idx, data, variance, xlabels, title, amino_acids):
+def subplot(gs, aa_idx, control, control_variance, data, variance, xlabels, title, amino_acids, factors=None, legend=None):
 	ax = plt.subplot(gs)
-	n_variants = data.shape[0]
-	x = list(range(n_variants))
+	_, n_variants, n_factors = data.shape
+	x = np.array(list(range(n_variants))) + 1
+	width = 0.8 / n_factors
+	offsets = np.array(list(range(n_factors))) * width - 0.4 + width/2
 	idx = np.array([aa_idx[aa] for aa in amino_acids])
 
 	# Plot an amino acid concentration (or sum of multiple amino acids)
 	# for each mutant (variant)
-	ax.bar(x, data[:, idx].sum(axis=1), yerr=np.sqrt(variance[:, idx].sum(axis=1)))
+	error_kw = dict(elinewidth=2*width)
+	ax.bar(0, control[idx].sum(), width, label=WILDTYPE,
+		yerr=np.sqrt(control_variance[idx].sum()), error_kw=error_kw)
+	for i, offset in enumerate(offsets):
+		label = None if factors is None else f'KI x {factors[i]}'
+		ax.bar(x + offset, data[idx, :, i].sum(axis=0), width, label=label,
+			yerr=np.sqrt(variance[idx, :, i].sum(axis=0)), error_kw=error_kw)
 
 	# Format subplot
-	if len(xlabels) == n_variants:
-		ax.set_xticks(x)
-		ax.set_xticklabels(xlabels, fontsize=8, rotation=45)
+	ax.set_yscale('log')
+	ax.set_xticks([0] + list(x))
+	ax.set_xticklabels(xlabels, fontsize=8, rotation=45)
 	ax.set_ylabel('Conc (mM)', fontsize=8)
 	ax.set_title(title, fontsize=8)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
+
+	if legend:
+		handles, labels = ax.get_legend_handles_labels()
+		legend_ax = plt.subplot(legend, frameon=False)
+		legend_ax.axis('off')
+		legend_ax.legend(handles, labels, loc='center', frameon=False)
 
 def heatmap(gs, aa_idx, data, enzyme_order):
 	ax = plt.subplot(gs)
@@ -107,9 +124,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		aa_ids = list({aa for aas in HEATMAP_COLS for aa in aas[1]})
 		aa_idx = {aa: i for i, aa in enumerate(aa_ids)}
+		n_aas = len(aa_ids)
 
-		aa_conc = np.zeros((len(variants), len(aa_ids)))
-		aa_var = np.zeros((len(variants), len(aa_ids)))
+		control_conc = np.zeros(n_aas)
+		control_var = np.zeros(n_aas)
+		aa_conc = {}
+		aa_var = {}
+		aa_variants = []
+		ki_factors = []
 		for i, variant in enumerate(variants):
 			variant_conc = []
 			for sim_dir in ap.get_cells(variant=[variant]):
@@ -127,28 +149,86 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			# Average concentration over all time steps
 			conc = np.vstack(variant_conc)
-			aa_conc[i, :] = conc.mean(axis=0)
-			aa_var[i, :] = conc.std(axis=0)**2
+			conc_mean = conc.mean(axis=0)
+			conc_var = conc.std(axis=0)**2
+			if variant == 0:
+				control_conc = conc_mean
+				control_var = conc_var
+			else:
+				key = get_aa_and_ki_factor(variant)
+				aa_variants.append(key[0])
+				ki_factors.append(key[1])
+				aa_conc[key] = conc_mean
+				aa_var[key] = conc_var
+
+		# Process data into a new matrix for easier handling on bar charts
+		aa_variants = [aa for aa in AA_TO_ENZYME if aa in aa_variants]
+		ki_factors = np.unique(ki_factors)[::-1]
+		conc = np.zeros((n_aas, len(aa_variants), len(ki_factors)))
+		variance = np.zeros((n_aas, len(aa_variants), len(ki_factors)))
+		for i, aa, in enumerate(aa_variants):
+			for j, factor in enumerate(ki_factors):
+				key = (aa, factor)
+				if key in aa_conc:
+					conc[:, i, j] = aa_conc[key]
+					variance[:, i, j] = aa_var[key]
+
+		# Skip plotting if data does not exist
+		if len(aa_variants) == 0 or len(ki_factors) == 0:
+			print(f'Not enough data to plot for {plotOutFileName}')
+			return
 
 		# xtick labels
-		labels = list(np.array([WILDTYPE] + list(AA_TO_ENZYME.values()))[variants])
+		labels = [WILDTYPE] + list(AA_TO_ENZYME.values())
 
 		# Create figure
-		plt.figure(figsize=(10, 15))
-		gs = gridspec.GridSpec(nrows=5, ncols=3)
+		plt.figure(figsize=(10, 25))
+		gs = gridspec.GridSpec(nrows=8, ncols=3)
 
-		## Plot heatmap for all amino acids
-		heatmap(gs[:2, :], aa_idx, aa_conc, labels)
+		## Plot heatmap for all amino acids only if data exists for all mutants
+		if conc.shape[1] == len(AA_TO_ENZYME):
+			heatmap_data = np.vstack((control_conc, conc[:, :, 0].T))
+			heatmap(gs[:2, :], aa_idx, heatmap_data, labels)
+		else:
+			print(f'Not enough data to plot for the heatmap in {plotOutFileName}')
 
-		## Plot subplots for each amino acid
-		subplot(gs[2, 0], aa_idx, aa_conc, aa_var, labels, 'Arginine', ['ARG[c]'])
-		subplot(gs[2, 1], aa_idx, aa_conc, aa_var, labels, 'Tryptophan', ['TRP[c]'])
-		subplot(gs[2, 2], aa_idx, aa_conc, aa_var, labels, 'Histidine', ['HIS[c]'])
-		subplot(gs[3, 0], aa_idx, aa_conc, aa_var, labels, '(Iso-)leucine', ['ILE[c]', 'LEU[c]'])  # group isoforms like paper
-		subplot(gs[3, 1], aa_idx, aa_conc, aa_var, labels, 'Threonine', ['THR[c]'])
-		subplot(gs[3, 2], aa_idx, aa_conc, aa_var, labels, 'Proline', ['PRO[c]'])
-		subplot(gs[4, 0], aa_idx, aa_conc, aa_var, labels, 'Isoleucine', ['ILE[c]'])  # also plot single isoforms since model allows granularity
-		subplot(gs[4, 1], aa_idx, aa_conc, aa_var, labels, 'Leucine', ['LEU[c]'])  # also plot single isoforms since model allows granularity
+		## Plot subplots for each amino acid with only the inhibition removed to match paper
+		no_inhibition_conc = conc[:, :, :1]
+		no_inhibition_var = variance[:, :, :1]
+		subplot(gs[2, 0], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Arginine', ['ARG[c]'])
+		subplot(gs[2, 1], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Tryptophan', ['TRP[c]'])
+		subplot(gs[2, 2], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Histidine', ['HIS[c]'])
+		subplot(gs[3, 0], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, '(Iso-)leucine', ['ILE[c]', 'LEU[c]'])  # group isoforms like paper
+		subplot(gs[3, 1], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Threonine', ['THR[c]'])
+		subplot(gs[3, 2], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Proline', ['PRO[c]'])
+		subplot(gs[4, 0], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Isoleucine', ['ILE[c]'])  # also plot single isoforms since model allows granularity
+		subplot(gs[4, 1], aa_idx, control_conc, control_var, no_inhibition_conc,
+			no_inhibition_var, labels, 'Leucine', ['LEU[c]'], factors=ki_factors, legend=gs[4, 2])  # also plot single isoforms since model allows granularity
+
+		## Plot subplots for each amino acid and show results each KI factor
+		subplot(gs[5, 0], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Arginine', ['ARG[c]'])
+		subplot(gs[5, 1], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Tryptophan', ['TRP[c]'])
+		subplot(gs[5, 2], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Histidine', ['HIS[c]'])
+		subplot(gs[6, 0], aa_idx, control_conc, control_var, conc, variance, labels,
+			'(Iso-)leucine', ['ILE[c]', 'LEU[c]'])  # group isoforms like paper
+		subplot(gs[6, 1], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Threonine', ['THR[c]'])
+		subplot(gs[6, 2], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Proline', ['PRO[c]'])
+		subplot(gs[7, 0], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Isoleucine', ['ILE[c]'])  # also plot single isoforms since model allows granularity
+		subplot(gs[7, 1], aa_idx, control_conc, control_var, conc, variance, labels,
+			'Leucine', ['LEU[c]'], factors=ki_factors, legend=gs[7, 2])  # also plot single isoforms since model allows granularity
 
 		## Format and save figure
 		plt.tight_layout()
