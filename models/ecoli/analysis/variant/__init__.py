@@ -11,6 +11,7 @@ ACTIVE = [
 	"growthConditionComparison.py",
 	"growth_condition_comparison_validation.py",
 	"growth_rate_time_series.py",
+	"growth_trajectory.py",
 	"massFractionSummary.py",
 	"meneSensitivity.py",
 	"metabolism_kinetic_objective_weight.py",
@@ -27,6 +28,9 @@ TAGS = {
 	'ACTIVE': ACTIVE,   # all active analyses in this category
 	'CORE': [           # the default list to run in development
 		"growthConditionComparison.py",
+		],
+	'ENVIRONMENT_SHIFT': [
+		'growth_trajectory',
 		],
 	'PAPER': [
 		"adder_sizer.py",
@@ -53,6 +57,7 @@ TAGS = {
 	'ADD_ONE_AA_SHIFT': [
 		'cell_growth.py',
 		'growth_rate_time_series',
+		'growth_trajectory',
 		],
 	'METABOLISM_KINETIC_OBJECTIVE_WEIGHT': [
 		'metabolism_kinetic_objective_weight.py',
@@ -72,6 +77,7 @@ TAGS = {
 	'REMOVE_ONE_AA': [
 		'cell_growth.py',
 		'growth_rate_time_series',
+		'growth_trajectory',
 		],
 	'REMOVE_ONE_AA_SHIFT': [
 		'cell_growth.py',
@@ -83,5 +89,8 @@ TAGS = {
 		],
 	'TIME_STEP': [
 		'time_step.py',
+		],
+	'TIMELINES': [
+		'growth_trajectory',
 		],
 	}

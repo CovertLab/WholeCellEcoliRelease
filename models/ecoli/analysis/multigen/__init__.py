@@ -17,6 +17,7 @@ ACTIVE = [
 	"functionalUnits.py",
 	"functionalUnitsFC.py",
 	"growthAffectingPolymerases.py",
+	"growth_trajectory.py",
 	"kineticsFluxComparison.py",
 	"limitedEnzymeGlutcyslig.py",
 	"limitedEnzymeUgd.py",
@@ -71,6 +72,7 @@ TAGS = {
 	'ENVIRONMENT_SHIFT': [
 		"aa_supply.py",
 		"environmental_shift_fluxes.py",  # TODO(jerry): include this?
+		"growth_trajectory.py",
 		"massShift.py",
 		],
 	'GROWTH': [
@@ -81,6 +83,7 @@ TAGS = {
 		"cellCycleLength.py",
 		"charging_molecules.py",
 		"growthAffectingPolymerases.py",
+		"growth_trajectory.py",
 		"massFractionSummary.py",
 		"ppgpp_regulation.py",
 		],

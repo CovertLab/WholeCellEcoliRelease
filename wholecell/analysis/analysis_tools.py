@@ -5,7 +5,7 @@ Analysis script toolbox functions
 from __future__ import annotations
 
 import os
-from typing import Iterator, List, Sequence, Tuple, Union
+from typing import Callable, Iterator, List, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -239,7 +239,8 @@ def read_stacked_bulk_molecules(
 	return [np.vstack(d) if len(d[0].shape) > 1 else np.hstack(d) for d in data]
 
 def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str,
-		remove_first: bool = False, ignore_exception: bool = False) -> np.ndarray:
+		remove_first: bool = False, ignore_exception: bool = False,
+		fun: Callable = None) -> np.ndarray:
 	"""
 	Reads column data from multiple cells and assembles into a single array.
 
@@ -252,6 +253,9 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str,
 		remove_first: if True, removes the first column of data from each cell
 			which might be set to a default value in some cases
 		ignore_exception: if True, ignores any exceptions encountered while reading
+		fun: function to apply to data in each generation (eg. np.mean will
+			return and array with the mean value for each generation instead
+			of each time point)
 
 	Returns:
 		stacked data (n time points, m subcolumns)
@@ -262,12 +266,15 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str,
 		- normalize to a time point
 	"""
 
+	if fun is None:
+		fun = lambda x: x
+
 	data = []
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
 		try:
 			reader = TableReader(os.path.join(sim_out_dir, table))
-			data.append(reader.readColumn(column, squeeze=False)[_remove_first(remove_first)])
+			data.append(fun(reader.readColumn(column, squeeze=False)[_remove_first(remove_first)]))
 		except Exception as e:
 			if ignore_exception:
 				print(f'Ignored exception in read_stacked_columns: {e!r}')

@@ -167,10 +167,14 @@ class AnalysisPaths(object):
 		assert kb_path.size == 1
 		return kb_path[0]
 
-	def get_variants(self):
-		# type: () -> List[Union[int, str]]
+	def get_variants(self) -> List[int]:
 		"""Return all the variant indexes."""
 		return sorted(np.unique(self._path_data["variant"]))
+
+	def get_seeds(self, variant: int = None) -> List[int]:
+		"""Return all the seed values across all variants or for a single variant."""
+		mask = self._path_data['variant'] == variant if variant else slice(None)
+		return sorted(np.unique(self._path_data["seed"][mask]))
 
 	def get_cell_variant(self, path: str) -> int:
 		"""Return the variant index for the given get_cells() sim path."""
