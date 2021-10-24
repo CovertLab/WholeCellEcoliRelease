@@ -32,4 +32,5 @@
 "ppi_concentration"	5E-4	"units.mol/units.L"	"multiple sources"	
 "pH"	7.2			
 "d_period"	20	"units.min"		
-"replisome_elongation_rate"	967	"units.nt / units.s"		
+"replisome_elongation_rate"	967	"units.nt / units.s"
+"stable_RNA_half_life"	2880	"units.min"

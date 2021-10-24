@@ -232,6 +232,8 @@ class Transcription(object):
 		# Load gene IDs associated with each cistron
 		gene_id = np.array(
 			[cistron_id_to_gene_id[rna['id']] for rna in all_cistrons])
+		gene_id_to_cistron_id = {
+			g: c for (c, g) in cistron_id_to_gene_id.items()}
 
 		# Calculate lengths of each cistron from their gene end positions
 		cistron_lengths = np.array([
@@ -275,10 +277,17 @@ class Transcription(object):
 		cistron_id_to_half_life = {}
 		reported_mRNA_cistron_half_lives = []
 
-		for cistron in raw_data.rna_half_lives:
-			cistron_id_to_half_life[cistron['id']] = cistron['half_life']
-			if cistron['id'] in mRNA_cistron_ids:
-				reported_mRNA_cistron_half_lives.append(cistron['half_life'])
+		for gene in raw_data.rna_half_lives:
+			if gene['id'] in gene_id_to_cistron_id and gene['half_life'].asNumber(units.s) > 0:
+				cistron_id = gene_id_to_cistron_id[gene['id']]
+				cistron_id_to_half_life[cistron_id] = gene['half_life']
+				if cistron_id in mRNA_cistron_ids:
+					reported_mRNA_cistron_half_lives.append(gene['half_life'])
+
+		# Half-lives of stable cistrons (rRNAs and tRNAs) are set separately
+		stable_cistron_ids = np.array(all_cistron_ids)[np.logical_or(is_rRNA, is_tRNA)]
+		for cistron_id in stable_cistron_ids:
+			cistron_id_to_half_life[cistron_id] = sim_data.constants.stable_RNA_half_life
 
 		# Calculate averaged reported half life of mRNAs
 		average_mRNA_cistron_half_life = np.mean(reported_mRNA_cistron_half_lives)
@@ -485,6 +494,15 @@ class Transcription(object):
 		rna_half_lives = np.divide(
 			self._cistron_half_lives @ self.cistron_tu_mapping_matrix,
 			np.array(self.cistron_tu_mapping_matrix.sum(axis=0)).flatten())
+
+		# If a measured half-life for a polycistronic transcription unit exists,
+		# replace calculated value with the measured value
+		rna_id_to_index = {
+			rna_id: i for (i, rna_id) in enumerate(rna_ids)}
+		for rna in raw_data.rna_half_lives:
+			# If RNA is polycistronic, replace half-life with measured value
+			if rna['id'] in rna_id_to_index and rna['id'] not in cistron_id_to_index:
+				rna_half_lives[rna_id_to_index[rna['id']]] = rna['half_life'].asNumber(units.s)
 
 		# Convert to degradation rates
 		rna_deg_rates = np.log(2) / rna_half_lives
