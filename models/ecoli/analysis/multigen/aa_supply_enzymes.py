@@ -83,10 +83,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		cistron_mapping_indices = {}
 		for j, enzyme in enumerate(metabolism.aa_enzymes):
 			for monomer in complexation.get_monomers(enzyme)['subunitIds']:
-				cistron = monomer_to_cistron[monomer]
-				cistron_mapping_indices[cistron] = cistron_mapping_indices.get(cistron, len(cistron_mapping_indices))
-				mat_i.append(cistron_mapping_indices[cistron])
-				mat_j.append(j)
+				# TODO (travis): this skips PUTA-CPLXBND which is not a complex but in equilibrium
+				# so it would need to be handled separately but PutA monomer is already accounted for by PUTA-CPLX
+				if monomer in monomer_to_cistron:
+					cistron = monomer_to_cistron[monomer]
+					cistron_mapping_indices[cistron] = cistron_mapping_indices.get(cistron, len(cistron_mapping_indices))
+					mat_i.append(cistron_mapping_indices[cistron])
+					mat_j.append(j)
 		cistron_to_enzyme = np.zeros((np.max(mat_i) + 1, np.max(mat_j) + 1))
 		cistron_to_enzyme[mat_i, mat_j] = 1
 		cistrons = list(cistron_mapping_indices.keys())

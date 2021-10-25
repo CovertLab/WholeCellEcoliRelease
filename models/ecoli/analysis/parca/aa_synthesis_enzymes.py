@@ -46,7 +46,11 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 
 		monomer_to_cistron = {monomer['id']: monomer['cistron_id'] for monomer in translation.monomer_data}
 		cistron_to_symbol = {gene['cistron_id']: gene['symbol'] for gene in replication.gene_data}
-		synthesis_symbols = [cistron_to_symbol[monomer_to_cistron[monomer]] for monomer in synthesis_monomers]
+		synthesis_symbols = [
+			cistron_to_symbol[monomer_to_cistron[monomer]]
+			for monomer in synthesis_monomers
+			if monomer in monomer_to_cistron
+			]
 
 		complexation_stoich = complexation.stoich_matrix_monomers()
 
