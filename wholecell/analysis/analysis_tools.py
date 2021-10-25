@@ -206,6 +206,7 @@ def read_stacked_bulk_molecules(
 		cell_paths: np.ndarray,
 		mol_names: Union[Tuple[Sequence[str], ...], Sequence[str]],
 		remove_first: bool = False,
+		ignore_exception: bool = False,
 		) -> List[np.ndarray]:
 	"""
 	Reads bulk molecule counts from multiple cells and assembles each group
@@ -220,6 +221,7 @@ def read_stacked_bulk_molecules(
 			converted to a tuple for processing.
 		remove_first: if True, removes the first column of data from each cell
 			which might be set to a default value in some cases
+		ignore_exception: if True, ignores any exceptions encountered while reading
 
 	Returns:
 		stacked data (n time points) if single molecule or
@@ -232,8 +234,15 @@ def read_stacked_bulk_molecules(
 	data = [[] for _ in mol_names]  # type: List[List[np.ndarray]]
 	for sim_dir in cell_paths:
 		sim_out_dir = os.path.join(sim_dir, 'simOut')
-		for i, counts in enumerate(read_bulk_molecule_counts(sim_out_dir, mol_names)):
-			data[i].append(counts[_remove_first(remove_first)])
+		try:
+			for i, counts in enumerate(read_bulk_molecule_counts(sim_out_dir, mol_names)):
+				data[i].append(counts[_remove_first(remove_first)])
+		except Exception as e:
+			if ignore_exception:
+				print(f'Ignored exception in read_stacked_bulk_molecules for {sim_out_dir}: {e!r}')
+				continue
+			else:
+				raise
 
 	# Use vstack for 2D or hstack for 1D to get proper dimension alignments
 	return [np.vstack(d) if len(d[0].shape) > 1 else np.hstack(d) for d in data]
@@ -277,7 +286,7 @@ def read_stacked_columns(cell_paths: np.ndarray, table: str, column: str,
 			data.append(fun(reader.readColumn(column, squeeze=False)[_remove_first(remove_first)]))
 		except Exception as e:
 			if ignore_exception:
-				print(f'Ignored exception in read_stacked_columns: {e!r}')
+				print(f'Ignored exception in read_stacked_columns for {sim_out_dir}: {e!r}')
 				continue
 			else:
 				raise

@@ -9,6 +9,7 @@ ACTIVE = [
 	"doubling_times_histogram_all.py",
 	"expression_dynamics.py",
 	"growthDynamics.py",
+	"growth_time_series.py",
 	# "proteinFoldChangeVsTranscriptionFrequency.py",
 	"histogramDoublingTime.py",
 	"histogramFinalMass.py",
@@ -34,6 +35,7 @@ TAGS = {
 		],
 	'GROWTH': [
 		"aa_conc.py",
+		"growth_time_series.py",
 		],
 	'HETEROGENEITY': [
 		"proteinCopyNumberDistribution.py",
