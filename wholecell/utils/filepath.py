@@ -78,8 +78,8 @@ def verify_dir_exists(dir_path, message=''):
 		raise IOError(errno.ENOENT,
 			'Missing dir "{}".  {}'.format(dir_path, message))
 
-def run_cmd2(tokens, trim=True, timeout=TIMEOUT, env=None):
-	# type: (Sequence[str], bool, Optional[int], Optional[dict]) -> Tuple[str, str]
+def run_cmd2(tokens, trim=True, timeout=TIMEOUT, env=None, input_=None):
+	# type: (Sequence[str], bool, Optional[int], Optional[dict], Optional[str]) -> Tuple[str, str]
 	"""Run a shell command-line (in token list form) and return a tuple
 	containing its (stdout, stderr).
 	This does not expand filename patterns or environment variables or do other
@@ -92,6 +92,7 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT, env=None):
 		timeout: timeout in seconds; None for no timeout.
 		env: optional environment variables for the new process to use instead
 			of inheriting the current process' environment.
+		input_: input for any prompts that may appear (passed to the subprocess' stdin)
 	Returns:
 		The command's stdout and stderr strings.
 	Raises:
@@ -105,22 +106,24 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT, env=None):
 		check=True,
 		env=env,
 		encoding='utf-8',
-		timeout=timeout)
+		timeout=timeout,
+		input=input_,
+		)
 	if trim:
 		return out.stdout.rstrip(), out.stderr.rstrip()
 	return out.stdout, out.stderr
 
 
-def run_cmd(tokens, trim=True, timeout=TIMEOUT, env=None):
-	# type: (Sequence[str], bool, Optional[int], Optional[dict]) -> str
+def run_cmd(tokens, trim=True, timeout=TIMEOUT, env=None, input_=None):
+	# type: (Sequence[str], bool, Optional[int], Optional[dict], Optional[str]) -> str
 	"""Run a shell command-line (in token list form) and return its stdout.
 	See run_cmd2().
 	"""
-	return run_cmd2(tokens, trim=trim, timeout=timeout, env=env)[0]
+	return run_cmd2(tokens, trim=trim, timeout=timeout, env=env, input_=input_)[0]
 
 
-def run_cmdline(line, trim=True, timeout=TIMEOUT, fallback=None):
-	# type: (str, bool, Optional[int], Optional[str]) -> Optional[str]
+def run_cmdline(line, trim=True, timeout=TIMEOUT, input_=None, fallback=None):
+	# type: (str, bool, Optional[int], Optional[str], Optional[str]) -> Optional[str]
 	"""Run a shell command-line string then return its output or fallback if it
 	failed. This does not expand filename patterns or environment variables or
 	do other shell processing steps like quoting.
@@ -130,13 +133,14 @@ def run_cmdline(line, trim=True, timeout=TIMEOUT, fallback=None):
 		trim: Whether to trim off trailing whitespace. This is useful
 			because the subprocess output usually ends with a newline.
 		timeout: timeout in seconds; None for no timeout.
+		input_: input for any prompts that may appear (passed to the subprocess' stdin)
 		fallback: Return this if the subprocess fails, e.g. trying to run git
 			in a Docker Image that has no git repo.
 	Returns:
 		The command's output string, or None if it couldn't even run.
 	"""
 	try:
-		return run_cmd(tokens=line.split(), trim=trim, timeout=timeout)
+		return run_cmd(tokens=line.split(), trim=trim, input_=input_, timeout=timeout)
 	except (OSError, subprocess.SubprocessError) as e:
 		if fallback is None:
 			print('failed to run command line {}: {}'.format(line, e))
