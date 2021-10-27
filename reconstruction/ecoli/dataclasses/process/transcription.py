@@ -143,8 +143,12 @@ class Transcription(object):
 			fc_dir = rna_fold_changes.get(rna, 0)
 
 			# Ignore inconsistent regulatory directions
-			if reg_dir == 0 or reg_dir * fc_dir < 0:
+			if reg_dir == 0:
 				continue
+
+			# Use default value if annotated direction does not match data direction
+			if reg_dir * fc_dir < 0:
+				fc_dir = 0
 
 			regulated_genes.append(rna)
 			regulation_direction.append(np.sign(reg_dir))

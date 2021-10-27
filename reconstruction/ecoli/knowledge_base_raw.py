@@ -54,6 +54,7 @@ LIST_OF_DICT_FILENAMES = [
 	"molecular_weight_keys.tsv",
 	"ppgpp_fc.tsv",
 	"ppgpp_regulation.tsv",
+	"ppgpp_regulation_added.tsv",
 	"ppgpp_regulation_removed.tsv",
 	"protein_half_lives_measured.tsv",
 	"protein_half_lives_n_end_rule.tsv",
@@ -139,6 +140,7 @@ ADDED_DATA = {
 	'equilibrium_reactions': 'equilibrium_reactions_added',
 	'metabolic_reactions': 'metabolic_reactions_added',
 	'metabolites': 'metabolites_added',
+	'ppgpp_regulation': 'ppgpp_regulation_added',
 	'trna_charging_reactions': 'trna_charging_reactions_added',
 	}
 
