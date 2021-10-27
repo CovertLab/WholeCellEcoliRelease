@@ -10,6 +10,7 @@ ACTIVE = [
 	"doubling_time_histogram.py",
 	"growthConditionComparison.py",
 	"growth_condition_comparison_validation.py",
+	"growth_correlations.py",
 	"growth_rate_time_series.py",
 	"growth_trajectory.py",
 	"massFractionSummary.py",
@@ -52,10 +53,12 @@ TAGS = {
 		],
 	'ADD_ONE_AA': [
 		'cell_growth.py',
+		'growth_correlations',
 		'growth_rate_time_series',
 		],
 	'ADD_ONE_AA_SHIFT': [
 		'cell_growth.py',
+		'growth_correlations',
 		'growth_rate_time_series',
 		'growth_trajectory',
 		],
@@ -76,11 +79,13 @@ TAGS = {
 		],
 	'REMOVE_ONE_AA': [
 		'cell_growth.py',
+		'growth_correlations',
 		'growth_rate_time_series',
 		'growth_trajectory',
 		],
 	'REMOVE_ONE_AA_SHIFT': [
 		'cell_growth.py',
+		'growth_correlations',
 		'growth_rate_time_series',
 		],
 	'TF_ACTIVITY': [
