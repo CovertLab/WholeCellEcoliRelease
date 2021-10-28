@@ -37,7 +37,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		all_r = np.zeros((n_subproperties, n_growth_rates))
 		for i, property in enumerate(cell_property):
 			for j, growth in enumerate(growth_rates):
-				all_r[i, j] = stats.pearsonr(property[:len(growth)], growth)[0]
+				filter_mask = np.isfinite(property[:len(growth)]) & np.isfinite(growth)  # filter to prevent pearsonr ValueError
+				if np.any(filter_mask):
+					all_r[i, j] = stats.pearsonr(property[:len(growth)][filter_mask], growth[filter_mask])[0]
 
 		width = 0.8 / n_growth_rates
 		offsets = np.arange(n_growth_rates) * width - 0.4 + width / 2
