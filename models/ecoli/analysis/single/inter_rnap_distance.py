@@ -39,7 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		initial_time = main_reader.readAttribute('initialTime')
 		time = (units.s)*(main_reader.readColumn('time') - initial_time)
 		n_rna_init_events = rnap_data_reader.readColumn('rnaInitEvent')
-		gene_copy_numbers = rna_synth_prob_reader.readColumn('gene_copy_number')
+		promoter_copy_numbers = rna_synth_prob_reader.readColumn('promoter_copy_number')
 		TU_ids = rna_synth_prob_reader.readAttribute('rnaIds')
 
 		# Get RNAP elongation rate for sim condition
@@ -50,7 +50,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# gene per gene copy throughout the cell cycle
 		n_total_rna_init_events_per_copy = np.divide(
 			n_rna_init_events[1:, :].astype(np.float64),
-			gene_copy_numbers[1:, :]
+			promoter_copy_numbers[1:, :]
 			).sum(axis=0)
 
 		# Divide by length of cell cycle to get average initiation rate

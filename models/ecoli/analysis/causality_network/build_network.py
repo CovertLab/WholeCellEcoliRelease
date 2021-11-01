@@ -330,31 +330,18 @@ class BuildNetwork(object):
 		ntp_ids = self.sim_data.molecule_groups.ntps
 		ppi_id = self.sim_data.molecule_ids.ppi
 		rnap_id = self.sim_data.molecule_ids.full_RNAP
+		all_gene_ids = self.sim_data.process.transcription.cistron_data['gene_id']
 
-		# Loop through all genes (in the order listed in transcription)
-		for rna_id, gene_id, is_mrna in zip(
-				self.sim_data.process.transcription.cistron_data["id"],
-				self.sim_data.process.transcription.cistron_data['gene_id'],
-				self.sim_data.process.transcription.cistron_data['is_mRNA']):
-
+		# Loop through all transcripts (in the order listed in transcription)
+		for rna_id in self.sim_data.process.transcription.rna_data["id"]:
 			# Initialize a single transcript node
 			rna_node = Node()
 
 			# Add attributes to the node
 			# Add common name and synonyms
-			# Remove compartment tag
 			rna_id_no_compartment = rna_id[:-3]
-			gene_name = self.common_names.get_common_name(gene_id)
-			gene_synonyms = self.common_names.get_synonyms(gene_id)
-
-			rna_synonyms = []  # TODO(jerry): what default value to use?
-			if is_mrna:
-				rna_name = gene_name + " mRNA"
-				if isinstance(gene_synonyms, list):
-					rna_synonyms = [x + " mRNA" for x in gene_synonyms]
-			else:
-				rna_name = self.common_names.get_common_name(rna_id_no_compartment)
-				rna_synonyms = self.common_names.get_synonyms(rna_id_no_compartment)
+			rna_name = self.common_names.get_common_name(rna_id_no_compartment)
+			rna_synonyms = self.common_names.get_synonyms(rna_id_no_compartment)
 
 			attr = {
 				'node_class': 'State',
@@ -362,7 +349,6 @@ class BuildNetwork(object):
 				'node_id': rna_id,
 				'name': rna_name,
 				'synonyms': rna_synonyms,
-				'url': URL_TEMPLATE.format(gene_id),
 				'location': molecule_compartment(rna_id),
 				}
 
@@ -371,16 +357,16 @@ class BuildNetwork(object):
 			# Append transcript node to node_list
 			self.node_list.append(rna_node)
 
-			# Initialize a single transcription node for each gene
+			# Initialize a single transcription node for each TU
 			transcription_node = Node()
 
 			# Add attributes to the node
-			transcription_id = gene_id + NODE_ID_SUFFIX["transcription"]
-			transcription_name = gene_name + " transcription"
-			if isinstance(gene_synonyms, list):
-				transcription_synonyms = [x + " transcription" for x in gene_synonyms]
+			transcription_id = rna_id_no_compartment + NODE_ID_SUFFIX["transcription"]
+			transcription_name = rna_name + " transcription"
+			if isinstance(rna_synonyms, list):
+				transcription_synonyms = [x + " transcription" for x in rna_synonyms]
 			else:
-				transcription_synonyms = [gene_synonyms]
+				transcription_synonyms = [rna_synonyms]
 
 			attr = {
 				'node_class': 'Process',
@@ -388,7 +374,6 @@ class BuildNetwork(object):
 				'node_id': transcription_id,
 				'name': transcription_name,
 				'synonyms': transcription_synonyms,
-				'url': URL_TEMPLATE.format(gene_id),
 				'location': molecule_compartment(transcription_id),
 				}
 			transcription_node.read_attributes(**attr)
@@ -396,8 +381,14 @@ class BuildNetwork(object):
 			# Append transcription node to node_list
 			self.node_list.append(transcription_node)
 
+			# Get IDs of genes that constitute the transcript
+			constituent_gene_ids = [
+				all_gene_ids[i] for i
+				in self.sim_data.process.transcription.rna_id_to_cistron_indexes(rna_id)]
+
 			# Add edge from gene to transcription node
-			self._append_edge("Transcription", gene_id, transcription_id)
+			for gene_id in constituent_gene_ids:
+				self._append_edge("Transcription", gene_id, transcription_id)
 
 			# Add edge from transcription to transcript node
 			self._append_edge("Transcription", transcription_id, rna_id)
@@ -428,20 +419,21 @@ class BuildNetwork(object):
 
 		ribosome_subunit_ids = [self.sim_data.molecule_ids.s30_full_complex,
 			self.sim_data.molecule_ids.s50_full_complex]
+		all_rna_ids = self.sim_data.process.transcription.rna_data['id']
 
-		# Construct dictionary to get corrensponding gene IDs from RNA IDs
+		# Construct dictionary to get corresponding gene IDs from RNA IDs
 		rna_id_to_gene_id = {}
-		for rna_id, gene_id in zip(
+		for cistron_id, gene_id in zip(
 				self.sim_data.process.transcription.cistron_data["id"],
 				self.sim_data.process.transcription.cistron_data['gene_id']):
-			rna_id_to_gene_id[rna_id] = gene_id
+			rna_id_to_gene_id[cistron_id] = gene_id
 
 		# Loop through all translatable genes
-		for monomer_id, rna_id in zip(
+		for monomer_id, cistron_id in zip(
 				self.sim_data.process.translation.monomer_data["id"],
 				self.sim_data.process.translation.monomer_data['cistron_id']):
 
-			gene_id = rna_id_to_gene_id[rna_id]
+			gene_id = rna_id_to_gene_id[cistron_id]
 
 			# Initialize a single protein node
 			protein_node = Node()
@@ -493,8 +485,15 @@ class BuildNetwork(object):
 			# Append translation node to node_list
 			self.node_list.append(translation_node)
 
-			# Add edge from transcript to translation node
-			self._append_edge("Translation", rna_id, translation_id)
+			# Add edges from all transcript that encode for the protein to
+			# the translation node
+			rna_ids = [
+				all_rna_ids[i] for i
+				in self.sim_data.process.transcription.cistron_id_to_rna_indexes(cistron_id)
+				]
+
+			for rna_id in rna_ids:
+				self._append_edge("Translation", rna_id, translation_id)
 
 			# Add edge from translation to monomer node
 			self._append_edge("Translation", translation_id, monomer_id)
@@ -907,6 +906,7 @@ class BuildNetwork(object):
 		# Get list of transcription factor IDs and transcription unit IDs
 		tf_ids = self.sim_data.process.transcription_regulation.tf_ids
 		rna_ids = self.sim_data.process.transcription.rna_data["id"]
+		cistron_ids = self.sim_data.process.transcription.cistron_data["id"]
 
 		# Get delta_prob matrix from sim_data
 		delta_prob = self.sim_data.process.transcription_regulation.delta_prob
@@ -920,12 +920,12 @@ class BuildNetwork(object):
 				delta_prob['deltaJ'] == i]
 
 		# Build dict that maps RNA IDs to gene IDs
-		rna_id_to_gene_id = {}
+		cistron_id_to_gene_id = {}
 
-		for rna_id, gene_id in zip(
+		for cistron_id, gene_id in zip(
 				self.sim_data.process.replication.gene_data['cistron_id'],
 				self.sim_data.process.replication.gene_data["name"]):
-			rna_id_to_gene_id[rna_id + "[c]"] = gene_id
+			cistron_id_to_gene_id[cistron_id] = gene_id
 
 		# Loop through all TFs
 		for tf_id in tf_ids:
@@ -947,31 +947,36 @@ class BuildNetwork(object):
 			regulated_rna_ids = rna_ids[TF_to_TU_idx[tf_id]]
 
 			for regulated_rna_id in regulated_rna_ids:
-				# Find corresponding ID of gene
-				gene_id = rna_id_to_gene_id[regulated_rna_id]
+				regulated_cistron_ids = [
+					cistron_ids[i] for i
+					in self.sim_data.process.transcription.rna_id_to_cistron_indexes(regulated_rna_id)]
 
-				# Initialize a single regulation node for each TF-gene pair
-				regulation_node = Node()
+				for regulated_cistron_id in regulated_cistron_ids:
+					# Find corresponding ID of gene
+					gene_id = cistron_id_to_gene_id[regulated_cistron_id]
 
-				# Add attributes to the node
-				reg_id = tf_id + "_" + gene_id + NODE_ID_SUFFIX["regulation"]
-				reg_name = tf_id + "-" + gene_id + " gene regulation"
-				attr = {
-					'node_class': 'Process',
-					'node_type': 'Regulation',
-					'node_id': reg_id,
-					'name': reg_name,
-					'location': molecule_compartment(reg_id),
-					}
-				regulation_node.read_attributes(**attr)
+					# Initialize a single regulation node for each TF-gene pair
+					regulation_node = Node()
 
-				self.node_list.append(regulation_node)
+					# Add attributes to the node
+					reg_id = tf_id + "_" + gene_id + NODE_ID_SUFFIX["regulation"]
+					reg_name = tf_id + "-" + gene_id + " gene regulation"
+					attr = {
+						'node_class': 'Process',
+						'node_type': 'Regulation',
+						'node_id': reg_id,
+						'name': reg_name,
+						'location': molecule_compartment(reg_id),
+						}
+					regulation_node.read_attributes(**attr)
 
-				# Add edge from TF to this regulation node
-				self._append_edge("Regulation", bound_tf_id, reg_id)
+					self.node_list.append(regulation_node)
 
-				# Add edge from this regulation node to the gene
-				self._append_edge("Regulation", reg_id, gene_id)
+					# Add edge from TF to this regulation node
+					self._append_edge("Regulation", bound_tf_id, reg_id)
+
+					# Add edge from this regulation node to the gene
+					self._append_edge("Regulation", reg_id, gene_id)
 
 
 	def _find_duplicate_nodes(self):

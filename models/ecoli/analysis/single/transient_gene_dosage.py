@@ -57,8 +57,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data
 		time = main_reader.readColumn('time')
 
-		gene_copy_numbers = synth_prob_reader.readColumn(
-			"gene_copy_number")[:, selected_rna_indexes]
+		promoter_copy_numbers = synth_prob_reader.readColumn(
+			"promoter_copy_number")[:, selected_rna_indexes]
 		synth_probs = synth_prob_reader.readColumn(
 			"rnaSynthProb")[:, selected_rna_indexes]
 		parca_synth_probs = all_parca_synth_probs[selected_rna_indexes]
@@ -80,12 +80,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			ax2 = ax1.twinx()
 			ax2.set_xlabel("Time [s]")
-			ax2.set_ylabel("Gene dosage (copy number)")
+			ax2.set_ylabel("Promoter copy numbers")
 			ax2.set_ylim([0, 10])
 			ax2.set_title(
 				"%s, position = %.2f"
 				% (rna_ids[rna_index], rna_relative_positions[rna_index]))
-			ax2.plot(time, gene_copy_numbers[:, i], color='r', label="Gene dosage")
+			ax2.plot(time, promoter_copy_numbers[:, i], color='r', label="Promoter copy numbers")
 			ax2.legend(loc=1)
 
 		fig.tight_layout()

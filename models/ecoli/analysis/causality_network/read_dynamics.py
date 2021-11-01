@@ -29,11 +29,13 @@ REQUIRED_COLUMNS = [
 	("Main", "time"),
 	("Mass", "cellMass"),
 	("Mass", "dryMass"),
-	("mRNACounts", "mRNA_cistron_counts"),
-	("RnaSynthProb", "pPromoterBound"),
-	("RnaSynthProb", "rnaSynthProb"),
+	("mRNACounts", "mRNA_counts"),
 	("RnaSynthProb", "gene_copy_number"),
+	("RnaSynthProb", "pPromoterBound"),
+	("RnaSynthProb", "rna_synth_prob_per_cistron"),
+	("RnaSynthProb", "promoter_copy_number"),
 	("RnaSynthProb", "n_bound_TF_per_TU"),
+	("RnaSynthProb", "n_bound_TF_per_cistron"),
 	("RnapData", "rnaInitEvent"),
 	("RibosomeData", "probTranslationPerTranscript"),
 	]
@@ -69,10 +71,14 @@ def convert_dynamics(simOutDir, seriesOutDir, simDataFile, node_list, edge_list)
 			columns[("FBAResults", "reactionFluxes")].T / conversion_coeffs).T
 			).asNumber(units.mmol/units.g/units.h)
 
-		# Reshape array for number of bound transcription factors
+		# Reshape arrays for number of bound transcription factors
 		n_TU = len(sim_data.process.transcription.rna_data["id"])
+		n_cistron = len(sim_data.process.transcription.cistron_data['id'])
 		n_TF = len(sim_data.process.transcription_regulation.tf_ids)
 
+		columns[("RnaSynthProb", "n_bound_TF_per_cistron")] = (
+			columns[("RnaSynthProb", "n_bound_TF_per_cistron")]
+			).reshape(-1, n_cistron, n_TF)
 		columns[("RnaSynthProb", "n_bound_TF_per_TU")] = (
 			columns[("RnaSynthProb", "n_bound_TF_per_TU")]
 			).reshape(-1, n_TU, n_TF)
@@ -90,9 +96,10 @@ def convert_dynamics(simOutDir, seriesOutDir, simDataFile, node_list, edge_list)
 		gene_ids = sim_data.process.transcription.cistron_data['gene_id']
 		indexes["Genes"] = build_index_dict(gene_ids)
 
-		mRNA_ids = sim_data.process.transcription.cistron_data["id"][
-			sim_data.process.transcription.cistron_data['is_mRNA']
-		]
+		rna_ids = sim_data.process.transcription.rna_data['id']
+		indexes['RNAs'] = build_index_dict(rna_ids)
+
+		mRNA_ids = rna_ids[sim_data.process.transcription.rna_data['is_mRNA']]
 		indexes["mRNAs"] = build_index_dict(mRNA_ids)
 
 		translated_rna_ids = sim_data.process.translation.monomer_data['cistron_id']
@@ -223,7 +230,7 @@ def read_gene_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	gene_index = indexes["Genes"][node_id]
 
 	dynamics = {
-		"transcription probability": columns[("RnaSynthProb", "rnaSynthProb")][:, gene_index],
+		"transcription probability": columns[("RnaSynthProb", "rna_synth_prob_per_cistron")][:, gene_index],
 		"gene copy number": columns[("RnaSynthProb", "gene_copy_number")][:, gene_index],
 		}
 	dynamics_units = {
@@ -241,10 +248,10 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 
 	# If RNA is an mRNA, get counts from mRNA counts listener
 	if node_id in indexes["mRNAs"]:
-		counts = columns[("mRNACounts", "mRNA_cistron_counts")][:, indexes["mRNAs"][node_id]]
+		counts = columns[("mRNACounts", "mRNA_counts")][:, indexes["mRNAs"][node_id]]
 	# If not, get counts from bulk molecules listener
 	else:
-		counts = columns[("BulkMolecules", "counts")][:, indexes["BulkMolecules"][node_id + '[c]']]
+		counts = columns[("BulkMolecules", "counts")][:, indexes["BulkMolecules"][node_id]]
 
 	dynamics = {
 		"counts": counts,
@@ -303,11 +310,12 @@ def read_transcription_dynamics(sim_data, node, node_id, columns, indexes, volum
 	"""
 	Reads dynamics data for transcription nodes from simulation output.
 	"""
-	gene_id = node_id.split(NODE_ID_SUFFIX["transcription"])[0]
-	gene_idx = indexes["Genes"][gene_id]
+	rna_id = node_id.split(NODE_ID_SUFFIX["transcription"])[0]
+	rna_idx = indexes['RNAs'][rna_id + '[c]']
 
 	dynamics = {
-		"transcription initiations": columns[("RnapData", "rnaInitEvent")][:, gene_idx],
+		"transcription initiations": columns[("RnapData", "rnaInitEvent")][:, rna_idx],
+		"promoter copy number": columns[("RnaSynthProb", "promoter_copy_number")][:, rna_idx],
 		}
 	dynamics_units = {
 		"transcription initiations": COUNT_UNITS,
@@ -394,7 +402,7 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	tf_idx = indexes["TranscriptionFactors"][tf_id]
 
 	dynamics = {
-		'bound TFs': columns[("RnaSynthProb", "n_bound_TF_per_TU")][
+		'bound TFs': columns[("RnaSynthProb", "n_bound_TF_per_cistron")][
 			:, gene_idx, tf_idx],
 		}
 	dynamics_units = {
@@ -408,7 +416,6 @@ def read_tf_binding_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	Reads dynamics data for TF binding nodes from a simulation output.
 	"""
-
 	tf_id, _ = node_id.split("-bound")
 	tf_idx = indexes["TranscriptionFactors"][tf_id]
 

@@ -67,7 +67,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
 			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
 				"n_bound_TF_per_TU").reshape((-1, len(rna_ids), len(tf_ids)))
-			gene_copy_number = rna_synth_prob_reader.readColumn("gene_copy_number")
+			promoter_copy_number = rna_synth_prob_reader.readColumn("promoter_copy_number")
 
 			tf_idx = tf_ids.index(tf)
 			tf_targets = sim_data.tf_to_fold_change[tf]
@@ -76,11 +76,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			tfTargetBoundCountsAll = n_bound_TF_per_TU[:, tf_target_indexes, tf_idx]
 			tfTargetSynthProbAll = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, tf_target_indexes]
-			tf_target_gene_copies_all = gene_copy_number[:, tf_target_indexes]
+			tf_target_promoter_copies_all = promoter_copy_number[:, tf_target_indexes]
 
 			for i, tfTarget in enumerate(sorted(sim_data.tf_to_fold_change[tf])):
 				tfTargetBoundCounts = tfTargetBoundCountsAll[:, i].reshape(-1)
-				tf_target_copies = tf_target_gene_copies_all[:, i].reshape(-1)
+				tf_target_copies = tf_target_promoter_copies_all[:, i].reshape(-1)
 
 				expectedProbBound.append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
 				simulatedProbBound.append(

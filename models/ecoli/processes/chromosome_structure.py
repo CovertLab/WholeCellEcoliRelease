@@ -67,6 +67,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.oriCs = self.uniqueMoleculesView('oriC')
 		self.full_chromosomes = self.uniqueMoleculesView('full_chromosome')
 		self.promoters = self.uniqueMoleculesView('promoter')
+		self.genes = self.uniqueMoleculesView('gene')
 		self.DnaA_boxes = self.uniqueMoleculesView('DnaA_box')
 		
 		if self.calculate_superhelical_densities:
@@ -81,6 +82,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.RNAs.request_access(self.EDIT_DELETE_ACCESS)
 		self.active_ribosomes.request_access(self.EDIT_DELETE_ACCESS)
 		self.promoters.request_access(self.EDIT_DELETE_ACCESS)
+		self.genes.request_access(self.EDIT_DELETE_ACCESS)
 		self.DnaA_boxes.request_access(self.EDIT_DELETE_ACCESS)
 		
 		if self.calculate_superhelical_densities:
@@ -109,6 +111,8 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 
 		promoter_TU_indexes, promoter_domain_indexes, promoter_coordinates, promoter_bound_TFs = self.promoters.attrs(
 			'TU_index', 'domain_index', 'coordinates', 'bound_TF')
+		gene_cistron_indexes, gene_domain_indexes, gene_coordinates = self.genes.attrs(
+			'cistron_index', 'domain_index', 'coordinates')
 		DnaA_box_domain_indexes, DnaA_box_coordinates, DnaA_box_bound = self.DnaA_boxes.attrs(
 			'domain_index', 'coordinates', 'DnaA_bound')
 
@@ -160,6 +164,8 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			RNAP_domain_indexes, RNAP_coordinates)
 		removed_promoters_mask = get_removed_molecules_mask(
 			promoter_domain_indexes, promoter_coordinates)
+		removed_genes_mask = get_removed_molecules_mask(
+			gene_domain_indexes, gene_coordinates)
 		removed_DnaA_boxes_mask = get_removed_molecules_mask(
 			DnaA_box_domain_indexes, DnaA_box_coordinates)
 
@@ -421,6 +427,26 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 				domain_index=promoter_domain_indexes_new,
 				bound_TF=np.zeros((n_new_promoters, self.n_TFs), dtype=bool))
 
+		# Replicate genes
+		n_new_genes = 2 * np.count_nonzero(removed_genes_mask)
+
+		if n_new_genes > 0:
+			# Delete original promoters
+			self.genes.delByIndexes(np.where(removed_genes_mask)[0])
+
+			# Set up attributes for the replicated promoters
+			gene_cistron_indexes_new = np.repeat(gene_cistron_indexes[removed_genes_mask], 2)
+			gene_coordinates_new, gene_domain_indexes_new = get_replicated_motif_attributes(
+				gene_coordinates[removed_genes_mask],
+				gene_domain_indexes[removed_genes_mask])
+
+			# Add new promoters with new domain indexes
+			self.genes.moleculesNew(
+				n_new_genes,
+				cistron_index=gene_cistron_indexes_new,
+				coordinates=gene_coordinates_new,
+				domain_index=gene_domain_indexes_new,
+				)
 
 		# Replicate DnaA boxes
 		n_new_DnaA_boxes = 2*np.count_nonzero(removed_DnaA_boxes_mask)

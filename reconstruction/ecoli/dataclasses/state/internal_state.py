@@ -294,6 +294,31 @@ class InternalState(object):
 			'promoter'
 			)
 
+		# Add genes
+		# Genes are sequences on the DNA that encode for particular cistrons.
+		# Its attributes are given as:
+		# - cistron_index (64-bit int): Index of the cistron that the gene
+		# encodes for.
+		# - coordinates (64-bit int): Location of the gene on the chromosome, in
+		# base pairs from origin. This value does not change after the molecule
+		# is initialized.
+		# - domain_index (32-bit int): Domain index of the chromosome domain
+		# that the gene belongs to. This value is used to split the genes at
+		# cell division.
+		gene_mass = (units.g / units.mol) * np.zeros_like(RNAP_mass)
+		gene_attributes = {
+			'cistron_index': 'i8',
+			'coordinates': 'i8',
+			'domain_index': 'i4',
+			}
+
+		self.unique_molecule.add_to_unique_state('gene', gene_attributes, gene_mass)
+
+		# Genes are divided based on their domain index
+		sim_data.molecule_groups.unique_molecules_domain_index_division.append(
+			'gene'
+			)
+
 		# Add chromosomal segments
 		# Chromosomal segments are segments of DNA that are topologically
 		# constrained, such that the changes in the linking number of the

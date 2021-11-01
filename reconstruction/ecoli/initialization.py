@@ -341,7 +341,9 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		bulkMolCntr.countsDec(3*n_replisome, sim_data.molecule_groups.replisome_trimer_subunits)
 		bulkMolCntr.countsDec(n_replisome, sim_data.molecule_groups.replisome_monomer_subunits)
 
-	# Get coordinates of all promoters and DnaA boxes
+	# Get coordinates of all genes, promoters and DnaA boxes
+	all_gene_coordinates = sim_data.process.transcription.cistron_data[
+		'replication_coordinate']
 	all_promoter_coordinates = sim_data.process.transcription.rna_data[
 		"replication_coordinate"]
 	all_DnaA_box_coordinates = sim_data.process.replication.motif_coordinates[
@@ -441,6 +443,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	# Use function to get attributes for promoters and DnaA boxes
 	TU_index, promoter_coordinates, promoter_domain_index = get_motif_attributes(
 		all_promoter_coordinates)
+	cistron_index, gene_coordinates, gene_domain_index = get_motif_attributes(
+		all_gene_coordinates)
 	_, DnaA_box_coordinates, DnaA_box_domain_index = get_motif_attributes(
 		all_DnaA_box_coordinates)
 
@@ -456,6 +460,16 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		coordinates=np.array(promoter_coordinates),
 		domain_index=np.array(promoter_domain_index),
 		bound_TF=np.zeros((n_promoter, n_tf), dtype=bool))
+
+	# Add genes as unique molecules and set attributes
+	n_gene = len(cistron_index)
+
+	uniqueMolCntr.objectsNew(
+		'gene', n_gene,
+		cistron_index=np.array(cistron_index),
+		coordinates=np.array(gene_coordinates),
+		domain_index=np.array(gene_domain_index),
+		)
 
 	# Add DnaA boxes as unique molecules and set attributes
 	n_DnaA_box = len(DnaA_box_coordinates)
