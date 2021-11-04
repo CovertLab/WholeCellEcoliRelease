@@ -52,11 +52,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			conditions[i] = split_index(variant)[0]
 
 			# Read data from listeners
-			ppgpp = read_stacked_columns(all_cells, 'GrowthLimits', 'ppgpp_conc')
-			elong_rate = read_stacked_columns(all_cells, 'RibosomeData', 'effectiveElongationRate')
-			growth_rate = read_stacked_columns(all_cells, 'Mass', 'instantaneous_growth_rate', remove_first=True) * 3600
-			rna_mass = read_stacked_columns(all_cells, 'Mass', 'rnaMass')
-			protein_mass = read_stacked_columns(all_cells, 'Mass', 'proteinMass')
+			ppgpp = read_stacked_columns(all_cells, 'GrowthLimits', 'ppgpp_conc', ignore_exception=True)
+			elong_rate = read_stacked_columns(all_cells, 'RibosomeData', 'effectiveElongationRate', ignore_exception=True)
+			growth_rate = read_stacked_columns(all_cells, 'Mass', 'instantaneous_growth_rate', remove_first=True, ignore_exception=True) * 3600
+			rna_mass = read_stacked_columns(all_cells, 'Mass', 'rnaMass', ignore_exception=True)
+			protein_mass = read_stacked_columns(all_cells, 'Mass', 'proteinMass', ignore_exception=True)
 			rna_to_protein = (rna_mass / protein_mass)
 
 			# Calculate mean and std for each value

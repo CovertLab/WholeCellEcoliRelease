@@ -7,7 +7,6 @@ import os
 import pickle
 
 from matplotlib import pyplot as plt
-from matplotlib import gridspec
 import numpy as np
 
 from models.ecoli.analysis import cohortAnalysisPlot
@@ -17,10 +16,11 @@ from wholecell.analysis.analysis_tools import (exportFigure,
 from wholecell.io.tablereader import TableReader
 
 
-class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
-	def plot_time_series(self, gs, t_flat, y_flat, ylabel, timeline, log_scale=False):
-		ax = plt.subplot(gs)
+PLOT_SINGLE = False
 
+
+class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
+	def plot_time_series(self, ax, t_flat, y_flat, ylabel, timeline, log_scale=False):
 		# Extract y data for each time point (assumes time step lines up across samples)
 		data = {}
 		for t, y in zip(t_flat, y_flat):
@@ -37,11 +37,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		mean = np.array(mean).squeeze()
 		std = np.array(std).squeeze()
 
-		# # Plot all single traces - might be too much for large sets of seeds so commented for now
-		# new_cell = np.where(t_flat[:-1] > t_flat[1:])[0] + 1
-		# splits = [0] + list(new_cell) + [None]
-		# for start, end in zip(splits[:-1], splits[1:]):
-		# 	ax.plot(t_flat[start:end], y_flat[start:end], 'k', alpha=0.05, linewidth=0.5)
+		# Plot all single traces
+		if PLOT_SINGLE:
+			new_cell = np.where(t_flat[:-1] > t_flat[1:])[0] + 1
+			splits = [0] + list(new_cell) + [None]
+			for start, end in zip(splits[:-1], splits[1:]):
+				ax.plot(t_flat[start:end], y_flat[start:end], 'k', alpha=0.05, linewidth=0.5)
 
 		# Plot mean as a trace and standard deviation as a shaded area
 		ax.plot(t, mean)
@@ -72,6 +73,22 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 					y_pos = y_max - (y_max - y_min) * i * 0.03
 				ax.text(t_media, y_pos, media, fontsize=6)
 
+	def plot_hist(self, ax, data, min_val, max_val, label, n_bins=40):
+		def plot(d):
+			ax.hist(d, bins=n_bins, range=(min_val, max_val), alpha=0.7, histtype='step')
+
+		if len(data.shape) > 1:
+			for d in data.T:
+				plot(d)
+		else:
+			plot(data)
+
+		self.remove_border(ax)
+		ax.tick_params(labelsize=6)
+		ax.set_xlabel(label, fontsize=8)
+		ax.set_ylabel('Count', fontsize=8)
+
+
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
@@ -84,11 +101,13 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		uncharged_trna_names = transcription.rna_data['id'][transcription.rna_data['is_tRNA']]
 		charged_trna_names = transcription.charged_trna_names
 		aa_from_trna = transcription.aa_from_trna.T
+		cistron_data = transcription.cistron_data
 		if sim_data.external_state.current_timeline_id:
 			timeline = sim_data.external_state.saved_timelines[
 				sim_data.external_state.current_timeline_id]
 		else:
 			timeline = []
+		rna_fractions = ['is_rRNA', 'is_tRNA', 'is_mRNA']
 
 		ap = AnalysisPaths(variantDir, cohort_plot=True)
 		cell_paths = ap.get_cells()
@@ -121,6 +140,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			remove_first=True, ignore_exception=True)
 		unique_mol_counts = read_stacked_columns(cell_paths, 'UniqueMoleculeCounts', 'uniqueMoleculeCounts',
 			remove_first=True, ignore_exception=True)
+		synth_prob_per_cistron = read_stacked_columns(cell_paths, 'RnaSynthProb', 'rna_synth_prob_per_cistron',
+			remove_first=True, ignore_exception=True)
 		(ppgpp_counts, uncharged_trna_counts, charged_trna_counts, aa_counts,
 			inactive_rnap_counts, ribosome_subunit_counts) = read_stacked_bulk_molecules(cell_paths,
 				([ppgpp_id], uncharged_trna_names, charged_trna_names, aa_ids, [rnap_id], ribosome_subunit_ids),
@@ -137,24 +158,61 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		rnap_elong_rate = rnap_elongations / time_step / active_rnap_counts
 		rnap_fraction_active = active_rnap_counts / (active_rnap_counts + inactive_rnap_counts)
 		ribosome_fraction_active = active_ribosome_counts / (active_ribosome_counts + ribosome_subunit_counts.min(1))
+		rna_fraction_prob = np.vstack([
+			synth_prob_per_cistron[:, cistron_data[fraction]].sum(1)
+			for fraction in rna_fractions
+			]).T
 
-		plt.figure(figsize=(15, 15))
-		gs = gridspec.GridSpec(4, 3)
+		_, axes = plt.subplots(4, 3, figsize=(15, 15))
 
-		self.plot_time_series(gs[0, 0], time, growth_rate, 'Growth rate\n(1/hr)', timeline)
-		self.plot_time_series(gs[1, 0], time, rna_growth, 'RNA growth rate\n(1/hr)', timeline)
-		self.plot_time_series(gs[2, 0], time, protein_growth, 'Protein growth rate\n(1/hr)', timeline)
-		self.plot_time_series(gs[3, 0], time, small_mol_growth, 'Small mol growth rate\n(1/hr)', timeline)
-		self.plot_time_series(gs[0, 1], time, rnap_elong_rate, 'RNAP elongation rate\n(nt/s)', timeline)
-		self.plot_time_series(gs[1, 1], time, rnap_fraction_active, 'RNAP active fraction', timeline)
-		self.plot_time_series(gs[2, 1], time, ribosome_elong_rate, 'Ribosome elongation rate\n(AA/s)', timeline)
-		self.plot_time_series(gs[3, 1], time, ribosome_fraction_active, 'Ribosome active fraction', timeline)
-		self.plot_time_series(gs[0, 2], time, ppgpp_conc, 'ppGpp concentration\n(uM)', timeline)
-		self.plot_time_series(gs[1, 2], time, fraction_charged, 'Fraction charged', timeline)
-		self.plot_time_series(gs[2, 2], time, aa_conc, 'Amino acid concentrations\n(mM)', timeline, log_scale=True)
+		self.plot_time_series(axes[0, 0], time, growth_rate, 'Growth rate\n(1/hr)', timeline)
+		self.plot_time_series(axes[1, 0], time, rna_growth, 'RNA growth rate\n(1/hr)', timeline)
+		self.plot_time_series(axes[2, 0], time, protein_growth, 'Protein growth rate\n(1/hr)', timeline)
+		self.plot_time_series(axes[3, 0], time, small_mol_growth, 'Small mol growth rate\n(1/hr)', timeline)
+		self.plot_time_series(axes[0, 1], time, rnap_elong_rate, 'RNAP elongation rate\n(nt/s)', timeline)
+		self.plot_time_series(axes[1, 1], time, rnap_fraction_active, 'RNAP active fraction', timeline)
+		self.plot_time_series(axes[2, 1], time, ribosome_elong_rate, 'Ribosome elongation rate\n(AA/s)', timeline)
+		self.plot_time_series(axes[3, 1], time, ribosome_fraction_active, 'Ribosome active fraction', timeline)
+		self.plot_time_series(axes[0, 2], time, ppgpp_conc, 'ppGpp concentration\n(uM)', timeline)
+		self.plot_time_series(axes[1, 2], time, fraction_charged, 'Fraction charged', timeline)
+		self.plot_time_series(axes[2, 2], time, aa_conc, 'Amino acid concentrations\n(mM)', timeline, log_scale=True)
+		self.plot_time_series(axes[3, 2], time, rna_fraction_prob, 'RNA fraction\nsynthesis probability', timeline)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+		# Fix axes limits for easier comparison across runs
+		axes[0, 0].set_ylim(0, 2)
+		axes[1, 0].set_ylim(0, 2)
+		axes[2, 0].set_ylim(0, 2)
+		axes[3, 0].set_ylim(0, 2)
+		axes[0, 1].set_ylim(0, 100)
+		axes[1, 1].set_ylim(0, 1)
+		axes[2, 1].set_ylim(0, 25)
+		axes[3, 1].set_ylim(0, 1)
+		axes[0, 2].set_ylim(0, 300)
+		axes[1, 2].set_ylim(0, 1.2)
+		axes[2, 2].set_ylim(1e-4, 100)
+		axes[3, 2].set_ylim(0, 1)
+		exportFigure(plt, plotOutDir, f'{plotOutFileName}_trimmed', metadata)
+
+		# Plot histograms of data
+		_, axes = plt.subplots(4, 3, figsize=(15, 15))
+		self.plot_hist(axes[0, 0], growth_rate, 0, 2, 'Growth rate\n(1/hr)')
+		self.plot_hist(axes[1, 0], rna_growth, 0, 2, 'RNA growth rate\n(1/hr)')
+		self.plot_hist(axes[2, 0], protein_growth, 0, 2, 'Protein growth rate\n(1/hr)')
+		self.plot_hist(axes[3, 0], small_mol_growth, 0, 2, 'Small mol growth rate\n(1/hr)')
+		self.plot_hist(axes[0, 1], rnap_elong_rate, 0, 100, 'RNAP elongation rate\n(nt/s)')
+		self.plot_hist(axes[1, 1], rnap_fraction_active, 0, 1, 'RNAP active fraction')
+		self.plot_hist(axes[2, 1], ribosome_elong_rate, 0, 25, 'Ribosome elongation rate\n(AA/s)')
+		self.plot_hist(axes[3, 1], ribosome_fraction_active, 0, 1, 'Ribosome active fraction')
+		self.plot_hist(axes[0, 2], ppgpp_conc, 0, 300, 'ppGpp concentration\n(uM)', n_bins=100)
+		self.plot_hist(axes[1, 2], fraction_charged, 0, 1, 'Fraction charged')
+		self.plot_hist(axes[2, 2], aa_conc, 0, 100, 'Amino acid concentrations\n(mM)')  # TODO: handle log scale and variable ranges
+		self.plot_hist(axes[3, 2], rna_fraction_prob, 0, 1, 'RNA fraction\nsynthesis probability')
+
+		plt.tight_layout()
+		exportFigure(plt, plotOutDir, f'{plotOutFileName}_hist', metadata)
 		plt.close('all')
 
 

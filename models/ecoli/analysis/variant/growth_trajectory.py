@@ -6,6 +6,8 @@ TODO:
 	- shares a lot of code with the multigen plot with the same name (make into a function?)
 """
 
+import csv
+import os
 import pickle
 
 from matplotlib import pyplot as plt
@@ -15,6 +17,9 @@ from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
+
+def mean_std(data):
+	return np.mean(data), np.std(data)
 
 def plot(ax, x, y, sim_time=None, timeline=None, ma_time=None, xlabel=None, ylabel=None,
 		label=None, background=False, markersize=3):
@@ -57,6 +62,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		_, axes = plt.subplots(3, 2, figsize=(8, 12))
 
 		growth_function = lambda x: np.diff(x, axis=0) / x[:-1]
+		average_data = {}
 		for variant in variants:
 			with open(ap.get_variant_kb(variant), 'rb') as f:
 				sim_data = pickle.load(f)
@@ -75,6 +81,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			all_small_mol_growth_ma = []
 			all_times = []
 			all_times_ma = []
+			all_growth = []
+			all_ratio = []
 			for seed in ap.get_seeds(variant):
 				cell_paths = ap.get_cells(variant=[variant], seed=[seed])
 
@@ -125,6 +133,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				all_small_mol_growth_ma.append(small_mol_growth_ma)
 				all_times.append(sim_time[moving_window-1:])  # offset to get first contribution of time point in ma for timeline shift
 				all_times_ma.append(time_ma)
+				all_growth.append(growth)
+				all_ratio.append(ratio)
 
 			min_length = min([len(data) for data in all_growth_means])
 			stacked_mass_means = np.vstack([data[:min_length] for data in all_mass_means]).mean(0)
@@ -157,6 +167,12 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				ma_time=stacked_times_ma, sim_time=stacked_times, timeline=timeline,
 				xlabel='RNA/protein', ylabel='Small molecule growth rate (1/hr)', label=variant)
 
+			# Save average/std for output to a tsv
+			average_data[variant] = {
+				'Growth': mean_std(all_growth),
+				'R/P ratio': mean_std(all_ratio),
+				}
+
 		for ax in axes.reshape(-1):
 			self.remove_border(ax)
 			if len(variants) > 1:
@@ -165,6 +181,21 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
+
+		# Save average data for comparison across runs
+		with open(f'{os.path.join(plotOutDir, plotOutFileName)}.tsv', 'w') as f:
+			writer = csv.writer(f, delimiter='\t')
+			headers = ['Variant']
+			for col in next(iter(average_data.values())):
+				headers += [f'{col} mean', f'{col} std']
+			writer.writerow(headers)
+
+			for variant, data in average_data.items():
+				cols = [variant]
+				for col in data.values():
+					cols += col
+
+				writer.writerow(cols)
 
 
 if __name__ == "__main__":
