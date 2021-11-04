@@ -194,8 +194,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		updated_transcript_lengths = length_partial_RNAs + sequence_elongations
 
 		# Get attributes of active RNAPs
-		coordinates, domain_index, direction, RNAP_unique_index = self.active_RNAPs.attrs(
-			'coordinates', 'domain_index', 'direction', 'unique_index')
+		coordinates, domain_index, is_forward, RNAP_unique_index = self.active_RNAPs.attrs(
+			'coordinates', 'domain_index', 'is_forward', 'unique_index')
 
 		# Active RNAP count should equal partial transcript count
 		assert len(RNAP_unique_index) == len(RNAP_index_partial_RNAs)
@@ -209,7 +209,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Rescale boolean array of directions to an array of 1's and -1's.
 		# True is converted to 1, False is converted to -1.
-		direction_rescaled = (2*(direction - 0.5)).astype(np.int64)
+		direction_rescaled = (2*(is_forward - 0.5)).astype(np.int64)
 
 		# Compute the updated coordinates of RNAPs. Coordinates of RNAPs
 		# moving in the positive direction are increased, whereas coordinates

@@ -49,7 +49,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Get gene data from sim_data
 		gene_ids = sim_data.process.transcription.cistron_data['gene_id']
 		gene_coordinates = sim_data.process.transcription.cistron_data['replication_coordinate']
-		gene_directions = sim_data.process.transcription.cistron_data["direction"]
+		gene_directions = sim_data.process.transcription.cistron_data['is_forward']
 		gene_lengths = sim_data.process.transcription.cistron_data["length"].asNumber(units.nt)
 
 		# Load replichore lengths
@@ -57,9 +57,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Compute boundaries for each gene
 		gene_boundaries = []
-		for coord, direction, length in zip(
+		for coord, is_forward, length in zip(
 				gene_coordinates, gene_directions, gene_lengths):
-			if direction:
+			if is_forward:
 				# Check for genes that loop around terC
 				assert coord + length <= replichore_lengths[0]
 				gene_boundaries.append((coord, coord + length))

@@ -99,7 +99,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.replication_coordinate = sim_data.process.transcription.rna_data[
 			"replication_coordinate"]
 		self.transcription_direction = sim_data.process.transcription.rna_data[
-			"direction"]
+			'is_forward']
 
 		# ppGpp control related
 		self.n_avogadro = sim_data.constants.n_avogadro
@@ -250,14 +250,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Build arrays of starting coordinates and transcription directions
 		coordinates = self.replication_coordinate[TU_index_partial_RNAs]
-		direction = self.transcription_direction[TU_index_partial_RNAs]
+		is_forward = self.transcription_direction[TU_index_partial_RNAs]
 
 		# Create the active RNA polymerases and get their unique indexes
 		RNAP_indexes = self.active_RNAPs.moleculesNew(
 			n_RNAPs_to_activate,
 			domain_index = domain_index_rnap,
 			coordinates = coordinates,
-			direction = direction)
+			is_forward = is_forward)
 
 		# Decrement counts of inactive RNAPs
 		self.inactive_RNAPs.countDec(n_initiations.sum())

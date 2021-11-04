@@ -98,8 +98,8 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			'domain_index', 'coordinates', 'unique_index')
 		all_chromosome_domain_indexes, child_domains = self.chromosome_domains.attrs(
 			'domain_index', 'child_domains')
-		RNAP_domain_indexes, RNAP_coordinates, RNAP_directions, RNAP_unique_indexes = self.active_RNAPs.attrs(
-			'domain_index', 'coordinates', 'direction', 'unique_index')
+		RNAP_domain_indexes, RNAP_coordinates, RNAP_is_forward, RNAP_unique_indexes = self.active_RNAPs.attrs(
+			'domain_index', 'coordinates', 'is_forward', 'unique_index')
 
 		origin_domain_indexes = self.oriCs.attr('domain_index')
 		mother_domain_indexes = self.full_chromosomes.attr('domain_index')
@@ -179,7 +179,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		# and replication forks
 		RNAP_headon_collision_mask = np.logical_and(
 			removed_RNAPs_mask,
-			np.logical_xor(RNAP_directions, RNAP_coordinates > 0))
+			np.logical_xor(RNAP_is_forward, RNAP_coordinates > 0))
 		RNAP_codirectional_collision_mask = np.logical_and(
 			removed_RNAPs_mask, np.logical_not(RNAP_headon_collision_mask))
 

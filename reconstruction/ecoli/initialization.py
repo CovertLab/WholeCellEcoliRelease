@@ -661,7 +661,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 	replication_coordinate = sim_data.process.transcription.rna_data[
 		"replication_coordinate"]
 	transcription_direction = sim_data.process.transcription.rna_data[
-		"direction"]
+		"is_forward"]
 
 	# Determine changes from genetic perturbations
 	genetic_perturbations = {}
@@ -766,7 +766,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 
 	# Build arrays of starting coordinates and transcription directions
 	starting_coordinates = replication_coordinate[TU_index_partial_RNAs]
-	direction = transcription_direction[TU_index_partial_RNAs]
+	is_forward = transcription_direction[TU_index_partial_RNAs]
 
 	# Randomly advance RNAPs along the transcription units
 	# TODO (Eran): make sure there aren't any RNAPs at same location on same TU
@@ -775,7 +775,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		dtype=int)
 
 	# Rescale boolean array of directions to an array of 1's and -1's.
-	direction_rescaled = (2 * (direction - 0.5)).astype(np.int64)
+	direction_rescaled = (2 * (is_forward - 0.5)).astype(np.int64)
 
 	# Compute the updated coordinates of RNAPs. Coordinates of RNAPs moving in
 	# the positive direction are increased, whereas coordinates of RNAPs moving
@@ -810,7 +810,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		'active_RNAP', n_RNAPs_to_activate,
 		domain_index=domain_index_rnap,
 		coordinates=updated_coordinates,
-		direction=direction)
+		is_forward=is_forward)
 
 	# Decrement counts of bulk inactive RNAPs
 	bulkMolCntr.countsIs(inactive_RNAP_counts - n_RNAPs_to_activate,

@@ -261,7 +261,7 @@ class Transcription(object):
 			for cistron in all_cistrons]
 
 		# Get direction of each cistron
-		direction = [
+		is_forward = [
 			cistron_id_to_direction[cistron['id']] == '+' for cistron in all_cistrons]
 
 		# Get boolean arrays for each RNA type
@@ -347,7 +347,7 @@ class Transcription(object):
 				('gene_id', 'U{}'.format(max_gene_id_length)),
 				('length', 'i8'),
 				('replication_coordinate', 'i8'),
-				('direction', 'bool'),
+				('is_forward', 'bool'),
 				('deg_rate', 'f8'),
 				('is_mRNA', 'bool'),
 				('is_miscRNA', 'bool'),
@@ -365,7 +365,7 @@ class Transcription(object):
 		cistron_data['gene_id'] = gene_id
 		cistron_data['length'] = cistron_lengths
 		cistron_data['replication_coordinate'] = replication_coordinate
-		cistron_data['direction'] = direction
+		cistron_data['is_forward'] = is_forward
 		cistron_data['deg_rate'] = cistron_deg_rates
 		cistron_data['is_mRNA'] = is_mRNA
 		cistron_data['is_miscRNA'] = is_miscRNA
@@ -382,7 +382,7 @@ class Transcription(object):
 			'gene_id': None,
 			'length': units.nt,
 			'replication_coordinate': None,
-			'direction': None,
+			'is_forward': None,
 			'deg_rate': 1 / units.s,
 			'is_mRNA': None,
 			'is_miscRNA': None,
@@ -568,7 +568,7 @@ class Transcription(object):
 		replication_coordinate = [
 			self._get_relative_coordinates(rna_id_to_coordinate[rna_id])
 			for rna_id in rna_ids]
-		direction = [rna_id_to_direction[rna_id] == '+' for rna_id in rna_ids]
+		is_forward = [rna_id_to_direction[rna_id] == '+' for rna_id in rna_ids]
 
 		# Calculate relative start and end positions of each cistron within each
 		# transcription unit
@@ -669,7 +669,7 @@ class Transcription(object):
 				('mw', 'f8'),
 				('Km_endoRNase', 'f8'),
 				('replication_coordinate', 'int64'),
-				('direction', 'bool'),
+				('is_forward', 'bool'),
 				('is_mRNA', 'bool'),
 				('is_miscRNA', 'bool'),
 				('is_rRNA', 'bool'),
@@ -689,7 +689,7 @@ class Transcription(object):
 		rna_data['mw'] = mws
 		rna_data['Km_endoRNase'] = Km
 		rna_data['replication_coordinate'] = replication_coordinate
-		rna_data['direction'] = direction
+		rna_data['is_forward'] = is_forward
 		rna_data['is_mRNA'] = is_mRNA
 		rna_data['is_miscRNA'] = is_miscRNA
 		rna_data['is_rRNA'] = is_rRNA
@@ -708,7 +708,7 @@ class Transcription(object):
 			'mw': units.g / units.mol,
 			'Km_endoRNase': units.mol / units.L,
 			'replication_coordinate': None,
-			'direction': None,
+			'is_forward': None,
 			'is_mRNA': None,
 			'is_miscRNA': None,
 			'is_rRNA': None,

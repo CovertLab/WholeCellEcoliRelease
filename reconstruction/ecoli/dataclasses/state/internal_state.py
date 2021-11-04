@@ -85,15 +85,15 @@ class InternalState(object):
 		# cell division.
 		# - coordinates (64-bit int): Location of the RNAP on the chromosome,
 		# in base pairs from origin.
-		# - direction (bool): True if RNAP is moving in the positive direction
-		# of the coordinate, False if RNAP is moving in the negative direction.
-		# This is determined by the orientation of the gene that the RNAP is
-		# transcribing.
+		# - is_forward (bool): True if RNAP is moving in the positive direction
+		# of the genomic coordinates, False if RNAP is moving in the negative
+		# direction. This is determined by the orientation of the TU that the
+		# RNAP is transcribing.
 		RNAP_mass = bulk_molecule_id_to_mass[sim_data.molecule_ids.full_RNAP]
 		RNAP_attributes = {
 			'domain_index': 'i4',
 			'coordinates': 'i8',
-			'direction': '?',
+			'is_forward': '?',
 			}
 
 		self.unique_molecule.add_to_unique_state('active_RNAP', RNAP_attributes, RNAP_mass)

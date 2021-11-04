@@ -34,7 +34,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Read gene coordinates from sim_data
 		gene_start_coordinates = sim_data.process.transcription.cistron_data['replication_coordinate']
-		gene_direction = sim_data.process.transcription.cistron_data['direction']
+		gene_direction = sim_data.process.transcription.cistron_data['is_forward']
 		gene_direction_rescaled = (2 * (gene_direction - 0.5)).astype(np.int64)
 		gene_length = sim_data.process.transcription.cistron_data['length'].asNumber(units.nt)
 		gene_end_coordinates = gene_start_coordinates + np.multiply(
