@@ -19,7 +19,9 @@ from wholecell.utils.random import stochasticRound
 RAND_MAX = 2**31
 
 
-def create_bulk_container(sim_data, n_seeds=1, condition=None, seed=0, ppgpp_regulation=True, trna_attenuation=True, mass_coeff=1):
+def create_bulk_container(sim_data, n_seeds=1, condition=None, seed=0,
+		ppgpp_regulation=True, trna_attenuation=True, mass_coeff=1,
+		form_complexes=True):
 	try:
 		old_condition = sim_data.condition
 		if condition is not None:
@@ -35,7 +37,7 @@ def create_bulk_container(sim_data, n_seeds=1, condition=None, seed=0, ppgpp_reg
 			cnt = BulkObjectsContainer(sim_data.internal_state.bulk_molecules.bulk_data['id'])
 			random_state = np.random.RandomState(seed=seed+n)
 			initializeBulkMolecules(cnt, sim_data, media_id, import_molecules, random_state,
-				mass_coeff, ppgpp_regulation, trna_attenuation)
+				mass_coeff, ppgpp_regulation, trna_attenuation, form_complexes=form_complexes)
 			average_container.countsIs(average_container.counts() + cnt.counts())
 	except Exception:
 		raise RuntimeError('sim_data might not be fully initialized.  Make sure all attributes have been set before using this function.')
@@ -45,7 +47,7 @@ def create_bulk_container(sim_data, n_seeds=1, condition=None, seed=0, ppgpp_reg
 	return average_container
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, randomState, massCoeff,
-		ppgpp_regulation, trna_attenuation):
+		ppgpp_regulation, trna_attenuation, form_complexes=True):
 
 	# Set protein counts from expression
 	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation, trna_attenuation)
@@ -57,7 +59,8 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, r
 	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules, massCoeff)
 
 	# Form complexes
-	initializeComplexation(bulkMolCntr, sim_data, randomState)
+	if form_complexes:
+		initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
 		superhelical_density, ppgpp_regulation, trna_attenuation):

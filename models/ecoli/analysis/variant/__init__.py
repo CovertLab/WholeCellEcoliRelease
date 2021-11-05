@@ -11,6 +11,7 @@ ACTIVE = [
 	"growthConditionComparison.py",
 	"growth_condition_comparison_validation.py",
 	"growth_correlations.py",
+	"growth_expression_comparison.py",
 	"growth_rate_time_series.py",
 	"growth_trajectory.py",
 	"massFractionSummary.py",
@@ -42,6 +43,7 @@ TAGS = {
 		],
 	'VALIDATION': [
 		'cell_growth.py',
+		'growth_expression_comparison',
 		'growth_rate_time_series',
 		],
 	# Variant analyses to run with a specific simulation variant (key)

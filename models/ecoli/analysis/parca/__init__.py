@@ -11,6 +11,7 @@ ACTIVE = [
 	'expression_probabilities.py',
 	'fit_cistron_expression_ls_residuals.py',
 	'fold_changes.py',
+	'growth_expression_comparison.py',
 	'interpolation.py',
 	'metabolite_concentrations.py',
 	'ppgpp_expression.py',
@@ -32,6 +33,7 @@ TAGS = {
 	'REGULATION': [
 		'expression_probabilities.py',
 		'fold_changes.py',
+		'growth_expression_comparison.py',
 		'ppgpp_expression.py',
 		'tf_target.py',
 		],
@@ -39,5 +41,6 @@ TAGS = {
 		'aa_synthesis_enzymes.py',
 		'amino_acid_uptake_rates.py',
 		'fit_cistron_expression_ls_residuals.py',
+		'growth_expression_comparison.py',
 		],
 	}
