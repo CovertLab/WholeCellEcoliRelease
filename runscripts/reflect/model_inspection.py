@@ -11,6 +11,7 @@ Outputs:
 		functional_genes.tsv: genes that have a functional role
 		metabolite_pools.tsv: metabolites that have a concentration
 		kinetic_constraints.tsv: metabolic reaction kinetic constraints
+		regulation.tsv: transcriptional regulation implemented
 """
 
 from __future__ import absolute_import, division, print_function
@@ -33,6 +34,7 @@ FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))
 GENES_FILE = 'functional_genes.tsv'
 METABOLITES_FILE = 'metabolite_pools.tsv'
 KINETICS_FILE = 'kinetic_constraints.tsv'
+REGULATION_FILE = 'regulation.tsv'
 
 
 def load_raw_data(path):
@@ -176,7 +178,7 @@ def save_genes(raw_data, sim_data, output):
 
 	# Get gene names for each monomer implemented
 	rnaIdToSymbol = {x['rna_ids'][0]: x['symbol'] for x in raw_data.genes}
-	monomerToRna = {x['id'][:-3]: x['rna_id'][:-3] for x in sim_data.process.translation.monomer_data}
+	monomerToRna = {x['id'][:-3]: x['cistron_id'] for x in sim_data.process.translation.monomer_data}
 	geneNames = [rnaIdToSymbol[monomerToRna[monomer[:-3]]] for monomer in monomers]
 
 	# Save data to output tsv file
@@ -218,7 +220,7 @@ def save_metabolites(raw_data, sim_data, output):
 	Args:
 		raw_data (KnowledgeBaseEcoli object): raw data for simulations
 		sim_data (SimulationDataEcoli object): simulation data
-		output (str): path to tsv file with list of implemented genes
+		output (str): path to tsv file with list of metabolites with a concentration
 	"""
 
 	metabolites = list(sim_data.process.metabolism.conc_dict.keys())
@@ -256,7 +258,7 @@ def save_kinetics(raw_data, sim_data, output):
 	Args:
 		raw_data (KnowledgeBaseEcoli object): raw data
 		sim_data (SimulationDataEcoli object): simulation data
-		output (str): path to tsv file with list of implemented genes
+		output (str): path to tsv file with list of kinetic constraints
 	"""
 
 	kinetic_constraints = sim_data.process.metabolism.extract_kinetic_constraints(
@@ -273,6 +275,132 @@ def save_kinetics(raw_data, sim_data, output):
 			writer.writerow([rxn, enz, c['kcat'], c['saturation']])
 
 	print('Number of kinetic constraints: {}'.format(len(kinetic_constraints)))
+
+def save_regulation(sim_data, output):
+	"""
+	Gets transcription regulation incorporated in the model and saves the list to
+	a tsv file.
+
+	Args:
+		sim_data (SimulationDataEcoli object): simulation data
+		output (str): path to tsv file with list of regulation
+	"""
+
+	def count_regulation(indices, direction, regulators, cistrons):
+		genes = [cistrons[i] for i in np.unique(indices)]
+		total_pos_regulation = np.sum(direction == 1)
+		total_neg_regulation = np.sum(direction == -1)
+
+		cistron_regulation = {}
+		for i, d in zip(indices, direction):
+			cistron_regulation.setdefault(i, set()).add(d)
+		n_genes_both = 0
+		n_genes_pos = 0
+		n_genes_neg = 0
+		regulation_type = []
+		for i, d in sorted(cistron_regulation.items(), key=lambda d: d[0]):
+			if len(d) == 2:
+				regulation_type.append('both')
+				n_genes_both += 1
+			elif 1 in d:
+				regulation_type.append('+')
+				n_genes_pos += 1
+			else:
+				regulation_type.append('-')
+				n_genes_neg += 1
+
+		regulation = dict(zip(genes, regulation_type))
+		n_regulators = len(np.unique(regulators))
+
+		return regulation, total_pos_regulation, total_neg_regulation, n_genes_both, n_genes_pos, n_genes_neg, n_regulators
+
+	transcription = sim_data.process.transcription
+	replication = sim_data.process.replication
+	delta_prob = sim_data.process.transcription_regulation.delta_prob
+
+	cistron_ids = transcription.cistron_data['id']
+	cistron_id_to_idx = {
+		cistron: i
+		for i, cistron in enumerate(cistron_ids)
+		}
+	cistron_id_to_symbol = {
+		gene['cistron_id']: gene['symbol']
+		for gene in replication.gene_data
+		}
+	attenuation_k = transcription.attenuation_k.asNumber()
+
+	# Cistron indices for regulation
+	tf_regulated_indices = np.array([
+		i for i, v in zip(delta_prob['deltaI'], delta_prob['deltaV'])
+		if v != 0
+		])
+	ppgpp_regulated_indices = np.array([
+		cistron_id_to_idx[cistron]
+		for cistron in transcription.ppgpp_regulated_genes
+		])
+	atten_regulated_indices = transcription.attenuated_rna_indices[np.where(attenuation_k)[1]]
+
+	# Direction for regulation
+	tf_regulated_direction = np.sign(delta_prob['deltaV'][delta_prob['deltaV'] != 0])
+	ppgpp_regulated_direction = np.sign(transcription.ppgpp_fold_changes)
+	atten_regulated_direction = np.sign(attenuation_k[attenuation_k != 0])
+
+	# Regulator indices
+	tf_regulator_indices = np.array([
+		j for j, v in zip(delta_prob['deltaJ'], delta_prob['deltaV'])
+		if v != 0
+		])
+	ppgpp_regulator_indices = np.zeros_like(ppgpp_regulated_indices)  # Only regulated by ppGpp
+	atten_regulator_indices = np.where(attenuation_k)[0]
+
+	# Combined data
+	all_regulated_indices = np.hstack((
+		tf_regulated_indices,
+		ppgpp_regulated_indices,
+		atten_regulated_indices,
+	))
+	all_regulated_direction = np.hstack((
+		tf_regulated_direction,
+		ppgpp_regulated_direction,
+		atten_regulated_direction,
+	))
+	all_regulator_indices = np.hstack((
+		[f'tf-{i}' for i in tf_regulator_indices],
+		[f'ppgpp-{i}' for i in ppgpp_regulator_indices],
+		[f'atten-{i}' for i in atten_regulator_indices],
+	))
+
+	data = {}
+	data['All regulation'] = count_regulation(all_regulated_indices,
+		all_regulated_direction, all_regulator_indices, cistron_ids)
+	data['TF regulation'] = count_regulation(tf_regulated_indices,
+		tf_regulated_direction, tf_regulator_indices, cistron_ids)
+	data['ppGpp regulation'] = count_regulation(ppgpp_regulated_indices,
+		ppgpp_regulated_direction, ppgpp_regulator_indices, cistron_ids)
+	data['Transcription attenuation'] = count_regulation(atten_regulated_indices,
+		atten_regulated_direction, atten_regulator_indices, cistron_ids)
+
+	all_regulated_cistrons = sorted(data['All regulation'][0])
+
+	with io.open(output, 'wb') as f:
+		print('\nWriting regulation info to {}'.format(output))
+		writer = tsv.writer(f)
+		writer.writerow(['Generated by {} on {}'.format(__file__, time.ctime())])
+		for label, d in data.items():
+			writer.writerow([
+				f'{label} has {d[1] + d[2]} total regulatory interactions'
+				f' ({d[1]} positive, {d[2]} negative)'
+				f' with {d[3] + d[4] + d[5]} genes regulated'
+				f' ({d[3]} positive and negative, {d[4]} positive, {d[5]} negative)'
+				f' from {d[6]} regulators'
+				])
+		writer.writerow(['Cistron', 'Symbol'] + list(data.keys()))
+
+		for cistron in all_regulated_cistrons:
+			writer.writerow([cistron, cistron_id_to_symbol[cistron]] + [d[0].get(cistron, 'None') for d in data.values()])
+
+	print(f'Number of genes regulated: {len(data["All regulation"][0])}')
+	print(f'Number of regulation interactions: {data["All regulation"][1] + data["All regulation"][2]}')
 
 def parse_args():
 	"""
@@ -310,3 +438,4 @@ if __name__ == '__main__':
 	save_genes(raw_data, sim_data, os.path.join(args.output, GENES_FILE))
 	save_metabolites(raw_data, sim_data, os.path.join(args.output, METABOLITES_FILE))
 	save_kinetics(raw_data, sim_data, os.path.join(args.output, KINETICS_FILE))
+	save_regulation(sim_data, os.path.join(args.output, REGULATION_FILE))
