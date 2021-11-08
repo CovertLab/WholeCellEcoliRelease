@@ -5,6 +5,7 @@ variants, seeds, and generation.
 
 from __future__ import annotations
 
+import os
 from os import listdir
 from os.path import isdir, join
 import re
@@ -98,13 +99,15 @@ class AnalysisPaths(object):
 			("variant", "i8"),
 			("seed", "i8"),
 			("generation", "i8"),
-			("variantkb", "U500")
+			("variantkb", "U500"),
+			("successful", "?"),
 			])
 
 		generations = []
 		seeds = []
 		variants = []
 		variant_kb = []
+		successful = []
 		for filePath in generation_dirs:
 			# Find generation
 			matches = re.findall(r'generation_\d{6}', filePath)
@@ -123,6 +126,10 @@ class AnalysisPaths(object):
 			# Assumes: 6-digit variant index VVVVVV in 'VARIANT-TYPE_VVVVVV/SSSSSS/generation_...'
 			variants.append(int(filePath[gen_subdir_index - 14 : gen_subdir_index - 8]))
 
+			# This file should exist with successful simulation completion
+			# TODO: save a file with the status of a sim and read that here
+			successful.append(os.path.exists(os.path.join(filePath, 'simOut', constants.SERIALIZED_INHERITED_STATE % 1)))
+
 			# Find the variant kb pickle
 			variant_kb.append(
 				join(filePath[: gen_subdir_index - 8],
@@ -133,13 +140,14 @@ class AnalysisPaths(object):
 		self._path_data["seed"] = seeds
 		self._path_data["generation"] = generations
 		self._path_data["variantkb"] = variant_kb
+		self._path_data["successful"] = successful
 
 		self.n_generation = len(set(generations))
 		self.n_variant = len(set(variants))
 		self.n_seed = len(set(seeds))
 
-	def get_cells(self, variant = None, seed = None, generation = None):
-		# type: (Optional[Iterable[Union[int, str]]], Optional[Iterable[int]], Optional[Iterable[int]]) -> np.ndarray
+	def get_cells(self, variant = None, seed = None, generation = None, only_successful=False):
+		# type: (Optional[Iterable[int]], Optional[Iterable[int]], Optional[Iterable[int]], bool) -> np.ndarray
 		"""Returns file paths for all the simulated cells matching the given
 		variant number, seed number, and generation number collections, where
 		None => all.
@@ -159,7 +167,12 @@ class AnalysisPaths(object):
 		else:
 			generationBool = self._set_match("generation", generation)
 
-		return self._path_data['path'][np.logical_and.reduce((variantBool, seedBool, generationBool))]
+		if only_successful:
+			successful_bool = self._set_match("successful", [True])
+		else:
+			successful_bool = np.ones(self._path_data.shape)
+
+		return self._path_data['path'][np.logical_and.reduce((variantBool, seedBool, generationBool, successful_bool))]
 
 	def get_variant_kb(self, variant):
 		# type: (Union[int, str]) -> str
@@ -193,6 +206,10 @@ class AnalysisPaths(object):
 		get_cells() sim path.
 		"""
 		return self._path_data['variantkb'][self._path_index(path)]
+
+	def get_successful(self, path: str) -> bool:
+		"""Return the success status for the given get_cells() sim path."""
+		return self._path_data['successful'][self._path_index(path)]
 
 	def _path_index(self, path: str) -> int:
 		"""Return the index into _path_data for the given get_cells() sim path."""
@@ -230,7 +247,7 @@ class AnalysisPaths(object):
 		return individuals
 
 	def _set_match(self, field, value):
-		# type: (str, Iterable[Union[int, str]]) -> np.ndarray
+		# type: (str, Iterable[Union[int, str, bool]]) -> np.ndarray
 		union = np.zeros(self._path_data[field].size)
 		for x in value:
 			union = cast(np.ndarray, np.logical_or(self._path_data[field] == x, union))

@@ -108,9 +108,13 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		else:
 			timeline = []
 		rna_fractions = ['is_rRNA', 'is_tRNA', 'is_mRNA']
+		convert_to_fraction = lambda x: np.vstack([
+			x[:, cistron_data[fraction]].sum(1)
+			for fraction in rna_fractions
+			]).T
 
 		ap = AnalysisPaths(variantDir, cohort_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = ap.get_cells(only_successful=True)
 
 		# Load attributes
 		unique_molecule_reader = TableReader(os.path.join(cell_paths[0], 'simOut', 'UniqueMoleculeCounts'))
@@ -121,31 +125,31 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Load data
 		growth_function = lambda x: np.diff(x, axis=0) / x[:-1]
 		time = read_stacked_columns(cell_paths, 'Main', 'time',
-			remove_first=True, ignore_exception=True).squeeze() / 60
+			remove_first=True).squeeze() / 60
 		time_step = read_stacked_columns(cell_paths, 'Main', 'timeStepSec',
-			remove_first=True, ignore_exception=True).squeeze()
+			remove_first=True).squeeze()
 		growth_rate = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate',
-			remove_first=True, ignore_exception=True).squeeze() * 3600
+			remove_first=True).squeeze() * 3600
 		protein_growth = read_stacked_columns(cell_paths, 'Mass', 'proteinMass',
-			fun=growth_function, ignore_exception=True).squeeze() / time_step * 3600
+			fun=growth_function).squeeze() / time_step * 3600
 		rna_growth = read_stacked_columns(cell_paths, 'Mass', 'rnaMass',
-			fun=growth_function, ignore_exception=True).squeeze() / time_step * 3600
+			fun=growth_function).squeeze() / time_step * 3600
 		small_mol_growth = read_stacked_columns(cell_paths, 'Mass', 'smallMoleculeMass',
-			fun=growth_function, ignore_exception=True).squeeze() / time_step * 3600
+			fun=growth_function).squeeze() / time_step * 3600
 		ribosome_elong_rate = read_stacked_columns(cell_paths, 'RibosomeData', 'effectiveElongationRate',
-			remove_first=True, ignore_exception=True).squeeze()
+			remove_first=True).squeeze()
 		rnap_elongations = read_stacked_columns(cell_paths, 'RnapData', 'actualElongations',
-			remove_first=True, ignore_exception=True).squeeze()
+			remove_first=True).squeeze()
 		counts_to_molar = read_stacked_columns(cell_paths, 'EnzymeKinetics', 'countsToMolar',
-			remove_first=True, ignore_exception=True)
+			remove_first=True)
 		unique_mol_counts = read_stacked_columns(cell_paths, 'UniqueMoleculeCounts', 'uniqueMoleculeCounts',
-			remove_first=True, ignore_exception=True)
-		synth_prob_per_cistron = read_stacked_columns(cell_paths, 'RnaSynthProb', 'rna_synth_prob_per_cistron',
-			remove_first=True, ignore_exception=True)
+			remove_first=True)
+		rna_fraction_prob = read_stacked_columns(cell_paths, 'RnaSynthProb', 'rna_synth_prob_per_cistron',
+			remove_first=True, fun=convert_to_fraction)
 		(ppgpp_counts, uncharged_trna_counts, charged_trna_counts, aa_counts,
 			inactive_rnap_counts, ribosome_subunit_counts) = read_stacked_bulk_molecules(cell_paths,
 				([ppgpp_id], uncharged_trna_names, charged_trna_names, aa_ids, [rnap_id], ribosome_subunit_ids),
-				remove_first=True, ignore_exception=True)
+				remove_first=True)
 
 		# Derived quantities
 		ppgpp_conc = ppgpp_counts * counts_to_molar.squeeze() * 1000
@@ -158,10 +162,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		rnap_elong_rate = rnap_elongations / time_step / active_rnap_counts
 		rnap_fraction_active = active_rnap_counts / (active_rnap_counts + inactive_rnap_counts)
 		ribosome_fraction_active = active_ribosome_counts / (active_ribosome_counts + ribosome_subunit_counts.min(1))
-		rna_fraction_prob = np.vstack([
-			synth_prob_per_cistron[:, cistron_data[fraction]].sum(1)
-			for fraction in rna_fractions
-			]).T
 
 		_, axes = plt.subplots(4, 3, figsize=(15, 15))
 

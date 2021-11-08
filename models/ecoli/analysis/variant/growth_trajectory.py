@@ -19,6 +19,7 @@ from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
 
 def mean_std(data):
+	data = np.hstack(data)
 	return np.mean(data), np.std(data)
 
 def plot(ax, x, y, sim_time=None, timeline=None, ma_time=None, xlabel=None, ylabel=None,
@@ -26,9 +27,10 @@ def plot(ax, x, y, sim_time=None, timeline=None, ma_time=None, xlabel=None, ylab
 	# Markers for any timeline shifts
 	if sim_time is not None and timeline is not None:
 		for t, media in timeline:
-			times_after_shift = (sim_time > t)[:len(x)]
-			marker_x = x[times_after_shift][:1]
-			marker_y = y[times_after_shift][:1]
+			times_before_shift = (sim_time < t)[:len(x)]
+			times_before_shift[0] = True
+			marker_x = x[times_before_shift][-1:]
+			marker_y = y[times_before_shift][-1:]
 			ax.plot(marker_x, marker_y, 'rx')
 			ax.text(marker_x, marker_y, media, fontsize=6)
 
@@ -83,8 +85,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			all_times_ma = []
 			all_growth = []
 			all_ratio = []
+			data_to_plot = False
 			for seed in ap.get_seeds(variant):
 				cell_paths = ap.get_cells(variant=[variant], seed=[seed])
+				if len(cell_paths) == 0 or not ap.get_successful(cell_paths[-1]):
+					continue
 
 				# Load data
 				sim_time = read_stacked_columns(cell_paths, 'Main', 'time', remove_first=True).squeeze()
@@ -135,6 +140,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				all_times_ma.append(time_ma)
 				all_growth.append(growth)
 				all_ratio.append(ratio)
+				data_to_plot = True
+
+			if not data_to_plot:
+				continue
 
 			min_length = min([len(data) for data in all_growth_means])
 			stacked_mass_means = np.vstack([data[:min_length] for data in all_mass_means]).mean(0)
