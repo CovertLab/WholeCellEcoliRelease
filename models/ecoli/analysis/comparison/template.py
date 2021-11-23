@@ -1,5 +1,5 @@
 """
-Template for variant analysis plots
+Template for comparison analysis plots
 """
 
 from typing import Tuple

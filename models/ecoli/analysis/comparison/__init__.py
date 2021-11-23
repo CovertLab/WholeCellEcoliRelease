@@ -3,6 +3,7 @@ from __future__ import annotations
 # Active analysis modules to run, in this order.
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
+	"excess_protein_monomers.py",
 	"growth_histograms.py",
 	"massFractionComparison.py",
 ]

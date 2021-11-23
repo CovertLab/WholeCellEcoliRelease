@@ -27,11 +27,13 @@ class Complexation(object):
 		stoichMatrixMass = []  # Molecular masses of molecules in stoichMatrixI
 
 		self.ids_reactions = []
+		self.reaction_stoichiometry_unknown = []
 		reaction_index = 0
 
 		# Build stoichiometric matrix from given complexation reactions
 		for reaction in raw_data.complexation_reactions:
 			self.ids_reactions.append(reaction['id'])
+			stoichiometry_unknown = False
 
 			for mol_id, coeff in reaction["stoichiometry"].items():
 				mol_id_with_compartment = "{}[{}]".format(
@@ -45,8 +47,10 @@ class Complexation(object):
 				else:
 					molecule_index = molecules.index(mol_id_with_compartment)
 
-				# Assume coefficents given as null are -1
+				# Flag reactions whose stoichioemtric coefficients are given
+				# as null and replace with -1
 				if coeff is None:
+					stoichiometry_unknown = True
 					coeff = -1
 
 				assert (coeff % 1) == 0
@@ -67,6 +71,7 @@ class Complexation(object):
 				molecularMass = sim_data.getter.get_mass(mol_id_with_compartment).asNumber(units.g / units.mol)
 				stoichMatrixMass.append(molecularMass)
 
+			self.reaction_stoichiometry_unknown.append(stoichiometry_unknown)
 			reaction_index += 1
 
 		self.rates = np.full((reaction_index, ),
@@ -99,6 +104,10 @@ class Complexation(object):
 
 		stoichMatrix = self.stoich_matrix().astype(np.int64, order='F')
 		self.prebuilt_matrices = mccBuildMatrices(stoichMatrix)
+
+		# Add boolean array to mark reactions with unknown stoichiometries
+		self.reaction_stoichiometry_unknown = np.array(
+			self.reaction_stoichiometry_unknown)
 
 	def stoich_matrix(self):
 		"""

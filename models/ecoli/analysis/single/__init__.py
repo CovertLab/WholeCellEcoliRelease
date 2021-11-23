@@ -21,7 +21,6 @@ ACTIVE = [
 	"dntpCounts.py",
 	"equilibriumComparison.py",
 	"evaluationTime.py",
-	"excess_protein_monomers.py",
 	"expected_mechanistic_vs_real_uptake.py",
 	"expression_rna_01_low.py",
 	"expression_rna_02_med.py",
