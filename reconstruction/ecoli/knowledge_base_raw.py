@@ -290,7 +290,10 @@ class KnowledgeBaseEcoli(object):
 			modified_entry_ids = set()
 			for i, row in enumerate(data):
 				if row[id_col_name] in id_to_modified_cols:
-					data[i] = id_to_modified_cols[row[id_col_name]]
+					modified_cols = id_to_modified_cols[row[id_col_name]]
+					for col_name in data[i]:
+						if col_name in id_to_modified_cols:
+							data[i][col_name] = modified_cols[col_name]
 					modified_entry_ids.add(row[id_col_name])
 
 			# Check for entries in modification data that do not exist in

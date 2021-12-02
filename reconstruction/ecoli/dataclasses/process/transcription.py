@@ -659,6 +659,11 @@ class Transcription(object):
 
 		max_rna_id_length = max(len(id_) for id_ in rna_ids_with_compartments)
 
+		# Get evidence codes for each transcription unit from raw data
+		self.rna_id_to_evidence_codes = {
+			tu['id']: tu['evidence'] for tu in raw_data.transcription_units
+		}
+
 		rna_data = np.zeros(
 			n_rnas,
 			dtype = [
