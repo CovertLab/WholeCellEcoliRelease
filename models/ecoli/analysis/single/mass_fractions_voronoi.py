@@ -58,7 +58,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		tRna = mass.readColumn("tRnaMass")
 		rRna = mass.readColumn("rRnaMass")
 		mRna = mass.readColumn("mRnaMass")
-		miscRna = rna - (tRna + rRna + mRna)
 		dna = mass.readColumn("dnaMass")
 		smallMolecules = mass.readColumn("smallMoleculeMass")
 		metabolites = smallMolecules - (lipid + lps + murein + polyamines + glycogen)
@@ -68,7 +67,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			'nucleic_acid': {
 				'DNA': dna[0],
 				'mRNA': mRna[0],
-				'miscRNA': miscRna[0],
 				'rRNA': rRna[0],
 				'tRNA': tRna[0],
 			},
@@ -86,7 +84,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			'nucleic_acid': {
 				'DNA': dna[-1],
 				'mRNA': mRna[-1],
-				'miscRNA': miscRna[-1],
 				'rRNA': rRna[-1],
 				'tRNA': tRna[-1],
 			},

@@ -292,7 +292,7 @@ class KnowledgeBaseEcoli(object):
 				if row[id_col_name] in id_to_modified_cols:
 					modified_cols = id_to_modified_cols[row[id_col_name]]
 					for col_name in data[i]:
-						if col_name in id_to_modified_cols:
+						if col_name in modified_cols:
 							data[i][col_name] = modified_cols[col_name]
 					modified_entry_ids.add(row[id_col_name])
 

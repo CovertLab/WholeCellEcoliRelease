@@ -16,11 +16,11 @@ from wholecell.utils import units
 
 RNA_TYPE_TO_SUBMASS = {
 	'tRNA': 'tRNA',
-	'mRNA': 'mRNA',
-	'pseudo': 'miscRNA',
-	'miscRNA': 'miscRNA',
 	'rRNA': 'rRNA',
-	'phantom': 'miscRNA',
+	'mRNA': 'mRNA',
+	'pseudo': 'mRNA',
+	'miscRNA': 'mRNA',
+	'phantom': 'mRNA',
 	}
 
 # Mapping of compartment IDs to abbreviations for compartments undefined in
@@ -389,7 +389,9 @@ class GetterFunctions(object):
 		gene_id_to_rna_id = {
 			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes
 			}
-		rna_id_to_type = {rna['id']: rna['type'] for rna in raw_data.rnas}
+		rna_id_to_type = {
+			rna['id']: RNA_TYPE_TO_SUBMASS[rna['type']]
+			for rna in raw_data.rnas}
 		for tu in raw_data.transcription_units:
 			tu_rna_types = [
 				rna_id_to_type[gene_id_to_rna_id[gene]] for gene in tu['genes']]
