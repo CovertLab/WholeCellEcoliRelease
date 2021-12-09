@@ -43,7 +43,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.rnaIndexes = np.array([
 			sim_data.submass_name_to_index[name]
-			for name in ["rRNA", "tRNA", "mRNA", "nonspecific_RNA"]
+			for name in ["rRNA", "tRNA", "mRNA", "miscRNA", "nonspecific_RNA"]
 			])
 
 		self.rRnaIndex = sim_data.submass_name_to_index["rRNA"]

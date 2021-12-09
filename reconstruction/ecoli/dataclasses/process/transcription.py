@@ -267,6 +267,8 @@ class Transcription(object):
 		# Get boolean arrays for each RNA type
 		is_mRNA = [
 			RNA_TYPE_TO_SUBMASS[rna["type"]] == "mRNA" for rna in all_cistrons]
+		is_miscRNA = [
+			RNA_TYPE_TO_SUBMASS[rna["type"]] == "miscRNA" for rna in all_cistrons]
 		is_rRNA = [
 			RNA_TYPE_TO_SUBMASS[rna["type"]] == "rRNA" for rna in all_cistrons]
 		is_tRNA = [
@@ -348,6 +350,7 @@ class Transcription(object):
 				('is_forward', 'bool'),
 				('deg_rate', 'f8'),
 				('is_mRNA', 'bool'),
+				('is_miscRNA', 'bool'),
 				('is_rRNA', 'bool'),
 				('is_tRNA', 'bool'),
 				('is_23S_rRNA', 'bool'),
@@ -365,6 +368,7 @@ class Transcription(object):
 		cistron_data['is_forward'] = is_forward
 		cistron_data['deg_rate'] = cistron_deg_rates
 		cistron_data['is_mRNA'] = is_mRNA
+		cistron_data['is_miscRNA'] = is_miscRNA
 		cistron_data['is_rRNA'] = is_rRNA
 		cistron_data['is_tRNA'] = is_tRNA
 		cistron_data['is_23S_rRNA'] = is_23S
@@ -381,6 +385,7 @@ class Transcription(object):
 			'is_forward': None,
 			'deg_rate': 1 / units.s,
 			'is_mRNA': None,
+			'is_miscRNA': None,
 			'is_rRNA': None,
 			'is_tRNA': None,
 			'is_23S_rRNA': None,
@@ -597,6 +602,9 @@ class Transcription(object):
 		is_mRNA = (
 			self.cistron_data['is_mRNA']
 			@ self.cistron_tu_mapping_matrix).astype(bool)
+		is_miscRNA = (
+			self.cistron_data['is_miscRNA']
+			@ self.cistron_tu_mapping_matrix).astype(bool)
 		is_rRNA = (
 			self.cistron_data['is_rRNA']
 			@ self.cistron_tu_mapping_matrix).astype(bool)
@@ -605,8 +613,8 @@ class Transcription(object):
 			@ self.cistron_tu_mapping_matrix).astype(bool)
 
 		# Confirm there are no hybrid or unclassified RNAs
-		assert np.all(is_mRNA | is_rRNA | is_tRNA)
-		assert is_mRNA.sum() + is_rRNA.sum() + is_tRNA.sum() == n_rnas
+		assert np.all(is_mRNA | is_miscRNA | is_rRNA | is_tRNA)
+		assert is_mRNA.sum() + is_miscRNA.sum() + is_rRNA.sum() + is_tRNA.sum() == n_rnas
 
 		# Determine if each RNA contains cistrons that encode for special
 		# components
@@ -668,6 +676,7 @@ class Transcription(object):
 				('replication_coordinate', 'int64'),
 				('is_forward', 'bool'),
 				('is_mRNA', 'bool'),
+				('is_miscRNA', 'bool'),
 				('is_rRNA', 'bool'),
 				('is_tRNA', 'bool'),
 				('is_23S_rRNA', 'bool'),
@@ -687,6 +696,7 @@ class Transcription(object):
 		rna_data['replication_coordinate'] = replication_coordinate
 		rna_data['is_forward'] = is_forward
 		rna_data['is_mRNA'] = is_mRNA
+		rna_data['is_miscRNA'] = is_miscRNA
 		rna_data['is_rRNA'] = is_rRNA
 		rna_data['is_tRNA'] = is_tRNA
 		rna_data['is_23S_rRNA'] = is_23S_rRNA
@@ -705,6 +715,7 @@ class Transcription(object):
 			'replication_coordinate': None,
 			'is_forward': None,
 			'is_mRNA': None,
+			'is_miscRNA': None,
 			'is_rRNA': None,
 			'is_tRNA': None,
 			'is_23S_rRNA': None,
