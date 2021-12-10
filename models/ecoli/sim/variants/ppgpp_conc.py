@@ -23,6 +23,7 @@ from wholecell.utils import units
 
 FACTORS = [0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2]
 CONDITIONS = [0, 2]  # minimal and minimal+AA
+BASE_FACTOR = [1, 0.4]  # factors that correspond to expected concentration in CONDITIONS
 
 
 class ppGpp():

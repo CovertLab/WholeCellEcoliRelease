@@ -54,7 +54,7 @@ def plot(ax, x, y, sim_time=None, timeline=None, ma_time=None, xlabel=None, ylab
 	ax.set_ylabel(ylabel, fontsize=8)
 	ax.tick_params(labelsize=6)
 
-def set_lim(ax, xmin=0.2, xmax=0.6, ymin=0, ymax=2):
+def set_lim(ax, xmin=0, xmax=0.6, ymin=0, ymax=2):
 	ax.set_xlim([xmin, xmax])
 	ax.set_ylim([ymin, ymax])
 

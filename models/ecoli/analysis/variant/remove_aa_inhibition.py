@@ -122,7 +122,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
 
-		aa_ids = list({aa for aas in HEATMAP_COLS for aa in aas[1]})
+		aa_ids = sorted({aa for aas in HEATMAP_COLS for aa in aas[1]})
 		aa_idx = {aa: i for i, aa in enumerate(aa_ids)}
 		n_aas = len(aa_ids)
 
@@ -134,7 +134,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ki_factors = []
 		for i, variant in enumerate(variants):
 			variant_conc = []
-			for sim_dir in ap.get_cells(variant=[variant]):
+			for sim_dir in ap.get_cells(variant=[variant], only_successful=True):
 				simOutDir = os.path.join(sim_dir, "simOut")
 
 				# Listeners used

@@ -39,7 +39,8 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			])
 
 		# Get kcat limits for plot
-		kcat_min = min(kcat_data[kcat_data > 0].min(), kcat_calc[kcat_calc > 0].min())
+		positive_mask = (kcat_data > 0) & (kcat_calc > 0)
+		kcat_min = min(kcat_data[positive_mask].min(), kcat_calc[positive_mask].min())
 		kcat_max = max(kcat_data.max(), kcat_calc.max())
 		kcat_range = [kcat_min, kcat_max]
 
@@ -59,7 +60,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 
 		## kcat scatter comparison
 		plt.subplot(gs[0, 0])
-		plt.loglog(kcat_data, kcat_calc, 'o')
+		plt.loglog(kcat_data[positive_mask], kcat_calc[positive_mask], 'o')
 		plt.loglog(kcat_range, kcat_range, 'k--')
 		plt.xlabel('kcat, from data')
 		plt.ylabel('kcat, calculated')

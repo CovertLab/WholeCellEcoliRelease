@@ -211,7 +211,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			variant_elong_rates.append(elong_rates)
 			variant_glc_yields.append(glc_yields)
 			variant_ppgpp.append(ppgpps)
-			label = aa_ids[variant][:-3]
+			# TODO (Travis): make labels more general for any variant
+			if variant < len(aa_ids):
+				label = aa_ids[variant][:-3]
+			else:
+				label = f'Variant {variant}'
 			labels.append(label)
 			if label == CONTROL_LABEL:
 				reference_variant = variant
