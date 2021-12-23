@@ -79,7 +79,7 @@ pytest-cov==2.10.0
 PyYAML==5.3.1
 ruamel.yaml==0.16.10
 six==1.15.0
-stochastic-arrow==0.4.3
+stochastic-arrow==0.5.0
 swiglpk==4.65.1
 sympy==1.6.1
 Unum==4.1.4
