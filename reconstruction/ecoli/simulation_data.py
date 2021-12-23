@@ -12,7 +12,7 @@ import collections
 import numpy as np
 
 # Data classes
-from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions
+from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions, EXCLUDED_RNA_TYPES
 from reconstruction.ecoli.dataclasses.molecule_groups import MoleculeGroups
 from reconstruction.ecoli.dataclasses.molecule_ids import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
@@ -127,6 +127,9 @@ class SimulationDataEcoli(object):
 		rna_ids_with_coordinates = {
 			gene['rna_ids'][0] for gene in raw_data.genes
 			if gene['left_end_pos'] is not None and gene['right_end_pos'] is not None}
+		rna_id_to_rna_type = {
+			rna['id']: rna['type'] for rna in raw_data.rnas
+			}
 
 		self.tf_to_fold_change = {}
 		self.tf_to_direction = {}
@@ -135,6 +138,7 @@ class SimulationDataEcoli(object):
 			gene_not_found = set()
 			tf_not_found = set()
 			gene_location_not_specified = set()
+			gene_excluded = set()
 
 			for row in getattr(raw_data, fc_file):
 				FC = row['log2 FC mean']
@@ -163,6 +167,10 @@ class SimulationDataEcoli(object):
 					gene_location_not_specified.add(row['Target'])
 					continue
 
+				if rna_id_to_rna_type[target] in EXCLUDED_RNA_TYPES:
+					gene_excluded.add(row['Target'])
+					continue
+
 				if tf not in self.tf_to_fold_change:
 					self.tf_to_fold_change[tf] = {}
 					self.tf_to_direction[tf] = {}
@@ -189,6 +197,12 @@ class SimulationDataEcoli(object):
 						  ' have no chromosomal location specified in'
 						  ' genes.tsv:')
 					for item in gene_location_not_specified:
+						print(item)
+
+				if gene_excluded:
+					print(f'The following target genes listed in {fc_file}.tsv'
+						  ' have been excluded from the model:')
+					for item in gene_excluded:
 						print(item)
 
 		self.tf_to_active_inactive_conditions = {}

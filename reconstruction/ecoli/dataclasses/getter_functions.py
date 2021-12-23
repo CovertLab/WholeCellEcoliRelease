@@ -14,14 +14,7 @@ import numpy as np
 from reconstruction.ecoli.dataclasses.molecule_groups import POLYMERIZED_FRAGMENT_PREFIX
 from wholecell.utils import units
 
-RNA_TYPE_TO_SUBMASS = {
-	'tRNA': 'tRNA',
-	'mRNA': 'mRNA',
-	'pseudo': 'miscRNA',
-	'miscRNA': 'miscRNA',
-	'rRNA': 'rRNA',
-	'phantom': 'miscRNA',
-	}
+EXCLUDED_RNA_TYPES = {'pseudo', 'phantom'}
 
 # Mapping of compartment IDs to abbreviations for compartments undefined in
 # flat/compartments.tsv
@@ -186,11 +179,15 @@ class GetterFunctions(object):
 				raise TranscriptionDirectionError(
 					f"Unidentified transcription direction given for {tu_id}")
 
-		# Get set of valid gene IDs that have positions on the chromosome
+		# Get set of valid gene IDs that have positions on the chromosome, and
+		# is not a pseudogene or a phantom gene
+		gene_id_to_rna_type = {
+			rna['gene_id']: rna['type'] for rna in raw_data.rnas}
 		valid_gene_ids = {
 			gene['id'] for gene in raw_data.genes
 			if gene['left_end_pos'] is not None
-			and gene['right_end_pos'] is not None
+				and gene['right_end_pos'] is not None
+				and gene_id_to_rna_type[gene['id']] not in EXCLUDED_RNA_TYPES
 			}
 
 		# Set of gene IDs that are covered by listed transcription units
@@ -198,22 +195,26 @@ class GetterFunctions(object):
 
 		# Keep track of gene tuples of TUs to remove duplicate TUs that cover
 		# the same set of genes but have different left & right end coordinates.
-		# The first TU that covers the given set of genes is always selected.
-		# TODO (ggsun): consider picking longest?
+		# The first TU in the list that covers the given set of genes is always
+		# selected over later TUs.
 		all_tu_gene_tuples = set()
 
 		# Add sequences from transcription_units file
 		for tu in raw_data.transcription_units:
+			# Get list of genes in TU after excluding invalid genes
+			gene_tuple = tuple(sorted(
+				[gene_id for gene_id in tu['genes'] if gene_id in valid_gene_ids]
+				))
+
+			# Skip TUs with only invalid genes
+			if len(gene_tuple) == 0:
+				continue
+
 			# Skip duplicate TUs
-			gene_tuple = tuple(sorted(tu['genes']))
 			if gene_tuple in all_tu_gene_tuples:
 				continue
 			else:
 				all_tu_gene_tuples.add(gene_tuple)
-
-			# Skip TUs that cover any gene without specified positions
-			if not set(tu['genes']) < valid_gene_ids:
-				continue
 
 			left_end_pos = tu['left_end_pos']
 			right_end_pos = tu['right_end_pos']
@@ -249,12 +250,12 @@ class GetterFunctions(object):
 
 			gene_id = rna_id_to_gene_id[rna_id]
 
-			# Skip RNAs that are already covered by transcription units
-			if gene_id in covered_gene_ids:
+			# Skip excluded genes
+			if gene_id not in valid_gene_ids:
 				continue
 
-			# Skip RNAs without gene end positions
-			if gene_id not in valid_gene_ids:
+			# Skip RNAs that are already covered by transcription units
+			if gene_id in covered_gene_ids:
 				continue
 
 			left_end_pos = gene_id_to_left_end_pos[gene_id]
@@ -386,25 +387,30 @@ class GetterFunctions(object):
 
 		mws = nt_counts.dot(polymerized_ntp_mws) + ppi_mw  # Add end weight
 
-		gene_id_to_rna_id = {
-			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes
-			}
+		# Map monocistronic RNA IDs to RNA types
 		rna_id_to_type = {rna['id']: rna['type'] for rna in raw_data.rnas}
+
+		# Add polycistronic RNAs to mapping
+		gene_id_to_rna_id = {
+			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes}
+
 		for tu in raw_data.transcription_units:
+			if tu['id'] not in self._sequences:
+				continue
 			tu_rna_types = [
-				rna_id_to_type[gene_id_to_rna_id[gene]] for gene in tu['genes']]
+				rna_id_to_type[gene_id_to_rna_id[gene]] for gene in tu['genes']
+				if rna_id_to_type[gene_id_to_rna_id[gene]] not in EXCLUDED_RNA_TYPES]
 
 			if len(set(tu_rna_types)) > 1:
 				raise ValueError(f'Transcription unit {tu["id"]} includes '
 					f'cistrons that encode for two or more different types of '
 					f'RNAs, which is not supported by this version of the '
 					f'model and thus should be removed.')
-			
+
 			rna_id_to_type[tu['id']] = tu_rna_types[0]
 
 		return {
-			rna_id: self._build_submass_array(
-				mw, RNA_TYPE_TO_SUBMASS[rna_id_to_type[rna_id]])
+			rna_id: self._build_submass_array(mw, rna_id_to_type[rna_id])
 			for (rna_id, mw) in zip(rnas_with_seqs, mws)
 			}
 

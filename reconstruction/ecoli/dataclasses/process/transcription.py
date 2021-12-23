@@ -12,7 +12,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 import sympy as sp
 
-from reconstruction.ecoli.dataclasses.getter_functions import RNA_TYPE_TO_SUBMASS
+from reconstruction.ecoli.dataclasses.getter_functions import EXCLUDED_RNA_TYPES
 from wholecell.sim.simulation import MAX_TIME_STEP
 from wholecell.utils import data, fitting, units
 from wholecell.utils.fast_nonnegative_least_squares import fast_nnls
@@ -98,12 +98,13 @@ class Transcription(object):
 		# Read regulation data from raw_data
 		# Treats ppGpp and DksA-ppGpp regulation the same
 		gene_to_rna = {g['symbol']: g['rna_ids'][0] for g in raw_data.genes}
+		rna_id_to_rna_type = {r['id']: r['type'] for r in raw_data.rnas}
 		regulation = {}
 		for reg in raw_data.ppgpp_regulation:
 			# Convert to regulated RNA
 			gene = reg['Gene']
 			rna = gene_to_rna.get(gene, None)
-			if rna is None:
+			if rna is None or rna_id_to_rna_type[rna] in EXCLUDED_RNA_TYPES:
 				continue
 
 			# Add additional gene symbols for matching FC data
@@ -228,8 +229,9 @@ class Transcription(object):
 		all_cistrons = [
 			rna for rna in raw_data.rnas
 			if rna['id'] in cistron_id_to_gene_id
-			   and gene_id_to_left_end_pos[cistron_id_to_gene_id[rna['id']]] is not None
-			   and gene_id_to_right_end_pos[cistron_id_to_gene_id[rna['id']]] is not None
+				and gene_id_to_left_end_pos[cistron_id_to_gene_id[rna['id']]] is not None
+				and gene_id_to_right_end_pos[cistron_id_to_gene_id[rna['id']]] is not None
+				and rna['type'] not in EXCLUDED_RNA_TYPES
 			]
 		all_cistron_ids = [cistron['id'] for cistron in all_cistrons]
 
@@ -265,14 +267,10 @@ class Transcription(object):
 			cistron_id_to_direction[cistron['id']] == '+' for cistron in all_cistrons]
 
 		# Get boolean arrays for each RNA type
-		is_mRNA = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "mRNA" for rna in all_cistrons]
-		is_miscRNA = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "miscRNA" for rna in all_cistrons]
-		is_rRNA = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "rRNA" for rna in all_cistrons]
-		is_tRNA = [
-			RNA_TYPE_TO_SUBMASS[rna["type"]] == "tRNA" for rna in all_cistrons]
+		is_mRNA = [rna["type"] == "mRNA" for rna in all_cistrons]
+		is_miscRNA = [rna["type"] == "miscRNA" for rna in all_cistrons]
+		is_rRNA = [rna["type"] == "rRNA" for rna in all_cistrons]
+		is_tRNA = [rna["type"] == "tRNA" for rna in all_cistrons]
 
 		# Load set of mRNA cistron ids
 		mRNA_cistron_ids = set(np.array(all_cistron_ids)[is_mRNA])
@@ -451,7 +449,10 @@ class Transcription(object):
 			gene['id']: gene['rna_ids'][0] for gene in raw_data.genes
 			}
 		tu_id_to_cistron_ids = {
-			tu['id']: [gene_id_to_rna_id[gene] for gene in tu['genes']]
+			tu['id']: [
+				gene_id_to_rna_id[gene] for gene in tu['genes']
+				if gene_id_to_rna_id[gene] in self.cistron_data['id']
+				]
 			for tu in all_valid_tus
 			}
 
