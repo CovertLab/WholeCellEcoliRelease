@@ -65,7 +65,7 @@ configparser==3.5.0
 coverage==4.5.1
 cplex==12.8.0.0
 CVXcanon==0.1.1
-cvxopt==1.1.7  # cvxopt==1.2.0 installs on OSX but not on Sherlock
+cvxopt==1.2.7  # cvxopt==1.2.0 installs on OSX but not on Sherlock
 cvxpy==1.0.6
 cycler==0.10.0
 Cython==0.28.4
