@@ -298,3 +298,28 @@ class SimulationDataEcoli(object):
 
 		rna_expression[rna_expression < 0] = 0
 		return normalize(rna_expression)
+
+	def adjust_final_expression(self, gene_indices, factors):
+		transcription = self.process.transcription
+		transcription_regulation = self.process.transcription_regulation
+
+		for gene_index, factor in zip(gene_indices, factors):
+			recruitment_mask = np.array([i == gene_index
+				for i in transcription_regulation.delta_prob['deltaI']])
+			for synth_prob in transcription.rna_synth_prob.values():
+				synth_prob[gene_index] *= factor
+			for exp in transcription.rna_expression.values():
+				exp[gene_index] *= factor
+			transcription.exp_free[gene_index] *= factor
+			transcription.exp_ppgpp[gene_index] *= factor
+			transcription.attenuation_basal_prob_adjustments[transcription.attenuated_rna_indices == gene_index] *= factor
+			transcription_regulation.basal_prob[gene_index] *= factor
+			transcription_regulation.delta_prob['deltaV'][recruitment_mask] *= factor
+
+		# Renormalize parameters
+		for synth_prob in transcription.rna_synth_prob.values():
+			synth_prob /= synth_prob.sum()
+		for exp in transcription.rna_expression.values():
+			exp /= exp.sum()
+		transcription.exp_free /= transcription.exp_free.sum()
+		transcription.exp_ppgpp /= transcription.exp_ppgpp.sum()
