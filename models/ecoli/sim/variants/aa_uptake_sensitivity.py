@@ -4,8 +4,8 @@ that amino acid but a range of factors.
 
 Modifies:
 	sim_data.external_state.saved_media
-	sim_data.process.metabolism.specific_import_rates
-	sim_data.process.metabolism.uptake_kcats_per_aa
+	sim_data.process.metabolism.max_specific_import_rates
+	sim_data.process.metabolism.import_kcats_per_aa
 
 Expected variant indices (dependent on length of FACTORS and sim_data.molecule_groups.amino_acids):
 	0-7: add first amino acid to the media with different uptake rates
@@ -31,8 +31,8 @@ def aa_uptake_sensitivity(sim_data, index):
 
 	# Change the uptake rate for that amino acid to check the sensitivity
 	factor = get_factor(index)
-	sim_data.process.metabolism.specific_import_rates[aa_idx] *= factor
-	sim_data.process.metabolism.uptake_kcats_per_aa[aa_idx] *= factor
+	sim_data.process.metabolism.max_specific_import_rates[aa_idx] *= factor
+	sim_data.process.metabolism.import_kcats_per_aa[aa_idx] *= factor
 
 	aa_id = sim_data.molecule_groups.amino_acids[aa_idx]
 

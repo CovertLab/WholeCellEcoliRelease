@@ -84,7 +84,7 @@ def initialize_trna_charging(sim_data, states, variable_elongation):
 
 	# Estimate initial charging state
 	charging_params = get_charging_params(sim_data, variable_elongation=variable_elongation)
-	fraction_charged, _, _ = calculate_trna_charging(synthetase_conc, uncharged_trna_conc,
+	fraction_charged, *_ = calculate_trna_charging(synthetase_conc, uncharged_trna_conc,
 		charged_trna_conc, aa_conc, ribosome_conc, f, charging_params)
 
 	# Update counts of tRNA to match charging

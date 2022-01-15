@@ -1,4 +1,4 @@
-# KMs are assumed to be similar to the steady-state concentration in this papers. 
+# KMs are assumed to be similar to the steady-state concentration in the papers listed under _source
 "Amino Acid"	"KM (units.mmol/units.L)"	"_source"
 "L-ALPHA-ALANINE[c]"	{"G7399-MONOMER": 40}	"https://journals.asm.org/doi/10.1128/AEM.00003-11#F2"
 "ILE[c]"	{"B4141-MONOMER": 120, "CPLX0-7684": 21}	"https://journals.asm.org/doi/10.1128/AEM.02242-15; https://journals.asm.org/doi/10.1128/JB.184.14.3947-3956.2002#R8"

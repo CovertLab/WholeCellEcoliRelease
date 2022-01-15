@@ -113,19 +113,9 @@ class Metabolism(wholecell.processes.process.Process):
 			for aa in self.aa_exchange_names
 			])
 
-		self.amino_acid_import = metabolism.amino_acid_import
-		self.amino_acid_export = metabolism.amino_acid_export
-		self.aa_transporters_names = metabolism.aa_transporters_names
-		self.aa_export_transporters_names = metabolism.aa_export_transporters_names
-
-		self.aa_transporters_container = self.bulkMoleculesView(self.aa_transporters_names)
-		self.aa_export_transporters_container = self.bulkMoleculesView(self.aa_export_transporters_names)
-
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
-		self.aa_transporters_container.requestAll()
-		self.aa_export_transporters_container.requestAll()
 		self.kineticsEnzymes.requestAll()
 		self.kineticsSubstrates.requestAll()
 
@@ -180,14 +170,8 @@ class Metabolism(wholecell.processes.process.Process):
 		if self.mechanistic_aa_transport:
 			aa_in_media = self.aa_environment.import_present()
 			aa_in_media[self.removed_aa_uptake] = False
-			import_rates = (counts_to_molar * self.timeStepSec() * self.amino_acid_import(
-				aa_in_media, dry_mass, self.aa_transporters_container.counts(),
-				self.mechanistic_aa_transport)).asNumber(CONC_UNITS)
-			export_rates = (counts_to_molar * self.timeStepSec() * self.amino_acid_export(
-				self.aa_export_transporters_container.counts(),
-				counts_to_molar * self.aas.total_counts(),
-				self.mechanistic_aa_transport)).asNumber(CONC_UNITS)
-			exchange_rates = import_rates - export_rates
+			exchange_rates = (self._sim.processes['PolypeptideElongation'].aa_exchange_rates
+				* self.timeStepSec()).asNumber(CONC_UNITS / TIME_UNITS)
 			aa_uptake_package = (exchange_rates[aa_in_media], self.aa_exchange_names[aa_in_media], True)
 
 		# Update FBA problem based on current state

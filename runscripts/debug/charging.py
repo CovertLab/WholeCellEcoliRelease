@@ -137,6 +137,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			sim_data = pickle.load(f)
 		self.aa_from_trna = sim_data.process.transcription.aa_from_trna
 		self.amino_acid_synthesis = sim_data.process.metabolism.amino_acid_synthesis
+		self.amino_acid_import = sim_data.process.metabolism.amino_acid_import
 		self.amino_acid_export = sim_data.process.metabolism.amino_acid_export
 		self.aa_supply_scaling = sim_data.process.metabolism.aa_supply_scaling
 		self.amino_acids = sim_data.molecule_groups.amino_acids
@@ -174,6 +175,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 		main_reader = TableReader(os.path.join(sim_out_dir, 'Main'))
 		growth_reader = TableReader(os.path.join(sim_out_dir, 'GrowthLimits'))
 		kinetics_reader = TableReader(os.path.join(sim_out_dir, 'EnzymeKinetics'))
+		mass_reader = TableReader(os.path.join(sim_out_dir, 'Mass'))
 
 		# Load data
 		self.time_step_sizes = main_reader.readColumn('timeStepSec')[1:]
@@ -193,12 +195,13 @@ class ChargingDebug(scriptBase.ScriptBase):
 		self.aa_supply = growth_reader.readColumn('original_aa_supply')[1:, :]
 		self.enzyme_counts_fwd = growth_reader.readColumn('aa_supply_enzymes_fwd')[1:, :]
 		self.enzyme_counts_rev = growth_reader.readColumn('aa_supply_enzymes_rev')[1:, :]
+		self.aa_importers = growth_reader.readColumn('aa_importers')[1:, :]
 		self.aa_exporters = growth_reader.readColumn('aa_exporters')[1:, :]
-		self.aa_import = growth_reader.readColumn('aa_import')[1:, :] / self.time_step_sizes.reshape(-1, 1)
-		self.aa_exchange = self.aa_import - growth_reader.readColumn('aa_export')[1:, :] / self.time_step_sizes.reshape(-1, 1)
 		self.aa_in_media = growth_reader.readColumn('aa_in_media')[1:, :]
 
 		self.counts_to_molar = METABOLISM_CONC_UNITS * kinetics_reader.readColumn('countsToMolar')[1:]
+
+		self.dry_mass = units.fg * mass_reader.readColumn('dryMass')[1:]
 
 	def solve_timestep(self,
 			timestep: int,
@@ -272,15 +275,15 @@ class ChargingDebug(scriptBase.ScriptBase):
 		supply_function = get_charging_supply_function(
 			self.aa_supply_in_charging, self.mechanistic_translation_supply,
 			self.mechanistic_aa_transport, self.amino_acid_synthesis,
-			self.amino_acid_export, self.aa_supply_scaling, self.counts_to_molar[timestep],
-			self.aa_supply[timestep, :], self.enzyme_counts_fwd[timestep, :],
-			self.enzyme_counts_rev[timestep, :], self.aa_exporters[timestep, :],
-			self.aa_exchange[timestep, :], self.aa_import[timestep, :],
-			self.aa_in_media[timestep, :],
+			self.amino_acid_import, self.amino_acid_export, self.aa_supply_scaling,
+			self.counts_to_molar[timestep], self.aa_supply[timestep, :],
+			self.enzyme_counts_fwd[timestep, :], self.enzyme_counts_rev[timestep, :],
+			self.dry_mass[timestep], self.aa_importers[timestep, :],
+			self.aa_exporters[timestep, :], self.aa_in_media[timestep, :],
 			)
 
 		# Calculate tRNA charging and resulting values
-		fraction_charged, v_rib, _ = calculate_trna_charging(
+		fraction_charged, v_rib, *_ = calculate_trna_charging(
 			self.synthetase_conc[timestep, :] * synthetase_adjustments,
 			uncharged_trna_conc,
 			charged_trna_conc,

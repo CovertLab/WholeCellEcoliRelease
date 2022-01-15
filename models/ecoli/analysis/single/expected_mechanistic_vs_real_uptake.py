@@ -35,7 +35,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		counts_to_molar = enzyme_kinetics_reader.readColumn('countsToMolar')
 
 		# kcats to aa mapping
-		kcats = {aa: kcat for aa, kcat in zip(aa_ids, sim_data.process.metabolism.uptake_kcats_per_aa)}
+		kcats = {aa: kcat for aa, kcat in zip(aa_ids, sim_data.process.metabolism.import_kcats_per_aa)}
 
 		# Cell Dry mass at each time step
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
@@ -43,7 +43,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		cell_volume = mass.readColumn('cellVolume')
 
 		# Map aas to their transporters
-		aa_to_transporters = sim_data.process.metabolism.aa_to_transporters
+		aa_to_importers = sim_data.process.metabolism.aa_to_importers
 
 		# Plot 1 - Expected vs real uptakes
 		rows = 6
@@ -65,7 +65,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			#calculate expected rate based on kcats and transporters
 			rate_= kcats[old_aa_tag] * np.ones(len(aa_flux))
 			t_counts = np.zeros(len(aa_flux))
-			for i in set(aa_to_transporters[old_aa_tag]):
+			for i in set(aa_to_importers[old_aa_tag]):
 				t_counts += monomer_counts[:, monomer_names.index(i)]
 
 			# Right now, code breaks because CYS has 0 transporters
@@ -94,7 +94,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		cols = 6
 		fig = plt.figure(figsize = (8, 11.5))
 
-		mmIDs = sim_data.process.metabolism.aa_transporters_names
+		mmIDs = sim_data.process.metabolism.aa_importer_names
 
 		for plot_index, m in enumerate(mmIDs):
 			ax = plt.subplot(rows, cols, plot_index + 1)
