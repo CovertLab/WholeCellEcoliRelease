@@ -938,6 +938,7 @@ def get_charging_params(
 	"""
 
 	constants = sim_data.constants
+	metabolism = sim_data.process.metabolism
 	transcription = sim_data.process.transcription
 	if aa_removed_from_charging is None:
 		aa_removed_from_charging = REMOVED_FROM_CHARGING
@@ -956,6 +957,7 @@ def get_charging_params(
 		krtf=constants.Kdissociation_uncharged_trna_ribosome.asNumber(CONC_UNITS),
 		max_elong_rate=float(elongation_max.asNumber(units.aa / units.s)),
 		charging_mask=aa_charging_mask,
+		unit_conversion=metabolism.get_amino_acid_conc_conversion(CONC_UNITS),
 		)
 
 def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_conc, aa_conc, ribosome_conc,
@@ -1053,7 +1055,7 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 			v_import = np.zeros(n_aas)
 			v_export = np.zeros(n_aas)
 		else:
-			v_synthesis, v_import, v_export = supply(CONC_UNITS * aa_conc)
+			v_synthesis, v_import, v_export = supply(unit_conversion * aa_conc)
 			v_supply = v_synthesis + v_import - v_export
 			daa[mask] = v_supply[mask] - v_charging
 
@@ -1065,6 +1067,7 @@ def calculate_trna_charging(synthetase_conc, uncharged_trna_conc, charged_trna_c
 	charged_trna_conc = charged_trna_conc.asNumber(CONC_UNITS)
 	aa_conc = aa_conc.asNumber(CONC_UNITS)
 	ribosome_conc = ribosome_conc.asNumber(CONC_UNITS)
+	unit_conversion = params['unit_conversion']
 
 	# Remove disabled amino acids from calculations
 	n_total_aas = len(aa_conc)

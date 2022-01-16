@@ -906,6 +906,7 @@ class Metabolism(object):
 		"""
 
 		aa_ids = sim_data.molecule_groups.amino_acids
+		n_aas = len(aa_ids)
 		self.aa_to_index = {aa: i for i, aa in enumerate(aa_ids)}
 		conc = self.concentration_updates.concentrations_based_on_nutrients
 
@@ -951,8 +952,8 @@ class Metabolism(object):
 		# Get order of amino acids to calculate parameters for to ensure that
 		# parameters that are dependent on other amino acids are run after
 		# those calculations have completed
-		self.aa_forward_stoich = np.eye(len(aa_ids))
-		self.aa_reverse_stoich = np.eye(len(aa_ids))
+		self.aa_forward_stoich = np.eye(n_aas)
+		self.aa_reverse_stoich = np.eye(n_aas)
 		dependencies = {}
 		for aa in aa_ids:
 			for downstream_aa in self.aa_synthesis_pathways[aa]['downstream']:
@@ -977,7 +978,7 @@ class Metabolism(object):
 						break
 				else:
 					ordered_aa_ids.append(aa)
-		if len(ordered_aa_ids) != len(aa_ids):
+		if len(ordered_aa_ids) != n_aas:
 			raise RuntimeError('Could not determine amino acid order to calculate dependencies first.'
 				' Make sure there are no cyclical pathways for amino acids that can degrade.')
 
@@ -1194,7 +1195,6 @@ class Metabolism(object):
 		self.aa_kcats_fwd = np.array([aa_kcats_fwd[aa] for aa in aa_ids])
 		self.aa_kcats_rev = np.array([aa_kcats_rev[aa] for aa in aa_ids])
 		self.aa_kis = np.array([aa_kis[aa] for aa in aa_ids])
-		self.aa_upstream_kms = [aa_upstream_kms[aa] for aa in aa_ids]
 		self.aa_reverse_kms = np.array([aa_reverse_kms[aa] for aa in aa_ids])
 		self.aa_degradation_kms = np.array([aa_degradation_kms[aa] for aa in aa_ids])
 
@@ -1209,12 +1209,17 @@ class Metabolism(object):
 			/ cell_specs['with_aa']['avgCellDryMassInit'].asNumber(DRY_MASS_UNITS))
 		self.max_specific_import_rates = self.specific_import_rates / saturation
 
-		# TODO: better way of handling this that is efficient computationally
-		self.aa_upstream_aas = [upstream_aas_for_km[aa] for aa in aa_ids]
+		# KMs for upstream amino acids
+		upstream_kms = [aa_upstream_kms[aa] for aa in aa_ids]
+		upstream_aas = [upstream_aas_for_km[aa] for aa in aa_ids]
+		self.aa_upstream_kms = np.zeros((n_aas, n_aas))
+		for i, (kms, aas) in enumerate(zip(upstream_kms, upstream_aas)):
+			for km, aa in zip(kms, aas):
+				self.aa_upstream_kms[i, self.aa_to_index[aa]] = km
 
 		# Convert enzyme counts to an amino acid basis via dot product (counts @ self.enzyme_to_amino_acid)
-		self.enzyme_to_amino_acid_fwd = np.zeros((len(self.aa_enzymes), len(aa_ids)))
-		self.enzyme_to_amino_acid_rev = np.zeros((len(self.aa_enzymes), len(aa_ids)))
+		self.enzyme_to_amino_acid_fwd = np.zeros((len(self.aa_enzymes), n_aas))
+		self.enzyme_to_amino_acid_rev = np.zeros((len(self.aa_enzymes), n_aas))
 		enzyme_mapping = {e: i for i, e in enumerate(self.aa_enzymes)}
 		aa_mapping = {a: i for i, a in enumerate(aa_ids)}
 		for enzyme, fwd, rev in zip(aa_enzymes, enzyme_to_aa_fwd, enzyme_to_aa_rev):
@@ -1257,7 +1262,8 @@ class Metabolism(object):
 		counts_per_aa_rev = enzyme_counts @ self.enzyme_to_amino_acid_rev
 		return counts_per_aa_fwd, counts_per_aa_rev
 
-	def amino_acid_synthesis(self, counts_per_aa_fwd: np.ndarray, counts_per_aa_rev: np.ndarray, aa_conc: units.Unum):
+	def amino_acid_synthesis(self, counts_per_aa_fwd: np.ndarray, counts_per_aa_rev: np.ndarray,
+			aa_conc: Union[units.Unum, np.ndarray]):
 		"""
 		Calculate the net rate of synthesis for amino acid pathways (can be
 		negative with reverse reactions).
@@ -1279,10 +1285,10 @@ class Metabolism(object):
 		"""
 
 		# Convert to appropraite arrays
-		aa_conc = aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS)
+		if units.hasUnit(aa_conc):
+			aa_conc = aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS)
 
-		# TODO: more efficient way of doing this
-		km_saturation = np.array([np.product([1 / (1 + km / aa_conc[self.aa_to_index[aa]]) for km, aa in zip(kms, aas)]) for kms, aas in zip(self.aa_upstream_kms, self.aa_upstream_aas)])
+		km_saturation = np.product(1 / (1 + self.aa_upstream_kms / aa_conc), axis=1)
 
 		# Determine saturation fraction for reactions
 		forward_fraction = 1 / (1 + aa_conc / self.aa_kis) * km_saturation
@@ -1299,7 +1305,8 @@ class Metabolism(object):
 
 		return synthesis, forward_fraction, loss_fraction
 
-	def amino_acid_export(self, aa_transporters_counts: np.ndarray, aa_conc: units.Unum, mechanistic_uptake: bool):
+	def amino_acid_export(self, aa_transporters_counts: np.ndarray,
+			aa_conc: Union[units.Unum, np.ndarray], mechanistic_uptake: bool):
 		"""
 		Calculate the rate of amino acid export.
 
@@ -1315,7 +1322,8 @@ class Metabolism(object):
 
 		if mechanistic_uptake:
 			# Export based on mechanistic model
-			aa_conc = aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS)
+			if units.hasUnit(aa_conc):
+				aa_conc = aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS)
 			trans_counts_per_aa = self.aa_to_exporters_matrix @ aa_transporters_counts
 			export_rates = self.export_kcats_per_aa * trans_counts_per_aa / (1 + self.aa_export_kms / aa_conc)
 		else:
@@ -1327,7 +1335,8 @@ class Metabolism(object):
 		return export_rates
 
 	def amino_acid_import(self, aa_in_media: np.ndarray, dry_mass: units.Unum,
-			internal_aa_conc: units.Unum, aa_transporters_counts: np.ndarray, mechanisitc_uptake: bool):
+			internal_aa_conc: Union[units.Unum, np.ndarray], aa_transporters_counts: np.ndarray,
+			mechanisitic_uptake: bool):
 		"""
 		Calculate the rate of amino acid uptake.
 
@@ -1336,15 +1345,18 @@ class Metabolism(object):
 			dry_mass: current dry mass of the cell, with mass units
 			internal_aa_conc: internal concentrations of amino acids
 			aa_transporters_counts: counts of each transporter
-			mechanisitc_uptake: if true, the uptake is calculated based on transporters
+			mechanisitic_uptake: if true, the uptake is calculated based on transporters
 
 		Returns:
 			rate of uptake for each amino acid. array is unitless but
 				represents counts of amino acid per second
 		"""
 
-		saturation = 1 / (1 + internal_aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS) / self.aa_import_kis)
-		if mechanisitc_uptake:
+		if units.hasUnit(internal_aa_conc):
+			internal_aa_conc = internal_aa_conc.asNumber(METABOLITE_CONCENTRATION_UNITS)
+
+		saturation = 1 / (1 + internal_aa_conc / self.aa_import_kis)
+		if mechanisitic_uptake:
 			# Uptake based on mechanistic model
 			counts_per_aa = self.aa_to_importers_matrix @ aa_transporters_counts
 			import_rates = self.import_kcats_per_aa * counts_per_aa
@@ -1352,6 +1364,9 @@ class Metabolism(object):
 			import_rates = self.max_specific_import_rates * dry_mass.asNumber(DRY_MASS_UNITS)
 
 		return import_rates * saturation * aa_in_media
+
+	def get_amino_acid_conc_conversion(self, conc_units):
+		return units.strip_empty_units(conc_units / METABOLITE_CONCENTRATION_UNITS)
 
 	@staticmethod
 	def extract_reactions(raw_data, sim_data):
