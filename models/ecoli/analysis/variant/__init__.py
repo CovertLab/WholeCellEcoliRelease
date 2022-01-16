@@ -79,16 +79,22 @@ TAGS = {
 	'REMOVE_AA_INHIBITION': [
 		'remove_aa_inhibition.py',
 		],
-	'REMOVE_ONE_AA': [
+	'REMOVE_AAS_SHIFT': [
 		'cell_growth.py',
 		'growth_correlations',
 		'growth_rate_time_series',
 		'growth_trajectory',
 		],
+	'REMOVE_ONE_AA': [
+		'cell_growth.py',
+		'growth_correlations',
+		'growth_rate_time_series',
+		],
 	'REMOVE_ONE_AA_SHIFT': [
 		'cell_growth.py',
 		'growth_correlations',
 		'growth_rate_time_series',
+		'growth_trajectory',
 		],
 	'TF_ACTIVITY': [
 		'tfFit.py',

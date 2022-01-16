@@ -2,6 +2,8 @@ import importlib
 
 
 variants = [
+	'aa_synthesis_ko',
+	'aa_synthesis_ko_shift',
 	'aa_synthesis_sensitivity',
 	'aa_uptake_sensitivity',
 	'add_one_aa',
@@ -15,7 +17,9 @@ variants = [
 	'monomer_deg_rate_shuffle_params',
 	'param_sensitivity',
 	'ppgpp_conc',
+	'ppgpp_limitations',
 	'remove_aa_inhibition',
+	'remove_aas_shift',
 	'remove_one_aa',
 	'remove_one_aa_shift',
 	'rna_deg_rate_shuffle_params',

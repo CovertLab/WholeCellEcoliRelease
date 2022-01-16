@@ -55,6 +55,11 @@ class Metabolism(wholecell.processes.process.Process):
 		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging or getattr(metabolism, 'force_constant_ppgpp', False)
 		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
 
+		# Setup for variant that has a fixed change in ppGpp until a concentration is reached
+		if hasattr(sim_data, 'ppgpp_ramp'):
+			sim_data.ppgpp_ramp.set_time(sim.time)
+			sim_data.growth_rate_parameters.get_ppGpp_conc = sim_data.ppgpp_ramp.get_ppGpp_conc
+
 		# Use information from the environment
 		self.get_import_constraints = sim_data.external_state.get_import_constraints
 		self.nutrientToDoublingTime = sim_data.nutrient_to_doubling_time
