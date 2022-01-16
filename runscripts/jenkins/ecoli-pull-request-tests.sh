@@ -6,4 +6,7 @@ set -e
 ### merging the PR into master to prevent changing it for other Jenkins builds.
 ### ---------------------------------------------------------------------------
 source runscripts/jenkins/setup-environment.sh
+
+echo pyenv version: $(pyenv version)
+
 pytest --cov=wholecell --cov-report xml --junitxml=unittests.xml

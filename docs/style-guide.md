@@ -382,7 +382,7 @@ or all inspection types on a single file or any source directory. See
 Continuous Integration. Code changes must run cleanly to pass the `ecoli-pull-request`
 and the `ecoli-small` CI tests. To run it:
 
-    runscripts/debug/mypy.sh
+    mypy
 
 [PyAnnotate](https://github.com/dropbox/pyannotate) (Py2.7) and
 [MonkeyType](https://github.com/Instagram/MonkeyType) (Py3) will observe types at runtime and

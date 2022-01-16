@@ -110,7 +110,7 @@ Also see [Borealis: How to run a workflow](https://github.com/CovertLab/borealis
    This step only takes a few minutes.
 
    (Your code does not need to be checked into git but consider testing it with `pytest`,
-   `runscripts/debug/mypy.sh`, and some manual runscripts first. You can quickly run a partial
+   `mypy`, and some manual runscripts first. You can quickly run a partial
    sim generation via  
    `python runscripts/manual/runSim.py --length-sec 120 --no-jit`)
 
