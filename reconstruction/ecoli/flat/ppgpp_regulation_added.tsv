@@ -16,3 +16,4 @@
 "trpS"	-1								"trpS"	"tRNA synthetases are expected to be negatively regulated by ppGpp"
 "tyrS"	-1								"tyrS"	"tRNA synthetases are expected to be negatively regulated by ppGpp"
 "valS"	-1								"valS"	"tRNA synthetases are expected to be negatively regulated by ppGpp"
+"rpmF"	-1								"rpmF"	"Only ribosomal protein not curated with any ppGpp regulation"
