@@ -51,7 +51,7 @@ def run_grid_search(charging, levels, index, search_params, timesteps):
 
 	v_ribs = []
 	for timestep in timesteps:
-		_, _, v, _, _ = charging.solve_timestep(timestep, param_adjustments=params)
+		_, _, v, *_ = charging.solve_timestep(timestep, param_adjustments=params)
 		v_ribs.append(v)
 
 	return v_ribs, params
@@ -103,6 +103,8 @@ class ChargingDebug(scriptBase.ScriptBase):
 			help='Grid search output files to compare.')
 		parser.add_argument('--interactive', action='store_true',
 			help='If set, runs interactive analysis plots for debugging.')
+		parser.add_argument('--sensitivity', action='store_true',
+			help='If set, runs sensitivity analysis.')
 		parser.add_argument('-p', '--port', type=int, default=PORT,
 			help='The localhost port to use for the interactive webpage.')
 
@@ -210,8 +212,9 @@ class ChargingDebug(scriptBase.ScriptBase):
 			aa_adjustments: Optional[np.ndarray] = None,
 			param_adjustments: Optional[Dict] = None,
 			ribosome_adjustment: float = 1.,
+			enzyme_adjustment: float = 1.,
 			timestep_adjustment: float = 1.,
-			) -> Tuple[np.ndarray, np.ndarray, float, int, int]:
+			) -> Tuple[np.ndarray, np.ndarray, float, int, int, float, float]:
 		"""
 		Calculates charging and elongation rate for a given timestep.
 
@@ -225,6 +228,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 				up or down
 			param_adjustments: adjustments to charging parameters
 			ribosome_adjustment: adjustment to scale ribosome concentrations
+			enzyme_adjustment: adjustment to scale amino acid synthesis enzymes
 			timestep_adjustment: adjustment to scale timesteps
 
 		Returns:
@@ -233,6 +237,8 @@ class ChargingDebug(scriptBase.ScriptBase):
 			adjusted_v_rib: ribosome elongation rate (AA/s)
 			n_synthesis: number of ppGpp synthesis reactions
 			n_degradation: number of ppGpp degradation reactions
+			v_rib: ribosome output rate (mol AA/s)
+			aa_output: amino acid output rate (mol AA/s)
 
 		TODO:
 			Include adjustments for ppGpp, RelA, and SpoT concentrations
@@ -277,13 +283,13 @@ class ChargingDebug(scriptBase.ScriptBase):
 			self.mechanistic_aa_transport, self.amino_acid_synthesis,
 			self.amino_acid_import, self.amino_acid_export, self.aa_supply_scaling,
 			self.counts_to_molar[timestep], self.aa_supply[timestep, :],
-			self.enzyme_counts_fwd[timestep, :], self.enzyme_counts_rev[timestep, :],
+			self.enzyme_counts_fwd[timestep, :] * enzyme_adjustment, self.enzyme_counts_rev[timestep, :],
 			self.dry_mass[timestep], self.aa_importers[timestep, :],
 			self.aa_exporters[timestep, :], self.aa_in_media[timestep, :],
 			)
 
 		# Calculate tRNA charging and resulting values
-		fraction_charged, v_rib, *_ = calculate_trna_charging(
+		fraction_charged, v_rib, synthesis, imported, exported = calculate_trna_charging(
 			self.synthetase_conc[timestep, :] * synthetase_adjustments,
 			uncharged_trna_conc,
 			charged_trna_conc,
@@ -295,6 +301,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			limit_v_rib=True,
 			time_limit=timestep_size,
 			)
+		aa_output = (synthesis + imported - exported).sum() / self.time_step_sizes[timestep]
 		fraction_charged_per_trna = fraction_charged @ self.aa_from_trna
 		adjusted_v_rib = v_rib / ribosome_conc.asNumber(CONC_UNITS)
 
@@ -319,7 +326,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			timestep_size,
 			)
 
-		return fraction_charged_per_trna, fraction_charged, adjusted_v_rib, n_synthesis, n_degradation
+		return fraction_charged_per_trna, fraction_charged, adjusted_v_rib, n_synthesis, n_degradation, v_rib, aa_output
 
 	def validation(self, n_steps: int) -> None:
 		"""
@@ -342,7 +349,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 
 		print('Running validation to check output...')
 		for timestep in range(n_steps):
-			fraction_charged, _, _, _, _ = self.solve_timestep(timestep)
+			fraction_charged, *_ = self.solve_timestep(timestep)
 			# Some variability exists with certain options due to floating point differences
 			# in unit converted counts_to_molar values so need to use allclose instead of exact
 			if not np.allclose(fraction_charged, self.fraction_charged[timestep]):
@@ -615,7 +622,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			n_deg = []
 			t = np.arange(init_t, final_t)
 			for timestep in t:
-				_, f, v, synth, deg = self.solve_timestep(
+				_, f, v, synth, deg, *_ = self.solve_timestep(
 					timestep,
 					synthetase_adjustments=synthetase_adjustments,
 					trna_adjustments=trna_adjustments,
@@ -649,6 +656,50 @@ class ChargingDebug(scriptBase.ScriptBase):
 
 		return app
 
+	def sensitivity(self, output_dir):
+		print('Running sensitivity with inputs...')
+
+		n_adjust = 7
+		n_aa_adjust = 7
+		expression_adjustments = np.linspace(0.7, 1.3, n_adjust)
+		aa_adjustments = np.linspace(0.9, 1.1, n_aa_adjust)
+		rib_output_sensitivity_to_enzymes = np.zeros((n_adjust, n_aa_adjust))
+		aa_output_sensitivity_to_enzymes = np.zeros((n_adjust, n_aa_adjust))
+		rib_output_sensitivity_to_ribosomes = np.zeros((n_adjust, n_aa_adjust))
+		aa_output_sensitivity_to_ribosomes = np.zeros((n_adjust, n_aa_adjust))
+		for timestep in range(self.n_time_steps):
+			for i, enz_adjustment in enumerate(expression_adjustments):
+				for j, adjustment in enumerate(aa_adjustments):
+					*_, rib_output_aa_adjust, aa_output_aa_adjust = self.solve_timestep(
+						timestep, enzyme_adjustment=enz_adjustment, aa_adjustments=adjustment)
+
+					rib_output_sensitivity_to_enzymes[i, j] = rib_output_aa_adjust
+					aa_output_sensitivity_to_enzymes[i, j] = aa_output_aa_adjust
+
+			for i, rib_adjustment in enumerate(expression_adjustments):
+				for j, adjustment in enumerate(aa_adjustments):
+					*_, rib_output_aa_adjust, aa_output_aa_adjust = self.solve_timestep(
+						timestep, ribosome_adjustment=rib_adjustment, aa_adjustments=adjustment)
+
+					rib_output_sensitivity_to_ribosomes[i, j] = rib_output_aa_adjust
+					aa_output_sensitivity_to_ribosomes[i, j] = aa_output_aa_adjust
+
+		def save_output(data, name):
+			filename = os.path.join(output_dir, f'{name}.tsv')
+			with open(filename, 'w') as f:
+				writer = csv.writer(f, delimiter='\t')
+				writer.writerow([''] + list(aa_adjustments))
+				for adjustment, row in zip(expression_adjustments, data):
+					writer.writerow([adjustment] + list(row))
+
+			print(f'Saved sensitivity output to {filename}')
+
+		# TODO: plot data?
+		save_output(rib_output_sensitivity_to_enzymes, 'rib_output_sensitivity_to_enzymes')
+		save_output(aa_output_sensitivity_to_enzymes, 'aa_output_sensitivity_to_enzymes')
+		save_output(rib_output_sensitivity_to_ribosomes, 'rib_output_sensitivity_to_ribosomes')
+		save_output(aa_output_sensitivity_to_ribosomes, 'aa_output_sensitivity_to_ribosomes')
+
 	def run(self, args: argparse.Namespace) -> None:
 		# Sim options
 		self.variable_elongation = args.variable_elongation_translation
@@ -658,7 +709,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 		self.ppgpp_regulation = args.ppgpp_regulation
 
 		# Load data and check if required
-		if (args.grid_search or args.validation or args.interactive) and args.sim_dir is not None:
+		if (args.grid_search or args.validation or args.interactive or args.sensitivity) and args.sim_dir is not None:
 			self.load_data(args.sim_data_file, args.sim_out_dir)
 			self.validation(args.validation)
 
@@ -668,6 +719,8 @@ class ChargingDebug(scriptBase.ScriptBase):
 			self.plot_grid_results(args.output, *args.grid_compare)
 		if args.interactive:
 			self.interactive_debug(args.port)
+		if args.sensitivity:
+			self.sensitivity(args.sim_out_dir)
 
 
 if __name__ == '__main__':
