@@ -56,6 +56,24 @@ def run_grid_search(charging, levels, index, search_params, timesteps):
 
 	return v_ribs, params
 
+def run_sensitivity(charging, n_time_steps, adjustments, aa_adjustments, i):
+	rib_output_aa_adjust = np.zeros(len(aa_adjustments))
+	aa_output_aa_adjust = np.zeros(len(aa_adjustments))
+
+	for timestep in range(n_time_steps):
+		for j, adjustment in enumerate(aa_adjustments):
+			*_, rib_output, aa_output = charging.solve_timestep(
+				timestep, aa_adjustments=adjustment, **adjustments)
+
+			rib_output_aa_adjust[j] += rib_output
+			aa_output_aa_adjust[j] += aa_output
+
+	rib_output_aa_adjust /= n_time_steps
+	aa_output_aa_adjust /= n_time_steps
+
+	return rib_output_aa_adjust, aa_output_aa_adjust, i
+
+
 class ChargingDebug(scriptBase.ScriptBase):
 	def define_parameters(self, parser):
 		super().define_parameters(parser)
@@ -107,6 +125,8 @@ class ChargingDebug(scriptBase.ScriptBase):
 			help='If set, runs sensitivity analysis.')
 		parser.add_argument('-p', '--port', type=int, default=PORT,
 			help='The localhost port to use for the interactive webpage.')
+		parser.add_argument('-t', '--time-steps', type=int,
+			help='Number of time steps to run for sensitivity.')
 
 	def update_args(self, args):
 		super().update_args(args)
@@ -656,9 +676,21 @@ class ChargingDebug(scriptBase.ScriptBase):
 
 		return app
 
-	def sensitivity(self, output_dir):
+	def sensitivity(self, output_dir, n_time_steps=None, cpus=1, output=''):
+		def callback_enzymes(result):
+			rib_output_aa_adjust, aa_output_aa_adjust, i = result
+			rib_output_sensitivity_to_enzymes[i, :] = rib_output_aa_adjust
+			aa_output_sensitivity_to_enzymes[i, :] = aa_output_aa_adjust
+
+		def callback_ribosomes(result):
+			rib_output_aa_adjust, aa_output_aa_adjust, i = result
+			rib_output_sensitivity_to_ribosomes[i, :] = rib_output_aa_adjust
+			aa_output_sensitivity_to_ribosomes[i, :] = aa_output_aa_adjust
+
 		print('Running sensitivity with inputs...')
 
+		if n_time_steps is None:
+			n_time_steps = self.n_time_steps
 		n_adjust = 7
 		n_aa_adjust = 7
 		expression_adjustments = np.linspace(0.7, 1.3, n_adjust)
@@ -667,25 +699,28 @@ class ChargingDebug(scriptBase.ScriptBase):
 		aa_output_sensitivity_to_enzymes = np.zeros((n_adjust, n_aa_adjust))
 		rib_output_sensitivity_to_ribosomes = np.zeros((n_adjust, n_aa_adjust))
 		aa_output_sensitivity_to_ribosomes = np.zeros((n_adjust, n_aa_adjust))
-		for timestep in range(self.n_time_steps):
-			for i, enz_adjustment in enumerate(expression_adjustments):
-				for j, adjustment in enumerate(aa_adjustments):
-					*_, rib_output_aa_adjust, aa_output_aa_adjust = self.solve_timestep(
-						timestep, enzyme_adjustment=enz_adjustment, aa_adjustments=adjustment)
 
-					rib_output_sensitivity_to_enzymes[i, j] = rib_output_aa_adjust
-					aa_output_sensitivity_to_enzymes[i, j] = aa_output_aa_adjust
+		# Run timesteps in parallel
+		pool = parallelization.pool(num_processes=cpus)
+		results = [
+			pool.apply_async(run_sensitivity, (self, n_time_steps,
+				{'enzyme_adjustment': enz_adjustment}, aa_adjustments, i), callback=callback_enzymes)
+			for i, enz_adjustment in enumerate(expression_adjustments)
+			] + [
+			pool.apply_async(run_sensitivity, (self, n_time_steps,
+				{'ribosome_adjustment': rib_adjustment}, aa_adjustments, i), callback=callback_ribosomes)
+			for i, rib_adjustment in enumerate(expression_adjustments)
+			]
+		pool.close()
+		pool.join()
 
-			for i, rib_adjustment in enumerate(expression_adjustments):
-				for j, adjustment in enumerate(aa_adjustments):
-					*_, rib_output_aa_adjust, aa_output_aa_adjust = self.solve_timestep(
-						timestep, ribosome_adjustment=rib_adjustment, aa_adjustments=adjustment)
-
-					rib_output_sensitivity_to_ribosomes[i, j] = rib_output_aa_adjust
-					aa_output_sensitivity_to_ribosomes[i, j] = aa_output_aa_adjust
+		# Check for errors
+		for result in results:
+			if not result.successful():
+				result.get()
 
 		def save_output(data, name):
-			filename = os.path.join(output_dir, f'{name}.tsv')
+			filename = os.path.join(output_dir, f'{output}{name}.tsv')
 			with open(filename, 'w') as f:
 				writer = csv.writer(f, delimiter='\t')
 				writer.writerow([''] + list(aa_adjustments))
@@ -720,7 +755,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 		if args.interactive:
 			self.interactive_debug(args.port)
 		if args.sensitivity:
-			self.sensitivity(args.sim_out_dir)
+			self.sensitivity(args.sim_out_dir, n_time_steps=args.time_steps, cpus=args.cpus, output=args.output)
 
 
 if __name__ == '__main__':
