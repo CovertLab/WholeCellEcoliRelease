@@ -52,6 +52,7 @@ ACTIVE = [
 	"replisome_counts.py",
 	"replisome_rnap_collisions.py",
 	"replisome_rnap_collisions_by_gene.py",
+	"ribosome_limitation.py",
 	"ribosome30SCounts.py",
 	"ribosome50SCounts.py",
 	"ribosomeCapacity.py",
@@ -100,6 +101,7 @@ TAGS = {
 		],
 	'GROWTH': [
 		"growthLimits.py",  # TODO(jerry): include this?
+		"ribosome_limitation.py",
 		"trna_charging.py",
 		],
 	'KINETICS': [
@@ -168,6 +170,7 @@ TAGS = {
 		"growthLimits.py",
 		"mrnaVsProteinCounts.py",
 		"proteinCounts.py",
+		"ribosome_limitation.py",
 		"ribosome30SCounts.py",
 		"ribosome50SCounts.py",
 		"ribosomeCapacity.py",

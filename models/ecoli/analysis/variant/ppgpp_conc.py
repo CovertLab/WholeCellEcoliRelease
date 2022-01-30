@@ -12,6 +12,7 @@ import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from models.ecoli.analysis.single.ribosome_limitation import calculate_ribosome_excesses
 from models.ecoli.sim.variants.ppgpp_conc import BASE_FACTOR, CONDITIONS, split_index
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns, read_stacked_bulk_molecules
 from wholecell.io.tablereader import TableReader
@@ -36,7 +37,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				norm_ax.axhline(1, linestyle='--', color='k', linewidth=0.5)
 
 		raw_ax.set_ylabel(ylabel, fontsize=8)
-		norm_ax.set_ylabel(f'Normalized {ylabel}', fontsize=8)
+		norm_ax.set_ylabel(f'Normalized\n{ylabel}', fontsize=8)
 		for ax in axes:
 			ax.set_xlabel('ppGpp conc', fontsize=8)
 			ax.tick_params(labelsize=6)
@@ -46,12 +47,16 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
 		metabolism = sim_data.process.metabolism
+		transcription = sim_data.process.transcription
 		aa_enzyme_ids = metabolism.aa_enzymes
 		get_enzymes = metabolism.get_pathway_enzyme_counts_per_aa
 		fwd_kcats = metabolism.aa_kcats_fwd
 		ribosome_subunit_ids = [sim_data.molecule_ids.s30_full_complex, sim_data.molecule_ids.s50_full_complex]
 		aa_ids = sim_data.molecule_groups.amino_acids
 		max_elong_rate = sim_data.process.translation.basal_elongation_rate
+		uncharged_trna_names = transcription.rna_data['id'][transcription.rna_data['is_tRNA']]
+		charged_trna_names = transcription.charged_trna_names
+		aa_from_trna = transcription.aa_from_trna.T
 
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
@@ -75,12 +80,28 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ribosome_capacity_std = np.zeros(n_variants)
 		aa_capacity_mean = np.zeros(n_variants)
 		aa_capacity_std = np.zeros(n_variants)
+		fraction_charged_mean = np.zeros(n_variants)
+		fraction_charged_std = np.zeros(n_variants)
 		ribosome_saturation_mean = np.zeros(n_variants)
 		ribosome_saturation_std = np.zeros(n_variants)
 		aa_saturation_mean = np.zeros(n_variants)
 		aa_saturation_std = np.zeros(n_variants)
 		aa_conc_mean = np.zeros(n_variants)
 		aa_conc_std = np.zeros(n_variants)
+		excess_rna_mean = np.zeros(n_variants)
+		excess_rna_std = np.zeros(n_variants)
+		excess_protein_mean = np.zeros(n_variants)
+		excess_protein_std = np.zeros(n_variants)
+		rrna_synth_fraction_mean = np.zeros(n_variants)
+		rrna_synth_fraction_std = np.zeros(n_variants)
+		rprotein_synth_fraction_mean = np.zeros(n_variants)
+		rprotein_synth_fraction_std = np.zeros(n_variants)
+		enzyme_synth_fraction_mean = np.zeros(n_variants)
+		enzyme_synth_fraction_std = np.zeros(n_variants)
+		rprotein_protein_fraction_mean = np.zeros(n_variants)
+		rprotein_protein_fraction_std = np.zeros(n_variants)
+		enzyme_protein_fraction_mean = np.zeros(n_variants)
+		enzyme_protein_fraction_std = np.zeros(n_variants)
 		for i, variant in enumerate(variants):
 			all_cells = ap.get_cells(variant=[variant], only_successful=True)
 			conditions[i], factors[i] = split_index(variant)
@@ -101,8 +122,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			time_step = read_stacked_columns(all_cells, 'Main', 'timeStepSec', remove_first=True).squeeze()
 			counts_to_molar = read_stacked_columns(all_cells, 'EnzymeKinetics', 'countsToMolar', remove_first=True).squeeze()
 			unique_mol_counts = read_stacked_columns(all_cells, 'UniqueMoleculeCounts', 'uniqueMoleculeCounts', remove_first=True)
-			enzymes, ribosome_subunits, aas = read_stacked_bulk_molecules(
-				all_cells, (aa_enzyme_ids, ribosome_subunit_ids, aa_ids), remove_first=True)
+			enzymes, ribosome_subunits, aas, uncharged_trna_counts, charged_trna_counts = read_stacked_bulk_molecules(
+				all_cells, (aa_enzyme_ids, ribosome_subunit_ids, aa_ids, uncharged_trna_names, charged_trna_names), remove_first=True)
+			excess, synth_fractions, protein_fractions = calculate_ribosome_excesses(sim_data, all_cells)
 
 			rna_to_protein = (rna_mass / protein_mass)
 			ribosome_output = counts_to_molar * aas_elongated.sum(1) / time_step
@@ -115,6 +137,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			inactive_ribosome_counts = ribosome_subunits.min(1)
 			ribosome_capacity = (active_ribosome_counts + inactive_ribosome_counts) * counts_to_molar * max_elong_rate
 			ribosome_saturation = elong_rate / max_elong_rate
+
+			charged_trna_counts = charged_trna_counts @ aa_from_trna
+			uncharged_trna_counts = uncharged_trna_counts @ aa_from_trna
+			fraction_charged = charged_trna_counts / (uncharged_trna_counts + charged_trna_counts)
 
 			# Calculate mean and std for each value
 			ppgpp_mean[i] = ppgpp.mean()
@@ -133,17 +159,33 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			ribosome_capacity_std[i] = ribosome_capacity.std()
 			aa_capacity_mean[i] = aa_capacity.mean()
 			aa_capacity_std[i] = aa_capacity.std()
+			fraction_charged_mean[i] = fraction_charged.mean()
+			fraction_charged_std[i] = fraction_charged.std()
 			ribosome_saturation_mean[i] = ribosome_saturation.mean()
 			ribosome_saturation_std[i] = ribosome_saturation.std()
 			aa_saturation_mean[i] = aa_saturation.mean()
 			aa_saturation_std[i] = aa_saturation.std()
 			aa_conc_mean[i] = aa_conc.mean()
 			aa_conc_std[i] = aa_conc.std()
+			excess_rna_mean[i] = excess[:, 0].mean()
+			excess_rna_std[i] = excess[:, 0].std()
+			excess_protein_mean[i] = excess[:, 1].mean()
+			excess_protein_std[i] = excess[:, 1].std()
+			rrna_synth_fraction_mean[i] = synth_fractions[:, 0].mean()
+			rrna_synth_fraction_std[i] = synth_fractions[:, 0].std()
+			rprotein_synth_fraction_mean[i] = synth_fractions[:, 1].mean()
+			rprotein_synth_fraction_std[i] = synth_fractions[:, 1].std()
+			enzyme_synth_fraction_mean[i] = synth_fractions[:, 2].mean()
+			enzyme_synth_fraction_std[i] = synth_fractions[:, 2].std()
+			rprotein_protein_fraction_mean[i] = protein_fractions[:, 0].mean()
+			rprotein_protein_fraction_std[i] = protein_fractions[:, 0].std()
+			enzyme_protein_fraction_mean[i] = protein_fractions[:, 1].mean()
+			enzyme_protein_fraction_std[i] = protein_fractions[:, 1].std()
 
 		condition_labels = sim_data.ordered_conditions
 
 		# Create plots
-		_, axes = plt.subplots(10, 2, figsize=(6, 25))
+		_, axes = plt.subplots(18, 2, figsize=(8, 45))
 
 		## Bar plots of cell properties
 		self.plot_data(axes[0, :], ppgpp_mean, growth_rate_mean, growth_rate_std,
@@ -160,14 +202,30 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			'Ribosome capacity (uM/s)', condition_labels, conditions, factors)
 		self.plot_data(axes[6, :], ppgpp_mean, aa_capacity_mean, aa_capacity_std,
 			'AA capacity (uM/s)', condition_labels, conditions, factors)
-		self.plot_data(axes[7, :], ppgpp_mean, ribosome_saturation_mean, ribosome_saturation_std,
+		self.plot_data(axes[7, :], ppgpp_mean, fraction_charged_mean, fraction_charged_std,
+			'Fraction charged', condition_labels, conditions, factors)
+		self.plot_data(axes[8, :], ppgpp_mean, ribosome_saturation_mean, ribosome_saturation_std,
 			'Ribosome saturation', condition_labels, conditions, factors)
-		self.plot_data(axes[8, :], ppgpp_mean, aa_saturation_mean, aa_saturation_std,
+		self.plot_data(axes[9, :], ppgpp_mean, aa_saturation_mean, aa_saturation_std,
 			'AA synthesis average saturation', condition_labels, conditions, factors)
-		self.plot_data(axes[9, :], ppgpp_mean, aa_conc_mean, aa_conc_std,
+		self.plot_data(axes[10, :], ppgpp_mean, aa_conc_mean, aa_conc_std,
 			'AA conc (uM)', condition_labels, conditions, factors)
+		self.plot_data(axes[11, :], ppgpp_mean, excess_rna_mean, excess_rna_std,
+			'rRNA excess', condition_labels, conditions, factors)
+		self.plot_data(axes[12, :], ppgpp_mean, excess_protein_mean, excess_protein_std,
+			'rProtein excess', condition_labels, conditions, factors)
+		self.plot_data(axes[13, :], ppgpp_mean, rrna_synth_fraction_mean, rrna_synth_fraction_std,
+			'rRNA synth fraction\n(per rRNA, rProtein, enzymes mass)', condition_labels, conditions, factors)
+		self.plot_data(axes[14, :], ppgpp_mean, rprotein_synth_fraction_mean, rprotein_synth_fraction_std,
+			'rProtein synth fraction\n(per rRNA, rProtein, enzymes mass)', condition_labels, conditions, factors)
+		self.plot_data(axes[15, :], ppgpp_mean, enzyme_synth_fraction_mean, enzyme_synth_fraction_std,
+			'Enzyme synth fraction\n(per rRNA, rProtein, enzymes mass)', condition_labels, conditions, factors)
+		self.plot_data(axes[16, :], ppgpp_mean, rprotein_synth_fraction_mean, rprotein_synth_fraction_std,
+			'rProtein fraction\n(per protein mass)', condition_labels, conditions, factors)
+		self.plot_data(axes[17, :], ppgpp_mean, enzyme_synth_fraction_mean, enzyme_synth_fraction_std,
+			'Enzyme fraction\n(per protein mass)', condition_labels, conditions, factors)
 
-		plt.legend(fontsize=6)
+		axes[0, 0].legend(fontsize=6)
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')

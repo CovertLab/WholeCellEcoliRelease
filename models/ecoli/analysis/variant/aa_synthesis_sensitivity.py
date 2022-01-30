@@ -132,14 +132,15 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if CONTROL_INDEX in data:
 			# Identify groups of factors to split into subplots
 			nonzero_factors = [f for f in aa_synthesis_sensitivity.FACTORS if f != 0]
-			increase_factors = [1] + [f for f in nonzero_factors if f > 1]
-			decrease_factors = [f for f in nonzero_factors if f < 1] + [1]
+			nonzero_factors_with_control = sorted(nonzero_factors + [1])
+			increase_factors = [f for f in nonzero_factors_with_control if f >= 1]
+			decrease_factors = [f for f in nonzero_factors_with_control if f <= 1]
 
 			# Calculate the control growth rate
 			params, all_rates, _ = calculate_sensitivity(data, CONTROL_INDEX, nonzero_factors, 'Growth rate')
 			control_growth = all_rates[params == PARAM_CONTROL_LABEL, :]
 			control_growth_rate = control_growth.mean()
-			if not np.all(control_growth == control_growth_rate):
+			if not np.allclose(control_growth, control_growth_rate):
 				raise ValueError('Control parameter results in variable growth rates.'
 					' Run sims with no modified parameter or consider the mean.')
 
@@ -183,7 +184,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			_, axes = plt.subplots(2, 4, figsize=(20, 10))
 
 			# Slopes of growth vs change in parameter
-			slopes_plot(CONTROL_INDEX, nonzero_factors, 'Growth rate', axes[:, 0])
+			slopes_plot(CONTROL_INDEX, nonzero_factors_with_control, 'Growth rate', axes[:, 0], control=control_growth_rate)
 			slopes_plot(CONTROL_INDEX, increase_factors, 'Growth rate', axes[:, 1], control=control_growth_rate)
 			slopes_plot(CONTROL_INDEX, decrease_factors, 'Growth rate', axes[:, 2], control=control_growth_rate)
 
