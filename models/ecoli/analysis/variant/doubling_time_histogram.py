@@ -12,7 +12,7 @@ FONT_SIZE=9
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def hist(self, ax, data, xlabel, bin_width=1., xlim=None):
 		for variant, variant_data in data.items():
-			bins = int(np.ceil((max(variant_data) - min(variant_data)) / bin_width))
+			bins = max(1, int(np.ceil((variant_data.max() - variant_data.min()) / bin_width)))
 			mean = variant_data.mean()
 			std = variant_data.std()
 			patch = ax.hist(variant_data, bins, alpha=0.5,
