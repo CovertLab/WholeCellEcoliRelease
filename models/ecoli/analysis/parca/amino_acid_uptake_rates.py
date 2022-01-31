@@ -26,6 +26,7 @@ def subplot(x, y, x_err, labels, y_label, title):
 	x = x[mask]
 	y = y[mask]
 	x_err = x_err[:, mask]
+	x_err[0, x_err[0, :] >= x] = 0
 	labels = labels[mask]
 
 	# Statistics
@@ -100,11 +101,13 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		subplot(val_rates, wcm_rates, val_error, aa_ids,
 			'WCM uptake flux\n(mmol/g DCW/hr)',
 			'Amino acid import rate comparison')
+		self.remove_border()
 
 		plt.subplot(2, 1, 2)
 		subplot(val_rates, wcm_supply, val_error, aa_ids,
 			'WCM translation supply in rich media\n(mmol/g DCW/hr)',
 			'Translation vs import comparison')
+		self.remove_border()
 
 		plt.tight_layout()
 		exportFigure(plt, plot_out_dir, plot_out_filename, metadata)

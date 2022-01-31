@@ -10,6 +10,7 @@ import pickle
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 import numpy as np
+from scipy.stats import pearsonr
 
 from models.ecoli.analysis import parcaAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
@@ -44,6 +45,10 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		kcat_max = max(kcat_data.max(), kcat_calc.max())
 		kcat_range = [kcat_min, kcat_max]
 
+		# Statistics
+		r, p = pearsonr(np.log10(kcat_data[positive_mask]), np.log10(kcat_calc[positive_mask]))
+		n = np.sum(positive_mask)
+
 		# Calculate expected inhibition in minimal media condition
 		aa_inhibition = np.array([
 			[0, 0] if aa_synthesis_pathways[aa]['ki'] is None else
@@ -55,7 +60,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		x_amino_acids = np.arange(len(amino_acids))
 
 		# Plot data
-		plt.figure(figsize=(5, 10))
+		plt.figure(figsize=(5, 15))
 		gs = gridspec.GridSpec(3, 1)
 
 		## kcat scatter comparison
@@ -64,6 +69,8 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		plt.loglog(kcat_range, kcat_range, 'k--')
 		plt.xlabel('kcat, from data')
 		plt.ylabel('kcat, calculated')
+		plt.title(f'r={r:.2f} (p={p:.2g}, n={n})', fontsize=8)
+		self.remove_border()
 
 		## kcat bar comparison
 		plt.subplot(gs[1, 0])
@@ -71,6 +78,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		plt.axhline(0, linestyle='--', color='k')
 		plt.xticks(x_amino_acids, amino_acids, rotation=45, fontsize=6, ha='right')
 		plt.ylabel('log2(kcat, calculated / kcat, from data)')
+		self.remove_border()
 
 		## Inhibition comparison
 		plt.subplot(gs[2, 0])
@@ -78,6 +86,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		plt.bar(x_amino_acids, aa_inhibition[:, 0], label='lower limit KI')
 		plt.xticks(x_amino_acids, amino_acids, rotation=45, fontsize=6, ha='right')
 		plt.ylabel('Fraction of max flux at AA conc')
+		self.remove_border()
 		plt.legend()
 
 		## Save plot
