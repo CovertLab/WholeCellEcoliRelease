@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
@@ -19,13 +18,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	_suppress_numpy_warnings = True
 
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get first cell from each generation
 		firstCellLineage = []
 
-		for gen_idx in range(ap.n_generation):
-			firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
+		for gen_idx in range(self.ap.n_generation):
+			firstCellLineage.append(self.ap.get_cells(generation = [gen_idx])[0])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

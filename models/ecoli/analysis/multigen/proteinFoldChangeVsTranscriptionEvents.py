@@ -5,7 +5,6 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 
@@ -21,12 +20,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
 		n_monomers = sim_data.process.translation.monomer_data['id'].size
-		n_sims = ap.n_generation
+		n_sims = self.ap.n_generation
 
 		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = float)
 		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = int)

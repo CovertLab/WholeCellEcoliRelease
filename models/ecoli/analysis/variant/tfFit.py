@@ -12,7 +12,6 @@ import numpy as np
 from six.moves import cPickle
 import scipy.stats
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
@@ -29,8 +28,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			print("This plot only runs for the 'tf_activity' variant.")
 			return
 
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
+		variants = sorted(self.ap._path_data['variant'].tolist()) # Sorry for accessing private data
 
 		if 0 in variants:
 			variants.remove(0)
@@ -38,7 +36,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if len(variants) == 0:
 			return
 
-		all_cells = sorted(ap.get_cells(variant = variants, seed = [0], generation = [0]))
+		all_cells = sorted(self.ap.get_cells(variant = variants, seed = [0], generation = [0]))
 
 		expectedProbBound = []
 		simulatedProbBound = []
@@ -49,7 +47,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		targetToTfType = {}
 
 		for variant, simDir in zip(variants, all_cells):
-			sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+			sim_data = cPickle.load(open(self.ap.get_variant_kb(variant), "rb"))
 
 			delta_prob = sim_data.process.transcription_regulation.delta_prob
 

@@ -11,7 +11,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
@@ -25,8 +24,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		return
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		allDir = ap.get_cells(generation = [3])
+		allDir = self.ap.get_cells(generation = [3])
 
 		if len(allDir) <= 1:
 			print("Skipping -- transcriptFrequency only runs for multiple seeds")

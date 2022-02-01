@@ -14,7 +14,6 @@ from itertools import cycle
 from six.moves import cPickle, range, zip
 
 from models.ecoli.analysis import cohortAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import units
@@ -26,9 +25,8 @@ PROTEIN_SAMPLE_COUNT = 10
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get paths for all cell simulations in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		n_seed = ap.n_seed
-		n_generation = ap.n_generation
+		n_seed = self.ap.n_seed
+		n_generation = self.ap.n_generation
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
@@ -38,7 +36,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Divide simulations by generation number
 		sim_dirs_grouped_by_gen = []
 		for gen_idx in range(n_generation):
-			sim_dirs_grouped_by_gen.append(ap.get_cells(generation = [gen_idx]))
+			sim_dirs_grouped_by_gen.append(self.ap.get_cells(generation = [gen_idx]))
 
 		# Load simDataFile and get constants
 		sim_data = cPickle.load(open(simDataFile, 'rb'))

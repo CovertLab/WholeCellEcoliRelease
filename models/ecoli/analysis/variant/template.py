@@ -10,7 +10,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import (exportFigure,
 	read_bulk_molecule_counts, read_stacked_bulk_molecules, read_stacked_columns)
 from wholecell.io.tablereader import TableReader
@@ -23,17 +22,16 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		with open(validationDataFile, 'rb') as f:
 			validation_data = pickle.load(f)
 
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		for variant in variants:
 			# Load modified variant sim_data
 			## Consider calculating variant difference and only loading
 			## sim_data once above for better performance.
-			with open(ap.get_variant_kb(variant), 'rb') as f:
+			with open(self.ap.get_variant_kb(variant), 'rb') as f:
 				variant_sim_data = pickle.load(f)
 
-			cell_paths = ap.get_cells(variant=[variant])
+			cell_paths = self.ap.get_cells(variant=[variant])
 
 			# Load data
 			## Simple stacking functions for data from all cells

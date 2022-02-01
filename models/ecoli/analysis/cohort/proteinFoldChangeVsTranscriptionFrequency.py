@@ -5,7 +5,6 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
 from six.moves import cPickle
@@ -46,14 +45,13 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		rnap_subunit_stoich = data_rnap["subunitStoich"]
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-		allDir = ap.get_cells(seed = [0])
+		allDir = self.ap.get_cells(seed = [0])
 
 		first_build = True
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
 		n_monomers = sim_data.process.translation.monomer_data['id'].size
-		n_sims = ap.n_generation
+		n_sims = self.ap.n_generation
 
 		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = bool)
 		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = float)
@@ -198,8 +196,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "blue", alpha = 0.5, lw = 0.)#, s = 5)
 		scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "red", alpha = 0.5, lw = 0.)#, s = 5)
 
-		scatterAxis.set_ylabel("Fold change per protein\nin each generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
-		scatterAxis.set_xlabel("Average number of transcription events\nper protein per generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
+		scatterAxis.set_ylabel("Fold change per protein\nin each generation ({} generations)".format(self.ap.n_generation), fontsize = FONT_SIZE)
+		scatterAxis.set_xlabel("Average number of transcription events\nper protein per generation ({} generations)".format(self.ap.n_generation), fontsize = FONT_SIZE)
 
 		# lims = yhistAxis.get_ylim()
 		# step = (lims[1] - lims[0]) / 125

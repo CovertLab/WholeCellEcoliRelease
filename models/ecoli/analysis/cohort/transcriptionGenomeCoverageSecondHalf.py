@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
@@ -36,13 +35,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		mRnaNamesSorted = mRnaNames[descendingOrderIndexing]
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
-		if ap.n_generation == 1:
+		if self.ap.n_generation == 1:
 			print("Only runs for 2 or more cells.")
 			return
 
-		second_half_cells = ap.get_cells(generation=range(ap.n_generation//2,ap.n_generation))
+		second_half_cells = self.ap.get_cells(generation=range(self.ap.n_generation//2,self.ap.n_generation))
 
 		# Get number of mRNAs transcribed
 		transcribedFreq = []

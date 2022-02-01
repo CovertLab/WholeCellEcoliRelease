@@ -9,7 +9,6 @@ from matplotlib.gridspec import GridSpec
 import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_bulk_molecules, read_stacked_columns
 
 
@@ -43,8 +42,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		synthase_order = ['relA', 'spoT']
 
 		# Load simulation output
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = self.ap.get_cells()
 		time = read_stacked_columns(cell_paths, 'Main', 'time').squeeze() / 60  # min
 		counts_to_molar = read_stacked_columns(cell_paths, 'EnzymeKinetics', 'countsToMolar').squeeze()
 		synth_prob_per_cistron = read_stacked_columns(cell_paths, 'RnaSynthProb', 'rna_synth_prob_per_cistron')

@@ -6,7 +6,6 @@ from six.moves import cPickle
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 
@@ -28,10 +27,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		cellDensity = sim_data.constants.cell_density
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get all cells
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		plt.figure(figsize = (8.5, 11))
 

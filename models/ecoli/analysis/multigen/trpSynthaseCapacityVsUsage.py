@@ -10,7 +10,6 @@ from matplotlib import pyplot as plt
 from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
@@ -19,9 +18,8 @@ BURN_IN = 10
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
-		allDirs = ap.get_cells()
+		allDirs = self.ap.get_cells()
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))

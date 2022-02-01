@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 from scipy.stats import pearsonr
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -27,8 +26,7 @@ from six.moves import zip
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]

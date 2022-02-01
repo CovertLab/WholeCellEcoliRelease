@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.utils import units
@@ -42,12 +41,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		metaboliteIds = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		if 0 not in ap._path_data["seed"]:
+		if 0 not in self.ap._path_data["seed"]:
 			print("Skipping -- figure5D only runs for seed 0")
 			return
 
-		allDir = ap.get_cells(seed = [0])
+		allDir = self.ap.get_cells(seed = [0])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		cellDensity = sim_data.constants.cell_density

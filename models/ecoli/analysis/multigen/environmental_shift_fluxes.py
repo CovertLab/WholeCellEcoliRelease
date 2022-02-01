@@ -10,7 +10,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -30,8 +29,7 @@ MA_WIDTH = 15
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		rxnStoich = sim_data.process.metabolism.reaction_stoich

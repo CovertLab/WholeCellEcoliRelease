@@ -6,7 +6,6 @@ from six.moves import cPickle
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -16,7 +15,6 @@ NUM_SKIP_TIMESTEPS_AT_GEN_CHANGE = 1
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		T_ADD_AA = None
@@ -29,9 +27,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				T_CUT_AA = sim_data.external_state.saved_timelines[current_timeline_id][2][0]
 
 		# Get all cells
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 		nCells = allDir.shape[0]
-		nGens = ap.n_generation
+		nGens = self.ap.n_generation
 
 		massNames = ["dryMass", "proteinMass", "rnaMass", "dnaMass",]
 		cleanNames = ["Dry mass", "Protein mass", "RNA Mass", "DNA mass",]

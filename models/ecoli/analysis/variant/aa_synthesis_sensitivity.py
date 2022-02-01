@@ -11,7 +11,6 @@ import numpy as np
 from scipy import stats
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.sim.variants import aa_synthesis_sensitivity
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
@@ -45,8 +44,7 @@ def calculate_sensitivity(data, variant, factors, attr, default=None):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
@@ -63,7 +61,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			param_label = f'{aa_adjusted} {param}'
 
 			# Load data
-			cells = ap.get_cells(variant=[variant])
+			cells = self.ap.get_cells(variant=[variant])
 			growth_rate = read_stacked_columns(cells, 'Mass', 'instantaneous_growth_rate',
 				remove_first=True, ignore_exception=True).mean()
 			elong_rate = read_stacked_columns(cells, 'RibosomeData', 'effectiveElongationRate',

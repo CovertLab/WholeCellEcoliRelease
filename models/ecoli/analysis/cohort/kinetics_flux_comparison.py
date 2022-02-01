@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 from scipy.stats import pearsonr
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.io import tsv
 from wholecell.utils import units
@@ -32,8 +31,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

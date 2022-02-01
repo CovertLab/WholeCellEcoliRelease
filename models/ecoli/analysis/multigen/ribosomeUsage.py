@@ -11,7 +11,6 @@ from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
@@ -20,14 +19,13 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get first cell from each generation
 		firstCellLineage = []
 
 		# For all generation indexes subject to analysis, get first cell
-		for gen_idx in range(ap.n_generation):
-			firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
+		for gen_idx in range(self.ap.n_generation):
+			firstCellLineage.append(self.ap.get_cells(generation = [gen_idx])[0])
 
 		# Get sim data from cPickle file
 		sim_data = cPickle.load(open(simDataFile, "rb"))
@@ -140,25 +138,25 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# ax1: Plot timestep
 			ax1.plot(time.asNumber(units.min), timeStep.asNumber(units.s), linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax1.set_xlim([-5, max(time.asNumber(units.min))])
 			ax1.set_ylabel("Length of\ntime step (s)")
 
 			# ax2: Plot cell volume
 			ax2.plot(time.asNumber(units.min), cellVolume.asNumber(units.L), linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax2.set_xlim([-5, max(time.asNumber(units.min))])
 			ax2.set_ylabel("Cell volume\n(L)")
 
 			# ax3: Plot total ribosome counts
 			ax3.plot(time.asNumber(units.min), totalRibosomeCounts, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax3.set_xlim([-5, max(time.asNumber(units.min))])
 			ax3.set_ylabel("Total ribosome\ncount")
 
 			# ax4: Plot total ribosome concentrations
 			ax4.plot(time.asNumber(units.min), totalRibosomeConcentration.asNumber(units.mmol / units.L), linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax4.set_xlim([-5, max(time.asNumber(units.min))])
 			ax4.set_ylabel("[Total ribosome]\n(mM)")
 
@@ -167,7 +165,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax5.plot(time[1:].asNumber(units.min), activeRibosomeCounts[1:], linestyle='-')
 			else:
 				ax5.plot(time.asNumber(units.min), activeRibosomeCounts, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax5.set_xlim([-5, max(time.asNumber(units.min))])
 			ax5.set_ylabel("Active ribosome\ncount")
 
@@ -176,7 +174,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax6.plot(time[1:].asNumber(units.min), activeRibosomeConcentration[1:].asNumber(units.mmol / units.L), linestyle='-')
 			else:
 				ax6.plot(time.asNumber(units.min), activeRibosomeConcentration.asNumber(units.mmol / units.L), linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax6.set_xlim([-5, max(time.asNumber(units.min))])
 			ax6.set_ylabel("[Active ribosome]\n(mM)")
 
@@ -185,7 +183,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax7.plot(time[1:].asNumber(units.min), molarFractionActive[1:], linestyle='-')
 			else:
 				ax7.plot(time.asNumber(units.min), molarFractionActive, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax7.set_xlim([-5, max(time.asNumber(units.min))])
 			ax7.set_ylabel("Molar fraction\nactive ribosomes")
 
@@ -194,43 +192,43 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				ax8.plot(time[1:].asNumber(units.min), massFractionActive[1:], linestyle='-')
 			else:
 				ax8.plot(time.asNumber(units.min), massFractionActive, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax8.set_xlim([-5, max(time.asNumber(units.min))])
 			ax8.set_ylabel("Mass fraction\nactive ribosomes")
 
 			# ax9: Plot number of activations
 			ax9.plot(time.asNumber(units.min), didInitialize, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax9.set_xlim([-5, max(time.asNumber(units.min))])
 			ax9.set_ylabel("Activations\nper timestep")
 
 			# ax10: Plot number of deactivations (terminated translations)
 			ax10.plot(time.asNumber(units.min), didTerminate, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax10.set_xlim([-5, max(time.asNumber(units.min))])
 			ax10.set_ylabel("Deactivations\nper timestep")
 
 			# ax11: Plot number of activations per time * volume
 			ax11.plot(time.asNumber(units.min), didInitialize / (timeStep.asNumber(units.s) * cellVolume.asNumber(units.L)), linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax11.set_xlim([-5, max(time.asNumber(units.min))])
 			ax11.set_ylabel("Activations\nper time*volume")
 
 			# ax12: Plot number of deactivations per time * volume
 			ax12.plot(time.asNumber(units.min), didTerminate / (timeStep.asNumber(units.s) * cellVolume.asNumber(units.L)), linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax12.set_xlim([-5, max(time.asNumber(units.min))])
 			ax12.set_ylabel("Deactivations\nper time*volume")
 
 			# ax13: Plot number of amino acids translated in each timestep
 			ax13.plot(time.asNumber(units.min), actualElongations, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax13.set_xlim([-5, max(time.asNumber(units.min))])
 			ax13.set_ylabel("AA translated")
 
 			# ax14: Plot effective ribosome elongation rate for each timestep
 			ax14.plot(time.asNumber(units.min), effectiveElongationRate, linestyle='-')
-			if gen == ap.n_generation - 1:
+			if gen == self.ap.n_generation - 1:
 				ax14.set_xlim([-5, max(time.asNumber(units.min))])
 			ax14.set_ylabel("Effective\nelongation rate")
 

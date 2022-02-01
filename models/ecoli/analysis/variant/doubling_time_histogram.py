@@ -2,7 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
 
@@ -28,7 +27,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ax.legend()
 
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
 
 		doubling_times = {}
 		growth_rates = {}
@@ -40,8 +38,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				x = x[:-extra_points]
 			return x.reshape(-1, n_downsample).mean(1).reshape(-1, 1)
 
-		for variant in ap.get_variants():
-			all_cells = ap.get_cells(variant=[variant], only_successful=True)
+		for variant in self.ap.get_variants():
+			all_cells = self.ap.get_cells(variant=[variant], only_successful=True)
 			if len(all_cells) == 0:
 				continue
 

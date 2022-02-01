@@ -7,7 +7,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -19,7 +18,6 @@ FONT_SIZE=9
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 		fig = plt.figure()
 		fig.set_figwidth(5)
@@ -33,26 +31,26 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		bremer_rna_mass_per_cell = [77, 20,  211]
 		bremer_elng_rate = [18, 12,  21]
 
-		sim_doubling_time = np.zeros(ap.n_variant)
-		sim_doubling_time_std = np.zeros(ap.n_variant)
+		sim_doubling_time = np.zeros(self.ap.n_variant)
+		sim_doubling_time_std = np.zeros(self.ap.n_variant)
 
-		sim_origins_per_cell_at_initiation = np.zeros(ap.n_variant)
-		sim_rna_mass_per_cell = np.zeros(ap.n_variant)
-		sim_elng_rate = np.zeros(ap.n_variant)
-		sim_rrn_init_rate = np.zeros(ap.n_variant)
+		sim_origins_per_cell_at_initiation = np.zeros(self.ap.n_variant)
+		sim_rna_mass_per_cell = np.zeros(self.ap.n_variant)
+		sim_elng_rate = np.zeros(self.ap.n_variant)
+		sim_rrn_init_rate = np.zeros(self.ap.n_variant)
 
-		sim_origins_per_cell_at_initiation_std = np.zeros(ap.n_variant)
-		sim_elng_rate_std = np.zeros(ap.n_variant)
-		sim_rna_mass_per_cell_std = np.zeros(ap.n_variant)
-		sim_rrn_init_rate_std = np.zeros(ap.n_variant)
+		sim_origins_per_cell_at_initiation_std = np.zeros(self.ap.n_variant)
+		sim_elng_rate_std = np.zeros(self.ap.n_variant)
+		sim_rna_mass_per_cell_std = np.zeros(self.ap.n_variant)
+		sim_rrn_init_rate_std = np.zeros(self.ap.n_variant)
 
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
-		for varIdx in range(ap.n_variant):
+		for varIdx in range(self.ap.n_variant):
 			variant = variants[varIdx]
-			all_cells = ap.get_cells(variant=[variant])
+			all_cells = self.ap.get_cells(variant=[variant])
 			try:
-				sim_data = cPickle.load(open(ap.get_variant_kb(variant), 'rb'))
+				sim_data = cPickle.load(open(self.ap.get_variant_kb(variant), 'rb'))
 			except Exception as e:
 				print("Couldn't load sim_data object. Exiting.", e)
 				return

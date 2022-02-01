@@ -10,7 +10,6 @@ from six.moves import cPickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
@@ -22,8 +21,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		return
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		# Get IDs of mRNAs
 		sim_data = cPickle.load(open(simDataFile, "rb"))

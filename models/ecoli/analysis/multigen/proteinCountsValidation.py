@@ -13,7 +13,6 @@ from six.moves import cPickle
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.protein_counts import get_simulated_validation_counts
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
@@ -29,9 +28,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		sim_schmidt_counts_multigen = []
 

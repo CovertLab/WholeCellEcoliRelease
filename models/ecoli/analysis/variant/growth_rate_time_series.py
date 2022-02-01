@@ -12,7 +12,6 @@ from matplotlib import gridspec
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.utils import units
 
@@ -24,8 +23,7 @@ HALF_WINDOW = MOVING_WINDOW // 2
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 		n_variants = len(variants)
 
 		with open(simDataFile, 'rb') as f:
@@ -38,7 +36,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Get average growth rate in the control simulation if it was run
 		control_variant = aa_ids.index(CONTROL_LABEL)
 		if control_variant in variants:
-			cell_paths = ap.get_cells(variant=[control_variant])
+			cell_paths = self.ap.get_cells(variant=[control_variant])
 			control_growth_rate = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate', remove_first=True, ignore_exception=True).mean()
 		else:
 			control_growth_rate = 1
@@ -65,9 +63,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			cmap = plt.get_cmap('tab10')
 
 			# Plot moving average of growth rate and horizontal line of average for each initial seed
-			for seed in range(ap.n_seed):
+			for seed in range(self.ap.n_seed):
 				color = cmap(seed)
-				cell_paths = ap.get_cells(variant=[variant], seed=[seed])
+				cell_paths = self.ap.get_cells(variant=[variant], seed=[seed])
 				times = read_stacked_columns(cell_paths, 'Main', 'time', remove_first=True, ignore_exception=True) / 3600
 				growth_rates = read_stacked_columns(cell_paths, 'Mass', 'instantaneous_growth_rate',
 					remove_first=True, ignore_exception=True).squeeze()

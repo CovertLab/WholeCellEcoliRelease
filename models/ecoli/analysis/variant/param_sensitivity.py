@@ -166,8 +166,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			return
 
 		global ap
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = np.array(ap.get_variants())
+		ap = self.ap
+		variants = np.array(self.ap.get_variants())
 
 		# Check to analyze control (variant 0) separately from other variants
 		use_control = False

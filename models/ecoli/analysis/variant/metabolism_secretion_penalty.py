@@ -14,7 +14,6 @@ from matplotlib import gridspec
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.sim.variants.metabolism_secretion_penalty import SECRETION_PENALTY
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
@@ -51,8 +50,7 @@ def plot_fluxes(gs, col, selected, x_vals, fluxes, labels):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 		n_variants = len(variants)
 
 		all_doubling_times = np.zeros(n_variants)
@@ -67,7 +65,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			doubling_times = []
 			exchange_fluxes = []
-			for sim_dir in ap.get_cells(variant=[variant]):
+			for sim_dir in self.ap.get_cells(variant=[variant]):
 				simOutDir = os.path.join(sim_dir, "simOut")
 
 				# Listeners used

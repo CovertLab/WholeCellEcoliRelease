@@ -19,7 +19,6 @@ import numpy as np
 from scipy import stats
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.io.tablereader import TableReader
 
@@ -65,8 +64,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			aa_ids[aa_ids == original] = replacement
 		removed_mask = np.array([aa not in REMOVED_NAMES for aa in aa_ids], dtype=bool)
 
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 		n_variants = len(variants)
 
 		scaling = 3
@@ -75,7 +73,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		gs = gridspec.GridSpec(nrows=n_variants, ncols=n_cols)
 
 		for row, variant in enumerate(variants):
-			cell_paths = ap.get_cells(variant=[variant])
+			cell_paths = self.ap.get_cells(variant=[variant])
 
 			# Load attributes
 			unique_molecule_reader = TableReader(os.path.join(cell_paths[0], 'simOut', 'UniqueMoleculeCounts'))

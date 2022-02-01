@@ -10,7 +10,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -28,13 +27,12 @@ MARKERSIZE = 1
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get cells
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-		if ap.n_variant != 9:
+		if self.ap.n_variant != 9:
 			print("This plot expects all variants of mene_params")
 			return
 
 		# Get constants from wildtype variant
-		sim_data = cPickle.load(open(ap.get_variant_kb(4), "rb")) # 4 is the wildtype variant
+		sim_data = cPickle.load(open(self.ap.get_variant_kb(4), "rb")) # 4 is the wildtype variant
 		cellDensity = sim_data.constants.cell_density
 		nAvogadro = sim_data.constants.n_avogadro
 
@@ -44,14 +42,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		TARGET_CONC = len(endProductIds) * TARGET_CONC_SINGLE
 
 		# Investigate each variant
-		meneDepletion = np.zeros([ap.n_seed, ap.n_variant])
-		endProductDepletion = np.zeros([ap.n_seed, ap.n_variant])
+		meneDepletion = np.zeros([self.ap.n_seed, self.ap.n_variant])
+		endProductDepletion = np.zeros([self.ap.n_seed, self.ap.n_variant])
 
 		simOutDir = None
 
-		for variant in range(ap.n_variant):
-			for seed in range(ap.n_seed):
-				cells = ap.get_cells(variant = [variant], seed = [seed])
+		for variant in range(self.ap.n_variant):
+			for seed in range(self.ap.n_seed):
+				cells = self.ap.get_cells(variant = [variant], seed = [seed])
 				timeMeneDepleted = [] # seconds
 				timeEndProdDepleted = [] # seconds
 
@@ -100,7 +98,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Plot
 		fig, axesList = plt.subplots(2, 1, figsize = (8, 8))
 		ax1, ax2 = axesList
-		xvals = np.arange(ap.n_variant)
+		xvals = np.arange(self.ap.n_variant)
 		fig.suptitle("Sensitivity Analysis: menE depletion")
 
 		for ax, avg, std in zip(axesList, [meneDepletion_avg, endProductDepletion_avg], [meneDepletion_std, endProductDepletion_std]):

@@ -13,7 +13,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
 
@@ -53,8 +52,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		else:
 			timeline = []
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = self.ap.get_cells()
 
 		_, axes = plt.subplots(3, 2, figsize=(8, 12))
 

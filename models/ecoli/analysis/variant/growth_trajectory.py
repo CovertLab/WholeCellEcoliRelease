@@ -14,7 +14,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
 
@@ -61,8 +60,7 @@ def set_lim(ax, xmin=0, xmax=0.6, ymin=0, ymax=2):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		# Create plot
 		_, main_axes = plt.subplots(3, 2, figsize=(8, 12))
@@ -74,7 +72,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		growth_function = lambda x: np.diff(x, axis=0) / x[:-1]
 		average_data = {}
 		for variant in variants:
-			with open(ap.get_variant_kb(variant), 'rb') as f:
+			with open(self.ap.get_variant_kb(variant), 'rb') as f:
 				sim_data = pickle.load(f)
 			if sim_data.external_state.current_timeline_id:
 				timeline = sim_data.external_state.saved_timelines[sim_data.external_state.current_timeline_id]
@@ -94,9 +92,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			all_growth = []
 			all_ratio = []
 			data_to_plot = False
-			for seed in ap.get_seeds(variant):
-				cell_paths = ap.get_cells(variant=[variant], seed=[seed])
-				if len(cell_paths) == 0 or not ap.get_successful(cell_paths[-1]):
+			for seed in self.ap.get_seeds(variant):
+				cell_paths = self.ap.get_cells(variant=[variant], seed=[seed])
+				if len(cell_paths) == 0 or not self.ap.get_successful(cell_paths[-1]):
 					continue
 
 				# Load data

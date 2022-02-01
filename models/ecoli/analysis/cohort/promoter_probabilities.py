@@ -11,7 +11,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import cohortAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
 
@@ -24,13 +23,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			sim_data = pickle.load(f)
 		tf_to_gene_id = sim_data.process.transcription_regulation.tf_to_gene_id
 
-		ap = AnalysisPaths(variantDir, cohort_plot=True)
 
 		expected = []
 		bound = []
 		active_tfs = []
 		promoters = []
-		for sim_dir in ap.get_cells():
+		for sim_dir in self.ap.get_cells():
 			simOutDir = os.path.join(sim_dir, 'simOut')
 
 			# Listeners used

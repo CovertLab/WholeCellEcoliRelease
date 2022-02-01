@@ -6,7 +6,6 @@ from six.moves import cPickle
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -21,10 +20,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get all cells
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(6, sharex = True)

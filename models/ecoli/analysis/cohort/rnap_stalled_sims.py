@@ -6,14 +6,12 @@ stalled transcript elongation occurred
 import os
 import numpy as np
 from models.ecoli.analysis import cohortAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(variantDir, cohort_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = self.ap.get_cells()
 
 		seed_gen_stalled = []
 		for sim_dir in cell_paths:

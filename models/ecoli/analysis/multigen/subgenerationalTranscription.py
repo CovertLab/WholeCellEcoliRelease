@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
@@ -33,11 +32,10 @@ def remove_xaxis(axis):
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		if 0 not in ap._path_data["seed"]:
+		if 0 not in self.ap._path_data["seed"]:
 			print("Skipping -- figure5B only runs for seed 0")
 			return
-		allDir = ap.get_cells(seed = [0])
+		allDir = self.ap.get_cells(seed = [0])
 
 		if len(allDir) <= 1:
 			print("Skipping -- figure5B only runs for multigen")

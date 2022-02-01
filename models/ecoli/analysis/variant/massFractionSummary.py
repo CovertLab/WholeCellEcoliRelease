@@ -6,7 +6,6 @@ import itertools
 from matplotlib import pyplot as plt
 from six.moves import zip
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.analysis.analysis_tools import exportFigure
@@ -34,8 +33,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					"DNA\nmass"
 					]
 
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-		all_cells = ap.get_cells()
+		all_cells = self.ap.get_cells()
 
 		# Build a mapping from variant id to color
 		idToColor = {}
@@ -65,7 +63,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				if cellCycleTime > currentMaxTime:
 					currentMaxTime = cellCycleTime
 
-				axesList[massIdx].set_xlim(0, currentMaxTime*ap.n_generation*1.1)
+				axesList[massIdx].set_xlim(0, currentMaxTime*self.ap.n_generation*1.1)
 				axesList[massIdx].set_ylabel(cleanNames[massIdx] + " (fg)")
 
 		for idx, axes in enumerate(axesList):

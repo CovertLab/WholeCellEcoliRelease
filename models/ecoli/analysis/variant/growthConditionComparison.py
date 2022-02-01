@@ -12,7 +12,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from six.moves import cPickle
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
@@ -25,8 +24,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	_suppress_numpy_warnings = True
 
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-		all_cells = ap.get_cells()
+		all_cells = self.ap.get_cells()
 
 		rnaToProteinDict = {}
 		dnaToProteinDict = {}
@@ -34,7 +32,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		stableRnaFractionDict = {}
 		doublingPerHourDict = {}
 
-		variantSimDataFile = ap.get_variant_kb(ap.get_variants()[0])
+		variantSimDataFile = self.ap.get_variant_kb(self.ap.get_variants()[0])
 		sim_data = cPickle.load(open(variantSimDataFile, "rb"))
 		nAvogadro = sim_data.constants.n_avogadro.asNumber()
 		chromMass = (sim_data.getter.get_mass(sim_data.molecule_ids.full_chromosome) / sim_data.constants.n_avogadro).asNumber()

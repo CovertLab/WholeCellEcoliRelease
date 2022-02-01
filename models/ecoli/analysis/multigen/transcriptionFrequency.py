@@ -14,7 +14,6 @@ from bokeh.plotting import figure, ColumnDataSource
 import matplotlib.pyplot as plt
 import numpy as np
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis import multigenAnalysisPlot
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
@@ -26,8 +25,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		# Get mRNA data
 		sim_data = cPickle.load(open(simDataFile, "rb"))

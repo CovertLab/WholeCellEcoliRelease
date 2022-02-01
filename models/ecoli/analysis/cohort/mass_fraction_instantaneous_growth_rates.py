@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 import os
 import numpy as np
 from matplotlib import pyplot as plt
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
 NUM_SKIP_TIMESTEPS_AT_GEN_CHANGE = 1
@@ -25,10 +24,9 @@ def seriesScrubber(series, factor):
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(seedOutDir, cohort_plot = True)
 
 		# Get all cells
-		allDir = ap.get_cells(seed=[0])
+		allDir = self.ap.get_cells(seed=[0])
 
 		# fig = plt.figure(figsize = (14, 10))
 		# ax1 = plt.subplot2grid((4,2), (0,0), rowspan = 4)

@@ -5,7 +5,6 @@ import numpy as np
 import os
 
 from models.ecoli.analysis import cohortAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader, TableReaderError
 from six.moves import range
@@ -14,23 +13,22 @@ from six.moves import range
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot=True)
 
 		max_cells_in_gen = 0
-		for genIdx in range(ap.n_generation):
-			n_cells = len(ap.get_cells(generation = [genIdx]))
+		for genIdx in range(self.ap.n_generation):
+			n_cells = len(self.ap.get_cells(generation = [genIdx]))
 
 			if n_cells > max_cells_in_gen:
 				max_cells_in_gen = n_cells
 
 		# noinspection PyTypeChecker
-		fig, axesList = plt.subplots(ap.n_generation,
-			sharey=True, sharex=True, figsize=(6, 3*ap.n_generation))
+		fig, axesList = plt.subplots(self.ap.n_generation,
+			sharey=True, sharex=True, figsize=(6, 3*self.ap.n_generation))
 
 		all_final_masses = []
 
-		for genIdx in range(ap.n_generation):
-			gen_cells = ap.get_cells(generation = [genIdx])
+		for genIdx in range(self.ap.n_generation):
+			gen_cells = self.ap.get_cells(generation = [genIdx])
 			gen_final_masses = []
 
 			for simDir in gen_cells:
@@ -57,7 +55,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 
 		# Plot histograms of final masses
-		if ap.n_generation == 1:
+		if self.ap.n_generation == 1:
 			axesList = [axesList]
 
 		for idx, axes in enumerate(axesList):

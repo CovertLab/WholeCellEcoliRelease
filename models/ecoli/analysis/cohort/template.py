@@ -10,7 +10,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import cohortAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import (exportFigure,
 	read_bulk_molecule_counts, read_stacked_bulk_molecules, read_stacked_columns)
 from wholecell.io.tablereader import TableReader
@@ -23,8 +22,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		with open(validationDataFile, 'rb') as f:
 			validation_data = pickle.load(f)
 
-		ap = AnalysisPaths(variantDir, cohort_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = self.ap.get_cells()
 
 		# Load data
 		## Simple stacking functions for data from all cells

@@ -7,7 +7,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from six.moves import cPickle, zip
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.rdp import rdp
@@ -39,8 +38,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			return
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-		allDir = ap.get_cells(seed=[0], generation = GENS)
+		allDir = self.ap.get_cells(seed=[0], generation = GENS)
 		n_gens = GENS.size
 		if len(allDir) < n_gens:
 			print("Skipping - particular seed and/or gens were not simulated.")

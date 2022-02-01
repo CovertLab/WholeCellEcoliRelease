@@ -6,7 +6,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux
@@ -25,7 +24,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.figure(figsize = (8.5, 11))
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))
@@ -34,9 +32,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		seed_color = {}
 		line_instances = {}
-		for seed_num in range(ap.n_seed):
+		for seed_num in range(self.ap.n_seed):
 			# Get all cells in this seed
-			seedDir = ap.get_cells(seed=[seed_num])
+			seedDir = self.ap.get_cells(seed=[seed_num])
 
 			for simDir in seedDir:
 				simOutDir = os.path.join(simDir, "simOut")

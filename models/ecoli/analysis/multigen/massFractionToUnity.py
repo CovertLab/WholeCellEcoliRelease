@@ -5,7 +5,6 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -14,14 +13,13 @@ from six.moves import range
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# TODO: Declutter Y-axis
 
 		# Get first cell from each generation
 		firstCellLineage = []
-		for gen_idx in range(ap.n_generation):
-			firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
+		for gen_idx in range(self.ap.n_generation):
+			firstCellLineage.append(self.ap.get_cells(generation = [gen_idx])[0])
 
 		massNames = [
 					#"dryMass",

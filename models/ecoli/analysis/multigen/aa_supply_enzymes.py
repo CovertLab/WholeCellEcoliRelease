@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.processes.metabolism import CONC_UNITS
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.utils import units
@@ -103,8 +102,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		attenuated_indices = transcription.attenuated_rna_indices
 		n_rnas = len(transcription.rna_data)
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = self.ap.get_cells()
 
 		# Load data
 		times = read_stacked_columns(cell_paths, 'Main', 'time', remove_first=True) / 60

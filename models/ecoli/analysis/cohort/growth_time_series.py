@@ -10,7 +10,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import cohortAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis.single.ribosome_limitation import calculate_ribosome_excesses
 from wholecell.analysis.analysis_tools import (exportFigure,
 	read_stacked_bulk_molecules, read_stacked_columns)
@@ -176,8 +175,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		is_rrna = transcription.rna_data['is_rRNA']
 		is_trna = transcription.rna_data['is_tRNA']
 
-		ap = AnalysisPaths(variantDir, cohort_plot=True)
-		cell_paths = ap.get_cells(only_successful=True)
+		cell_paths = self.ap.get_cells(only_successful=True)
 
 		# Load attributes
 		unique_molecule_reader = TableReader(os.path.join(cell_paths[0], 'simOut', 'UniqueMoleculeCounts'))

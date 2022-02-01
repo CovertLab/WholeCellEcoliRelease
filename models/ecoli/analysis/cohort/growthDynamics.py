@@ -7,7 +7,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 
@@ -41,9 +40,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		#ax4 = plt.subplot2grid((5,7), (4,0), colspan = 4, sharex=ax0)
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		#all_cells = ap.get_cells(seed=[0,1,2,3])
-		all_cells = ap.get_cells(seed=[4])
+		#all_cells = self.ap.get_cells(seed=[0,1,2,3])
+		all_cells = self.ap.get_cells(seed=[4])
 
 		if not len(all_cells):
 			return
@@ -206,8 +204,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ax4 = plt.subplot2grid((2,4), (1,0), colspan = 4, sharex=ax0)
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		all_cells = ap.get_cells(seed=[4])
+		all_cells = self.ap.get_cells(seed=[4])
 
 		if not len(all_cells):
 			return

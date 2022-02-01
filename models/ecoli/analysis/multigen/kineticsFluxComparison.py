@@ -18,7 +18,6 @@ import numpy as np
 from six.moves import cPickle, zip
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.plotting_tools import COLORS_LARGE
@@ -36,9 +35,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
-		# allDir = ap.get_cells(generation = [0, 1, 2])
+		allDir = self.ap.get_cells()
+		# allDir = self.ap.get_cells(generation = [0, 1, 2])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

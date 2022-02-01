@@ -20,7 +20,6 @@ from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.analysis.plotting_tools import COLORS_SMALL
@@ -107,7 +106,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		mol_ids = sim_data.molecule_ids
 		ppgpp_molecules = [mol_ids.RelA, mol_ids.SpoT, mol_ids.ppGpp]
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
 
 		# Create plot and axes
 		n_subplots = 13
@@ -140,7 +138,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		total_growth = 0.
 		total_ppgpp = 0.
 		timesteps = 0.
-		for sim_dir in ap.get_cells():
+		for sim_dir in self.ap.get_cells():
 			simOutDir = os.path.join(sim_dir, 'simOut')
 
 			# Listeners used

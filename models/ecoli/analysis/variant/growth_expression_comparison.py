@@ -14,7 +14,6 @@ import numpy as np
 from scipy import stats
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.io.tablereader import TableReader
 
@@ -56,16 +55,15 @@ def compare_to_validation(parca, validation):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		minimal_sim = None
 		rich_sim = None
 		for variant in variants:
-			with open(ap.get_variant_kb(variant), 'rb') as f:
+			with open(self.ap.get_variant_kb(variant), 'rb') as f:
 				variant_sim_data = pickle.load(f)
 
-			cell_paths = ap.get_cells(variant=[variant])
+			cell_paths = self.ap.get_cells(variant=[variant])
 			if variant_sim_data.condition == 'basal':
 				minimal_sim = read_counts(cell_paths)
 			elif variant_sim_data.condition == 'with_aa':

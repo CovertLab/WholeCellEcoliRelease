@@ -10,7 +10,6 @@ from six.moves import cPickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
@@ -36,8 +35,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		mRnaNamesSorted = mRnaNames[descendingOrderIndexing]
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		all_cells = ap.get_cells()
+		all_cells = self.ap.get_cells()
 
 		# Get number of mRNAs transcribed
 		transcribedFreq = []

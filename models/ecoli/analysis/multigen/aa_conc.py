@@ -11,7 +11,6 @@ import numpy as np
 from six.moves import cPickle, range
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
@@ -26,11 +25,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		aa_ids = sim_data.molecule_groups.amino_acids
 		targets = np.array([sim_data.process.metabolism.conc_dict[key].asNumber(units.mmol / units.L) for key in aa_ids])
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
 
 		aa_conc = None
 		time = None
-		for sim_dir in ap.get_cells():
+		for sim_dir in self.ap.get_cells():
 			simOutDir = os.path.join(sim_dir, 'simOut')
 
 			# Load data

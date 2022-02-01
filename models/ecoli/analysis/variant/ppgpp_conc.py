@@ -11,7 +11,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis.single.ribosome_limitation import calculate_ribosome_excesses
 from models.ecoli.sim.variants.ppgpp_conc import BASE_FACTOR, CONDITIONS, split_index
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns, read_stacked_bulk_molecules
@@ -58,8 +57,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		charged_trna_names = transcription.charged_trna_names
 		aa_from_trna = transcription.aa_from_trna.T
 
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 		n_variants = len(variants)
 
 		conditions = np.zeros(n_variants, int)
@@ -103,7 +101,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		enzyme_protein_fraction_mean = np.zeros(n_variants)
 		enzyme_protein_fraction_std = np.zeros(n_variants)
 		for i, variant in enumerate(variants):
-			all_cells = ap.get_cells(variant=[variant], only_successful=True)
+			all_cells = self.ap.get_cells(variant=[variant], only_successful=True)
 			conditions[i], factors[i] = split_index(variant)
 
 			unique_molecule_reader = TableReader(os.path.join(all_cells[0], 'simOut', 'UniqueMoleculeCounts'))

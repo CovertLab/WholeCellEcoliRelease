@@ -22,7 +22,6 @@ from matplotlib import pyplot as plt
 from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -54,10 +53,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		cistron_idxs = [all_cistron_ids.index(x) for x in cistron_ids]
 		deg_rates = sim_data.process.transcription.cistron_data['deg_rate'][cistron_idxs]
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get all cells
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		rna_cistron_degraded_counts = []
 		rna_cistron_counts = []

@@ -10,7 +10,6 @@ from matplotlib import colors, pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.sim.variants.aa_uptake_sensitivity import get_aa_index, get_factor
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.utils import units
@@ -22,8 +21,7 @@ CONTROL_LABEL = 'Control'
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
@@ -63,7 +61,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		control_elong_rates = []
 		for variant in variants:
 			# Load data
-			cells = ap.get_cells(variant=[variant])
+			cells = self.ap.get_cells(variant=[variant])
 			growth_rate = read_stacked_columns(cells, 'Mass', 'instantaneous_growth_rate',
 				remove_first=True, ignore_exception=True).mean()
 			elong_rate = read_stacked_columns(cells, 'RibosomeData', 'effectiveElongationRate',

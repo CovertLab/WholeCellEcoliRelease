@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import multigenAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_bulk_molecules, read_stacked_columns
 
 
@@ -92,8 +91,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				# Dummy ID for 0CS since there is no inactive form
 				inactive_ids.append(tf + '[c]')
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
-		cell_paths = ap.get_cells()
+		cell_paths = self.ap.get_cells()
 
 		# Read data for all cells
 		times = read_stacked_columns(cell_paths, 'Main', 'time') / 60

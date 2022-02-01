@@ -13,7 +13,6 @@ from matplotlib import gridspec
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.sim.variants.time_step import TIME_STEP_FACTOR
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
@@ -43,8 +42,7 @@ def plot_bar(gs, x, y, y_label, show_x=False):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 		n_variants = len(variants)
 
 		with open(simDataFile, 'rb') as f:
@@ -88,7 +86,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			trna_fold_changes = []
 			rrna_fold_changes = []
 			mrna_fold_changes = []
-			for sim_dir in ap.get_cells(variant=[variant]):
+			for sim_dir in self.ap.get_cells(variant=[variant]):
 				simOutDir = os.path.join(sim_dir, "simOut")
 
 				# Listeners used

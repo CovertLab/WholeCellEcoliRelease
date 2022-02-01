@@ -13,7 +13,6 @@ import numpy as np
 from scipy.stats import pearsonr
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
@@ -102,8 +101,7 @@ def remove_border(ax, bottom=False):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
@@ -134,7 +132,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			glc_yields = []
 			ppgpps = []
 			count = 0
-			for sim_dir in ap.get_cells(variant=[variant]):
+			for sim_dir in self.ap.get_cells(variant=[variant]):
 				glc_yield = 0
 				try:
 					sim_out_dir = os.path.join(sim_dir, "simOut")

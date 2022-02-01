@@ -5,7 +5,6 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.io.tablereader import TableReader
@@ -21,9 +20,8 @@ trim = 0.05
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot = True)
 
-		if ap.n_generation == 1:
+		if self.ap.n_generation == 1:
 			print("Need more data to create addedMass")
 			return
 
@@ -42,7 +40,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		title_list = ["Glucose minimal\n" + r"$\tau = $" + "44 min", "Glucose minimal anaerobic\n" + r"$\tau = $" + "100 min", "Glucose minimal + 20 amino acids\n" + r"$\tau = $" + "22 min"]
 
 		plot = False
-		for varIdx in ap.get_variants():
+		for varIdx in self.ap.get_variants():
 
 			if varIdx == 0:
 				plotIdx = 1
@@ -59,7 +57,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			initial_masses = np.zeros(0)
 			final_masses = np.zeros(0)
 
-			all_cells = ap.get_cells(generation=gen, variant=[varIdx])
+			all_cells = self.ap.get_cells(generation=gen, variant=[varIdx])
 			if len(all_cells) == 0:
 				continue
 			plot = True

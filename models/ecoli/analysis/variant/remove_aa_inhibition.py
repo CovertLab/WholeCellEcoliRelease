@@ -17,7 +17,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.sim.variants.remove_aa_inhibition import AA_TO_ENZYME, get_aa_and_ki_factor
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
@@ -119,8 +118,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	_suppress_numpy_warnings = True
 
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
 		aa_ids = sorted({aa for aas in HEATMAP_COLS for aa in aas[1]})
 		aa_idx = {aa: i for i, aa in enumerate(aa_ids)}
@@ -134,7 +132,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ki_factors = []
 		for i, variant in enumerate(variants):
 			variant_conc = []
-			for sim_dir in ap.get_cells(variant=[variant], only_successful=True):
+			for sim_dir in self.ap.get_cells(variant=[variant], only_successful=True):
 				simOutDir = os.path.join(sim_dir, "simOut")
 
 				# Listeners used

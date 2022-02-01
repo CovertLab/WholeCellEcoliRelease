@@ -12,9 +12,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 from six.moves import cPickle, range
 
+from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import parallelization, units
@@ -193,10 +193,9 @@ def analyze_variant(args):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 		n_variants = len(variants)
-		total_sims = ap.n_seed * ap.n_generation
+		total_sims = self.ap.n_seed * self.ap.n_generation
 
 		if n_variants <= 1:
 			print('This plot {} only runs for multiple variants'.format(__name__))
@@ -229,7 +228,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		pool = parallelization.pool(num_processes=self.cpus)
 		args = list(zip(
 			variants,
-			[ap] * n_variants,
+			[self.ap] * n_variants,
 			[toya_reactions] * n_variants,
 			[toya_fluxes] * n_variants,
 			[outlier_filter] * n_variants
