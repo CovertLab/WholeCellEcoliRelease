@@ -53,6 +53,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# Load simulation growth rates
 		data = {}
+		growth_function = lambda x: np.diff(x, axis=0) / x[:-1]
 		for variant in variants:
 			media_index = aa_synthesis_sensitivity.get_media_index(variant, sim_data)
 			aa_index = aa_synthesis_sensitivity.get_aa_index(variant, sim_data)
@@ -62,12 +63,23 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			# Load data
 			cells = self.ap.get_cells(variant=[variant])
+			time_step = read_stacked_columns(cells, 'Main', 'timeStepSec',
+				remove_first=True, ignore_exception=True).squeeze()
 			growth_rate = read_stacked_columns(cells, 'Mass', 'instantaneous_growth_rate',
-				remove_first=True, ignore_exception=True).mean()
+				remove_first=True, ignore_exception=True).mean() * 3600
 			elong_rate = read_stacked_columns(cells, 'RibosomeData', 'effectiveElongationRate',
 				remove_first=True, ignore_exception=True).mean()
+			protein_growth = (read_stacked_columns(cells, 'Mass', 'proteinMass',
+				fun=growth_function, ignore_exception=True).squeeze() / time_step).mean() * 3600
+			rna_growth = (read_stacked_columns(cells, 'Mass', 'rnaMass',
+				fun=growth_function, ignore_exception=True).squeeze() / time_step).mean() * 3600
 
-			variant_data = {'Growth rate': growth_rate * 3600, 'Elongation rate': elong_rate}
+			variant_data = {
+				'Growth rate': growth_rate,
+				'Elongation rate': elong_rate,
+				'Protein growth rate': protein_growth,
+				'RNA growth rate': rna_growth,
+				}
 			media_data = data.get(media_index, {})
 			param_data = media_data.get(param_label, {})
 			param_data[factor] = variant_data
@@ -150,14 +162,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			lowest_param_change = lowest_param_rates - control_growth_rate
 			max_rates = np.max(all_rates, 1)
 
-			def slopes_plot(variant, factors, attr, axes, control=None):
+			def slopes_plot(variant, factors, attr, axes, n_labeled=5, stds=1., control=None):
 				params, all_rates, slopes = calculate_sensitivity(data, variant, factors, attr, default=control)
 
 				slope_sort_idx = np.argsort(slopes)
 				mean = slopes.mean()
 				std = slopes.std()
-				upper_limit = mean + std
-				lower_limit = mean - std
+				upper_limit = max(mean + std * stds, slopes[slope_sort_idx[-n_labeled-1]])
+				lower_limit = min(mean - std * stds, slopes[slope_sort_idx[n_labeled]])
 
 				bar_ax, trace_ax = axes
 
@@ -179,15 +191,18 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				trace_ax.tick_params(labelsize=8)
 				self.remove_border(trace_ax)
 
-			_, axes = plt.subplots(2, 4, figsize=(20, 10))
+			_, axes = plt.subplots(2, 6, figsize=(30, 10))
 
 			# Slopes of growth vs change in parameter
+			# TODO: control growth rates for RNA and protein instead of overall growth rate
 			slopes_plot(CONTROL_INDEX, nonzero_factors_with_control, 'Growth rate', axes[:, 0], control=control_growth_rate)
-			slopes_plot(CONTROL_INDEX, increase_factors, 'Growth rate', axes[:, 1], control=control_growth_rate)
-			slopes_plot(CONTROL_INDEX, decrease_factors, 'Growth rate', axes[:, 2], control=control_growth_rate)
+			slopes_plot(CONTROL_INDEX, nonzero_factors_with_control, 'Protein growth rate', axes[:, 1], control=control_growth_rate)
+			slopes_plot(CONTROL_INDEX, nonzero_factors_with_control, 'RNA growth rate', axes[:, 2], control=control_growth_rate)
+			slopes_plot(CONTROL_INDEX, increase_factors, 'Growth rate', axes[:, 3], control=control_growth_rate)
+			slopes_plot(CONTROL_INDEX, decrease_factors, 'Growth rate', axes[:, 4], control=control_growth_rate)
 
 			# Greatest changes from baseline in positive and negative directions
-			ax = axes[0, 3]
+			ax = axes[0, 5]
 			sort_idx = np.argsort(diff)
 			x = np.arange(len(diff))
 			ax.bar(x, highest_param_change[sort_idx])
@@ -197,7 +212,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			self.remove_border(ax)
 
 			# Highest growth rates possible per param change
-			ax = axes[1, 3]
+			ax = axes[1, 5]
 			sort_idx = np.argsort(max_rates)
 			x = np.arange(len(max_rates))
 			ax.bar(x, max_rates[sort_idx])

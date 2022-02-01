@@ -6,6 +6,7 @@ from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 
 
 FONT_SIZE=9
+MAX_CELL_LENGTH = 180  # filter sims that reach the max time of 180 min
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
@@ -43,9 +44,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			if len(all_cells) == 0:
 				continue
 
-			doubling_times[variant] = read_stacked_columns(all_cells, 'Main', 'time',
+			dt = read_stacked_columns(all_cells, 'Main', 'time',
 				fun=lambda x: (x[-1] - x[0]) / 60.).squeeze()
-			growth_rates[variant] = read_stacked_columns(all_cells, 'Mass', 'instantaneous_growth_rate',
+			doubling_times[variant] = dt[dt < MAX_CELL_LENGTH]
+			growth_rates[variant] = read_stacked_columns(all_cells[dt < MAX_CELL_LENGTH], 'Mass', 'instantaneous_growth_rate',
 				remove_first=True, fun=downsample).squeeze() * 3600.
 
 		_, axes = plt.subplots(2, 1, figsize=(10, 10))

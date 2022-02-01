@@ -20,43 +20,6 @@ from wholecell.utils import units
 PLOT_SINGLE = False
 
 
-def trim_axes(axes):
-	for ax in axes.flatten():
-		for text in ax.texts:
-			text.set_visible(False)
-	axes[0, 0].set_ylim(0, 2)
-	axes[1, 0].set_ylim(0, 2)
-	axes[2, 0].set_ylim(0, 2)
-	axes[3, 0].set_ylim(0, 2)
-	axes[0, 1].set_ylim(0, 100)
-	axes[1, 1].set_ylim(0, 1)
-	axes[2, 1].set_ylim(0, 25)
-	axes[3, 1].set_ylim(0, 1)
-	axes[0, 2].set_ylim(0, 1)
-	axes[1, 2].set_ylim(0, 1)
-	axes[2, 2].set_ylim(0, 10)
-	axes[3, 2].set_ylim(0, 1)
-	axes[0, 3].set_ylim(0, 300)
-	axes[1, 3].set_ylim(0, 1.2)
-	axes[2, 3].set_ylim(1e-4, 100)
-	axes[3, 3].set_ylim(0, 1)
-	axes[0, 4].set_ylim(0, 1)
-	axes[1, 4].set_ylim(0, 0.15)
-	axes[2, 4].set_ylim(0, 0.3)
-	axes[0, 5].set_ylim(0, 10)
-	axes[1, 5].set_ylim(0, 0.2)
-	axes[2, 5].set_ylim(0, 40)
-	axes[3, 5].set_ylim(0, 1)
-	axes[0, 6].set_ylim(0, 0.1)
-	axes[1, 6].set_ylim(0, 1)
-	axes[2, 6].set_ylim(0, 1)
-	axes[3, 6].set_ylim(0, 1)
-	axes[0, 7].set_ylim(0, 1)
-	axes[1, 7].set_ylim(0, 1)
-	axes[2, 7].set_ylim(0, 15)
-	axes[3, 7].set_ylim(0, 1)
-
-
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def plot_time_series(self, ax, t_flat, y_flat, ylabel, timeline, filtered_t, downsample=5, log_scale=False):
 		# TODO: add trace labels as arg
@@ -261,7 +224,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		rp_ratio = rna_mass / protein_mass
 		aa_mass = aa_counts @ aa_mw
 		rpa_ratio = rna_mass / (protein_mass + aa_mass)
-		ribosome_fraction_active = active_ribosome_counts / (active_ribosome_counts + ribosome_subunit_counts.min(1))
 		protein_fraction = protein_mass / cell_mass
 		rna_fraction = rna_mass / cell_mass
 		aa_fraction = (protein_mass + aa_mass) / cell_mass
@@ -278,112 +240,127 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		rrna_fraction_produced = rrna_produced_mass / rna_produced_mass
 		trna_fraction_produced = trna_produced_mass / rna_produced_mass
 		unique_time, cell_count = np.unique(time, return_counts=True)
-		filtered = set(unique_time[cell_count != cell_count.max()])
+		filtered = set(unique_time[cell_count < cell_count.max() / 2.])
 
-		def subplots(filtered, downsample=5):
-			_, axes = plt.subplots(4, 8, figsize=(25, 15))
-			self.plot_time_series(axes[0, 0], time, growth_rate, 'Growth rate\n(1/hr)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 0], time, rna_growth, 'RNA growth rate\n(1/hr)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 0], time, protein_growth, 'Protein growth rate\n(1/hr)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 0], time, small_mol_growth, 'Small mol growth rate\n(1/hr)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 1], time, rnap_elong_rate, 'RNAP elongation rate\n(nt/s)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 1], time, rnap_fraction_active, 'RNAP active fraction',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 1], time, ribosome_elong_rate, 'Ribosome elongation rate\n(AA/s)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 1], time, ribosome_fraction_active, 'Ribosome active fraction',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 2], time, fraction_charged[:, 0], f'Fraction charged\n{aa_ids[0][:-3]} tRNA',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 2], time, fraction_charged[:, 10], f'Fraction charged\n{aa_ids[10][:-3]} tRNA',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 2], time, aa_conc[:, 0], f'{aa_ids[0][:-3]} concentration\n(mM)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 2], time, aa_conc[:, 10], f'{aa_ids[10][:-3]} concentration\n(mM)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 3], time, ppgpp_conc, 'ppGpp concentration\n(uM)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 3], time, fraction_charged, 'Fraction charged',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 3], time, aa_conc, 'Amino acid concentrations\n(mM)',
-				timeline, filtered, downsample=downsample, log_scale=True)
-			self.plot_time_series(axes[3, 3], time, rna_fraction_prob, 'RNA fraction\nsynthesis probability',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 4], time, rp_ratio, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 4], time, rpa_ratio, 'RNA/protein mass fraction\n(with and without free AA)',
-				[], filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 4], time, rna_fraction, 'RNA mass fraction',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 4], time, protein_fraction, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 4], time, aa_fraction, 'Protein mass fraction\n(with and without free AA)',
-				[], filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 4], unique_time, cell_count, '# cells',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 5], time, rnap_conc, 'RNAP conc\n(uM)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 5], time, rnap_output, 'RNAP output\n(mM NTPs/s)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 5], time, ribosome_conc, 'Ribosome conc\n(uM)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 5], time, ribosome_output, 'Ribosome output\n(mM AA/s)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 6], time, mrna_rrna_ratio, 'mRNA:rRNA ratio',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 6], time, mrna_fraction, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 6], time, rrna_fraction, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 6], time, trna_fraction, 'RNA mass fractions',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 6], time, rna_deg_rate, 'RNA deg rate',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 6], time, mrna_deg_ratio, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 6], time, rrna_deg_ratio, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 6], time, trna_deg_ratio, 'RNA deg ratio',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[0, 7], time, excess, 'Excess ribosome RNA/protein',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[1, 7], time, synth_fractions, 'Synthesis fraction RNA/protein/enzymes',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[2, 7], time, mrna_conc, 'mRNA conc\n(count/fg)',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 7], time, mrna_fraction_produced, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 7], time, rrna_fraction_produced, '',
-				timeline, filtered, downsample=downsample)
-			self.plot_time_series(axes[3, 7], time, trna_fraction_produced, 'RNA mass fraction produced',
-				timeline, filtered, downsample=downsample)
+		# Aggregate data for easy subplotting and selection of data
+		data = {
+			'Growth rate\n(1/hr)': {'y': [growth_rate], 'lim': [0, 2]},
+			'RNA growth rate\n(1/hr)': {'y': [rna_growth], 'lim': [0, 2]},
+			'Protein growth rate\n(1/hr)': {'y': [protein_growth], 'lim': [0, 2]},
+			'Small mol growth rate\n(1/hr)': {'y': [small_mol_growth], 'lim': [0, 2]},
+			'RNAP elongation rate\n(nt/s)': {'y': [rnap_elong_rate], 'lim': [40, 80]},
+			'RNAP active fraction': {'y': [rnap_fraction_active], 'lim': [0, 0.5]},
+			'Ribosome elongation rate\n(AA/s)': {'y': [ribosome_elong_rate], 'lim': [0, 25]},
+			'Ribosome active fraction': {'y': [ribosome_fraction_active], 'lim': [0.75, 0.9]},
+			f'Fraction charged\n{aa_ids[0][:-3]} tRNA': {'y': [fraction_charged[:, 0]], 'lim': [0, 1]},
+			f'Fraction charged\n{aa_ids[10][:-3]} tRNA': {'y': [fraction_charged[:, 10]], 'lim': [0, 1]},
+			f'{aa_ids[0][:-3]} concentration\n(mM)': {'y': [aa_conc[:, 0]], 'lim': [0, 10]},
+			f'{aa_ids[10][:-3]} concentration\n(mM)': {'y': [aa_conc[:, 10]], 'lim': [0, 2]},
+			'ppGpp concentration\n(uM)': {'y': [ppgpp_conc], 'lim': [0, 300]},
+			'Fraction charged': {'y': [fraction_charged], 'lim': [0, 1.2]},
+			'Amino acid concentrations\n(mM)': {'y': [aa_conc], 'lim': [1e-4, 500], 'log': True},
+			'RNA fraction\nsynthesis probability': {'y': [rna_fraction_prob], 'lim': [0, 1]},
+			'RNA/protein mass fraction\n(with and without free AA)': {'y': [rp_ratio, rpa_ratio], 'lim': [0, 1]},
+			'RNA mass fraction': {'y': [rna_fraction], 'lim': [0, 0.15]},
+			'Protein mass fraction\n(with and without free AA)': {'y': [protein_fraction, aa_fraction], 'lim': [0, 0.3]},
+			'# cells': {'x': unique_time, 'y': [cell_count]},
+			'RNAP conc\n(uM)': {'y': [rnap_conc], 'lim': [0, 10]},
+			'RNAP output\n(mM NTPs/s)': {'y': [rnap_output], 'lim': [0, 0.16]},
+			'Ribosome conc\n(uM)': {'y': [ribosome_conc], 'lim': [0, 40]},
+			'Ribosome output\n(mM AA/s)': {'y': [ribosome_output], 'lim': [0, 1]},
+			'mRNA:rRNA ratio': {'y': [mrna_rrna_ratio], 'lim': [0, 0.1]},
+			'RNA mass fractions': {'y': [mrna_fraction, rrna_fraction, trna_fraction], 'lim': [0, 1]},
+			'RNA deg rate': {'y': [rna_deg_rate], 'lim': [0, 0.8]},
+			'RNA deg ratio': {'y': [mrna_deg_ratio, rrna_deg_ratio, trna_deg_ratio], 'lim': [0, 1]},
+			'Excess ribosome RNA/protein': {'y': [excess], 'lim': [0, 1]},
+			'Synthesis fraction RNA/protein/enzymes': {'y': [synth_fractions], 'lim': [0, 1]},
+			'mRNA conc\n(count/fg)': {'y': [mrna_conc], 'lim': [0, 15]},
+			'RNA mass fraction produced': {'y': [mrna_fraction_produced, rrna_fraction_produced, trna_fraction_produced], 'lim': [0, 1]},
+			}
+		# Subset of the data to plot for the paper
+		paper_2_keys = [
+			'Growth rate\n(1/hr)',
+			f'{aa_ids[10][:-3]} concentration\n(mM)',
+			f'Fraction charged\n{aa_ids[10][:-3]} tRNA',
+			'ppGpp concentration\n(uM)',
+			'RNA fraction\nsynthesis probability',
+			'RNAP elongation rate\n(nt/s)',
+			'RNAP active fraction',
+			'Ribosome elongation rate\n(AA/s)',
+			]
+		paper_5_keys = [
+			'Growth rate\n(1/hr)',
+			'RNA fraction\nsynthesis probability',
+			'RNAP elongation rate\n(nt/s)',
+			'RNA deg rate',
+			'RNAP output\n(mM NTPs/s)',
+			'mRNA:rRNA ratio',
+			'ppGpp concentration\n(uM)',
+			]
+
+		def subplots(filename, keys, filtered, rows=None, cols=None, downsample=5, trim=False):
+			# Determine layout
+			if rows:
+				cols = int(np.ceil(len(keys) / rows))
+			elif cols:
+				rows = int(np.ceil(len(keys) / cols))
+			else:
+				rows = int(np.ceil(len(keys) / np.sqrt(len(keys))))
+				cols = int(np.ceil(len(keys) / rows))
+
+			# Plot data on subplots
+			_, axes = plt.subplots(rows, cols, figsize=(3*cols, 3*rows))
+			for i, key in enumerate(keys):
+				row = i % rows
+				col = i // rows
+				if cols == 1:
+					ax = axes[row]
+				elif rows == 1:
+					ax = axes[col]
+				else:
+					ax = axes[row, col]
+
+				entry = data[key]
+				x = entry.get('x', time)
+				for j, y in enumerate(entry['y']):
+					self.plot_time_series(ax, x, y, key,
+						timeline if j == 0 else [], filtered,
+						log_scale=entry.get('log', False), downsample=downsample)
+
+				if trim and (lim := entry.get('lim')):
+					ax.set_ylim(lim)
+
+			# Cleanup text if trimming
+			if trim:
+				for ax in axes.flatten():
+					for text in ax.texts:
+						text.set_visible(False)
+
 			plt.tight_layout()
-			return axes
+			exportFigure(plt, plotOutDir, filename, metadata)
+			plt.close('all')
 
 		# Plot all time series data
-		subplots(set(), downsample=1)
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		subplots(plotOutFileName, data.keys(), set(), downsample=1, rows=4)
 
 		# Downsample for less data and better illustrator load
-		axes = subplots(set())
-		exportFigure(plt, plotOutDir, f'{plotOutFileName}_downsampled', metadata)
+		subplots(f'{plotOutFileName}_downsampled', data.keys(), set(), rows=4)
 
 		# Trim axes from all data for easier comparison across runs
-		trim_axes(axes)
-		exportFigure(plt, plotOutDir, f'{plotOutFileName}_trimmed', metadata)
+		subplots(f'{plotOutFileName}_trimmed', data.keys(), set(), trim=True, rows=4)
 
 		# Set axes limits for easier comparison across runs and filter time
 		# points without all cells for smoother traces
-		axes = subplots(filtered)
-		trim_axes(axes)
-		exportFigure(plt, plotOutDir, f'{plotOutFileName}_filtered', metadata)
+		subplots(f'{plotOutFileName}_filtered', data.keys(), filtered, trim=True, rows=4)
+
+		# Plots specific for figure 2 in paper
+		subplots(f'{plotOutFileName}_fig2', paper_2_keys, filtered, downsample=10, trim=True, cols=1)
+
+		# Plots specific for figure 5 in paper
+		subplots(f'{plotOutFileName}_fig5', paper_5_keys, filtered, downsample=10, trim=True, cols=1)
 
 		# Plot histograms of data
+		# TODO: use data dict from above to generalize this to match any changes in time series traces
 		_, axes = plt.subplots(4, 6, figsize=(20, 15))
 		self.plot_hist(axes[0, 0], growth_rate, 0, 2, 'Growth rate\n(1/hr)')
 		self.plot_hist(axes[1, 0], rna_growth, 0, 2, 'RNA growth rate\n(1/hr)')
