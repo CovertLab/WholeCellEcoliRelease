@@ -532,7 +532,7 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			override = dashize('--{}'.format(RANGE_ARGS[option]))
 			parser.add_argument(dashize('--{}'.format(option)), nargs=2, default=None, type=int,
 				metavar=('START_{}'.format(upper), 'END_{}'.format(upper)),
-				help='The range of variants to run.  Will override {} option.'.format(override))
+				help=f'The range of {key}s to run.  Will override {override} option.')
 			self.range_options.append(option)
 
 	def parse_args(self):

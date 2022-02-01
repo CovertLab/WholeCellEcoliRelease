@@ -9,7 +9,7 @@ import abc
 import argparse
 import os
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from models.ecoli.analysis.analysisPlot import AnalysisPlot
 from wholecell.utils import constants, data, scriptBase, parallelization
@@ -79,6 +79,27 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 		"""Select key/value pairs specific to analysis tasks"""
 		return data.select_keys(vars(args), scriptBase.ANALYSIS_KEYS)
 
+	def define_path_selection(self, parser, *selections):
+		# type: (argparse.ArgumentParser, *str) -> None
+		"""
+		Adds options to the arg parser for path selections based on variant,
+		seed, generation, or successful completion of sims.
+
+		selections should take the options: ['variant', 'seed', 'generation']
+		"""
+
+		for selection in selections:
+			option = '{}_path'.format(selection)
+			upper = selection.upper()
+			parser.add_argument(scriptBase.dashize('--{}'.format(option + '_range')), nargs=2, default=None, type=int,
+				metavar=('START_{}'.format(upper), 'END_{}'.format(upper)),
+				help=f'The range of {selection} paths to include for analysis.')
+			parser.add_argument(scriptBase.dashize('--{}'.format(option)), nargs='*', default=None, type=int,
+				metavar=selection.upper(),
+				help=f'Specific {selection} paths to include for analysis.')
+
+		self.define_parameter_bool(parser, 'only_successful', help='Only include successful sims in analysis.')
+
 	def update_args(self, args):
 		# type: (argparse.Namespace) -> None
 		"""Update the command line args in an `argparse.Namespace`, including
@@ -91,6 +112,16 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 
 		Overrides should first call super().
 		"""
+
+		def analysis_paths(path, path_range):
+			values = set()
+			if arg := getattr(args, path, None):
+				values.update(arg)
+			if arg := getattr(args, path_range, None):
+				values.update(range(arg[0], arg[1]))
+
+			return sorted(values) if values else None
+
 		super(AnalysisBase, self).update_args(args)
 
 		if self.plot_name:
@@ -110,3 +141,7 @@ class AnalysisBase(scriptBase.ScriptBase, metaclass=abc.ABCMeta):
 			metadata['variant_index'] = variant_index
 
 		args.cpus = parallelization.cpus(args.cpus)
+
+		args.variant_paths = analysis_paths('variant_path', 'variant_path_range')
+		args.seed_paths = analysis_paths('seed_path', 'seed_path_range')
+		args.generation_paths = analysis_paths('generation_path', 'generation_path_range')

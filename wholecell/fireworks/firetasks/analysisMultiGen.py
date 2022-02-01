@@ -29,9 +29,12 @@ class AnalysisMultiGenTask(AnalysisBase):
 		"output_filename_prefix",
 		"cpus",
 		"compile",
+		"generation_paths",
+		"only_successful",
 		]
 	MODULE_PATH = 'models.ecoli.analysis.multigen'
 	TAGS = models.ecoli.analysis.multigen.TAGS
+	analysis_path_options = {'multi_gen_plot': True}
 
 	def plotter_args(self, module_filename):
 		self["metadata"] = dict(self["metadata"], analysis_type = "multigen")

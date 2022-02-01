@@ -24,6 +24,7 @@ class AnalysisMultigen(AnalysisBase):
 			help='The initial simulation number (int). The value will get'
 				 ' formatted as a subdirectory name like "000000". Default = 0.')
 		self.define_range_options(parser, 'variant', 'seed')
+		self.define_path_selection(parser, 'generation')
 
 	def update_args(self, args):
 		super(AnalysisMultigen, self).update_args(args)
@@ -50,6 +51,8 @@ class AnalysisMultigen(AnalysisBase):
 			output_plots_directory=output_dir,
 			metadata=args.metadata,
 			output_filename_prefix=args.output_prefix,
+			generation_paths=args.generation_paths,
+			only_successful=args.only_successful,
 			**self.select_analysis_keys(args)
 			)
 		task.run_task({})

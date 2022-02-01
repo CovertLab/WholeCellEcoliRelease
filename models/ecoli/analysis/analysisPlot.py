@@ -47,6 +47,7 @@ class AnalysisPlot(metaclass=abc.ABCMeta):
 	def __init__(self, cpus=0):
 		self.cpus = parallelization.cpus(cpus)
 		self._axeses = {}
+		self.ap = None
 
 	@staticmethod
 	def read_sim_data_file(sim_path: str) -> SimulationDataEcoli:
@@ -158,8 +159,9 @@ class AnalysisPlot(metaclass=abc.ABCMeta):
 
 	@classmethod
 	def main(cls, inputDir, plotOutDir, plotOutFileName, simDataFile,
-			validationDataFile=None, metadata=None, cpus=0):
+			validationDataFile=None, metadata=None, cpus=0, analysis_paths=None):
 		"""Run an analysis plot for a Firetask."""
 		instance = cls(cpus)
+		instance.ap = analysis_paths
 		instance.plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata)

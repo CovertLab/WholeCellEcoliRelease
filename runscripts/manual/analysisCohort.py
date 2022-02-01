@@ -20,6 +20,7 @@ class AnalysisCohort(AnalysisBase):
 		super(AnalysisCohort, self).define_parameters(parser)
 		self.define_parameter_variant_index(parser)
 		self.define_range_options(parser, 'variant')
+		self.define_path_selection(parser, 'seed', 'generation')
 
 	def run(self, args):
 		sim_path = args.sim_path
@@ -38,6 +39,9 @@ class AnalysisCohort(AnalysisBase):
 			output_plots_directory=output_dir,
 			metadata=args.metadata,
 			output_filename_prefix=args.output_prefix,
+			seed_paths=args.seed_paths,
+			generation_paths=args.generation_paths,
+			only_successful=args.only_successful,
 			**self.select_analysis_keys(args)
 			)
 		task.run_task({})
