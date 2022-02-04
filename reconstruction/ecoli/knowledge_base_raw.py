@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function
 import io
 import os
 import json
-from typing import List
+from typing import List, Dict
 
 from reconstruction.spreadsheets import read_tsv
 from wholecell.io import tsv
@@ -159,17 +159,24 @@ class KnowledgeBaseEcoli(object):
 		self.compartments: List[dict] = []  # mypy can't track setattr(self, attr_name, rows)
 		self.transcription_units: List[dict] = []
 
+		# Make copies to prevent issues with sticky global variables when
+		# running multiple operon workflows through Fireworks
+		self.list_of_dict_filenames: List[str] = LIST_OF_DICT_FILENAMES.copy()
+		self.removed_data: Dict[str, str] = REMOVED_DATA.copy()
+		self.modified_data: Dict[str, str] = MODIFIED_DATA.copy()
+		self.added_data: Dict[str, str] = ADDED_DATA.copy()
+
 		if self.operons_on:
-			LIST_OF_DICT_FILENAMES.append('transcription_units.tsv')
-			REMOVED_DATA.update({
+			self.list_of_dict_filenames.append('transcription_units.tsv')
+			self.removed_data.update({
 				'transcription_units': 'transcription_units_removed',
 				})
-			MODIFIED_DATA.update({
+			self.modified_data.update({
 				'transcription_units': 'transcription_units_modified',
 				})
 
 		# Load raw data from TSV files
-		for filename in LIST_OF_DICT_FILENAMES:
+		for filename in self.list_of_dict_filenames:
 			self._load_tsv(FLAT_DIR, os.path.join(FLAT_DIR, filename))
 
 		for filename in LIST_OF_PARAMETER_FILENAMES:
@@ -228,7 +235,7 @@ class KnowledgeBaseEcoli(object):
 		"""
 
 		# Check each pair of files to be removed
-		for data_attr, attr_to_remove in REMOVED_DATA.items():
+		for data_attr, attr_to_remove in self.removed_data.items():
 			# Build the set of data to identify rows to be removed
 			data_to_remove = getattr(self, attr_to_remove)
 			removed_cols = list(data_to_remove[0].keys())
@@ -251,7 +258,7 @@ class KnowledgeBaseEcoli(object):
 		"""
 
 		# Join data for each file with data to be added
-		for data_attr, attr_to_add in ADDED_DATA.items():
+		for data_attr, attr_to_add in self.added_data.items():
 			# Get datasets to join
 			data = getattr(self, data_attr)
 			added_data = getattr(self, attr_to_add)
@@ -272,7 +279,7 @@ class KnowledgeBaseEcoli(object):
 		identified by their entries in the first column (usually the ID column).
 		"""
 		# Check each pair of files to be modified
-		for data_attr, modify_attr in MODIFIED_DATA.items():
+		for data_attr, modify_attr in self.modified_data.items():
 			# Build the set of data to identify rows to be modified
 			data_to_modify = getattr(self, modify_attr)
 			id_col_name = list(data_to_modify[0].keys())[0]
