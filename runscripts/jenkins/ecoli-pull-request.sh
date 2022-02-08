@@ -10,7 +10,7 @@ sh runscripts/jenkins/fireworks-config.sh "pr$EXECUTOR_NUMBER"
 
 echo y | lpad reset
 
-DESC="2 generations completion test." OPERONS=off WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 MASS_DISTRIBUTION=0 \
+DESC="2 generations completion test." OPERONS=both WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 MASS_DISTRIBUTION=0 \
 	PARALLEL_PARCA=1 COMPRESS_OUTPUT=0 PLOTS=ACTIVE BUILD_CAUSALITY_NETWORK=1 RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
 bash runscripts/jenkins/run-fireworks.sh

@@ -11,13 +11,17 @@ from models.ecoli.analysis import multigenAnalysisPlot
 from wholecell.analysis.analysis_tools import (exportFigure, read_stacked_columns)
 from wholecell.io.tablereader import TableReader
 
-TU_ID = 'EG10397_RNA[c]'
+TU_ID = 'TU0-13388[c]'
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = pickle.load(f)
+
+		if metadata['operons'] == 'off':
+			print('Skipping analysis - no operons used in this sim')
+			return
 
 		cell_paths = self.ap.get_cells()
 
