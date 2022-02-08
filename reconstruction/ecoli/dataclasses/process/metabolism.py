@@ -673,7 +673,7 @@ class Metabolism(object):
 				if aa in self.reaction_stoich[reaction] and matches_direction(self.reaction_stoich[reaction][aa]):
 					if aa not in aa_to_transporters:
 						aa_to_transporters[aa] = []
-					aa_to_transporters[aa] += self.reaction_catalysts[reaction]
+					aa_to_transporters[aa] += self.reaction_catalysts.get(reaction, [])
 
 		aa_to_transporters = {aa: aa_to_transporters[aa] for aa in sim_data.molecule_groups.amino_acids}
 

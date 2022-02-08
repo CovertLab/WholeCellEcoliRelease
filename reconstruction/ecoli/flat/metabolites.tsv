@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 25.1
-# Date and time generated: September 10, 2021, 12:54:55
+# Version: 25.5
+# Date and time generated: January 8, 2022, 1:18:17
 "id"	"common_name"	"synonyms"	"chemical_formula"	"mw"
 "--TRANS-ACENAPHTHENE-12-DIOL"	"(+/-)-<i>trans</i>-acenaphthene-1,2-diol"	["<i>trans</i>-1,2-acenaphthylene glycol"]	"C12H10O2"	186.21
 "1-2-Beta-D-Glucans"	"a 1,2-&beta;-D-glucan"	[]	null	null
@@ -47,6 +47,8 @@
 "1-Benzopyrans"	"a 1-benzopyran"	[]	null	null
 "1-BETA-D-GALACTOSYL-2-2-HYDROXYACYLS"	"a 1-(&beta;-D-galactosyl)-2-(2-hydroxyacyl)sphingosine"	[]	null	null
 "1-CHLORO-24-DINITROBENZENE"	"1-chloro-2,4-dinitrobenzene"	["CDNB"]	"C6H3N2O4Cl"	202.554
+"1-Cys-Peroxiredoxin-L-cysteine"	"a [1-Cys-peroxiredoxin]-L-cysteine"	[]	null	null
+"1-Cys-Peroxiredoxin-L-hydroxycysteine"	"a [1-Cys-peroxiredoxin]-<i>S</i>-hydroxy-L-cysteine"	[]	null	null
 "1-DEOXYXYLONOJIRIMYCIN"	"1-deoxyxylonojirimycin"	[]	"C5H12NO3"	134.155
 "1-ETHYLADENINE"	"<i>N</i><sup>1</sup>-ethyladenine"	[]	"C7H9N5"	163.182
 "1-gamma-linolenoyl-2-acyl-glycerolipids"	"a 1-&gamma;-linolenoyl 2-acyl-[glycerolipid]"	[]	null	null
@@ -56,9 +58,9 @@
 "1-KETO-2-METHYLVALERATE"	"(<i>R</i>)-2,3-dihydroxy-3-methylpentanoate"	["(<i>R</i>)-2,3-dihydroxy-3-methylvalerate"]	"C6H11O4"	147.15
 "1-Linoleoyl-2-acyl-glycerolipids"	"a 1-linoleoyl 2-acyl-[glycerolipid]"	[]	null	null
 "1-Linoleoyl-L-Phosphatidate"	"a 1-linoleoyl 2-acyl-<i>sn</i>-glycerol 3-phosphate"	[]	null	null
-"1-Lyso-phospholipids"	"a 1-lyso-phospholipid"	[]	null	null
-"1-Lysophosphatidylglycerols"	"a 2-acyl-1-lyso-phosphatidylglycerol"	["a 1-lyso-2-acyl-<i>sn</i>-glycero-3-phosphoglycerol"]	null	null
-"1-Lysophosphatidylserines"	"a 2-acyl-1-lyso-phosphatidylserine"	["a 2-acyl-1-lyso-<i>sn</i>-glycero-3-phospho-L-serine"]	null	null
+"1-Lyso-phospholipids"	"a 1-lysophospholipid"	[]	null	null
+"1-Lysophosphatidylglycerols"	"a 1-lysophosphatidylglycerol"	["a 1-lyso-2-acyl-<i>sn</i>-glycero-3-phosphoglycerol", "a 2-acyl-1-lysophosphatidylglycerol"]	null	null
+"1-Lysophosphatidylserines"	"a 1-lysophosphatidylserine"	["a 2-acyl-1-lyso-<i>sn</i>-glycero-3-phospho-L-serine", "a 2-acyl-1-lyso-phosphatidylserine"]	null	null
 "1-O-ALKYL-2-ACETYL-3-ACYL-SN-GLYCEROL"	"a 2-acetyl-3-acyl-1-<i>O</i>-alkyl-<i>sn</i>-glycerol"	[]	null	null
 "1-O-ALKYL-2-ACETYL-SN-GLYCEROL"	"1-<i>O</i>-alkyl-2-acetyl-<i>sn</i>-glycerol"	["a 1-alkyl-2-acetyl-<i>sn</i>-glycerol"]	null	null
 "1-oleoyl-2-acyl-glycerolipids"	"a 1-oleoyl 2-acyl-[glycerolipid]"	[]	null	null
@@ -80,6 +82,7 @@
 "11-Cis-Retinyl-Esters"	"an 11-<i>cis</i>-retinyl ester"	[]	null	null
 "11-DEOXY-CORTISOL"	"11-desoxycortisol"	["substance S, Reichstein's", "11-desoxycortisone", "cortexolone", "Reichstein's substance S", "cortodoxone"]	"C21H30O4"	346.466
 "11-DEOXYCORTICOSTERONE"	"11-deoxycorticosterone"	["deoxycorticosterone", "cortexone", "21-hydroxy-4-pregnene-3,20-dione"]	"C21H30O3"	330.466
+"11-HPODE"	"11-HpODE"	["11-hydroperoxyoctadeca-9,12-dienoic acid", "(9Z,12Z)-11-hydroperoxyoctadeca-9,12-dienoate", "11-hydroperoxylinoleic acid", "11-hydroperoxylinoleate", "(&plusmn;)11-HpODE", "11-HPODE"]	"C18H31O4"	311.44
 "11-Hydroxyjasmonates"	"an 11-hydroxyjasmonate"	["an 11-OHJA", "an 11-hydroxyjasmonic acid", "an 11-hydroxy-JA"]	"C12H17O4"	225.264
 "11-Oxosteroids"	"an 11-oxosteroid"	[]	null	null
 "12-apo-Carotenals"	"a 12'-apo-carotenal"	[]	null	null
@@ -141,9 +144,9 @@
 "16S-rRNA-uridine516"	"a uridine<sup>516</sup> in 16S rRNA"	["a 16S rRNA uridine<sup>516</sup>"]	null	null
 "16S-rRNA-uridines"	"a uridine in 16S rRNA"	["16S rRNA uridine"]	null	null
 "16S-rRNAs-Pseudouridines"	"a 16S rRNA pseudouridine"	["a pseudouridine in 16S rRNA"]	null	null
-"17-Alpha-Hydroxysteroids"	"a 17-&alpha;-hydroxysteroid"	[]	"C19H32O2"	292.461
+"17-Alpha-Hydroxysteroids"	"a 17-&alpha;-hydroxysteroid"	[]	"C19H32O"	276.461
 "17-BETA-HYDROXYANDROSTAN-3-ONE"	"5-dihydrotestosterone"	["17-&beta;-hydroxyandrostan-3-one"]	"C19H30O2"	290.445
-"17-beta-Hydroxysteroids"	"a 17-&beta;-hydroxysteroid"	[]	"C19H32O2"	292.461
+"17-beta-Hydroxysteroids"	"a 17-&beta;-hydroxysteroid"	[]	"C19H32O"	276.461
 "17-DIAMINOHEPTANE"	"1,7-diaminoheptane"	[]	"C7H20N2"	132.248
 "17a-hydroxy-C21-steroids"	"a 17&alpha;-hydroxy-C<sub>21</sub>-steroid"	[]	null	null
 "18S-rRNA-adenine1779-adenine1780"	"an adenine<sup>1779</sup>/adenine<sup>1780</sup> in 18S rRNA"	["an 18S rRNA adenine<sup>1779</sup>/adenine<sup>1780</sup>"]	null	null
@@ -161,15 +164,15 @@
 "2-3-CARBOXY-3-METHYLAMMONIOPROPYL-L-"	"a 2-[(3<i>S</i>)-3-carboxy-3-(methylammonio)propyl]-L-histidine-[translation elongation factor 2]"	["a [3-[[4-(2-amino-2-carboxy-ethyl)-1H-imidazol-2-yl]]-1-carboxy- propyl]-methyl-ammonium", "a 2-[3-carboxy-3-(methylammonio)propyl]-L-histidine", "2-[3-carboxy-3-(methylammonio)propyl]-L-histidine in eEF-2"]	null	null
 "2-3-DIHYDROXYBENZOATE"	"2,3-dihydroxybenzoate"	["2,3-dihydroxybenzoic acid", "3-hydroxysalicylate", "catechol-3-carboxylate", "2-pyrocatechuate"]	"C7H5O4"	153.114
 "2-3-DIHYDROXYPHENYL-PROPIONATE"	"3-(2,3-dihydroxyphenyl)propanoate"	["3-(2,3-dihydroxyphenyl)propionic acid", "3-(2,3-dihydroxyphenyl)propionate", "3-carboxyethylcatechol"]	"C9H9O4"	181.168
-"2-3-dihydroxypropane-1-sulfonate"	"3-sulfopropanediol"	["2,3-dihydroxypropane 1-sulfonate", "DHPS"]	"C3H7O5S"	155.145
+"2-3-dihydroxypropane-1-sulfonate"	"2,3-dihydroxypropane 1-sulfonate"	["3-sulfopropanediol", "DHPS"]	"C3H7O5S"	155.145
 "2-4-2-N-linked-Glycan"	"a {&beta;-D-GlcNAc-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&beta;-D-GlcNAc-(1&rarr;2)-&alpha;-D-Man-(1&rarr;6)]-[&beta;-D-GlcNAc-(1&rarr;4)]-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcNAc}-<i>N</i>-Asn-[protein]"	["[(2),(4),(2)]-<i>N</i>-linked glycan", "bis-2,2 <i>N</i>-glycan"]	null	null
 "2-5-PHOSPHORIBOSYL-3-DEPHOSPHO-COA"	"2'-(5''-phosphoribosyl)-3'-dephospho-CoA"	["2-5-phosphoribosyl-3-dephospho-CoA"]	null	null
 "2-5-TRIPHOSPHORIBOSYL-3-DEPHOSPHO-"	"2'-(5''-triphospho-&alpha;-D-ribosyl)-3'-dephospho-CoA"	["2-5-triphosphoribosyl-3-dephospho-CoA", "2'-(5-triphosphoribosyl)-3'-dephospho-CoA"]	"C26H40N7O26P5S"	1053.562
 "2-ACETO-2-HYDROXY-BUTYRATE"	"(<i>S</i>)-2-aceto-2-hydroxybutanoate"	["(<i>S</i>)-2-aceto-2-hydroxy-butyrate", "(<i>S</i>)-2-hydroxy-2-ethyl-3-oxobutanoate"]	"C6H9O4"	145.135
 "2-ACETO-LACTATE"	"(<i>S</i>)-2-acetolactate"	["(<i>S</i>)-2-hydroxy-2-methyl-3-oxobutanoate", "&alpha;-acetolactate", "(2<i>S</i>)-2-hydroxy-2-methyl-3-oxobutanoate"]	"C5H7O4"	131.108
-"2-ACYL-GPE"	"a 2-acyl-1-lyso-phosphatidylethanolamine"	["2-acyl-GPE", "<i>O</i>-(2-acyl-<i>sn</i>-glycero-3-phospho)-ethanolamine", "a 2-acyl-1-lyso-<i>sn</i>-glycero-3-phosphoethanolamine", "a 2-acyl-<i>sn</i>-glycero-3-phosphoethanolamine"]	null	null
-"2-Acyl-sn-glycerol-3-phosphates"	"a 2-acyl-<i>sn</i>-glycerol 3-phosphate"	["a 2-acyl-<i>sn</i>-glycerol 3P", "a 1-lysophosphatidate", "a 1-lyso-LPA", "a 1-lyso-phosphatidic acid", "a 1-lyso-phosphatidate"]	null	null
-"2-Acylglycero-Phosphocholines"	"a 2-acyl-<i>sn</i>-glycero-3-phosphocholine"	["a 2-acylglycero-3-phosphocholine", "a L-1-lysolecithin", "a 1-lyso-2-acyl-<i>sn</i>-glycero-3-phosphocholine", "a 1-lysolecithin", "a &beta;-lysophosphatidylcholine", "a 2-acylglycerophosphocholine", "a 2-acyl 1-lyso-<i>sn</i>-glycero-3-phosphatidylcholine"]	null	null
+"2-ACYL-GPE"	"a 1-lysophosphatidylethanolamine"	["2-acyl-GPE", "<i>O</i>-(2-acyl-<i>sn</i>-glycero-3-phospho)-ethanolamine", "a 2-acyl-1-lyso-<i>sn</i>-glycero-3-phosphoethanolamine", "a 2-acyl-<i>sn</i>-glycero-3-phosphoethanolamine", "a 2-acyl-1-lysophosphatidylethanolamine"]	null	null
+"2-Acyl-sn-glycerol-3-phosphates"	"a 1-lysophosphatidate"	["a 2-acyl-<i>sn</i>-glycerol 3P", "a 2-acyl-<i>sn</i>-glycerol 3-phosphate", "a 1-lyso-LPA", "a 1-lyso-phosphatidic acid", "a 1-lyso-phosphatidate"]	null	null
+"2-Acylglycero-Phosphocholines"	"a 1-lysophosphatidylcholine"	["a 2-acylglycero-3-phosphocholine", "a L-1-lysolecithin", "a 1-lyso-2-acyl-<i>sn</i>-glycero-3-phosphocholine", "a 1-lysolecithin", "a &beta;-lysophosphatidylcholine", "a 2-acylglycerophosphocholine", "a 2-acyl 1-lyso-<i>sn</i>-glycero-3-phosphatidylcholine", "a 2-acyl-<i>sn</i>-glycero-3-phosphocholine"]	null	null
 "2-acylphloroglucinol-1-glucosides"	"a 2-acylphloroglucinol 1-<i>O</i>-&beta;-D-glucoside"	[]	null	null
 "2-Alkyl-3-hydroxy-fatty-acids"	"a (2R,3S)-2-alkyl-3-hydroxyalkanoate"	[]	null	null
 "2-Alkyl-Dinitrophenol-Derivatives"	"a 2-alkyl-dinitrophenol derivative"	[]	null	null
@@ -190,7 +193,6 @@
 "2-Dehydropyranoses"	"a 2-dehydropyranose"	[]	"C6H10O6"	178.141
 "2-DEOXY-D-GLUCOSE"	"2-deoxy-D-glucose"	["2-deoxyglucose"]	"C6H12O5"	164.158
 "2-DEOXY-D-GLUCOSE-6-PHOSPHATE"	"2-deoxy-D-glucose 6-phosphate"	[]	"C6H11O8P"	242.122
-"2-Deoxy-D-Ribosyl-Base"	"a 2-deoxy-D-ribosyl-base"	[]	null	null
 "2-DEOXYGLUCOSE-6-PHOSPHATE"	"2-deoxyglucose 6-phosphate"	[]	"C6H11O8P"	242.122
 "2-DEOXYRIBOSE"	"2-deoxy-D-ribose"	["deoxyribose", "2-deoxyribose", "2-deoxy-D-<i>erythro</i>-pentose"]	"C5H10O4"	134.132
 "2-DH-3-DO-D-ARABINONATE"	"2-dehydro-3-deoxy-D-arabinonate"	["2-dehydro-3-deoxy-D-xylonate", "2-dehydro-3-deoxy-D-pentonate", "2-keto-3-deoxy-D-arabinonate", "2-keto-3-deoxy-D-xylonate"]	"C5H7O5"	147.107
@@ -209,12 +211,12 @@
 "2-KETO-GLUTARAMATE"	"2-oxoglutaramate"	["2-keto-glutaramate"]	"C5H6NO4"	144.107
 "2-KETO-ISOVALERATE"	"3-methyl-2-oxobutanoate"	["2-oxo-3-methylbutanoate", "2-oxoisovalerate", "&alpha;-keto-isovaleric acid", "&alpha;-ketoisopentanoic acid", "&alpha;-keto-isovalerate", "&alpha;-oxoisovalerate", "&alpha;-ketovaline", "2-keto-isovalerate", "2-ketovaline", "&alpha;-keto-valine", "2-oxoisopentanoate", "2-keto-3-methylbutyric acid", "3-methyl-2-oxobutyrate"]	"C5H7O3"	115.108
 "2-KETOGLUTARATE"	"2-oxoglutarate"	["2-oxoglutarate", "ketoglutarate", "&alpha;-ketoglutarate", "2-oxoglutaric acid", "&alpha;-ketoglutaric acid", "&alpha;-oxoglutarate", "2-ketoglutaric acid", "2-ketoglutarate", "2-oxopentanedionic acid", "2-oxopentanedionate", "a-ketoglutaric acid"]	"C5H4O5"	144.084
-"2-Lyso-phospholipids"	"a 2-lyso-phospholipid"	[]	null	null
+"2-Lyso-phospholipids"	"a 2-lysophospholipid"	[]	null	null
 "2-Lyso-Plasmalogens"	"a 2-lysoplasmalogen"	["1-radyl-2-lyso-<i>sn</i>-glycero-3-phosphocholine", "1-organyl-2-lyso-<i>sn</i>-glycero-3-phosphocholine", "a 1-alkenyl-<i>sn</i>-glycero-3-phospholipid"]	null	null
 "2-Lyso-Plasmanyl-Phospholipids"	"a 2-lysoplasmanyl phospholipid"	[]	null	null
-"2-Lysophosphatidylcholines"	"a 1-acyl-<i>sn</i>-glycero-3-phosphocholine"	["alpha-acylglycerophosphocholine", "1-acylglycerophosphocholine", "a 1-acyl-<i>sn</i>-glycerol-3-phosphocholine", "a 2-lyso-phosphatidylcholine", "a 1-acylglycero-3-phosphocholine", "2-lysolecithin"]	null	null
-"2-LYSOPHOSPHATIDYLETHANOLAMINES"	"a 1-acyl-2-lyso-phosphatidylethanolamine"	["L-2-lyso-phosphatidyl-ethanolamine"]	null	null
-"2-Lysophosphatidylglycerols"	"a 1-acyl-2-lyso-phosphatidylglycerol"	[]	null	null
+"2-Lysophosphatidylcholines"	"a 2-lysophosphatidylcholine"	["alpha-acylglycerophosphocholine", "1-acylglycerophosphocholine", "a 1-acyl-<i>sn</i>-glycerol-3-phosphocholine", "a 1-acyl-<i>sn</i>-glycero-3-phosphocholine", "a 1-acylglycero-3-phosphocholine", "2-lysolecithin"]	null	null
+"2-LYSOPHOSPHATIDYLETHANOLAMINES"	"a 2-lysophosphatidylethanolamine"	["L-2-lyso-phosphatidyl-ethanolamine", "a 1-acyl-2-lyso-phosphatidylethanolamine"]	null	null
+"2-Lysophosphatidylglycerols"	"a 2-lysophosphatidylglycerol"	["a 1-acyl-2-lyso-phosphatidylglycerol"]	null	null
 "2-Me-Branched-234-Sat-FA"	"a 2-methyl branched 2,3,4-saturated fatty acid"	[]	null	null
 "2-Me-Branched-234-Sat-FALD"	"a 2-methyl branched 2,3,4-saturated fatty aldehyde"	[]	null	null
 "2-Me-Branched-234-Sat-Fatty-Acyl-CoA"	"a 2-methyl branched 2,3,4-saturated fatty acyl-CoA"	[]	null	null
@@ -374,8 +376,8 @@
 "2R-3R-Dihydroflavonols"	"a (2<i>R</i>,3<i>R</i>)-dihydroflavonol"	[]	null	null
 "2R-3R-Flavan-3-O-glucosides"	"a (2<i>R</i>,3<i>R</i>)-flavan-3-ol-3'-<i>O</i>-glucoside"	["a 2,3-<i>cis</i>-flavan-3-ol-3'-<i>O</i>-glucoside"]	null	null
 "2R-3S-Flavan-3-O-glucosides"	"a (2<i>R</i>,3<i>S</i>)-flavan-3-ol-3'-<i>O</i>-glucoside"	["a 2,3-<i>trans</i>-flavan-3-ol-3'-<i>O</i>-glucoside"]	null	null
-"2R-HYDROPEROXY-FATTY-ACIDS"	"a (2<i>R</i>)-2-hydroperoxy fatty acid"	[]	null	null
-"2R-Hydroxy-Fatty-Acids"	"a (2R)-2-hydroxy fatty acid"	["an (<i>R</i>)-2-hydroxycarboxylate", "an (<i>R</i>)-2-hydroxyacid", "an (<i>R</i>)-2-hydroxyalkanoate", "a (2<i>R</i>)-hydroxy-carboxylate", "a D-2-hydroxycarboxylate", "a 2(R)-hydroxy fatty acid"]	null	null
+"2R-HYDROPEROXY-FATTY-ACIDS"	"a (2<i>R</i>)-2-hydroperoxyfatty acid"	[]	null	null
+"2R-Hydroxy-Fatty-Acids"	"a (2R)-2-hydroxyfatty acid"	["an (<i>R</i>)-2-hydroxycarboxylate", "an (<i>R</i>)-2-hydroxyacid", "an (<i>R</i>)-2-hydroxyalkanoate", "a (2<i>R</i>)-hydroxy-carboxylate", "a D-2-hydroxycarboxylate", "a 2(R)-hydroxy fatty acid"]	null	null
 "3-3-HAAs"	"a 3-(3-hydroxyalkanoyloxy)alkanoate"	[]	null	null
 "3-4-DIHYDROXYBENZOATE"	"protocatechuate"	["4-carboxy-1,2-dihydroxybenzene", "catechol-4-carboxylic acid", "4,5-dihydroxybenzoic acid", "benzoic acid, 3,4-dihydroxy-", "3,4-DHBA", "protocatehuic acid", "3,4-dihydroxybenzoic acid", "protocatechuic acid", "3,4-dihydroxybenzoate", "3,4-dihydrobenzoic acid", "Pca"]	"C7H5O4"	153.114
 "3-5-ADP"	"adenosine 3',5'-bisphosphate"	["adenosine-3',5'-bisphosphate", "phosphoadenosine phosphate", "PAP"]	"C10H11N5O10P2"	423.172
@@ -570,7 +572,7 @@
 "5-methylcytosine2278-in-25S-rRNA"	"a 5-methylcytosine<sup>2278</sup> in 25S rRNA"	[]	null	null
 "5-methylcytosine2870-in-25S-rRNA"	"a 5-methylcytosine<sup>2870</sup> in 25S rRNA"	[]	null	null
 "5-METHYLTHIOADENOSINE"	"<i>S</i>-methyl-5'-thioadenosine"	["methylthioadenosine", "5'-methylthioadenosine", "MTA", "5'-deoxy-5'-(methylsulfanyl)adenosine"]	"C11H15N5O3S"	297.331
-"5-METHYLTHIOFORMYCIN"	"5'-(methylsulfanyl)formycin"	["5'-Mtf", "5'-methylthioformycin"]	"C11H15N5O3S"	297.331
+"5-METHYLTHIOFORMYCIN"	"5'-(methylsulfanyl)formycin"	["5'-methylthiocoformycin", "5'-Mtf", "5'-methylthioformycin", "MTCF"]	"C11H15N5O3S"	297.331
 "5-METHYLTHIOTUBERCIDIN"	"5'-(methylsulfanyl)tubercidin"	["7-(5-S-methyl-5-thio-&beta;-D-ribofuranosyl)-7H-pyrrolo(2,3-d)pyrimidin-4-amine", "5'-methylthiotubercidin"]	"C12H16N4O3S"	296.343
 "5-N-PROPYLTHIOADENOSINE"	"5'-n-propylthioadenosine"	[]	"C13H19N5O3S"	325.385
 "5-Nitroisocytosine-Derivatives"	"a 5-nitroisocytosine derivative"	[]	null	null
@@ -673,7 +675,7 @@
 "A-DARA-HEX-2:5_2:KETO"	"a-dara-HEX-2:5|2:keto"	["&alpha;-D-Fru<i>f</i>"]	null	null
 "A-DARA-PEN-1:4"	"a-dara-PEN-1:4"	["&alpha;-D-Ara<i>f</i>"]	null	null
 "A-DEEP-ROUGH-FORM-LIPOPOLYSACCHARIDE"	"a deep rough form lipopolysaccharide"	["Re-LPS"]	null	null
-"a-denuded-peptidoglycan"	"a denuded peptidoglycan"	["[GlcNAc-(1 &rarr; 4)-MurNAc]<sub>n</sub>", "peptide-free peptidoglycan"]	null	null
+"a-denuded-peptidoglycan"	"a denuded peptidoglycan"	["a peptidoglycan with cleaved peptide", "[GlcNAc-(1 &rarr; 4)-MurNAc]<sub>n</sub>", "peptide-free peptidoglycan"]	null	null
 "A-DGAL-HEX-1:4"	"a-dgal-HEX-1:4"	["&alpha;-D-Gal<i>f</i>"]	null	null
 "A-DGAL-HEX-1:5"	"a-dgal-HEX-1:5"	["&alpha;-D-Gal<i>p</i>"]	null	null
 "A-DGAL-HEX-1:5_6:A"	"a-dgal-HEX-1:5|6:a"	["&alpha;-D-GalA"]	null	null
@@ -710,6 +712,7 @@
 "A-LXYL-PEN-1:5"	"a-lxyl-PEN-1:5"	["&alpha;-L-Xyl<i>p</i>"]	null	null
 "a-lyso-cardiolipin"	"a lyso-cardiolipin"	["lyso-CL"]	null	null
 "a-mature-triacylated-lipoprotein"	"an <i>N</i>-acyl-(<i>S</i>-diacyl-<i>sn</i>-glyceryl)-L-cysteinyl-[lipoprotein]"	[]	null	null
+"a-methyl-beta-cyclodextrin"	"a methyl &beta;-cyclodextrin"	[]	null	null
 "a-natural-antibiotic"	"a natural antibiotic"	[]	null	null
 "A-PEPTIDOGLYCAN-MDAP-TRIPEPTIDE"	"a peptidoglycan internal segment with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimelate) tripeptide"	["peptidoglycan tripeptide, glycan chain 1", "a peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimelate) tripeptide"]	null	null
 "A-PHTHALYLAMIDE"	"a phthalylamide"	["a phthalyl (<i>N</i> substituted) amide"]	null	null
@@ -761,7 +764,7 @@
 "ACRYLYL-COA"	"acryloyl-CoA"	["acrylyl-coenzyme A", "propenoyl-CoA", "acrylyl-CoA"]	"C24H34N7O17P3S"	817.551
 "ACTINOMYCIN"	"an actinomycin"	[]	null	null
 "Acyclonucleoside-Analogues"	"an acyclonucleoside analogue"	[]	null	null
-"ACYL-COA"	"an acyl-CoA"	["fatty acyl thioester-CoA", "an acyl-CoA", "RCH2CH2CO-CoA", "acyl-Coenzyme A"]	null	null
+"ACYL-COA"	"an acyl-CoA"	["fatty acyl thioester-CoA", "an acyl-CoA", "RCH2CH2CO-CoA", "acyl-Coenzyme A", "acyl<sub>n+2</sub>-CoA", "acyl<sub>n-2</sub>-CoA"]	null	null
 "Acyl-Group"	"an acyl group"	[]	null	null
 "Acyl-homoserine-lactones"	"an <i>N</i>-acyl-L-homoserine lactone"	[]	null	null
 "Acyl-homoserines"	"an <i>N</i>-acyl-L-homoserine"	[]	null	null
@@ -769,7 +772,7 @@
 "Acyl-Phosphates"	"an acyl phosphate"	["acyl phosphate"]	null	null
 "Acyl-protein-synthetase"	"a [LuxE]-L-cysteine"	[]	null	null
 "Acyl-protein-thioesters"	"an acyl-protein thioester"	[]	null	null
-"ACYL-SN-GLYCEROL-3P"	"a 1-acyl-<i>sn</i>-glycerol 3-phosphate"	["a 2-lysophosphatidate", "an acyl-<i>sn</i>-glycerol-3P", "an acyl-<i>sn</i>-glycerol-3 phosphate"]	null	null
+"ACYL-SN-GLYCEROL-3P"	"a 2-lysophosphatidate"	["a 1-acyl-<i>sn</i>-glycerol 3-phosphate", "an acyl-<i>sn</i>-glycerol-3P", "an acyl-<i>sn</i>-glycerol-3 phosphate"]	null	null
 "ACYL1-6GALBETA1-3ACYL2GRO"	"an acylmono-&beta;-D-galactosyldiacylglycerol"	["an acyl1-monogalactosyl-diacylglycerol", "an acyl1->6Gal&beta;1->3acyl2Gro"]	null	null
 "Acylated-Amino-Acid-Lipids"	"an <i>N</i>-acylated amino acid lipid"	[]	null	null
 "Acylated-Dihydro-Lipoyl-Proteins-Lysine"	"an acylated [lipoyl-carrier protein] <i>N<sup>6</sup></i>-dihydrolipoyl-L-lysine"	["an acylated [enzyme] <i>N<sup>6</sup></i>-(dihydrolipoyl)lysine"]	null	null
@@ -787,7 +790,7 @@
 "Adenine-Nucleotides"	"an adenine nucleotide"	[]	null	null
 "ADENINE-RING"	"adenine-ring"	[]	"C5H5N5"	135.128
 "Adenine57-Adenine58-tRNAs"	"an adenine<sup>57</sup>/adenine<sup>58</sup> in tRNA"	[]	null	null
-"ADENOSINE"	"adenosine"	["adenine-D-ribose"]	"C10H13N5O4"	267.244
+"ADENOSINE"	"adenosine"	["adenine-D-ribose", "9-&beta;-D-ribofuranosyl-9H-purin-6-amine", "9-&beta;-D-ribofuranosidoadenine", "adenine riboside"]	"C10H13N5O4"	267.244
 "Adenosine-Nucleotides"	"an adenosine nucleotide"	[]	null	null
 "ADENOSINE5TRIPHOSPHO5ADENOSINE"	"P<sup>1</sup>,P<sup>3</sup>-<i>bis</i>(5'-adenosyl) triphosphate"	["<i>bis</i>(5'-adenosyl) triphosphate", "adenosine 5'-(tetrahydrogen triphosphate), P''-5'-ester with adenosine", "Ap<sub>3</sub>A", "adenosine(5')triphospho(5')adenosine", "5',5'''-diadenosine triphosphate"]	"C20H24N10O16P3"	753.388
 "ADENOSINE_DIPHOSPHATE_RIBOSE"	"ADP-D-ribose"	["adenosine diphosphate D-ribose", "adenosine 5'-(5-deoxy-D-ribofuranos-5-yl diphosphate)"]	"C15H21N5O14P2"	557.303
@@ -804,7 +807,7 @@
 "ADP"	"ADP"	["adenosine pyrophosphate", "adenosine 5'-pyrophosphate", "adenosine-5'-diphosphate", "adenosine-diphosphate", "adenosine-5-diphosphate"]	"C10H12N5O10P2"	424.18
 "ADP-Aldoses"	"an ADP-aldose"	[]	null	null
 "ADP-D-GLUCOSE"	"ADP-&alpha;-D-glucose"	["adenosine diphosphate glucose", "ADP-glucose", "ADP-D-glucose"]	"C16H23N5O15P2"	587.33
-"ADP-D-GLYCERO-D-MANNO-HEPTOSE"	"ADP-D-glycero-&beta;-D-<i>manno</i>-heptose"	["2-[[[5-[(6-amino-9H-purin-9-yl)]-3,4-dihydroxy-tetrahydrofuran- 2-yl]methoxy-hydroxy-phosphinoyl]oxy-hydroxy-phosphinoyl]oxy-6- (1,2-dihydroxyethyl)tetrahydropyran-3,4,5-triol", "ADP-D-&beta;-D-heptose"]	"C17H25N5O16P2"	617.356
+"ADP-D-GLYCERO-D-MANNO-HEPTOSE"	"ADP-D-glycero-&beta;-D-<i>manno</i>-heptose"	["2-[[[5-[(6-amino-9H-purin-9-yl)]-3,4-dihydroxy-tetrahydrofuran- 2-yl]methoxy-hydroxy-phosphinoyl]oxy-hydroxy-phosphinoyl]oxy-6- (1,2-dihydroxyethyl)tetrahydropyran-3,4,5-triol", "ADP-D-&beta;-D-heptose", "D,D-Hep"]	"C17H25N5O16P2"	617.356
 "ADP-D-Ribosyl-Acceptors"	"an ADP-D-ribosyl acceptor"	[]	null	null
 "ADP-D-ribosyl-nitrogen-reductases"	"a [dinitrogen reductase]-<i>N</i><sup>&omega;</sup>-&alpha;-( ADP-D-ribosyl)-L-arginine"	[]	null	null
 "ADP-GROUP"	"ADP group"	[]	"C10H13N5O10P2"	425.188
@@ -861,7 +864,7 @@
 "Alkanes"	"an alkane"	["a paraffin"]	null	null
 "Alkanesulfonates"	"an alkylsulfonate"	["alkanesulfonate", "an alkanesulfonate"]	null	null
 "Alkenes"	"an alkene"	[]	null	null
-"Alkenyl-Thiohydroximate-O-Sulfates"	"a thiohydroximate-O-sulfate with a terminal alkene"	["an alkenyl-thiohydroximate-O-sulfate"]	null	null
+"Alkenyl-Thiohydroximate-O-Sulfates"	"an <i>N</i>-(sulfonatooxy)alkenimidothioic acid with a terminal double bond"	["an alkenyl-thiohydroximate-O-sulfate", "a thiohydroximate-O-sulfate with a terminal alkene"]	null	null
 "Alkyl-acetyl-glycero-phosphocholines"	"a 2-acetyl-1-alkyl-<i>sn</i>-glycero-3-phosphocholine"	["PAF", "platelet-activating factor", "a 1-alkyl-2-acetyl-<i>sn</i>-glycero-3-phosphocholine"]	null	null
 "Alkyl-acyl-gly-P-EtOH-amines"	"an 2-acyl-<i>O</i>-1-alkyl-<i>sn</i>-glycero-3-phosphoethanolamine"	["a 2-acyl-1-alkyl-<i>sn</i>-glycero-3-phosphoethanolamine"]	null	null
 "Alkyl-enyl-acyl-gly-P-EtOH-amines"	"a plasmenylethanolamine"	["a 1-Z-alkenyl-2-acylglycerophosphoethanolamine", "an <i>O</i>-1-Z-alk-1-enyl-2-acyl-<i>sn</i>-glycero-3-phosphoethanolamine"]	null	null
@@ -905,7 +908,7 @@
 "Alpha-beta-dihydroxyphytoceramides"	"an &alpha;,&beta; dihydroxyphytoceramide"	[]	null	null
 "alpha-Carrageenan"	"&alpha;-carrageenose"	["&alpha;-carrageenan"]	null	null
 "Alpha-D-aldose-1-phosphates"	"an &alpha;-D-aldose 1-phosphate"	["a &beta;-L-aldose 1-phosphate"]	null	null
-"ALPHA-D-GALACTOSE"	"&alpha;-D-galactopyranose"	["6-(hydroxymethyl)tetrahydropyran-2,3,4,5-tetraol", "&alpha;-D-galactose"]	"C6H12O6"	180.157
+"ALPHA-D-GALACTOSE"	"&alpha;-D-galactopyranose"	["6-(hydroxymethyl)tetrahydropyran-2,3,4,5-tetraol", "&alpha;-D-galactose", "&alpha;-D-Gal"]	"C6H12O6"	180.157
 "Alpha-D-Galactosides"	"an &alpha;-D-galactoside"	[]	null	null
 "ALPHA-D-GALACTOSYL-ETCETERA-GLUCOSAMINYL"	"an &alpha;-D-galactosyl-(1,3)-&beta;-D-galactosyl-(1,4)-<i>N</i>-acetyl-D-glucosaminyl-R"	["an &alpha;-D-galactosyl-(1,3)-&beta;-D-galactosyl-(1,4)-<i>N</i>-acetyl-D-glucosaminyl-[glycoprotein]"]	null	null
 "Alpha-D-Glucans"	"an &alpha;-D-glucan"	[]	null	null
@@ -918,7 +921,7 @@
 "Alpha-factor"	"an &alpha; factor"	["<i>Saccharomyces cerevisiae</i> mating pheromon &alpha; factor"]	null	null
 "ALPHA-GLC-6-P"	"&alpha;-D-glucose 6-phosphate"	["&alpha;-glucose 6-phosphate", "&alpha;-D-glucose-6-P"]	"C6H11O9P"	258.121
 "ALPHA-GLUCOSE"	"&alpha;-D-glucopyranose"	["&alpha;-glucose", "&alpha;-D-glucose"]	"C6H12O6"	180.157
-"ALPHA-GLUCOSE-16-BISPHOSPHATE"	"&alpha;-glucose 1,6-bisphosphate"	["&alpha;-D-glucose 1,6-P<SUB>2</SUB>", "&alpha;-D-glucopyranose 1,6-bisphosphate"]	"C6H10O12P2"	336.085
+"ALPHA-GLUCOSE-16-BISPHOSPHATE"	"&alpha;-D-glucose 1,6-bisphosphate"	["&alpha;-D-glucose 1,6-P<SUB>2</SUB>", "&alpha;-D-glucopyranose 1,6-bisphosphate"]	"C6H10O12P2"	336.085
 "Alpha-Glycosylated-Hydroxymethyl-DNAs"	"&alpha;-glucosyl-hydroxymethylcytosine in DNA"	["a DNA containing &alpha;-glucosyl-hydroxymethylcytosine"]	null	null
 "Alpha-Hexose-1-Phosphates"	"an &alpha;-hexose 1-phosphate"	[]	"C6H11O9P"	258.121
 "Alpha-hydroxydihydroceramides"	"a (2'<i>R</i>)-2'-hydroxydihydroceramide"	["a plant ceramide (II)", "an &alpha; hydroxydihydroceramide"]	null	null
@@ -939,7 +942,8 @@
 "Alpha-omega-dicarboxylates"	"an &alpha;,&omega;-dicarboxylate"	["an &alpha; &omega; dicarboxylic acid"]	null	null
 "Alpha-pinene"	"an &alpha;-pinene"	[]	"C10H16"	136.236
 "ALPHA-RIBAZOLE"	"&alpha;-ribazole"	["N1-(&alpha;-D-ribosyl)-5,6-dimethylbenzimidazole"]	"C14H18N2O4"	278.307
-"ALPHA-RIBAZOLE-5-P"	"&alpha;-ribazole 5'-phosphate"	["N1-(5'-phospho-&alpha;-D-ribosyl)-5,6-dimethylbenzimidazole", "DMB-ribose-5'-P", "&alpha;-ribazole-5'-P"]	"C14H17N2O7P"	356.271
+"ALPHA-RIBAZOLE-5-P"	"&alpha;-ribazole 5'-phosphate"	["N1-(5'-phospho-&alpha;-D-ribosyl)-5,6-dimethylbenzimidazole", "DMB-ribose-5'-P", "&alpha;-ribazole-5'-P", "DMB-&alpha;-ribotide", "5,6-dimethylbenzimidazolyl-&alpha;-ribotide"]	"C14H17N2O7P"	356.271
+"Alpha-Tubulin-L-Lysine"	"an [&alpha;-tubuline]-L-lysine"	[]	null	null
 "ALPHA_ACETYLGLUCOSAMINIDES"	"an <i>N</i>-acetyl-&alpha;-D-glucosaminide"	["a &alpha;-acetylglucosaminide"]	null	null
 "Alternans"	"an alternan"	[]	null	null
 "ALTROSE"	"<i>aldehydo</i>-D-altrose"	[]	"C6H12O6"	180.157
@@ -968,7 +972,7 @@
 "AMINOMETHYLDIHYDROLIPOYL-GCVH"	"a [glycine-cleavage complex H protein] <i>N<sup>6</sup></i>-aminomethyldihydrolipoyl-L-lysine"	[]	null	null
 "AMMONIA"	"ammonia"	["NH<SUB>3</SUB>"]	"H3N"	17.03
 "AMMONIUM"	"ammonium"	["NH<SUB>4</SUB><SUP>+</SUP>"]	"H4N"	18.038
-"AMP"	"AMP"	["5'-AMP", "adenosine-monophosphate", "adenylic acid", "adenosine 5'-phosphate", "adenosine 5'-monophosphate", "adenylate", "5'-adenylic acid", "5'-adenosine monophosphate"]	"C10H12N5O7P"	345.208
+"AMP"	"AMP"	["5'-AMP", "adenosine-monophosphate", "adenylic acid", "adenosine 5'-phosphate", "adenosine 5'-monophosphate", "adenylate", "5'-adenylic acid", "5'-adenosine monophosphate", "adenine ribotide"]	"C10H12N5O7P"	345.208
 "AMP-GROUP"	"AMP group"	["adenosine 5'-phosphate group"]	"C10H13N5O7P"	346.216
 "AMP-LYSINE"	"AMP-N-&epsilon;-(N-&alpha;-acetyl lysine methyl ester) 5-phosphoramidate"	[]	"C19H29N7O9P"	530.453
 "an-antimicrobial-agent"	"an antimicrobial agent"	[]	null	null
@@ -983,7 +987,7 @@
 "ANDROSTAN-3-ALPHA17-BETA-DIOL"	"androstan-3&alpha;,17&beta;-diol"	["10,13-dimethyl-2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17- hexadecahydro-1H-cyclopenta[a]phenanthrene-3,17-diol"]	"C19H32O2"	292.461
 "aNeuAc-23-bGal-13-bGlcNAC-R"	"an <i>N</i>-acetyl-&alpha;-neuraminyl-(2&rarr;3)-&beta;-D-galactosyl-(1&rarr;3)-<i>N</i>-acetyl-&beta;-D-glucosaminyl-R"	["&alpha;-<i>N</i>-acetylneuraminyl-(2->3)-&beta;-D-galactosyl-(1->3)-<i>N</i>-acetyl-D-glucosaminyl-R", "an &alpha;-<i>N</i>-acetylneuraminyl-2,3-&beta;-D-galactosyl-1,3-<i>N</i>-acetyl-D-glucosaminyl-[glycoprotein]"]	null	null
 "Angiotensins"	"an angiotensin"	[]	null	null
-"Angucyclins"	"an angucyclin"	[]	null	null
+"Angucyclins"	"an angucyclin"	["an angucycline"]	null	null
 "ANILIDE"	"an anilide"	[]	null	null
 "Anions"	"an anion"	[]	null	null
 "Ansamycins"	"an ansamycin"	[]	null	null
@@ -1009,7 +1013,7 @@
 "Apo-Base-off-His-on-Enzymes"	"an <i>apo</i>-[\"base-off/His-on\" B12-enzyme]"	[]	null	null
 "Apo-GcvH"	"Apo-GcvH"	[]	null	null
 "Apocarotenoids"	"an apocarotenoid"	[]	null	null
-"APS"	"adenosine 5'-phosphosulfate"	["adenylyl-sulfate", "adenosine phosphosulfate", "adenosine 5'-sulphatophosphate"]	"C10H12N5O10PS"	425.266
+"APS"	"adenosine 5'-phosphosulfate"	["adenylyl-sulfate", "adenosine phosphosulfate", "adenosine 5'-sulphatophosphate", "APS"]	"C10H12N5O10PS"	425.266
 "Arabinans"	"an arabinan"	[]	null	null
 "Arabinofuranoses"	"an arabinofuranose"	[]	"C5H10O5"	150.131
 "Arabinogalactan"	"an arabinogalactan"	[]	null	null
@@ -1022,8 +1026,8 @@
 "Arabinosides"	"an arabinoside"	[]	null	null
 "Arabinoxylan"	"an arabinoxylan"	["AX"]	null	null
 "Aralkylamines"	"an aralkylamine"	["an aniline", "ArCH<sub>2</sub>NH<sub>2</sub>"]	null	null
-"ARG"	"L-arginine"	["2-amino-5-guanidinovaleric acid", "R", "arginine", "L-arg"]	"C6H15N4O2"	175.21
-"Aromatic-Acid"	"an aromatic carboxylate"	["an aromatic acid"]	null	null
+"ARG"	"L-arginine"	["2-amino-5-guanidinovaleric acid", "R", "arginine", "L-arg", "arg"]	"C6H15N4O2"	175.21
+"Aromatic-Acid"	"a carboxylated aromatic compound"	["an aromatic acid", "an aromatic carboxylate"]	null	null
 "Aromatic-amino-acid-esters"	"an ester of aromatic amino acids"	[]	null	null
 "Aromatic-Amino-Acids"	"an aromatic amino acid"	[]	null	null
 "Aromatic-D-Amino-Acids"	"an aromatic D-amino acid"	[]	null	null
@@ -1050,7 +1054,7 @@
 "Arylalkylamines"	"an arylalkylamine"	[]	null	null
 "AS+5"	"As<sup>5+</sup>"	["arsenic ion"]	"H8As"	82.985
 "ASCORBATE"	"L-ascorbate"	["L-ascorbic acid", "vitamin C"]	"C6H7O6"	175.118
-"ASN"	"L-asparagine"	["asparagine", "&alpha;-aminosuccinamic acid", "(-)-asparagine", "(S)-2,4-diamino-4-oxobutanoic acid", "(S)-asparagine", "2,4-diamino-4-oxobutanoic acid, (S)-", "2-aminosuccinamic acid, L-", "agedoite", "altheine", "asparagine acid", "aspartic acid &beta;-amide", "butanoic acid, 2,4-diamino-4-oxo-, (S)-", "L-2,4-diamino-4-oxobutanoic acid", "L-asparatamine", "L-&beta;-asparagine", "N", "L-asn"]	"C4H8N2O3"	132.119
+"ASN"	"L-asparagine"	["asparagine", "&alpha;-aminosuccinamic acid", "(-)-asparagine", "(S)-2,4-diamino-4-oxobutanoic acid", "(S)-asparagine", "2,4-diamino-4-oxobutanoic acid, (S)-", "2-aminosuccinamic acid, L-", "agedoite", "altheine", "asparagine acid", "aspartic acid &beta;-amide", "butanoic acid, 2,4-diamino-4-oxo-, (S)-", "L-2,4-diamino-4-oxobutanoic acid", "L-asparatamine", "L-&beta;-asparagine", "N", "L-asn", "asn"]	"C4H8N2O3"	132.119
 "ASOLECTIN"	"asolectin"	[]	null	null
 "Aspergilus-galactomannan-core"	"a galactofuranosemannan core (<i>Aspergillus</i>)"	[]	null	null
 "Asperlicins"	"an asperlicin"	[]	null	null
@@ -1089,6 +1093,8 @@
 "B-LARA-PEN-1:4"	"b-lara-PEN-1:4"	["&beta;-L-Ara<i>f</i>"]	null	null
 "B-LGAL-HEX-1:5"	"b-lgal-HEX-1:5"	["&beta;-L-Gal<i>p</i>"]	null	null
 "B-LGAL-HEX-1:5_6:D"	"b-lgal-HEX-1:5|6:d"	["&beta;-L-Fuc<i>p</i>"]	null	null
+"B-LGLC-HEX-1:5_6:A"	"b-lglc-HEX-1:5|6:a"	[]	null	null
+"B-LIDO-HEX-1:5_6:A"	"b-lido-HEX-1:5|6:a"	["&beta;-L-IdoA"]	null	null
 "B-LMAN-HEX-1:5_6:D"	"b-lman-HEX-1:5|6:d"	["&beta;-L-Rha<i>p</i>"]	null	null
 "B-PEN-1:5"	"b-PEN-1:5"	[]	null	null
 "B-vitamins"	"a B vitamin"	[]	null	null
@@ -1233,12 +1239,12 @@
 "C3"	"UDP-<i>N</i>-acetyl-&alpha;-D-muramoyl-L-alanyl-&gamma;-D-glutamyl-L-lysyl-D-alanyl-D-alanine"	["UDP-Mur2Ac(oyl-L-Ala-g-D-Glu-L-Lys-D-Ala-D-Ala)", "UDP-MurNAc-pentapeptide"]	"C40H62N9O26P2"	1146.922
 "C34-Botryococcenes"	"a C34 botryococcenes"	[]	"C34H58"	466.832
 "C35-Terpenes"	"a sesquarterpenoid"	["a sesquarterpene", "a C35 terpenoid"]	null	null
-"C4"	"undecaprenyl-diphospho-<i>N</i>-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-L-lysyl- D-alanyl-D-alanine"	["mur2Ac(oyl-L-Ala-&gamma;-D-Glu-L-Lys-D-Ala-D-Ala)-diphosphoundecaprenol", "lipid II"]	"C86H140N7O21P2"	1670.034
+"C4"	"Und-PP-Mur2Ac-L-Ala-&gamma;-D-Glu-L-Lys-D-Ala-D-Ala"	["lipid II", "undecaprenyl-diphospho-<i>N</i>-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-L-lysyl- D-alanyl-D-alanine", "Mur2Ac(oyl-L-Ala-&gamma;-D-Glu-L-Lys-D-Ala-D-Ala)-PP-Und"]	"C86H140N7O21P2"	1670.034
 "C4-dicarboxylates"	"a C4-dicarboxylate"	["C4-dicarboxylate"]	null	null
-"C5"	"undecaprenyldiphospho-<i>N</i>-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-alanyl-D-alanine"	["<i>N</i>-acetylmuramoyl-L-alanyl-D-glutamyl-meso-2,6-diaminoheptanedioate-D-alanyl-D-alanine-diphosphoundecaprenol", "a peptidoglycan with cleaved N-acetyl-glucosamine", "lipid intermediate I", "undecaprenyl-pyrophosphoryl-MurNAc-pentapeptide", "lipid I"]	"C87H139N7O23P2"	1713.036
+"C5"	"Und-PP-Mur2Ac-L-Ala-&gamma;-D-Glu-DAP-D-Ala-D-Ala"	["<i>N</i>-acetylmuramoyl-L-alanyl-D-glutamyl-meso-2,6-diaminoheptanedioate-D-alanyl-D-alanine-diphosphoundecaprenol", "lipid intermediate I (2,6-diaminopimeloyl-containing)", "undecaprenyl-pyrophosphoryl-MurNAc-pentapeptide", "lipid I (2,6-diaminopimeloyl-containing)", "undecaprenyldiphospho-<i>N</i>-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-alanyl-D-alanine", "Mur2Ac(oyl-L-Ala-&gamma;-D-Glu-DAP-D-Ala-D-Ala)-PP-Und"]	"C87H139N7O23P2"	1713.036
 "C55-PP-GLCNAC-MANNACA"	"&beta;-D-ManNAcA-(1&rarr;4)-&alpha;-D-GlcNAc-PP-Und"	["undecaprenyl-diphospho-N-acetylglucosamine-N-acetylmannosaminuronate", "ManNAcA-GlcNAc-PP-lipid", "C55-PP-GlcNAc-ManNAcA", "<i>N</i>-acetyl-&beta;-D-mannosaminuronyl-(1&rarr;4)-N-acetyl-&alpha;-D-glucosaminyl-diphospho-<i>ditrans,octacis</i>-undecaprenol", "undecaprenyl <i>N</i>-acetyl-glucosaminyl-<i>N</i>-acetyl-mannosaminuronate pyrophosphate", "ECA-lipid II", "&beta;-D-ManNAcA-(1&rarr;4)-&alpha;-D-GlcNAc-pyrophosphorylundecaprenol", "&beta;-D-ManNAcA-(1&rarr;4)-&alpha;-D-GlcNAc-diphospho-<i>ditrans,octacis</i>-undecaprenol"]	"C71H113N2O18P2"	1344.624
 "C55-PP-GLCNAC-MANNACA-FUC4NAC"	"&alpha;-D-Fuc4NAc-(1&rarr;4)-&beta;-D-ManNAcA-(1&rarr;4)-GlcNAc-PP-Und"	["Fuc4NAc-ManNAcA-GlcNAc-C55-PP", "Fuc4NAc--ManNAcA-GlcNAc-pyrophosphorylundecaprenol", "Fuc4NAc-ManNAcA-GlcNAc-PP-lipid", "&alpha;-D-fucosyl-(1&rarr;4)-<i>N</i>-acetyl-<i>N</i>-acetyl-&beta;-D-mannosaminouronyl-(1&rarr;4)-<i>N</i>-acetyl-&alpha;-D-glucosaminyl-diphospho-ditrans,octacis-undecaprenol", "lipid III", "ECA-lipid III", "(enterobacterial common antigen monomer)-undecaprenyl diphosphate"]	"C79H126N3O22P2"	1531.819
-"C6"	"<i>ditrans,octacis</i>-undecaprenyldiphospho-[(<i>N</i>-acetyl-&beta;-D-glucosaminyl)-(1,4)-]-<i>N</i>-acetyl-&alpha;-D-muramoyl-L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-alanyl-D-alanine"	["a peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-alanyl-D-alanine) pentapeptide", "diphosphoundecaprenyl-[GlcNAc-MurNAc-pentapeptide]<sub>n</sub>", "lipid intermediate II", "undecaprenyl-diphospho-N-acetylmuramoyl-(N-acetylglucosamine)-L-ala-&gamma;-D-glu-meso-2,6-diaminopimeloyl-D-ala-D-ala", "lipid II"]	"C95H152N8O28P2"	1916.23
+"C6"	"&beta;-D-GlcNAc-(1&rarr;4)-Mur2Ac(oyl-L-Ala-&gamma;-D-Glu-DAP-D-Ala-D-Ala)-PP-Und"	["diphosphoundecaprenyl-[GlcNAc-MurNAc-pentapeptide]<sub>n</sub>", "lipid intermediate II (DAP-containing)", "undecaprenyl-diphospho-N-acetylmuramoyl-(N-acetylglucosamine)-L-ala-&gamma;-D-glu-meso-2,6-diaminopimeloyl-D-ala-D-ala", "lipid II (DAP-containing)", "<i>ditrans,octacis</i>-undecaprenyldiphospho-[(<i>N</i>-acetyl-&beta;-D-glucosaminyl)-(1,4)-]-<i>N</i>-acetyl-&alpha;-D-muramoyl-L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-alanyl-D-alanine", "lipid II (<i>meso</i> diaminopimelate containing)"]	"C95H152N8O28P2"	1916.23
 "CA+2"	"Ca<SUP>2+</SUP>"	["calcium(II)", "Ca<SUP>++</SUP>", "calcium ion", "Ca<sup>II</sup>"]	"Ca"	40.08
 "CADAVERINE"	"cadaverine"	["pentane-1,5-diamine", "diaminopentane", "1,5-diaminopentane", "1,5-pentanediamine", "pentamethylenediamine", "1-BioDex"]	"C5H16N2"	104.195
 "CAFFEATE"	"caffeate"	["caffeic acid", "3-(3,4-dihydroxyphenyl)prop-2-enoate"]	"C9H7O4"	179.152
@@ -1287,7 +1293,7 @@
 "Carboxyphthiodiolenones"	"a carboxyphthiodiolenone"	[]	null	null
 "Cardanols"	"a cardanol"	[]	null	null
 "CARDIOLIPIN"	"a cardiolipin"	["bisphosphatidylglycerol", "diphosphatidylglycerol"]	null	null
-"CARNITINE"	"L-carnitine"	["&gamma;-trimethyl-hydroxybutyrobetaine", "3-hydroxy-4-trimethylammoniobutanoate", "R-(-)-3-hydroxy-4-trimethylaminobutyrate", "vitamin B T", "bicarnesine", "(<i>R</i>)-carnitine", "&gamma;-L-trimethyl-&beta;-hydroxybutyrobetaine", "vitamin Bt", "3-carboxy-2-hydroxy-N,N,N-trimethyl-1-propanaminium"]	"C7H15NO3"	161.2
+"CARNITINE"	"L-carnitine"	["&gamma;-trimethyl-hydroxybutyrobetaine", "(3<i>R</i>)-3-hydroxy-4-(trimethylammino)butanoate", "vitamin B T", "bicarnesine", "(<i>R</i>)-carnitine", "&gamma;-L-trimethyl-&beta;-hydroxybutyrobetaine", "vitamin Bt", "3-carboxy-2-hydroxy-N,N,N-trimethyl-1-propanaminium"]	"C7H15NO3"	161.2
 "CARNOSINE"	"carnosine"	["ignotine", "N-&beta;-alanyl-L-histidine"]	"C9H14N4O3"	226.235
 "Carotenes"	"a carotene"	[]	null	null
 "Carotenoid-beta-end-group"	"a carotenoid &beta;-end group"	[]	null	null
@@ -1327,8 +1333,10 @@
 "CEPHALOSPORIN-C"	"cephalosporin C"	[]	"C16H20N3O8S"	414.409
 "Cephalosporins"	"a cephalosporin"	[]	null	null
 "Cephems"	"a cephem"	[]	null	null
+"Ceramide-Phosphocholines"	"a ceramide phosphorylcholine"	[]	null	null
+"Ceramide-Phosphoethanolamines"	"a ceramide phosphorylethanolamine"	["an <i>N</i>-acylceramide phosphoethanolamine", "a ceramide phosphoethanolamine"]	null	null
 "Ceramides"	"a ceramide"	["an <i>N</i>-acylsphingosine", "a sphingosine-containing ceramide"]	null	null
-"Ceramides-PE"	"a sphingoethanolamine"	["an <i>N</i>-acylsphing-4-enine 1-phosphoethanolamine", "a ceramide phosphoethanolamine"]	null	null
+"Ceramides-PE"	"a sphingoethanolamine"	["an <i>N</i>-acylsphing-4-enine 1-phosphoethanolamine"]	null	null
 "Cerebrosides"	"a cerebroside"	["a monoglycosylceramide"]	null	null
 "CGMP"	"cyclic-GMP"	["3',5'-cyclic GMP", "guanosine-cyclic-phosphoric-acid", "cGMP", "guanosine cyclic-monophosphate", "guanosine 3',5'-cyclic-monophosphate", "guanosine 3',5'-cyclic phosphate", "cyclic 3',5'-guanosine monophosphate"]	"C10H11N5O7P"	344.2
 "CH33ADO"	"5'-deoxyadenosine"	["CH<sub>3</sub>Ado"]	"C10H13N5O3"	251.244
@@ -1363,7 +1371,7 @@
 "Chondroitin-D-glucuronates"	"a &beta;-D-glucuronate in [chondroitin]"	["a [chondroitin] containing &beta;-D-glucuronate"]	null	null
 "Chondroitin-GalNAc-6S"	"a [chondroitin-sulfate] containing 6-<i>O</i>-sulfo-<i>N</i>-acetylgalactosamine"	["chondroitin 6'-sulfate", "chondroitin-6-sulfate", "[chondroitin]-<i>N</i>-acetyl-galactosamine 6'-sulfate"]	null	null
 "Chondroitin-N-acetyl-galactosamines"	"a [chondroitin] containing <i>N</i>-acetyl-galactosamine"	[]	null	null
-"Chondroitin-Protein"	"a 3-<i>O</i>-chondroitin-L-seryl-[protein]"	[]	null	null
+"Chondroitin-Protein"	"chondroitin-[core protein]"	["a 3-<i>O</i>-chondroitin-L-seryl-[protein]"]	null	null
 "Chondroitin-Sulfate-A"	"chondroitin sulfate A"	["chondroitin 4-sulfate"]	null	null
 "Chondroitin-Sulfate-C"	"chondroitin sulfate C"	["chondroitin 6-sulfate"]	null	null
 "Chondroitin-Sulfate-D"	"chondroitin sulfate D"	[]	null	null
@@ -1397,7 +1405,7 @@
 "CmaA-L-allo-isoleucine"	"L-<i>allo</i>-isoleucyl-[CmaA peptidyl-carrier protein]"	[]	null	null
 "CmaD-L-allo-isoleucine"	"L-<i>allo</i>-isoleucyl-[CmaD peptidyl-carrier protein]"	[]	null	null
 "CMC-dextrins"	"(carboxymethyl)cellodextrin"	[]	null	null
-"CMP"	"CMP"	["5'-cytidylic acid", "cytidine 5'-monophosphate", "cytidylate", "cytidylic acid", "cytidine-P", "cytidine-monophosphate", "cytidine-phosphate", "cytidine 5'-phosphate"]	"C9H12N3O8P"	321.183
+"CMP"	"CMP"	["5'-cytidylic acid", "cytidine 5'-monophosphate", "cytidylate", "cytidylic acid", "cytidine-P", "cytidine-monophosphate", "cytidine-phosphate", "cytidine 5'-phosphate", "cytosine ribotide"]	"C9H12N3O8P"	321.183
 "CMP-GROUP"	"CMP group"	[]	"C9H13N3O8P"	322.191
 "CMP-KDO"	"CMP-3-deoxy-&beta;-D-<i>manno</i>-octulosonate"	["CMP-2-dehydro-3-deoxy-D-octonate", "CMP-&beta;-Kdo", "CMP-ketodeoxyoctonate"]	"C17H24N3O15P"	541.361
 "CMP-SUGARS"	"a CMP-sugar"	[]	null	null
@@ -1409,7 +1417,10 @@
 "COB-I-ALAMIN"	"cob(I)alamin"	["cobalamin", "B12s"]	"C62H88N13O14PCo"	1329.36
 "Cobalamins"	"a <i>Co</i>&alpha;-[&alpha;-(5,6-dimethylbenzimidazolyl)]-cobamide"	["a cobalamin"]	null	null
 "Cobalt-corrinoid-hexaamides"	"a cobalt-corrinoid hexaamide"	[]	null	null
+"Cobamide-Lower-Ligand-Ribotides"	"a cobamide lower ligand ribotide"	[]	null	null
+"Cobamide-Lower-Ligands"	"a cobamide lower ligand"	[]	null	null
 "Cobamide-phosphate"	"a cobamide phosphate"	[]	null	null
+"Cobamide-Upper-Ligands"	"a cobamide upper ligand"	[]	null	null
 "Cobamides"	"a cobamide"	[]	null	null
 "COBINAMIDE"	"cob(I)inamide"	["Cbi(I)"]	"C48H72N11O8Co"	990.096
 "Coelenteramides"	"a coelenteramide"	[]	null	null
@@ -1521,7 +1532,7 @@
 "CPD-11501"	"a vitamin K"	[]	null	null
 "CPD-11512"	"a (2<i>R</i>,3<i>S</i>,4<i>S</i>)-leucoanthocyanidin"	["a flavan-3,4 -diol"]	null	null
 "CPD-11551"	"&beta;-L-aspartylhydroxamate"	[]	"C4H8N2O4"	148.118
-"CPD-11592"	"<i>N</i><sup>6</sup>-(3-methylbut-2-en-1-yl)-2-(methylsulfanyl)adenosine<sup>37</sup> in tRNA"	["tRNA-(2-methylsulfanyl-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup>)", "a tRNA containing 2-methylsulfanyl-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup>", "2-methylthio-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup> in tRNA", "ms<sup>2</sup>i<sup>6</sup>A<sub>37</sub>", "tRNA 2-(methylsulfanyl)-<i>N</i><sup>6</sup>-isopentenyl adenosine<sup>37</sup>", "2-(methylsulfanyl)-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup> in tRNA"]	null	null
+"CPD-11592"	"2-(methylsulfanyl)-<i>N</i><sup>6</sup>-prenyladenosine<sup>37</sup> in tRNA"	["tRNA-(2-methylsulfanyl-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup>)", "a tRNA containing 2-methylsulfanyl-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup>", "2-methylthio-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup> in tRNA", "ms<sup>2</sup>i<sup>6</sup>A<sub>37</sub>", "tRNA 2-(methylsulfanyl)-<i>N</i><sup>6</sup>-isopentenyl adenosine<sup>37</sup>", "2-(methylsulfanyl)-<i>N</i><sup>6</sup>-dimethylallyladenosine<sup>37</sup> in tRNA", "<i>N</i><sup>6</sup>-(3-methylbut-2-en-1-yl)-2-(methylsulfanyl)adenosine<sup>37</sup> in tRNA"]	null	null
 "CPD-11593"	"2-(methylsulfanyl)-<i>N</i><sup>6</sup>-[(2Z)-5-hydroxy-3-methylbut-2-en-1-yl]-adenosine<sup>37</sup> in tRNA"	["2-methylthio-cis-ribozeatin", "ms<sup>2</sup>io<sup>6</sup>A<sub>37</sub>", "2-(methylsulfanyl)-6-(5-hydroxydimethylallyl)-adenosine<sup>37</sup> in tRNA", "2-(methylsulfanyl)-<i>N</i><sup>6</sup>-(5-hydroxydimethylallyl)-adenosine<sup>37</sup> in tRNA"]	null	null
 "CPD-1162"	"arbutin 6-phosphate"	["arbutin-6-p", "arbutin-6P"]	"C12H15O10P"	350.218
 "CPD-11620"	"(<i>S</i>)-piperidine-2-carboxamide"	[]	"C6H13N2O"	129.181
@@ -1542,7 +1553,7 @@
 "CPD-11770"	"7,8-dihydromonapterin"	[]	"C9H13N5O4"	255.233
 "CPD-11797"	"2-<i>O</i>-sulfonatolactate"	["2-<i>O</i>-sulfonatolactic acid", "2-(sulfooxy)propanoic acid", "2-(sulfooxy)propanoate"]	"C3H4O6S"	168.121
 "CPD-11803"	"(<i>RS</i>)-phospho-3-sulfolactate"	["(2<i>RS</i>)-<i>O</i>-phospho-3-sulfolactate", "(2<i>RS</i>)-2-<i>O</i>-phosphonato-3-sulfonatolactate", "(<i>RS</i>)-phosphosulfolactate"]	"C3H3O9PS"	246.085
-"CPD-1181"	"salicin 6-phosphate"	["salicin-6-p", "[3,4,5-trihydroxy-6-[2-(hydroxymethyl)phenoxy]-tetrahydropyran-2-yl]methoxyphosphonic acid"]	"C13H17O10P"	364.245
+"CPD-1181"	"salicin 6-phosphate"	["salicin-6P"]	"C13H17O10P"	364.245
 "CPD-11914"	"L-digitoxose"	[]	"C6H12O4"	148.158
 "CPD-11925"	"citreoviridin"	[]	"C23H30O6"	402.486
 "CPD-11926"	"an oligomycin"	[]	null	null
@@ -1553,8 +1564,8 @@
 "CPD-12013"	"3-hydroxy-3-methyl-2-oxopentanoate"	["&alpha;-keto-&beta;-hydroxy-&beta;-methylvalerate", "2-keto-3-hydroxy-3-methylvalerate"]	"C6H9O4"	145.135
 "CPD-12043"	"&beta;-D-arabinofuranose"	["&beta;-D-arabinose"]	"C5H10O5"	150.131
 "CPD-12044"	"&alpha;-D-arabinofuranose"	["&alpha;-D-arabinose"]	"C5H10O5"	150.131
-"CPD-12045"	"&alpha;-L-arabinofuranose"	["&alpha;-L-arabinose"]	"C5H10O5"	150.131
-"CPD-12046"	"&beta;-L-arabinofuranose"	["&beta;-L-arabinose"]	"C5H10O5"	150.131
+"CPD-12045"	"&alpha;-L-arabinofuranose"	["&alpha;-L-arabinose", "&alpha;-L-Ara<i>f</i>"]	"C5H10O5"	150.131
+"CPD-12046"	"&beta;-L-arabinofuranose"	["&beta;-L-arabinose", "&beta;-L-Ara<i>f</i>"]	"C5H10O5"	150.131
 "CPD-12047"	"&alpha;-D-arabinopyranose"	["&alpha;-D-arabinose"]	"C5H10O5"	150.131
 "CPD-12049"	"&beta;-D-arabinopyranose"	["&beta;-D-arabinose"]	"C5H10O5"	150.131
 "CPD-12086"	"a [PchE NRPS protein]-<i>S</i>-salicyl-<i>S</i>-L-cysteine"	["[PchE]-salycilate-cysteine"]	null	null
@@ -1573,12 +1584,11 @@
 "CPD-12179"	"methylmalonate semialdehyde"	["2-methyl-3-oxopropanoate", "CH<sub>3</sub>-malonate-semialdehyde"]	"C4H5O3"	101.082
 "CPD-12210"	"aminoguanidinium"	["aminoguanidine"]	"CH7N4"	75.093
 "CPD-12226"	"&alpha;-phellandrene"	[]	"C10H16"	136.236
-"CPD-12231"	"a peptidoglycan dimer (<I>meso</I>-diaminopimelate containing)"	["[<i>N</i>-acetylglucosamine-<i>N</i>-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanyl-D-alanine]<sub>2</sub> diphospho-undecaprenyl"]	"C135H214N16O49P2"	2907.201
+"CPD-12230"	"a peptidoglycan with D,D cross-link (S. aureus)"	["a peptidoglycan with pentaglycine bridge", "<i>N</i>-acetylglucosamine--<i>N</i>-acetylmuramoyl-(tetrapeptide) diphospho-undecaprenol dimer with D,D cross-link (S. aureus)"]	null	null
 "CPD-12245"	"vancomycin"	[]	"C66H76N9O24Cl2"	1450.278
 "CPD-12251"	"teicoplanin"	[]	"C88H99N9O35Cl2"	1913.695
 "CPD-12253"	"(<i>R</i>)-2-hydroxybutanoate"	["D-2-hydroxybutyric acid", "(<i>R</i>)-2-hydroxybutyrate", "D-&alpha;-hydroxybutyrate", "D-2-hydroxybutyrate"]	"C4H7O3"	103.097
 "CPD-12255"	"D-homoserine"	[]	"C4H9NO3"	119.12
-"CPD-12261"	"a peptidoglycan with D,D cross-links (<I>meso</I>-diaminopimelate containing)"	[]	"C267H421N31O96P4"	5725.308
 "CPD-12274"	"<i>N</i>-acetyl-&beta;-D-glucosaminyl-(1&rarr;4)-D-glucosamine"	["4-<i>O</i>-(<i>N</i>-acetyl-&beta;-D-glucosaminyl)-D-glucosamine", "2-(acetylamino)-4-<i>O</i>-(2-amino-2-deoxy-&beta;-D-glucopyranosyl)-2-deoxy-&beta;-D-glucopyranose", "<i>N</i>-monoacetylchitobiose"]	"C14H27N2O10"	383.375
 "CPD-12279"	"2-iminoacetate"	["iminoacetic acid", "dehydroglycine", "iminoacetate"]	"C2H2NO2"	72.043
 "CPD-12284"	"&alpha;-Kdo-(2->4)-&alpha;-Kdo-(2->4)-&alpha;-Kdo-(2->6)-lipid IV<SUB>A</SUB>"	["&alpha;-Kdo-(2&rarr;4)-&alpha;-Kdo-(2&rarr;4)--&alpha;-Kdo-(2&rarr;6)-Lipid A", "KDOIII-lipopolysaccharide", "Kdo<SUB>3</SUB>-lipid IV<SUB>A</SUB>"]	"C92H159N2O44P2"	2059.203
@@ -1771,7 +1781,7 @@
 "CPD-15157"	"5-phospho-D-arabinonohydroxamate"	["5-phospho-D-arabinonohydroxamic acid"]	"C5H10NO9P"	259.109
 "CPD-15158"	"5-hydroxy-CMP"	["5-hydroxycytidine monophosphate"]	"C9H12N3O9P"	337.182
 "CPD-15159"	"(6R)-L-<i>erythro</i>-6,7-dihydrobiopterin"	["<i>erythro</i>-quinonoid dihydro-(6H)-biopterin", "<i>erythro</i>-quinoid dihydrobiopterin", "(6R)-<i>erythro</i>-6,7-dihydrobiopterin"]	"C9H13N5O3"	239.233
-"CPD-15180"	"a 1-acyl-<i>sn</i>-glycero-3-phospho-D-myo-inositol"	[]	null	null
+"CPD-15180"	"a 2-lysophosphatidyl-D-myo-inositol"	["a 1-acyl-<i>sn</i>-glycero-3-phospho-D-myo-inositol"]	null	null
 "CPD-15189"	"chenodeoxycholate"	["3&alpha;, 7&alpha;-dihydroxy-5&beta;-cholanic acid", "chenodexycholic acid", "chenodiol", "chenic acid", "CDCA"]	"C24H39O4"	391.57
 "CPD-15205"	"&beta;-D-mannuronate"	[]	"C6H9O7"	193.133
 "CPD-15237"	"glucosyl-(heptosyl)<sub>3</sub>-glucosyluronate-Kdo<sub>2</sub>-lipid A-phosphate"	[]	"C143H248N2O71P3"	3224.424
@@ -1909,7 +1919,7 @@
 "CPD-17087"	"1,2-dimyristoyl-phosphatidyl-ethanolamine"	["phosphatidylethanolamine (ditetradecanoyl, n-C14:0)"]	"C33H66NO8P"	635.86
 "CPD-171"	"a dolichyl &beta;-D-mannosyl phosphate"	["dolichol monophosphate mannose", "&beta;-D-mannopyranose, 1-ester with dolichol dihydrogen phosphate", "D-mannose, ester with dolichol dihydrogen phosphate", "mannosyl phosphoryl dolichol", "mannolipid", "dolichyl mannosyl phosphate", "dolichyl mannopyranosyl phosphate", "dolichyl phosphate D-mannose", "dolichyl D-mannosyl phosphate"]	"C86H142O9P"	1351.036
 "CPD-17157"	"L-galactono-1,5-lactone"	[]	"C6H10O6"	178.141
-"CPD-17189"	"<i>Co</i>&alpha;-[&alpha;-(adenin-7-yl)]-<i>Co</i>&beta;-adenosylcobamide"	["pseudoAdoCba", "pseudo-adenosyl cobamide", "pseudocoenzyme B<sub>12</sub>"]	"C68H95N21O17PCo"	1568.533
+"CPD-17189"	"<i>Co</i>&alpha;-[&alpha;-(adenin-7-yl)]-<i>Co</i>&beta;-adenosylcobamide"	["pseudoAdoCba", "pseudo-adenosyl cobamide", "pseudocoenzyme B<sub>12</sub>", "pseudocobalamin"]	"C68H95N21O17PCo"	1568.533
 "CPD-17265"	"a [glycerolipid]-(8Z,11Z,14Z)-icosatrienoate"	["a [glycerolipid]-(di-homo-&gamma;-linolenoate"]	null	null
 "CPD-17278"	"a [glycerolipid]-stearidonate"	["a [glycerolipid]-(6Z,9Z,12Z,15Z)-octadecatetraenoate"]	null	null
 "CPD-17279"	"a [glycerolipid]-dicranin"	["a [glycerolipid]-((9Z,12Z,15Z)-octadecatrien-6-ynoate"]	null	null
@@ -1975,16 +1985,16 @@
 "CPD-17968"	"a nascent peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimelate) tripeptide"	[]	null	null
 "CPD-17969"	"a nascent peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-glycine) tetrapeptide"	[]	null	null
 "CPD-17985"	"a mature peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanyl-D-alanine) pentapeptide"	["GlcNAc-1,6-anhydro-MurNAc-pentapeptide", "GlcNAc-1,6-anhydro-MurNAc-(L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanyl-D-alanine) pentapeptide"]	null	null
-"CPD-17986"	"a mature peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine) tetrapeptide"	["a mature peptidoglycan strand with 1,6-anhydro-MurNAc terminus", "GlcNAc-1,6-anhydro-MurNAc-tetrapeptide", "GlcNAc-1,6-anhydro-MurNAc-(L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine) tetrapeptide"]	null	null
+"CPD-17986"	"a mature peptidoglycan (with L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine tetrapeptide)"	["a mature peptidoglycan strand with 1,6-anhydro-MurNAc terminus", "GlcNAc-1,6-anhydro-MurNAc-tetrapeptide", "GlcNAc-1,6-anhydro-MurNAc-(L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine) tetrapeptide"]	null	null
 "CPD-17987"	"a mature peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimelate) tripeptide"	["GlcNAc-1,6-anhydro-MurNAc-tripeptide", "GlcNAc-1,6-anhydro-MurNAc- (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimelate) tripeptide"]	null	null
 "CPD-17988"	"a mature peptidoglycan with L,D cross-links (<i>meso</i>-diaminopimelate containing)"	[]	null	null
-"CPD-17989"	"a mature peptidoglycan<sub>(n)</sub> (<i>meso</i>-DAP containing)"	[]	null	null
+"CPD-17989"	"a mature peptidoglycan (<i>meso</i>-DAP containing)"	[]	null	null
 "CPD-18012"	"thymine glycol"	["5,6-dihydroxy-5-methyldihydropyrimidine-2,4(1H,3H)-dione"]	"C5H8N2O4"	160.129
 "CPD-18013"	"uracil glycol"	[]	"C4H6N2O4"	146.102
 "CPD-18014"	"5-hydroxy-6-hydrothymine"	[]	"C5H8N2O3"	144.13
 "CPD-18016"	"5-hydroxycytosine"	[]	"C4H5N3O2"	127.102
 "CPD-18017"	"5-hydroxyuracil"	[]	"C4H4N2O3"	128.087
-"CPD-18018"	"5,6-dihydroxyuracil"	[]	"C4H4N2O4"	144.087
+"CPD-18018"	"5,6-dihydroxyuracil"	["isodialuric acid"]	"C4H4N2O4"	144.087
 "CPD-18019"	"5,6-dihydroxycytosine"	[]	"C4H5N3O3"	143.102
 "CPD-18077"	"Glc<sub>3</sub>Man<sub>9</sub>GlcNAc<sub>2</sub>-[protein]"	["an [&alpha;-D-Glc-(1&rarr;2)-&alpha;-D-Glc-(1&rarr;3)-&alpha;-D-Glc-(1&rarr;3)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-{&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;6)]-&alpha;-D-Man-(1&rarr;6)}-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcNAc]-<i>N</i>-Asn-[protein]", "[(glucosyl)<sub>3</sub>(mannosyl)<sub>9</sub>(<i>N</i>-acetylglucosaminyl)<sub>2</sub>]-L-asparaginyl-[protein]"]	null	null
 "CPD-18085"	"1,2-dihydro-&beta;-NADP"	["2-dihydro-nicotinamide adenine dinucleotide phosphate", "2DHNADP"]	"C21H26N7O17P3"	741.394
@@ -1994,7 +2004,7 @@
 "CPD-18238"	"carboxyphosphate"	[]	"CHO6P"	139.989
 "CPD-18252"	"an acyl-D-asparagine"	[]	null	null
 "CPD-18254"	"hydrophilic solute < 900 Da"	[]	null	null
-"CPD-18259"	"a peptidoglycan dimer with pentapeptide stem (<i>meso</i>-diaminopimelate containing)"	[]	null	null
+"CPD-18259"	"peptidoglycan dimer with a single pentapeptide stem (<i>meso</i>-diaminopimelate containing)"	[]	"C59H93N10O34"	1486.43
 "CPD-18260"	"prenylated FMNH<sub>2</sub>"	["prenylated reduced flavin mononucleotide", "prenylated flavin mononucleotide"]	"C22H29N4O9P"	524.466
 "CPD-1829"	"cob(II)alamin"	["cobalamin", "B12r"]	"C62H88N13O14PCo"	1329.36
 "CPD-183"	"gallate"	["gallic acid", "3,4,5-trihydroxybenzoic acid", "3,4,5-trihydroxybenzoate", "pyrogallol-5-carboxylic acid", "pyrogallol-5-carboxylate"]	"C7H5O5"	169.113
@@ -2084,10 +2094,10 @@
 "CPD-18727"	"rifampicin"	["rifampin", "3-[(4-methylpiperazin-1-yl)iminomethyl]rifamycin"]	"C43H58N4O12"	822.951
 "CPD-18734"	"5-phospho-D-arabinonate"	[]	"C5H8O9P"	243.087
 "CPD-18739"	"diphenyl ether"	[]	"C12H10O"	170.21
-"CPD-18804"	"a mature peptidoglycan (<i>meso</i>-diaminopimelate containing)"	[]	null	null
-"CPD-18805"	"a mature peptidoglycan strand (non-reducing terminus)"	[]	null	null
+"CPD-18804"	"a peptidoglycan internal segment (with L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine tetrapeptide)"	[]	null	null
+"CPD-18805"	"a mature peptidoglycan (with L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine tetrapeptide) (non-reducing terminus)"	[]	null	null
 "CPD-18807"	"a nascent peptidoglycan (<i>meso</i>-DAP containing)"	[]	null	null
-"CPD-18808"	"a nascent peptidoglycan (<i>meso</i>-DAP containing) with GlcNAc terminus"	[]	"C92H147N7O27P2"	1845.151
+"CPD-18808"	"a nascent peptidoglycan (<i>meso</i>-DAP containing) with GlcNAc non-reducing terminus"	[]	"C92H147N7O27P2"	1845.151
 "CPD-18809"	"a mature peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-glycine) tetrapeptide"	[]	null	null
 "CPD-18866"	"a 3-(1-hydroxyethyl) chlorophyllide <i>d</i>"	[]	null	null
 "CPD-18867"	"a bacteriochlorophyllide <i>c</i>"	[]	null	null
@@ -2158,7 +2168,7 @@
 "CPD-19425"	"oxomaritinamine"	[]	"C16H19NO3"	273.331
 "CPD-19426"	"noroxomaritidine"	["8-hydroxy-9-methoxy-4,4a-dihydro-3H,6H-5,10b-ethanophenanthridin-3-one"]	"C16H17NO3"	271.315
 "CPD-19427"	"normaritidine"	[]	"C16H19NO3"	273.331
-"CPD-19461"	"cyclobis-(1&rarr;6)-&alpha;-nigerosyl"	["cyclobis-(1&rarr;3)-&alpha;-isomaltosyl"]	"C24H40O20"	648.568
+"CPD-19461"	"cyclobis-(1&rarr;6)-&alpha;-nigerosyl"	["cyclic tetrasaccharide IV", "cyclobis-(1&rarr;3)-&alpha;-isomaltosyl", "cycloalternan"]	"C24H40O20"	648.568
 "CPD-19472"	"an (<i>E</i>)-&omega;-(methylsulfanyl)alkanal oxime"	[]	null	null
 "CPD-19473"	"a 1-(methylsulfanyl)-n-<i>aci</i>-nitroalkane"	["a 1-(methylthio)-n-<i>aci</i>-nitroalkane", "an n-(methylsulfanyl)alkan-1-ylideneazinate"]	null	null
 "CPD-19474"	"an (<i>E</i>)-1-(glutathion-<i>S</i>-yl)-<i>N</i>-hydroxy-&omega;-(methylsulfanyl)alkan-1-imine"	[]	null	null
@@ -2297,6 +2307,7 @@
 "CPD-21221"	"4-oxo-2-pentenal"	[]	"C5H6O2"	98.101
 "CPD-21252"	"&beta;-D-idopyranuronate"	["&beta;-D-idopyranuronic acid"]	"C6H9O7"	193.133
 "CPD-21253"	"&alpha;-D-idopyranuronate"	["&alpha;-D-idopyranuronic acid"]	"C6H9O7"	193.133
+"CPD-21254"	"&beta;-L-idopyranuronate"	[]	"C6H9O7"	193.133
 "CPD-21255"	"<i>aldehydo</i>-D-quinovose"	["6-deoxy-D-glucose"]	"C6H12O5"	164.158
 "CPD-21258"	"&alpha;-L-xylopyranose"	[]	"C5H10O5"	150.131
 "CPD-21259"	"3-deoxy-D-glycero-&beta;-D-galacto-nonulosonate"	["&beta;-Kdn", "3-deoxy-D-glycero-&beta;-D-galacto-non-2-ulopyranosonate"]	"C9H15O9"	267.212
@@ -2414,13 +2425,24 @@
 "CPD-24319"	"arsenite<sup>2-</sup>"	["hydrogen arsenite", "HAsO<sub>3</sub><sup>2-</sup>"]	"HO3As"	123.928
 "CPD-24335"	"acetic acid"	["ethanoic acid"]	"C2H4O2"	60.052
 "CPD-24463"	"FMN-<i>N</i><sup>5</sup>-peroxide"	["flavin mononucleotide <i>N</i><sup>5</sup>-peroxide", "riboflavin 5'-phosphate <i>N</i><sup>5</sup>-peroxide"]	"C17H19N4O11P"	486.331
-"CPD-24487"	"(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-lipid A phosphate (<i>E. coli</i>)"	["Rc LPS"]	"C124H219N2O54P3"	2694.996
+"CPD-24487"	"&alpha;-Hep-(1&rarr;3)-4-<i>O</i>-phospho-&alpha;-Hep-(1&rarr;5)-[&alpha;-Kdo-(2&rarr;4)]-&alpha;-Kdo-(2&rarr;6)-lipid A (<i>E. coli</i>)"	["Rc LPS", "(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-lipid A phosphate (<i>E. coli</i>)"]	"C124H219N2O54P3"	2694.996
 "CPD-24488"	"(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-phosphate (<i>E. coli</i>)"	[]	"C131H231N2O60P3"	2887.164
+"CPD-24496"	"a cobinamide"	[]	null	null
+"CPD-24509"	"a cobinamide phosphate"	["a cobinamide-P"]	null	null
+"CPD-24514"	"an &alpha;-Hep-(1&rarr;3)-&alpha;-Hep-(1&rarr;5)-[&alpha;-Kdo-(2&rarr;4)]-&alpha;-Kdo-(2&rarr;6)-[lipid A]"	["a heptosyl<sub>2</sub>-Kdo<sub>2</sub>-[lipid A]", "a heptosyl-heptosyl-Kdo<sub>2</sub>-[lipidA]", "a(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-[lipid A]"]	null	null
+"CPD-24515"	"an &alpha;-Hep-(1&rarr;3)-4-<i>O</i>-phospho-&alpha;-Hep-(1&rarr;5)-[&alpha;-Kdo-(2&rarr;4)]-&alpha;-Kdo-(2&rarr;6)-[lipid A]"	["a (heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-[lipid A] phosphate"]	null	null
+"CPD-24516"	"an &alpha;-Hep-(1&rarr;7)-&alpha;-Hep-(1&rarr;3)-4-O-phospho-&alpha;-Hep-(1&rarr;5)-[&alpha;-Kdo-(2&rarr;4)]-&alpha;-Kdo-(2&rarr;6)-[lipid A]"	["a (heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-[lipid A]-phosphate"]	null	null
 "CPD-24549"	"gemcitabine"	[]	"C9H11N3O4F2"	263.2
 "CPD-24804"	"lipid A-core oliosaccharide phosphoethanolamine (KdoII)"	[]	"C164H288N3O92P5"	3928.913
 "CPD-24805"	"a peptidoglycan internal segment with (L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-glycine) tetrapeptide"	[]	null	null
+"CPD-24813"	"D-fructose 6-phosphate"	[]	null	null
 "CPD-2482"	"D-cycloserine"	["D-4-amino-3-isoxazolidinone", "D-4-amino-3-isoxazolidone", "orientomycin", "Seromycin"]	"C3H7N2O2"	103.1
 "CPD-2483"	"L-cycloserine"	["L-4-amino-3-isoxazolidinone", "L-4-amino-3-isoxazolidone"]	"C3H7N2O2"	103.1
+"CPD-24843"	"<i>(R)</i>-lactic acid"	[]	"C3H6O3"	90.079
+"CPD-24844"	"<i>(S)</i>-lactic acid"	["L-lactic acid"]	"C3H6O3"	90.079
+"CPD-24845"	"lactic acid"	[]	"C3H6O3"	90.079
+"CPD-24859"	"a peptidoglycan internal segment with (L-alanyl-&gamma;-D-glutamyl-<I>meso</I>-2,6-diaminopimeloyl-D-alanine) tetrapeptide"	[]	null	null
+"CPD-24862"	"NiFe(CO)(CN)<sub>2</sub> cofator"	["an [NiFeS] cluster", "a nickel-iron-sulfur cluster", "an NiFeS cluster", "an NiFeS center", "Ni-Fe bimetallic cofactor", "Ni-Fe active site", "[NiFe]-(CN)<sub>2</sub>CO", "NiFe(CO)(CN)<sub>2</sub> cofactor"]	null	87.907
 "CPD-253"	"4,5-<i>seco</i>-dopa"	["4-(L-alanin-3-yl)-2-hydroxy-cis,cis-muconate 6-semialdehyde"]	"C9H10NO6"	228.181
 "CPD-255"	"(S)-acetoin"	["(S)-2-acetoin", "L-(+)-acetoin", "(+)-acetoin", "(S)-acetylmethylcarbinol"]	"C4H8O2"	88.106
 "CPD-259"	"4-aminophenol"	["4-hydroxyaniline", "p-aminophenol", "4-aminobenzenol", "p-hydroxyaniline", "p-aminobenzenol"]	"C6H7NO"	109.127
@@ -2666,7 +2688,7 @@
 "CPD-6661"	"1D-<i>myo</i>-inositol (1,2,3,4,6)-penta<i>kis</i>phosphate"	[]	"C6H7O21P5"	569.977
 "CPD-667"	"<i>O</i>-acetyl-L-homoserine"	["acetylhomoserine", "<I>O</I>-acetylhomoserine"]	"C6H11NO4"	161.157
 "CPD-67"	"2-phosphoglycolate"	["2-P-glycolate", "phosphoglycolate", "Phosphoglycolic acid"]	"C2H2O6P"	153.008
-"CPD-671"	"a 5-formiminotetrahydrofolate"	["an N5-formimino-THF", "an N5-formiminotetrahydrofolate", "a 5-formimino-THF"]	null	null
+"CPD-671"	"5-formimidoyltetrahydrofolate"	["an N5-formimido-THF", "an N5-formimidotetrahydrofolate", "a 5-formiminotetrahydrofolate"]	null	null
 "CPD-674"	"cinnamate"	["&beta;-phenylacrylic acid", "(<i>E</i>)-3-phenyl-2-prop -2-enoic acid", "cinnamic acid", "<i>trans</i>-cinnamate (incorrect)", "<i>trans</i>-cinnamic acid (incorrect)", "(<i>E</i>)-cinnamate (incorrect)"]	"C9H7O2"	147.153
 "CPD-6746"	"1D-<i>myo</i>-inositol 2-monophosphate"	["D-<i>myo</i>-inositol 2-monophosphate", "Ins(2)P<sub>1</sub>", "Ins2P"]	"C6H11O9P"	258.121
 "CPD-6761"	"(2E)-2-hydroxypenta-2,4-dienoate"	["2-hydroxypenta-2,4-dienoate", "2-hydroxy-2,4-pentadienoate", "2-hydroxypent-2,4-dienoate", "2-hydroxy-2,4-pentadienoic acid", "<i>cis</i>-2-hydroxypenta-2,4-dienoate", "HPD"]	"C5H5O3"	113.093
@@ -2688,7 +2710,7 @@
 "CPD-7076"	"2-methylbutanoate"	["2-methylbutyric acid", "2-methylbutanoic acid", "&alpha;-methylbutyrate", "2-methylbutyrate"]	"C5H9O2"	101.125
 "CPD-7082"	"potassium cyanide"	["KCN", "kalium cyanid"]	"K(CN)"	65.116
 "CPD-7100"	"(2<i>S</i>)-2-isopropyl-3-oxosuccinate"	["2-isopropyl-3-oxosuccinate"]	"C7H8O5"	172.137
-"CPD-7181"	"a ganglioside GM3"	["a 1-O-[O-(<i>N</i>-acetyl-&alpha;-neuraminyl)-2,3-&alpha;-D-galactosyl-1,4-&beta;-D-glucosyl]ceramide", "a 1-O-[O-(<i>N</i>-acetyl-&alpha;-neuraminyl)-2,3-&beta;-D-galactosyl-1,4-&beta;-D-glucosyl]ceramide", "an <i>N</i>-acetyl-&alpha;-neuraminyl-2,3-&beta;-D-galactosyl-1,4-&beta;-D-glucosylceramide", "an (<i>N</i>-acetylneuraminyl)-D-galactosyl-D-glucosylceramide", "hematoside", "an <i>N</i>-acetyl-&alpha;-neuraminyl-(2&rarr;3)-&beta;-D-galactosyl-(1&rarr;4)-&beta;-D-glucosyl-(1&harr;1)-ceramide", "II<sup>3</sup>Neu5AcLacCer"]	null	null
+"CPD-7181"	"a ganglioside GM3"	["a 1-O-[O-(<i>N</i>-acetyl-&alpha;-neuraminyl)-2,3-&alpha;-D-galactosyl-1,4-&beta;-D-glucosyl]ceramide", "a 1-O-[O-(<i>N</i>-acetyl-&alpha;-neuraminyl)-2,3-&beta;-D-galactosyl-1,4-&beta;-D-glucosyl]ceramide", "an <i>N</i>-acetyl-&alpha;-neuraminyl-2,3-&beta;-D-galactosyl-1,4-&beta;-D-glucosylceramide", "an (<i>N</i>-acetylneuraminyl)-D-galactosyl-D-glucosylceramide", "hematoside", "an <i>N</i>-acetyl-&alpha;-neuraminyl-(2&rarr;3)-&beta;-D-galactosyl-(1&rarr;4)-&beta;-D-glucosyl-(1&harr;1)-ceramide", "II<sup>3</sup>Neu5AcLacCer", "<i>N</i>-acetylneuraminyllactose ceramide"]	null	null
 "CPD-7182"	"an <i>N</i>-acetyl-&beta;-D-galactosaminyl-1,4-(&beta;-<i>N</i>-acetylneuraminyl)-2,3-&alpha;-D-galactosyl-1,4-&beta;-D-glucosylceramide"	["an <i>N</i>-acetyl-D-galactosaminyl-1,4-&beta;-<i>N</i>-acetylneuraminyl-2,3-&alpha;-D-galactosyl-1,4-&beta;-D-glucosylceramide"]	null	null
 "CPD-7188"	"a ganglioside GM1a"	["a &beta;-D-galactosyl-1,3-&beta;-<i>N</i>-acetyl-D-galactosaminyl-(<i>N</i>-acetylneuraminyl)-D-galactosyl-D-glucosyl-<i>N</i>-acylsphingosine", "&alpha;-N-acetylneuraminosyl-(2&rarr;3)-[&beta;-D-galactosyl-(1&rarr;3)-N-acetyl-&beta;-D-galactosaminyl-(1&rarr;4)]-&beta;-D-galactosyl-(1&rarr;4)-&beta;-D-glucosyl-ceramide", "&alpha;-N-acetylneuraminosyl-(2&rarr;3)-[&beta;-D-galactosyl-(1&rarr;3)-N-acetyl-&beta;-D-galactosaminyl-(1&rarr;4)]-&beta;-D-galactosyl-(1&rarr;4)-&beta;-D-glucosyl-R", "a ganglioside GM1", "I<sup>3</sup>Neu5AcGg<sub>4</sub>Cer", "Gal&beta;(1,3)GalNAc&beta;(1,4)[Neu5Ac&alpha;(2,3)]Gal&beta;(1,4)Glc&beta;1Cer"]	null	null
 "CPD-722"	"<I>d</I>-biotin <I>d</I>-sulfoxide"	["biotin sulfoxide", "5-[(3aS,4S,6aR)-5-oxido-2-oxohexahydro-1H-thieno[3,4-d]imidazol-4-yl]pentanoate"]	"C10H15N2O4S"	259.299
@@ -2894,7 +2916,7 @@
 "CPD0-1081"	"<i>N</i>-acetyl-&beta;-D-glucosamine-1,6-anhydro-<i>N</i>-acetyl-&beta;-D-muramate"	["glcNAc-1,6-anhMurNAc", "<i>N</i>-acetyl-&beta;-D-glucosamine(anhydrous)-<i>N</i>-acetylmuramic acid"]	"C19H29N2O12"	477.444
 "CPD0-1082"	"L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine"	["L-alanine-&gamma;-D-glutamate-meso-2,6-diaminoheptanedioate-D-alanine", "L-Ala-D-Glu-meso-A2pm-D-Ala", "L-Ala-&gamma;-D-Glu-<i>meso</i>-DAP-D-Ala", "L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminoheptanedioyl-D-alanine"]	"C18H30N5O9"	460.463
 "CPD0-1083"	"L-galactonate"	[]	"C6H11O7"	195.149
-"CPD0-1085"	"L-alanyl-&gamma;-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine"	["pentapeptide", "L-Ala-&gamma;-D-Glu-meso-A2pm-D-Ala-D-Ala", "L-alanyl-&gamma;-D-glutamyl-meso-2,6-diaminoheptanedioyl-D-alanyl-D-alanine"]	"C21H35N6O10"	531.542
+"CPD0-1085"	"L-alanyl-&gamma;-D-glutamyl-<I>meso</i>-2,6-diaminopimeloyl-D-alanyl-D-alanine"	["pentapeptide", "L-Ala-&gamma;-D-Glu-meso-A2pm-D-Ala-D-Ala", "L-alanyl-&gamma;-D-glutamyl-meso-2,6-diaminoheptanedioyl-D-alanyl-D-alanine"]	"C21H35N6O10"	531.542
 "CPD0-1086"	"glutaminyl-&beta;-ketophosphonate-adenosine"	[]	"C16H24N7O8P"	473.381
 "CPD0-1088"	"CHAPS"	["3-[(3-cholamidopropyl)-dimethylammonio]-1-propane-sulfonate", "3-[(3-cholamidopropyl)dimethylammonium]-1-propansulfonate"]	"C32H58N2O7S"	614.879
 "CPD0-1090"	"L-idarate"	["L-idaric acid"]	"C6H8O8"	208.124
@@ -2945,14 +2967,9 @@
 "CPD0-1162"	"(2E,5Z)-tetradecenoyl-CoA"	["2-trans,5-cis-tetradecenoyl-CoA", "14:2-&Delta;2,&Delta;5-CoA", "2-<i>trans</i>,5-<i>cis</i>-tetradecadienoyl-CoA"]	"C35H54N7O17P3S"	969.83
 "CPD0-1163"	"(S)-3-hydroxy-(5Z)-tetradecenoyl-CoA"	["(S)-3-hydroxy-5-cis-tetradecenoyl-CoA", "(S)-3-hydroxy-14:1-&Delta;5-CoA", "(3S)-hydroxy-5-<i>cis</i>-tetradecenoyl-CoA"]	"C35H56N7O18P3S"	987.845
 "CPD0-1171"	"a peptidoglycan tripeptide crosslinked to murein lipoprotein"	[]	null	null
-"CPD0-1174"	"GlcNAc-MurNAc-pentapeptide"	[]	null	null
-"CPD0-1175"	"a peptidoglycan polymer with GlcNAc end"	[]	null	null
-"CPD0-1176"	"GlcNAc-1,6-anhydro-MurNAc-tetrapeptide"	[]	null	null
-"CPD0-1181"	"peptidoglycan D-alanyl-DAP crosslink"	[]	null	null
-"CPD0-1182"	"peptidoglycan tetrapeptide, glycan chain 1"	[]	null	null
-"CPD0-1183"	"peptidoglycan tetrapeptide, glycan chain 2"	[]	null	null
-"CPD0-1184"	"peptidoglycan tripeptide, glycan chain 1"	[]	null	null
-"CPD0-1185"	"peptidoglycan DAP-DAP crosslink"	[]	null	null
+"CPD0-1174"	"a GlcNAc-MurNAc-pentapeptide"	[]	null	null
+"CPD0-1176"	"a GlcNAc-1,6-anhydro-MurNAc-tetrapeptide"	[]	null	null
+"CPD0-1185"	"a peptidoglycan internal segment with L,D cross links (<i>meso</i>-diaminopimelate containing)"	["peptidoglycan DAP-DAP crosslink"]	null	null
 "CPD0-1187"	"adenosine-2',5'-bisphosphate"	["2',5'-ADP", "2'-phosphoadenosine 5'-phosphate", "2'-PAP"]	"C10H11N5O10P2"	423.172
 "CPD0-1189"	"4-amino-4-deoxy-&alpha;-L-arabinopyranosyl <i>ditrans,octacis</i>-undecaprenyl phosphate"	["<i>ditrans,octacis</i>-undecaprenyl phosphate-&alpha;-L-Ara4N"]	"C60H100NO7P"	978.426
 "CPD0-1192"	"poly-&beta;-1,6-<i>N</i>-acetyl-D-glucosamine"	["PGA"]	null	null
@@ -3107,7 +3124,7 @@
 "CPD0-1414"	"tetracycline"	[]	"C22H24N2O8"	444.44
 "CPD0-1415"	"pGpp"	["guanosine 5'-monophosphate,3'-diphosphate"]	"C10H11N5O14P3"	518.143
 "CPD0-1421"	"potassium dihydrogen phosphate"	["monobasic potassium phosphate", "monopotassium phosphate", "MKP", "KDP", "KH<sub>2</sub>PO<sub>4</sub>"]	"K(PH2O4)"	136.08499
-"CPD0-1422"	"dipalmitoyl phosphatidate"	["PA(16:0/16:0)", "1,2-dihexadecanoyl-sn-glycero 3-phosphate", "1,2-dipalmitoyl-3-sn-phosphatidic acid", "dipalmitoyl phosphatidic acid"]	"C35H67O8P"	646.883
+"CPD0-1422"	"dipalmitoyl phosphatidate"	["PA(16:0/16:0)", "1,2-dihexadecanoyl-sn-glycero 3-phosphate", "1,2-dipalmitoyl-3-sn-phosphatidic acid", "dipalmitoyl phosphatidic acid", "1-palmitoyl-2-palmitoyl phosphatidate", "1-palmitoyl-2-palmitoleoyl-sn-glycerol 3-phosphate"]	"C35H67O8P"	646.883
 "CPD0-1423"	"1-stearoyl-2-stearoyl-<i>sn</i>-glycerol 3-phosphate"	["distearoyl phosphatidic acid", "distearoyl phosphatidate"]	"C39H75O8P"	702.99
 "CPD0-1425"	"1,2-dimyristoyl-<i>sn</i>-glycerol 3-phosphate"	["dimyristoyl phosphatidic acid", "1,2-ditetradecanoyl-<i>sn</i>-glycerol 3-phosphate", "dimyristoyl phosphatidate"]	"C31H59O8P"	590.776
 "CPD0-1426"	"pyrithiamine phosphate"	["2-[1-[(4-amino-2-methylpyrimidin-5-yl)methyl]-2-methylpyridin-1-ium-3-yl]ethyl phosphono hydrogen phosphate"]	"C14H18N4O4P"	337.294
@@ -3235,7 +3252,7 @@
 "CPD0-1624"	"fluoroaluminate"	["Tetrafluoroaluminate anion"]	"F4Al"	102.974
 "CPD0-1625"	"methylene blue"	["basic blue 9", "methylene blue anhydrous"]	"C16H18N3S"	284.398
 "CPD0-1626"	"acetazolamide"	[]	"C4H6N4O3S2"	222.236
-"CPD0-1627"	"6-diazo-5-oxonorleucine"	["6-diazo-5-oxo-norleucine", "DON", "diazooxonorleucine", "6-diazo-5-oxo-L-norleucine"]	"C6H10N3O3"	172.163
+"CPD0-1627"	"6-diazo-5-oxo-L-norleucine"	["6-diazo-5-oxo-norleucine", "DON", "diazooxonorleucine", "6-diazo-5-oxonorleucine"]	"C6H9N3O3"	171.155
 "CPD0-1629"	"digitonin"	["digitin"]	"C56H92O29"	1229.325
 "CPD0-1630"	"ADP-diglyceride"	[]	null	null
 "CPD0-1631"	"A9145C"	[]	"C15H22N7O5"	380.383
@@ -3276,7 +3293,7 @@
 "CPD0-1686"	"stigmatellin"	["stigmatellin A"]	"C30H42O7"	514.658
 "CPD0-1689"	"3-undecyl-2-hydroxyl-1,4-naphthoquinone"	["UHNQ"]	"C22H30O2"	326.478
 "CPD0-1690"	"L-indospicine"	[]	"C7H16N3O2"	174.222
-"CPD0-1691"	"O-[L-norvalyl-5]-isourea"	["L-Norvaline, 5-(aminoiminomethoxy)-"]	"C6H14N3O3"	176.195
+"CPD0-1691"	"<i>O</i>-[L-norvalyl-5]-isourea"	["5-(aminoiminomethoxy)-L-norvaline"]	"C6H14N3O3"	176.195
 "CPD0-1692"	"sulfometuron methyl"	[]	"C15H15N4O5S"	363.367
 "CPD0-1693"	"iron(III) chloride"	["FeCl3", "iron trichloride", "ferric chloride"]	"FeCl3"	162.206
 "CPD0-1694"	"iron dichloride"	["FeCl<sub>2</sub>", "ferrous chloride"]	"FeCl2"	126.753
@@ -3318,7 +3335,6 @@
 "CPD0-1899"	"reduced 3-acetylpyridine adenine dinucleotide"	["AcNADH"]	"C22H29N6O14P2"	663.45
 "CPD0-1900"	"DL-p-phenylalanine"	["p-Fluorophenylalanine"]	"C9H10NO2F"	183.182
 "CPD0-1901"	"DL-o-phenylalanine"	[]	"C9H10NO2F"	183.182
-"CPD0-1905"	"8-oxo-dGTP"	["7,8-dihydro-8-oxo-2'-dGTP", "2'-deoxy-7,8-dihydro-8-oxo-guanosine 5'-triphosphate"]	"C10H12N5O14P3"	519.151
 "CPD0-1906"	"FMDP-L-leucine"	["3-{[(2E)-4-methoxy-4-oxobut-2-enoyl]amino}alanyl-L-leucine", "FMDP-L-Leu"]	"C14H23N3O6"	329.352
 "CPD0-1907"	"L-lysyl-FMDP"	["L-lysyl-3-{[(2E)-4-methoxy-4-oxobut-2-enoyl]amino}alanine"]	"C14H25N4O6"	345.375
 "CPD0-1908"	"L-methionyl-FMDP"	["L-methionyl-3-{[(2E)-4-methoxy-4-oxobut-2-enoyl]amino}alanine"]	"C13H21N3O6S"	347.385
@@ -3392,10 +3408,10 @@
 "CPD0-2056"	"norophthalmate"	["(&gamma;-L-glutamyl-L-alanyl-glycine", "N-{(2S)-1-[(carboxymethyl)amino]-1-oxopropan-2-yl}-L-glutamine", "norophthalmic acid", "&gamma;-L-glutamyl-L-alanyl-glycine", "norophthalamic acid", "&gamma;-Glu-Ala-Gly", "N-(N-&gamma;-L-glutamyl-L-alanyl)-glycine"]	"C10H16N3O6"	274.253
 "CPD0-2058"	"hydroxyporphobilinogen"	[]	"C10H11NO5"	225.201
 "CPD0-2059"	"2,3,4-trihydroxybenzoate"	["pyrogallolcarboxylate", "4-pyrogallolcarboxylic acid"]	"C7H6O5"	170.121
-"CPD0-2060"	"2,6-diaminopurine"	[]	"C5H8N6"	152.158
+"CPD0-2060"	"2,6-diaminopurine"	["Z base"]	"C5H6N6"	150.143
 "CPD0-2061"	"ubiquinol-<i>1</i>"	["ubiquinol(1)"]	"C14H20O4"	252.31
 "CPD0-2062"	"<i>p</i>-nitrophenyl-&alpha;-D-glucopyranoside"	["4-nitrophenyl-&alpha;-D-glucopyranoside", "PNG", "pNP&alpha;Glu"]	"C12H15NO8"	301.252
-"CPD0-2064"	"(11S)-11-hydroperoxylinoleate"	["11-hydroperoxyoctadeca-9,12-dienoic acid", "(9Z,12Z)-(11S)-11-hydroperoxyoctadeca-9,12-dienoate", "(11S)-11-hydroperoxylinoleic acid", "(9Z,11S,12Z)-11-hydroperoxyoctadeca-9,12-dienoate"]	"C18H31O4"	311.44
+"CPD0-2064"	"(11<i>S</i>)-HPODE"	["(9Z,12Z)-(11S)-11-hydroperoxyoctadeca-9,12-dienoate", "(11S)-11-hydroperoxylinoleic acid", "(9Z,11S,12Z)-11-hydroperoxyoctadeca-9,12-dienoate", "(11S)-11-hydroperoxylinoleate"]	"C18H31O4"	311.44
 "CPD0-2065"	"enalapril"	["Enalaprila", "Kinfil", "Bonuten", "Enalaprilum", "Renitek"]	"C20H28N2O5"	376.452
 "CPD0-2066"	"cefamandole"	["(6R,7R)-7-[[(2R)-2-hydroxy-2-phenylacetyl]amino]-3-[(1-methyltetrazol-5-yl)sulfanylmethyl]-8-oxo-5-thia-1-azabicyclo[4.2.0]oct-2-ene-2-carboxylic acid"]	"C18H18N6O5S2"	462.497
 "CPD0-2067"	"captopril"	["D-3-mercapto-2-methylpropionylproline", "D-2-methyl-3-mercaptopropanoyl-L-proline", "(2S)-1-(3-mercapto-2-methylpropionyl)-L-proline", "(2S)-1-[(2S)-2-methyl-3-sulfanylpropanoyl]pyrrolidine-2-carboxylic acid"]	"C9H15NO3S"	217.282
@@ -3486,7 +3502,7 @@
 "CPD0-2207"	"2-12:0-lysophosphatidylglycerol"	["2-12:0-lysoPG"]	"C18H36O9P"	427.451
 "CPD0-2208"	"a tetradecenoate(n-C14:1)"	["tetradecenoic acid(n-C14:1)"]	"C14H25O2"	225.35
 "CPD0-2212"	"two disacharide linked murein units, pentapeptide crosslinked tripeptide (A2pm->A2pm) (middle of chain)"	[]	"C74H114N14O39"	1823.785
-"CPD0-2213"	"a peptidoglycan trimer with pentapeptide stems (<i>meso</i>-diaminopimelate containing)"	["[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i><i>meso</i>-2,6-diaminopimeloyl-D-alanyl-D-alanine]<sub>3</sub>", "three linked disaccharide pentapeptide murein units (uncrosslinked, middle of chain)"]	null	null
+"CPD0-2213"	"a peptidoglycan trimer with pentapeptide stems (<i>meso</i>-diaminopimelate containing)"	["[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i><i>meso</i>-2,6-diaminopimeloyl-D-alanyl-D-alanine]<sub>3</sub>", "three linked disaccharide pentapeptide murein units (uncrosslinked, middle of chain)"]	"C120H186N24O63"	2972.912
 "CPD0-2214"	"(O16 antigen)<sub>4</sub>-undecaprenyl diphosphate"	[]	"C191H310N4O107P2"	4436.46
 "CPD0-2215"	"glucosyl-O-acetyl-rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	[]	"C77H125NO22P2"	1478.775
 "CPD0-2216"	"cyclopropane phosphatidylethanolamine (dihexadec-9,10-cyclo-anoyl, n-C16:0 cyclo)"	[]	"C39H74NO8P"	715.989
@@ -3507,7 +3523,7 @@
 "CPD0-2240"	"phospho-heptosyl-heptosyl-Kdo2-lipidA"	[]	"C124H219N2O54P3"	2694.996
 "CPD0-2241"	"ferrichrome"	[]	"C27H42N9O12Fe"	740.529
 "CPD0-2244"	"(<i>S</i>)-3-hydroxydecanoyl-CoA"	[]	"C31H50N7O18P3S"	933.753
-"CPD0-2245"	"a peptidoglycan dimer with pentapeptide and tetrapeptide stems (<I>meso</i>-diaminopimelate containing)"	["two linked disaccharide pentapeptide and tetrapeptide murein units (uncrosslinked, middle of chain)"]	null	null
+"CPD0-2245"	"peptidoglycan dimer with pentapeptide and tetrapeptide stems (<I>meso</i>-diaminopimelate containing)"	["two linked disaccharide pentapeptide and tetrapeptide murein units (uncrosslinked, middle of chain)"]	"C77H121N15O42"	1928.878
 "CPD0-2247"	"galactosyl-inner core polysaccharide-lipid A"	["galactosyl-inner core oligosaccharide lipid A"]	"C151H261N2O79P4"	3492.584
 "CPD0-2249"	"(<i>E. coli</i> O16 antigen)<sub>4</sub>-core oligosaccharide-lipid A"	[]	"C298H502N6O189P4"	7317.065
 "CPD0-2250"	"dHAPTP"	["2'-deoxy-N-6-hydroxylaminopurine triphosphate", "6-N-hydroxylaminopurine deoxynucleoside triphosphate", "[(2R,3S,5R)-3-hydroxy-5-[6-(hydroxyamino)purin-9-yl]oxolan-2-yl]methyl", "[hydroxy(phosphooxy)phosphoryl] hydrogen phosphate"]	"C10H12N5O13P3"	503.152
@@ -3521,26 +3537,26 @@
 "CPD0-2266"	"three disacharide linked murein units (tetrapeptide crosslinked tetrapeptide (A2pm->D-ala), one uncrosslinked tetrapaptide) (middle of chain)"	[]	"C111H169N21O59"	2741.661
 "CPD0-2267"	"&alpha;-ethyl-L-glutamate"	[]	"C7H12NO4"	174.176
 "CPD0-2268"	"(O16 antigen)<sub>2</sub>-undecaprenyl diphosphate"	[]	"C123H200N2O57P2"	2680.86
-"CPD0-2269"	"a peptidoglycan dimer with tetrapeptide stems (<i>meso</i>-diaminopimelate containing)"	["[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine]<sub>2</sub>", "two linked disacharide tetrapeptide murein units (uncrosslinked, middle of chain)"]	null	null
+"CPD0-2269"	"peptidoglycan dimer with tetrapeptide stems (<i>meso</i>-diaminopimelate containing)"	["[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl-D-alanine]<sub>2</sub>", "two linked disacharide tetrapeptide murein units (uncrosslinked, middle of chain)"]	"C74H116N14O41"	1857.8
 "CPD0-2270"	"two disacharide linked murein units, tetrapeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)"	[]	"C74H111N14O39"	1820.761
-"CPD0-2272"	"a peptidoglycan dimer with tripeptide stems (<i>meso</i>-diaminopimelate containing)"	["[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-diaminopimelate]<sub>2</sub>", "two linked disaccharide tripeptide murein units (uncrosslinked, middle of chain)"]	null	null
-"CPD0-2273"	"two disacharide linked murein units, tripeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)"	["peptidoglycan tripeptide-tetrapeptide crosslink"]	"C71H107N13O38"	1750.691
-"CPD0-2274"	"a peptidoglycan dimer with tetrapeptide and tripepetide stems (<i>meso</i> diaminopimelate containing)"	["two linked disaccharide tetrapeptide and tripeptide murein units (uncrosslinked, middle of chain)"]	null	null
+"CPD0-2272"	"peptidoglycan dimer with tripeptide stems (<i>meso</i>-diaminopimelate containing)"	["[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-diaminopimelate]<sub>2</sub>", "two linked disaccharide tripeptide murein units (uncrosslinked, middle of chain)"]	"C68H106N12O39"	1715.642
+"CPD0-2273"	"a peptidoglycan with D,D tripeptide-tetrapeptide crosslinks  (<i>meso</i>-diaminopimelate containing)"	["two disacharide linked murein units, tripeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)"]	null	null
+"CPD0-2274"	"peptidoglycan dimer with tetrapeptide and tripepetide stems (<i>meso</i> diaminopimelate containing)"	[]	"C71H111N13O40"	1786.721
 "CPD0-2275"	"adenosine tetraphosphopyridoxal"	["adenosine-(5')tetraphospho(5')pyridoxal", "AP4-PL"]	"C18H20N6O18P4"	732.28
 "CPD0-2276"	"glycine ethyl ester"	[]	"C4H9NO2"	103.121
 "CPD0-2277"	"two disacharide linked murein units, tripeptide crosslinked tripeptide (A2pm->A2pm) (middle of chain)"	[]	"C68H106N12O37"	1683.644
 "CPD0-2278"	"two disacharide linked murein units, pentapeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)"	[]	"C77H121N15O40"	1896.879
 "CPD0-2279"	"&beta;-D-Gal<i>f</i>-(1&rarr;6)-&alpha;-D-Glc-(1&rarr;3)-&alpha;-L-Rha-(1&rarr;3)-&alpha;-D-GlcNAc-PP-Und"	[]	"C89H145NO32P2"	1803.06
 "CPD0-2280"	"(O16 antigen)<sub>3</sub>-undecaprenyl diphosphate"	[]	"C157H255N3O82P2"	3558.66
-"CPD0-2283"	"a peptidoglycan dimer with pentapeptide stems (<i>meso</i>-diaminopimelate containing)"	["two linked disacharide pentapeptide murein units (uncrosslinked, middle of chain)", "[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl--D-alanyl-D-alanine]<sub>2</sub>"]	null	null
+"CPD0-2283"	"peptidoglycan dimer with pentapeptide stems (<i>meso</i>-diaminopimelate containing)"	["two linked disacharide pentapeptide murein units (uncrosslinked, middle of chain)", "[N-acetylglucosamine-N-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-<i>meso</i>-2,6-diaminopimeloyl--D-alanyl-D-alanine]<sub>2</sub>"]	"C80H126N16O43"	1999.957
 "CPD0-2284"	"1,6-anhydrous-N-Acetylmuramyl-tripeptide"	[]	"C26H41N5O14"	647.635
-"CPD0-2287"	"a peptidoglycan dimer with pentapeptide and tripeptide stems (<i>meso</i>-diaminopimelate containing)"	["two linked disaccharide pentapeptide and tripeptide murein units (uncrosslinked, middle of chain)"]	null	null
+"CPD0-2287"	"peptidoglycan dimer with pentapeptide and tripeptide stems (<i>meso</i>-diaminopimelate containing)"	["two linked disaccharide pentapeptide and tripeptide murein units (uncrosslinked, middle of chain)"]	"C74H116N14O41"	1857.8
 "CPD0-2288"	"three disacharide linked murein units (tetrapeptide crosslinked tetrapeptide (A2pm->D-ala) and tetrapeptide corsslinked tetrapeptide (A2pm->D-ala)) (middle of chain)"	[]	"C111H167N21O58"	2723.646
 "CPD0-2289"	"rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	[]	"C69H113NO16P2"	1274.596
 "CPD0-2290"	"O-acetyl-rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	[]	"C71H115NO17P2"	1316.633
 "CPD0-2292"	"an <i>N</i>-acetyl-D-glucosamine-(anhydrous)-<i>N</i>-acetylmuramyl-tetrapeptide"	[]	null	null
 "CPD0-2293"	"4-amino-4-deoxy-L-arabinose modified core oligosaccharide lipid A"	[]	"C167H293N3O92P4"	3939.011
-"CPD0-2294"	"enterobacterial common antigen-core oligosaccharide-lipid A"	["ECA-lipopolysaccharide", "ECA<sub>LPS</sub>", "ECA(LPS)"]	"C258H426N14O149P4"	6232.103
+"CPD0-2294"	"enterobacterial common antigen-core oligosaccharide-lipid A (<i>E. coli</i> K-12 core type)"	["ECA-lipopolysaccharide (<i>E. coli</i> K-12 core type)", "ECA<sub>LPS</sub> (<i>E. coli</i> K-12 core type)", "ECA(LPS) (<i>E. coli</i> K-12 core type)"]	null	null
 "CPD0-2295"	"inner core oligosaccharide-lipid A with Kdo(III) and L-rhamnose (<i>E. coli</i>)"	[]	"C145H251N2O74P4"	3330.442
 "CPD0-2296"	"three disacharide linked murein units (pentapeptide crosslinked tetrapeptide (A2pm->D-ala) tetrapeptide corsslinked tetrapeptide (A2pm->D-ala)) (middle of chain)"	[]	"C114H178N22O59"	2800.772
 "CPD0-2298"	"(<i>S</i>)-ureidoglycine"	["(S)-2-ureidoglycine", "(2S)-(carbamoylamino)glycine"]	"C3H7N3O3"	133.107
@@ -3553,7 +3569,6 @@
 "CPD0-2337"	"2,3-dimethyl-1,4-naphthoquinone"	[]	"C12H10O2"	186.21
 "CPD0-2338"	"(<i>Z</i>)-3-ureidoacrylate peracid"	["ureidoacrylate peracid", "ureidoperacrylic acid", "(2Z)-3-(carbamoylamino)prop-2-eneperoxoic acid", "peroxy ureidoacrylate"]	"C4H6N2O4"	146.102
 "CPD0-2339"	"(<i>Z</i>)-3-aminoacrylate"	["3-aminoacrylate", "aminoacrylate"]	"C3H4NO2"	86.07
-"CPD0-2340"	"(<i>Z</i>)-3-peroxyaminoacrylate"	["peroxy aminoacrylate", "aminoacrylate peracid"]	"C3H5NO3"	103.077
 "CPD0-2347"	"adeninylpentylcobalamin"	[]	"C72H104N18O14PCo"	1534.622
 "CPD0-2355"	"dioctylamine"	[]	"C16H36N"	242.467
 "CPD0-2356"	"La<sup>3+</sup>"	["lanthanum(III) cation", "lanthanum(3+)", "lanthanum(3+) ion", "lanthanum(III)"]	"La"	138.905
@@ -3645,7 +3660,7 @@
 "CPD0-2521"	"[(<i>S</i>)-1-aminoethyl]phosphonate"	[]	"C2H7NO3P"	124.056
 "CPD0-2523"	"2,4-dioxo-4-phenylbutanoate"	["2,4-dioxo-4-phenylbutyrate"]	"C10H7O4"	191.163
 "CPD0-2526"	"1-ethyl-4-aminobutanoate"	["1-ethyl-4-aminobutyrate"]	"C6H14NO2"	132.182
-"CPD0-2527"	"<i>p</i>-anisidine"	["4-anisidine", "4-methoxyaniline"]	"C7H9NO"	123.154
+"CPD0-2527"	"4-anisidine"	["<i>p</i>-anisidine", "4-methoxyaniline", "para-anisidine"]	"C7H9NO"	123.154
 "CPD0-2528"	"4-ethoxyaniline"	["<i>p</i>-phenetidine"]	"C8H11NO"	137.181
 "CPD0-2529"	"2-aminofluorene"	[]	"C13H11N"	181.237
 "CPD0-2530"	"pentaerythritol tetranitrate"	["PETN"]	"C5H8N4O12"	316.138
@@ -3679,7 +3694,7 @@
 "CPD0-2580"	"a purine nucleotide phosphoramidate"	[]	null	null
 "CPD0-2581"	"pseudomonate A"	[]	"C26H43O9"	499.62
 "CPD0-2582"	"(3<i>R</i>)-3,4-dihydroxybutanal"	["D-3,4-dihydroxybutanal"]	"C4H8O3"	104.105
-"CPD0-2583"	"GlcNAc-1,6-anhMurNAc-L-Ala-&gamma;-D-Glu-DAP-D-Ala-D-Ala"	[]	null	null
+"CPD0-2583"	"GlcNAc-1,6-anhMurNAc-L-Ala-&gamma;-D-Glu-DAP-D-Ala-D-Ala"	[]	null	990.971
 "CPD0-2585"	"immucillin-A 5'-triphosphate"	["ImmA-TP", "immucillin-A triphosphate"]	"C10H14N6O12P3"	503.175
 "CPD0-2587"	"anthraquinone-2-sulfonate"	[]	"C14H7O5S"	287.266
 "CPD0-2588"	"anthraquinone-2,6-disulfonate"	["9,10-anthraquinone-2,6-disulfonate", "AQDS"]	"C14H6O8S2"	366.317
@@ -3756,14 +3771,14 @@
 "CPD0-2691"	"coumaroyl amide"	[]	null	null
 "CPD0-2692"	"ppApp"	["(p)ppApp"]	null	null
 "CPD0-2693"	"uridine 3'-5'-bisphosphate"	[]	null	null
-"CPD0-2694"	"nitrofurantoin"	[]	null	null
-"CPD0-2695"	"2-nitrofuran"	[]	null	null
+"CPD0-2694"	"nitrofurantoin"	[]	"C8H6N4O5"	238.159
+"CPD0-2695"	"2-nitrofuran"	[]	"C4H3NO3"	113.073
 "CPD0-2696"	"nifuroxime"	[]	null	null
 "CPD0-2697"	"<i>N</i>-methyl-<i>N</i>-picrylnitramine"	["tetryl"]	null	null
 "CPD0-2698"	"2,3-dichloro-1,4-naphthoquinone"	["dichlone"]	null	null
 "CPD0-2699"	"2-hydroxy-3-methyl-1,4-naphthoquinone"	[]	null	null
 "CPD0-2700"	"N<sup>6</sup>-(1-carboxyethyl)-L-lysine"	["CEL", "N<sup>&epsilon;</sup>-(carboxyethyl)lysine"]	null	null
-"CPD0-2701"	"<i>aldehydo</i>-<i>N</i>-acetylneuraminate"	["<i>N</i>-acetyl-keto-neuraminic acid", "<i>N</i>-acetyl-keto-neuraminate"]	"C11H18NO9"	308.264
+"CPD0-2701"	"aceneuramate"	["<i>N</i>-acetyl-keto-neuraminic acid", "<i>N</i>-acetyl-keto-neuraminate", "<i>aldehydo</i>-<i>N</i>-acetylneuraminate", "(4S,5R,6R,7S,8R)-5-acetamido-4,6,7,8,9-pentahydroxy-2-oxononanoate"]	"C11H18NO9"	308.264
 "CPD0-2702"	"<i>aldehydo</i>-2-keto-3-deoxynonanoate"	["KDN"]	null	null
 "CPD0-2703"	"2-keto-3-deoxyxylonate"	[]	null	null
 "CPD0-2705"	"6-phospho-&beta;-D-glucosaminyl-(1->4)-<i>N</i>-acetyl-D-glucosamine"	["<i>N</i>-monoacetylchitobiose 6-phosphate"]	"C14H26N2O13P"	461.339
@@ -3785,15 +3800,15 @@
 "CPD0-922"	"4-fluoro-L-tryptophan"	[]	"C11H11N2O2F"	222.218
 "CPD0-923"	"3-fluorotyrosine"	[]	"C9H10NO3F"	199.181
 "CPD0-925"	"5-hydroxy-2-(3-DL-alanyl)-pyridine"	["HPA"]	"C7H8N2O3"	168.152
-"CPD0-929"	"heptosyl-Kdo<sub>2</sub>-lipid A"	["Rd<sub>2</sub> LPS"]	"C117H208N2O45P2"	2424.864
-"CPD0-930"	"(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-lipid A"	["heptosyl<sub>2</sub>-Kdo<sub>2</sub>-lipid A", "heptosyl-heptosyl-Kdo<sub>2</sub>-lipidA", "Rd<sub>1</sub> LPS"]	"C124H220N2O51P2"	2617.032
+"CPD0-929"	"&alpha;-Hep-(1&rarr;5)-[&alpha;-Kdo-(2&rarr;4)]-&alpha;-Kdo-(2&rarr;6)-lipid A (<i>E. coli</i>)"	["Rd<sub>2</sub> LPS", "heptosyl-Kdo<sub>2</sub>-lipid A (<i>E. coli</i>)"]	"C117H208N2O45P2"	2424.864
+"CPD0-930"	"&alpha;-Hep-(1&rarr;3)-&alpha;-Hep-(1&rarr;5)-[&alpha;-Kdo-(2&rarr;4)]-&alpha;-Kdo-(2&rarr;6)-lipid A (<i>E. coli</i>)"	["heptosyl<sub>2</sub>-Kdo<sub>2</sub>-lipid A (<i>E. coli</i>)", "heptosyl-heptosyl-Kdo<sub>2</sub>-lipidA (<i>E. coli</i>)", "Rd<sub>1</sub> LPS", "(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-lipid A (<i>E. coli</i>)"]	"C124H220N2O51P2"	2617.032
 "CPD0-932"	"glucosyl-(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-lipid A"	["Rc LPS"]	"C130H230N2O56P2"	2779.174
 "CPD0-933"	"glucosyl-(heptosyl)<sub>2</sub>-Kdo<sub>2</sub>-lipid A-phosphate"	[]	"C130H229N2O59P3"	2857.138
-"CPD0-934"	"glucosyl-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-phosphate"	[]	"C137H241N2O65P3"	3049.306
-"CPD0-935"	"glucosyl-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate"	[]	"C137H240N2O68P4"	3127.27
-"CPD0-936"	"galactosyl-(1&rarr;6)-glucosyl-(1&rarr;3)-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate"	[]	"C143H250N2O73P4"	3289.412
-"CPD0-937"	"galactosyl-(glucosyl)<sub>2</sub>-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate"	["Rb<sub>2</sub> LPS"]	"C149H260N2O78P4"	3451.554
-"CPD0-938"	"galactosyl-(glucosyl)<sub>3</sub>-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate"	["Rb<sub>1</sub> LPS"]	"C155H270N2O83P4"	3613.696
+"CPD0-934"	"glucosyl-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-phosphate (<i>E. coli</i>)"	[]	"C137H241N2O65P3"	3049.306
+"CPD0-935"	"glucosyl-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate (<i>E. coli</i>)"	[]	"C137H240N2O68P4"	3127.27
+"CPD0-936"	"galactosyl-(1&rarr;6)-glucosyl-(1&rarr;3)-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate (<i>E. coli</i>)"	[]	"C143H250N2O73P4"	3289.412
+"CPD0-937"	"galactosyl-(glucosyl)<sub>2</sub>-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate (<i>E. coli</i>)"	["Rb<sub>2</sub> LPS"]	"C149H260N2O78P4"	3451.554
+"CPD0-938"	"galactosyl-(glucosyl)<sub>3</sub>-(heptosyl)<sub>3</sub>-Kdo<sub>2</sub>-lipid A-bisphosphate (<i>E. coli</i>)"	["Rb<sub>1</sub> LPS"]	"C155H270N2O83P4"	3613.696
 "CPD0-939"	"lipid A-core oligosaccharide (<i>E. coli</i> K-12 core type with D-GlcNAc)"	["core oligosaccharide lipid A", "core oligosaccharide-lipid A (<i>E. coli</i> K-12 core type with D-GlcNAc)", "core oligosaccharide-lipid A (<i>E. coli</i> K-12)", "lipid A-core (<i>E. coli</i> K-12)"]	"C170H295N3O94P4"	4009.059
 "CPD0-944"	"a rhamnosyl lipopolysaccharide"	[]	null	null
 "CPD0-954"	"1,4-naphthoquinone"	["1,4-naphthalenedione"]	"C10H6O2"	158.156
@@ -3812,6 +3827,7 @@
 "CPD3DJ-82"	"a dihydroceramide"	["a plant ceramide (I)", "an <i>N</i>-acylsphinganine (C18)", "an octadecadihydroceramide", "a dihydroceramide (C18)"]	null	null
 "CPD3O-0"	"a [protein]-<i>N</i><sup>6</sup>-acetyl-L-lysine"	[]	null	null
 "CPD66-39"	"a 2,3,4-saturated fatty acid"	[]	null	null
+"CPD8J2-27"	"<i>S</i>-succinyl-L-cysteine"	["<i>S</i>-(2-succino)-L-cysteine"]	"C7H9NO6S"	235.211
 "CPDMETA-13650"	"3-oxo-5,6-didehydrosuberyl-CoA semialdehyde"	["(5<i>Z</i>)-3,8-dioxooct-5-enoyl-CoA"]	"C29H40N7O19P3S"	915.652
 "CPDQT-505"	"a cholesteryl ester(18:2)"	["an 18:2 cholesteryl ester"]	null	null
 "CpG-Sites"	"a CpG site"	[]	null	null
@@ -3921,14 +3937,14 @@
 "D-arabinofuranose"	null	[]	"C5H10O5"	150.131
 "D-arabinopyranose"	null	[]	"C5H10O5"	150.131
 "D-ARABINOSE"	"D-arabinose"	[]	"C5H10O5"	150.131
-"D-aspartate-peptidoglycan"	"<i>ditrans,octacis</i>-undecaprenyldiphospho-<i>N</i>-acetyl-(<i>N</i>-acetylglucosaminyl)muramoyl-L-alanyl-&gamma;-D-glutamyl-N-(&beta;-D-asparatyl)-L-lysyl-D-alanyl-D-alanine"	["[&beta;-GlcNAc-(1-4)-Mur2Ac(oyl-L-Ala-&gamma;-D-Glu-6-N-(&beta;-D-Asp)-L-Lys-D-Ala-D-Ala)]n"]	"C98H157N9O29P2"	1987.309
+"D-aspartate-peptidoglycan"	"&beta;-D-GlcNAc-(1&rarr;4)-Mur2Ac[oyl-L-Ala-&gamma;-D-Glu-(6-N-&beta;-D-Asp)-L-Lys-D-Ala-D-Ala]-PP-Und"	["<i>ditrans,octacis</i>-undecaprenyldiphospho-<i>N</i>-acetyl-(<i>N</i>-acetylglucosaminyl)muramoyl-L-alanyl-&gamma;-D-glutamyl-N-(&beta;-D-asparatyl)-L-lysyl-D-alanyl-D-alanine"]	"C98H157N9O29P2"	1987.309
 "D-BETA-D-HEPTOSE-1-P"	"D-<i>glycero</i>-&beta;-D-<i>manno</i>-heptose 1-phosphate"	["D-&beta;-D-heptose-1-phosphate"]	"C7H13O10P"	288.147
 "D-BETA-D-HEPTOSE-17-DIPHOSPHATE"	"D-<i>glycero</i>-&beta;-D-<i>manno</i>-heptose 1,7-bisphosphate"	["D-&beta;-D-heptose-1,7-bisphosphate", "D-<i>glycero</i>-&beta;-D-<i>manno</i>-heptose 1,7-PP"]	"C7H12O13P2"	366.112
 "D-CARNITINE"	"D-carnitine"	["S-(+)-3-hydroxy-4-trimethylaminobutyrate", "<i>(S)</i>-carnitine"]	"C7H15NO3"	161.2
 "D-CYSTEINE"	"D-cysteine"	[]	"C3H7NO2S"	121.154
 "D-ERYTHRO-IMIDAZOLE-GLYCEROL-P"	"D-<i>erythro</i>-1-(imidazol-4-yl)-glycerol 3-phosphate"	["D-<i>erythro</i>-imidazole-glycerol-phosphate", "D-<i>erythro</i>-imidazole-glycerol-P", "<i>erythro</i>-imidazole-glycerol-P", "<i>erythro</i>-imidazole-glycerol-phosphate", "imidazole glycerol phosphate", "IGP"]	"C6H9N2O6P"	236.121
 "D-fructofuranose-1-phosphate"	"D-fructofuranose 1-phosphate"	[]	"C6H11O9P"	258.121
-"D-fructofuranosyl-26-D-glucopyranosides"	"[1-&beta;-D-fructofuranosyl-(2->1)-]<sub>(n)</sub> &beta;-D-fructofuranosyl-(2->6)-&alpha;-D-glucopyranoside"	[]	null	null
+"D-fructofuranosyl-26-D-glucopyranosides"	"[1-&beta;-D-fructofuranosyl-(2->1)]<sub>(n)</sub>-[&beta;-D-fructofuranosyl-(2->6)]-&alpha;-D-glucopyranoside"	[]	null	null
 "D-fructofuranuronate"	"D-fructofuranuronate"	["D-fructofuranuronic acid"]	"C6H9O7"	193.133
 "D-Fructopyranose"	"D-fructopyranose"	[]	"C6H12O6"	180.157
 "D-fructopyranose-1-phosphate"	"D-fructopyranose 1-phosphate"	[]	"C6H11O9P"	258.121
@@ -3939,12 +3955,12 @@
 "D-galactofuransoe"	"D-galactofuranose"	[]	"C6H12O6"	180.157
 "D-GALACTONATE"	"D-galactonate"	["galactonate"]	"C6H11O7"	195.149
 "D-GALACTONO-1-4-LACTONE"	"D-galactono-1,4-lactone"	["D-galactonate-&gamma;-lactone", "galactono-&gamma;-lactone", "D-galactonolactone", "D-galactono-&gamma;-lactone", "D-galactonic acid &gamma;-lactone", "&gamma;-D-galactonolactone", "D-(-)-galactonic acid &gamma;-lactone", "D-galactonic acid g-lactone"]	"C6H10O6"	178.141
-"D-galactopyranose"	"D-galactopyranose"	[]	"C6H12O6"	180.157
+"D-galactopyranose"	"D-galactopyranose"	["D-Gal"]	"C6H12O6"	180.157
 "D-galactopyranose-6-phosphate"	"D-galactopyranose 6-phosphate"	[]	"C6H11O9P"	258.121
 "D-Galactopyranuronate"	"D-galactopyranuronate"	["D-galactopyranuronic acid"]	"C6H9O7"	193.133
 "D-GALACTOSAMINE-6-PHOSPHATE"	"D-galactosamine 6-phosphate"	[]	"C6H13NO8P"	258.144
 "D-Galactosaminides"	"a D-galactosaminide"	[]	null	null
-"D-Galactose"	"D-galactose"	[]	"C6H12O6"	180.157
+"D-Galactose"	"D-galactose"	["D-Gal"]	"C6H12O6"	180.157
 "D-galactose-1-phosphate"	"a D-galactopyranose 1-phosphate"	["a D-galactose 1-phosphate"]	"C6H11O9P"	258.121
 "D-galactose-6-phosphate"	"a D-galactose 6-phosphate"	[]	null	null
 "D-Galactosyl-12-diacyl-glycerols"	"a 1,2-diacyl-3-O-(&beta;-D-galactopyranosyl)-<i>sn</i>-glycerol"	["a monogalactosyl-diacylglycerol", "a monogalactosyldiacylglycerol", "a D-galactosyldiacylglycerol", "a 3-(&beta;-D-galactosyl)-1,2-diacyl-<i>sn</i>-glycerol", "a 3-&beta;-D-galactosyl-1,2-diacylglycerol", "a monogalactosyldiglyceride", "MGDG", "a Gal&beta;1->3acyl2Gro", "a mono-&beta;-D-galactosyldiacylglycerol", "a 1,2-diacyl-3-&beta;-D-galactosyl-<i>sn</i>-glycerol", "a &beta;-monogalactosyldiacylglycerol", "a 1,2-diacyl-3-O-(&beta;-D-galactosyl)-<i>sn</i>-glycerol"]	null	null
@@ -3992,7 +4008,6 @@
 "D-Rhamnose"	"D-rhamnose"	[]	null	null
 "D-Ribofuranose"	"D-ribofuranose"	[]	"C5H10O5"	150.131
 "D-Ribopyranose"	"D-ribopyranose"	[]	"C5H10O5"	150.131
-"D-Ribosyl-Base"	"a D-ribosyl-base"	[]	null	null
 "D-RIBULOSE"	"D-ribulose"	["D-erythro-pentulose", "D-erythropentulose", "erythropentulose"]	"C5H10O5"	150.131
 "D-RIBULOSE-1-P"	"D-ribulose 1-phosphate"	["D-ribulose-1-P"]	"C5H9O8P"	228.095
 "D-SEDOHEPTULOSE-1-7-P2"	"D-sedoheptulose 1,7-bisphosphate"	["sedoheptulose 1,7-bisphosphate", "SBP"]	"C7H12O13P2"	366.112
@@ -4039,7 +4054,7 @@
 "Delta-lactones"	"a &delta;-lactone"	[]	null	null
 "Delta-Selinenes"	"a &delta;-selinene"	["a (4aR)-1,4a-dimethyl-7-(propan-2-yl)-2,3,4,4a,5,6-hexahydronaphthalene", "a naphthalene, 2,3,4,4a,5,6-hexahydro-1,4a-dimethyl-7-(1-methylethyl)-", "a &beta;-cyperene"]	"C15H24"	204.355
 "DELTA1-PIPERIDEINE-2-6-DICARBOXYLATE"	"(<i>S</i>)-2,3,4,5-tetrahydrodipicolinate"	["2,3,4,5-tetrahydrodipicolinate", "(<i>S</i>)-2,3,4,5-tetrahydropyridine-2,6-dicarboxylate", "&Delta;<SUP>1</SUP>-piperideine-2,6-dicarboxylate", "tetrahydrodipicolinate", "tetrahydropyridine-2,6-dicarboxylate", "L-2,3,4,5-tetrahydrodipicolinate"]	"C7H7NO4"	169.137
-"DELTA3-ISOPENTENYL-PP"	"isopentenyl diphosphate"	["isopentenyl-pp", "isopentenyl pyrophosphate", "&delta;(3)-isopentenyl-PP", "&Delta;<SUP>3</SUP>-isopentenyl-PP", "3-methylbut-3-enyl diphosphate", "3-methylbut-3-enyl pyrophosphate"]	"C5H9O7P2"	243.069
+"DELTA3-ISOPENTENYL-PP"	"3-methylbut-3-en-1-yl diphosphate"	["isopentenyl-PP", "isopentenyl pyrophosphate", "&delta;(3)-isopentenyl-PP", "&Delta;<SUP>3</SUP>-isopentenyl-PP", "3-methylbut-3-enyl diphosphate", "3-methylbut-3-enyl pyrophosphate", "isopentenyl diphosphate"]	"C5H9O7P2"	243.069
 "Delta5-Delta7-Steroids"	"a &Delta;5,7-sterol"	[]	null	null
 "Delta7-Steroids"	"a &Delta;7-sterol"	[]	null	null
 "Demethylated-methyl-acceptors"	"a demethylated methyl donor"	["a demethylated methyl acceptor"]	null	null
@@ -4056,36 +4071,36 @@
 "Deoxy-Ribonucleosides"	"a 2'-deoxyribonucleoside"	["a deoxyribonucleoside"]	null	null
 "DEOXY-RIBOSE-1P"	"deoxyribose 1-phosphate"	[]	"C5H9O7P"	212.096
 "DEOXY-RIBOSE-5P"	"2-deoxy-D-ribose 5-phosphate"	[]	"C5H9O7P"	212.096
-"DEOXYADENOSINE"	"2'-deoxyadenosine"	["deoxyadenosine", "2-deoxy-adenosine"]	"C10H13N5O3"	251.244
+"DEOXYADENOSINE"	"2'-deoxyadenosine"	["deoxyadenosine", "2-deoxy-adenosine", "adenine 2'-deoxyriboside"]	"C10H13N5O3"	251.244
 "DEOXYCHOLATE"	"deoxycholate"	["deoxycholic acid", "3&alpha;,12&alpha;-dihydroxy-5&beta;-cholanate"]	"C24H39O4"	391.57
-"DEOXYCYTIDINE"	"2'-deoxycytidine"	["d-cytidine", "deoxycytidine"]	"C9H13N3O4"	227.219
-"DEOXYGUANOSINE"	"2'-deoxyguanosine"	["deoxyguanosine"]	"C10H13N5O4"	267.244
+"DEOXYCYTIDINE"	"2'-deoxycytidine"	["d-cytidine", "deoxycytidine", "cytosine 2'-deoxyriboside"]	"C9H13N3O4"	227.219
+"DEOXYGUANOSINE"	"2'-deoxyguanosine"	["deoxyguanosine", "guanine 2'-deoxyriboside"]	"C10H13N5O4"	267.244
 "Deoxyhypusine-Synthase-Lysine"	"a [deoxyhypusine synthase]-L-lysine"	[]	null	null
-"DEOXYINOSINE"	"2'-deoxyinosine"	["deoxyinosine"]	"C10H12N4O4"	252.229
+"DEOXYINOSINE"	"2'-deoxyinosine"	["deoxyinosine", "hypoxanthine 2'-deoxyriboside"]	"C10H12N4O4"	252.229
 "DEOXYMORPHOLINOFRUCTOSE"	"1-deoxy-1-morpholino-D-fructose"	[]	"C10H19NO6"	249.263
 "Deoxynucleoside-Derivatives"	"a deoxynucleoside derivative"	[]	null	null
 "Deoxynucleotides"	"a 2'-deoxyribonucleotide"	["a deoxynucleotide", "a deoxyribonucleotide"]	null	null
 "Deoxyribonucleosides-in-DNA"	"a deoxyribonucleoside within DNA"	[]	null	null
 "Deoxystreptamine-Antib"	"a 2-deoxystreptamine antibiotic"	[]	null	null
-"DEOXYURIDINE"	"2'-deoxyuridine"	["deoxyuridine"]	"C9H12N2O5"	228.204
+"DEOXYURIDINE"	"2'-deoxyuridine"	["deoxyuridine", "uracil 2'-deoxyriboside"]	"C9H12N2O5"	228.204
 "DEOXYXYLULOSE-5P"	"1-deoxy-D-xylulose 5-phosphate"	["DXP", "deoxyxylulose-5-phosphate", "D-1-deoxyxylulose-5-P", "1-deoxy-D-threo-pentulose 5-phosphate", "DOXP"]	"C5H9O7P"	212.096
 "DEPHOSPHO-COA"	"3'-dephospho-CoA"	["3-dephospho-CoA", "dephosphocoenzyme A"]	"C21H33N7O13P2S"	685.538
 "Depsipeptides"	"a depsipeptide"	[]	null	null
-"DERMATAN-L-IDURONATE"	"an &alpha;-L-iduronate in [dermatan]"	["[dermatan]-&alpha;-L-iduronate", "a [dermatan] containing &alpha;-L-iduronate"]	null	null
+"DERMATAN-L-IDURONATE"	"dermatan-[core protein]"	["[dermatan]-&alpha;-L-iduronate", "a [dermatan] containing &alpha;-L-iduronate", "an &alpha;-L-iduronate in [dermatan]", "a 3-<i>O</i>-dermatan-L-seryl-[protein]"]	null	null
 "Dermatan-NacGal"	"[dermatan] containing <i>N</i>-acetyl-D-galactosamine"	["[dermatan]-<i>N</i>-acetylgalactosamine"]	null	null
 "Dermatan-NAcGal-4-sulfates"	"[dermatan sulfate] containing 4-<i>O</i>-sulfo-<i>N</i>-acetyl-D-galactosamine"	["[dermatan]-<i>N</i>-acetyl-galactosamine 4'-sulfate", "[dermatan]-4-<i>O</i>-sulfo-<i>N</i>-acetylgalactosamine"]	null	null
-"Dermatan-NAcGal-46-disulfates"	"[dermatan sulfate] containing 4,6-di-<i>O</i>-sulfo-<i>N</i>-acetyl-D-galactosamine"	["[dermatan]-<i>N</i>-acetyl-galactosamine 4',6'-disulfate", "[dermatan]-<i>N</i>-acetyl-galactosamine 4',6'-bissulfate"]	null	null
+"Dermatan-NAcGal-46-disulfates"	"dermatan sulfate containing 4,6-di-<i>O</i>-sulfo-<i>N</i>-acetyl-D-galactosamine and L-iduronate 2-<i>O</i>-sulfate"	["[dermatan]-<i>N</i>-acetyl-galactosamine 4',6'-disulfate", "[dermatan]-<i>N</i>-acetyl-galactosamine 4',6'-bissulfate"]	null	null
 "Dermatan-NAcGal-6-sulfates"	"[dermatan]-6-<i>O</i>-sulfo-<i>N</i>-acetylgalactosamine"	["[dermatan]-<i>N</i>-acetyl-galactosamine 6'-sulfate"]	null	null
-"Dermatan-Sulfate"	"dermatan sulfate"	[]	null	null
-"Dermatan-sulfate-disaccharides"	"dermatan sulfate disaccharide"	["DUA-GalNAC-4S"]	"C14H21NO18S2"	555.436
-"Dermatan-sulfate-L-IdoA2S"	"a 2-<i>O</i>-sulfo-&alpha;-L-iduronate in [dermatan]"	["[dermatan-sulfate] containing 2-<i>O</i>-sulfo-&alpha;-L-iduronate"]	null	null
+"Dermatan-Sulfate"	"dermatan sulfate containing 4-<i>O</i>-sulfo-<i>N</i>-acetyl-D-galactosamine and L-iduronate 2-<i>O</i>-sulfate"	[]	null	null
+"Dermatan-sulfate-disaccharides"	"dermatan sulfate repeat unit"	["IdoA2S-GalNAC4S", "dermatan sulfate disaccharide", "&beta;-IdoA2S-(1&rarr;3)-GalNAC4S"]	"C14H20NO18S2"	554.428
+"Dermatan-sulfate-L-IdoA2S"	"[dermatan-sulfate] containing 2-<i>O</i>-sulfo-&alpha;-L-iduronate"	["a 2-<i>O</i>-sulfo-&alpha;-L-iduronate in [dermatan]"]	null	null
 "DETHIOBIOTIN"	"dethiobiotin"	["desthiobiotin", "DTB"]	"C10H17N2O3"	213.256
 "DEXTRAN"	"a dextran"	["DEAE-dextran", "dextran T 500-", "dextran T 40-", "dextran B 1355-S", "dextran B 1355-", "saviosol", "rondex", "rheopolyglucin", "rheomacrodex", "rheoisodex", "rheodextran", "promit", "polyglucin", "macrodex", "infukoll", "hyskon", "hemodex", "dextran 80-", "dextran 75-", "dextran 70-", "dextran 40000-", "dextran 40-", "dextran T-500-", "dextran T-40-", "dextran T 70-", "dextran M 70-", "dextran b512", "dextran b1355", "dextran B-1355-", "dextran B-1355-S"]	null	null
 "Dextran-Fragments"	"a dextran fragment"	[]	null	null
 "Dextrins"	"a dextrin"	["dextrin"]	null	null
 "DGDG"	"a digalactosyldiacylglycerol"	["DGDG"]	null	null
 "DGDP"	"dGDP"	["2'-deoxyguanosine-5'-diphosphate", "deoxyguanosine-diphosphate"]	"C10H12N5O10P2"	424.18
-"DGMP"	"dGMP"	["2'-dG-5'-MP", "2'-deoxyguanosine 5'-monophosphate", "guanine riboside", "vernine", "2'-deoxyguanosine 5'-phosphate", "deoxyguanosine-phosphate"]	"C10H12N5O7P"	345.208
+"DGMP"	"dGMP"	["2'-dG-5'-MP", "2'-deoxyguanosine 5'-monophosphate", "vernine", "2'-deoxyguanosine 5'-phosphate", "deoxyguanosine-phosphate"]	"C10H12N5O7P"	345.208
 "DGTP"	"dGTP"	["2'-deoxyguanosine-5'-triphosphate", "deoxy-GTP", "deoxyguanosine-triphosphate"]	"C10H12N5O13P3"	503.152
 "DI-H-OROTATE"	"(<i>S</i>)-dihydroorotate"	["dihydro-L-orotate", "(<i>S</i>)-4,5-dihydroorotate", "(<i>S</i>)-4,5-dihydroorotic acid", "(<i>S</i>)-hydroorotic acid", "(<i>S</i>)-di-H-orotate", "L-dihydroorotate", "4,5-dihydro-L-orotate", "L-4,5-dihydroorotate", "(<i>S</i>)-4-pyrimidinecarboxylic acid"]	"C5H5N2O4"	157.105
 "DI-H-URACIL"	"5,6-dihydrouracil"	["dihydrouracil", "DI-H-uracil"]	"C4H6N2O2"	114.104
@@ -4099,10 +4114,10 @@
 "Diacyl-sn-Glycerols"	"a diacyl-<i>sn</i>-glycerol"	[]	null	null
 "Diacylglycerides"	"a diglyceride"	["a diacylglycerol"]	null	null
 "DIACYLGLYCEROL"	"a 1,2-diacyl-<i>sn</i>-glycerol"	["a D-1,2-diglyceride", "a 1,2-diacylglycerol", "a D-1,2-diacylglycerol", "DAG"]	null	null
-"Diacylglycerol-NNN-trimethylhomoserines"	"a diacylglyceryl-<i>N,N,N</i>-trimethylhomoserine"	["DGTS"]	null	null
+"Diacylglycerol-NNN-trimethylhomoserines"	"a diacylglyceryl-<i>N,N,N</i>-trimethyl-L-homoserine"	["DGTS", "a diacylglyceryl-<i>N,N,N</i>-trimethylhomoserine"]	null	null
 "Diacylglycerol-Prolipoproteins"	"an (<i>S</i>-diacyl-<i>sn</i>-glyceryl)-L-cysteinyl-[apolipoprotein]"	[]	null	null
 "DIACYLGLYCEROL-PYROPHOSPHATE"	"a 1,2-diacyl-<i>sn</i>-glycerol 3-diphosphate"	["DGPP", "a diacylglycerol pyrophosphate", "a 1,2-diacylglycerol 3-diphosphate", "a diacylglycerol 3-diphosphate"]	null	null
-"Diacylglycerolhomoserines"	"a diacylglycerolhomoserine"	["DGHS"]	null	null
+"Diacylglycerolhomoserines"	"a diacylglycerolhomoserine"	["DGHS", "a diacylglycerol-L-homoserine"]	null	null
 "Diadenosine-polyphosphates"	"a diadenosine polyphosphate"	[]	null	null
 "Dialkyl-phosphates"	"a dialkyl phosphate"	[]	null	null
 "DIALKYLKETONE-CPD"	"a dialkyl ketone"	[]	null	null
@@ -4174,7 +4189,7 @@
 "DIMETHYLBENZIMIDAZOLE"	"5,6-dimethylbenzimidazole"	["DMB", "dimethylbenzimidazole"]	"C9H10N2"	146.191
 "DIMETHYLSUBERIMIDATE"	"dimethylsuberimidate"	[]	"C10H20N2O2"	200.28
 "DIMETHYLSULFONIOACETATE"	"thetin"	["carboxymethyl-dimethyl-sulfonium", "sulfobetaine", "dimethylsulfonioacetate"]	"C4H8O2S"	120.166
-"DIMP"	"dIMP"	["2'-deoxy-IMP", "2'-deoxy-5'-inosinic acid", "2'-Deoxyinosine 5'-monophosphate", "2'-Deoxyinosine 5'-phosphate", "9-(2-deoxy-5-O-phosphono-&beta;-D-erythro-pentofuranosyl)-9H-purin-6-ol", "Deoxyinosine monophosphate", "Hypoxanthine deoxyriboside"]	"C10H11N4O7P"	330.193
+"DIMP"	"dIMP"	["2'-deoxy-IMP", "2'-deoxy-5'-inosinic acid", "2'-deoxyinosine 5'-monophosphate", "2'-deoxyinosine 5'-phosphate", "9-(2-deoxy-5-O-phosphono-&beta;-D-erythro-pentofuranosyl)-9H-purin-6-ol", "deoxyinosine monophosphate"]	"C10H11N4O7P"	330.193
 "Dinitrogen-reductase-L-arginine"	"a [dinitrogen reductase]-L-arginine"	[]	null	null
 "Dinucleoside-polyphosphates"	"a dinucleoside polyphosphate"	["a dinucleoside oligophosphate"]	null	null
 "Dinucleotide"	"a dinucleotide"	[]	null	null
@@ -4303,7 +4318,7 @@
 "EIF5A-HYPUSINE"	"an [eIF5A]-hypusine"	["an [eIF5A]-N6-[(R)-4-amino-2-hydroxybutyl]-L-lysine"]	null	null
 "EIF5A-LYSINE"	"an [eIF5A-precursor]-lysine"	["an eIF5A-L-lysine", "an eIF5A lysine"]	null	null
 "Elemental-selenium"	"Se<sup>0</sup>"	["elemental selenium"]	"Se"	78.96
-"Elemental-Sulfur"	"S<sup>0</sup>"	["elemental sulfur", "orthorhombic sulfur", "rhombic sulfur"]	"S"	32.06
+"Elemental-Sulfur"	"sulfur(0)"	["elemental sulfur", "orthorhombic sulfur", "rhombic sulfur", "S<sup>0</sup>"]	"S"	32.06
 "Elongation-Factor-EF-P-L-lysine"	"a [elongation-Factor-P]-L-lysine"	[]	null	null
 "Elongator-tRNAMet-acetylcytidine"	"an <i>N</i><sup>4</sup>-acetylcytidine<sup>34</sup> in [elongator tRNA<sup>met</sup>]"	["[elongator tRNA<sup>met</sup>]-<i>N</i><sup>4</sup>-acetylcytidine<sup>34</sup>"]	null	null
 "Enamines"	"an enamine"	[]	null	null
@@ -4313,6 +4328,7 @@
 "ENTEROBACTIN"	"enterobactin"	["(2,3-dihydroxybenzoylserine)<sub>3</sub>", "enterochelin", "<i>N</i>-(2,3-dihydroxybenzoyl)-<i>O</i>-[<i>N</i>-(2,3-dihydroxybenzoyl)-<i>O</i>-[<i>N</i>-(2,3-dihydroxybenzoyl)-L-seryl]-L-seryl]-L-serine-(3->1(3))-lactone"]	"C30H27N3O15"	669.554
 "ENZYME-S-SULFANYLCYSTEINE"	"a [protein]-<i>S</i>-sulfanyl-L-cysteine"	[]	null	null
 "EPITHIONITRILES"	"an epithionitrile"	[]	null	null
+"EpOME"	"an EpOME"	["an epoxyoctenoate"]	null	null
 "epoxides"	"an epoxide"	[]	null	null
 "epoxy-11-methyl-octadecadienoate-lipid"	"a [glycerolipid]-10,13-epoxy-11-methyl-octadecadienoate"	[]	null	null
 "Epoxy-fatty-acids"	"an epoxy fatty acid"	["LCFA"]	null	null
@@ -4370,7 +4386,7 @@
 "Fatty-Alcohols"	"a fatty alcohol"	[]	null	null
 "Fatty-Aldehydes"	"a fatty aldehyde"	[]	null	null
 "Fatty-amides"	"a fatty amide"	[]	null	null
-"FE+2"	"Fe<SUP>2+</SUP>"	["ferrous iron", "ferrous ion", "iron(II)", "Fe<sup>II</sup>"]	"Fe"	55.847
+"FE+2"	"Fe<sup>2+</sup>"	["ferrous iron", "ferrous ion", "iron(II)", "Fe<sup>II</sup>"]	"Fe"	55.847
 "FE+3"	"Fe<SUP>3+</SUP>"	["ferric iron", "ferric ion", "iron(III)", "Fe<sup>III</sup>"]	"Fe"	55.847
 "Fe2-siderophores"	"a siderophore-bound Fe(II)"	[]	null	null
 "Fe3-siderophores"	"a siderophore-bound Fe(III)"	["an iron(III) chelate", "an Fe<sup>3+</sup>-siderophore", "a ferric-siderophore complex"]	null	null
@@ -4433,7 +4449,7 @@
 "Fructofuranose"	"D-fructofuranose"	[]	"C6H12O6"	180.157
 "Fructooligosaccharides"	"a fructooligosaccharide"	["oligofructose", "oligofructan"]	null	null
 "Fructose"	"fructose"	[]	null	null
-"FRUCTOSE-16-DIPHOSPHATE"	"&beta;-D-fructose 1,6-bisphosphate"	["fructose 1,6-biphosphate", "fructose 1,6-bisphosphate", "D-fructos 1,6-bisphosphate", "FBP"]	"C6H10O12P2"	336.085
+"FRUCTOSE-16-DIPHOSPHATE"	"&beta;-D-fructofuranose 1,6-bisphosphate"	["&beta;-D-fructose 1,6-bisphosphate", "FBP"]	"C6H10O12P2"	336.085
 "FRUCTOSE-6P"	"&beta;-D-fructofuranose 6-phosphate"	["D-fructose-6-phosphate", "fructose-6P", "fructose-6-P", "fruc6p", "fru-6-P", "fructose-6-phosphate", "A-D-fructose-6-P", "D-fructose-6-P", "D-fructose 6-phosphate", "D-fructofuranose 6-phosphate"]	"C6H11O9P"	258.121
 "Fructose-BisPO4-Aldolase-Lysine"	"[fructose-bisphosphate aldolase]-lysine"	[]	null	null
 "Fructose-BisPO4-Aldolase-Tri-Me-Lysine"	"a [fructose-bisphosphate aldolase]-<i>N</i><sup>6</sup>,<i>N</i><sup>6</sup>,<i>N</i><sup>6</sup>-trimethyl-L-lysine"	[]	null	null
@@ -4469,7 +4485,7 @@
 "Galactomannans"	"a galactomannan"	["GaM"]	null	null
 "GALACTOSAMINE"	"D-galactosamine"	["2-amino-2-deoxy-D-galactopyranose", "chondrosamine", "D-2-amino-2-deoxygalactose", "D-chondrosamine", "D-GalN", "2-amino-2-deoxy-D-galactose"]	"C6H14NO5"	180.18
 "Galactosaminoglycans"	"a galactosaminoglycan"	[]	null	null
-"GALACTOSE"	"&beta;-D-galactopyranose"	["&beta;-D-galactopyranose", "&beta;-D-galactose", "cerebrose", "6-(hydroxymethyl)tetrahydropyran-2,3,4,5-tetraol"]	"C6H12O6"	180.157
+"GALACTOSE"	"&beta;-D-galactopyranose"	["&beta;-D-galactopyranose", "&beta;-D-galactose", "cerebrose", "6-(hydroxymethyl)tetrahydropyran-2,3,4,5-tetraol", "&beta;-D-Gal"]	"C6H12O6"	180.157
 "Galactose"	"galactose"	[]	null	null
 "GALACTOSE-1P"	"&alpha;-D-galactose 1-phosphate"	["&alpha;-D-Gal-1-P", "&alpha;-D-galactopyranose 1-phosphate", "galactose-1-P", "D-galactose-1-phosphate"]	"C6H11O9P"	258.121
 "Galactose-beta-13-N-glycans"	"a galactose-&beta;-1,3-N-glycan"	[]	null	null
@@ -4532,18 +4548,18 @@
 "GLC-6-P"	"&beta;-D-glucose 6-phosphate"	["&beta;-D-glucose-6-P"]	"C6H11O9P"	258.121
 "GLC-D-LACTONE"	"D-glucono-1,5-lactone"	["3,4,5-trihydroxy-6-(hydroxymethyl)tetrahydropyran-2-one", "gluconolactone", "glucono-1,5-lactone", "1,5-gluconolactone", "D-gluconolactone", "glucono-&delta;-lactone", "&delta;-gluconolactone", "D-glucono-&delta;-lactone", "gluconic lactone", "gluconic acid lactone"]	"C6H10O6"	178.141
 "Glc2Man9GlcNAc2-proteins"	"Glc<sub>2</sub>Man<sub>9</sub>GlcNAc<sub>2</sub>-[protein]"	["an [&alpha;-D-Glc-(1&rarr;3)-&alpha;-D-Glc-(1&rarr;3)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-{&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;6)]-&alpha;-D-Man-(1&rarr;6)}-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcNAc]-<i>N</i>-Asn-[protein]", "a -[(glucosyl)<sub>2</sub>(mannosyl)<sub>9</sub>(<i>N</i>-acetylglucosaminyl)<sub>2</sub>]-L-asparaginyl-[protein]"]	null	null
-"GlcA-Gal-Gal-Xyl-Proteins"	"a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"	["3-&beta;-D-glucosyluronate-3-&beta;-D-galactosyl-4-&beta;-D-galactosyl-<i>O</i>-&beta;-D-xylosyl-[protein]", "&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]", "a [protein]-3-<i>O</i>-(&beta;-D-glucuronosyl-(1&rarr;3)-&beta;-D-galactosyl-(1&rarr;3)-&beta;-D-galactosyl-(1&rarr;4)-&beta;-D-xylosyl)-L-serine"]	null	null
+"GlcA-Gal-Gal-Xyl-Proteins"	"a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-[core protein]"	["3-&beta;-D-glucosyluronate-3-&beta;-D-galactosyl-4-&beta;-D-galactosyl-<i>O</i>-&beta;-D-xylosyl-[protein]", "&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]", "a [protein]-3-<i>O</i>-(&beta;-D-glucuronosyl-(1&rarr;3)-&beta;-D-galactosyl-(1&rarr;3)-&beta;-D-galactosyl-(1&rarr;4)-&beta;-D-xylosyl)-L-serine", "a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"]	null	null
 "GlcA-GalNAc-GlcA-Gal-Gal-Xyl-Proteins"	"a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&beta;-D-GalNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"	["D-glucuronosyl-(1&rarr;3)-&beta;-<i>N</i>-acetyl-D-galactosaminyl-(1&rarr;4)-&beta;-D-glucuronosyl-(1&rarr;3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]"]	null	null
-"GlcA-GlcNAc-GlcA-Gal-Gal-Xyl-Protein"	"a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"	["&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosylproteoglycan", "&beta;-D-glucuronosyl-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]"]	null	null
+"GlcA-GlcNAc-GlcA-Gal-Gal-Xyl-Protein"	"a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-[core protein]"	["&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosylproteoglycan", "&beta;-D-glucuronosyl-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]", "a 3-<i>O</i>-[&beta;-D-GlcA-(1&rarr;3)-&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"]	null	null
 "GlcA-n-3-O-sulfoGlcNS"	"heparan sulfate containing a glucuronate--<i>N</i>,3-<i>O</i>-disulfo-D-glucosamine disaccharide"	[]	null	null
 "GlcA-n-6-O-sulfoGlcNS"	"heparan sulfate containing a glucuronate--<i>N</i>,6-<i>O</i>-disulfo-D-glucosamine disaccharide"	[]	null	null
 "GlcCer-40-1-3s"	"a glucosylceramide(40:1)-3"	["a GlcCer(40:1)-3", "a glucosyl ceramide(40:1)-3"]	null	null
 "GlcMan9GlcNAc2-proteins"	"GlcMan<sub>9</sub>GlcNAc<sub>2</sub>-[protein]"	["an N-linked GlcMan<sub>9</sub>(GlcNAc)<sub>2</sub>-glycoprotein", "an &alpha;-D-Glc-(1&rarr;3)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;6)]-&alpha;-D-Man-(1&rarr;6)]-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcNAc-1-L-asparaginyl-[protein]", "a [glucosyl(mannosyl)<sub>9</sub>(<i>N</i>-acetylglucosaminyl)<sub>2</sub>]-L-asparaginyl-[protein]"]	null	null
-"GlcNAc-1-6-anhydro-MurNAc-pentapeptide"	"GlcNAc-1,6-anhydro-MurNAc-pentapeptide"	[]	null	null
+"GlcNAc-1-6-anhydro-MurNAc-pentapeptide"	"a &beta;-D-GlcNAc-(1&rarr;4)-<i>N</i>-acetyl-1,6-anhydromuramyl-pentapeptide"	["a GlcNAc-1,6-anhydro-MurNAc-pentapeptide"]	null	null
 "GlcNAc-b2-GlcNAc-b6-O-D-mannosyl-Protein"	"a 3-<i>O</i>-{&beta;-D-GlcNAc-(1&rarr;2)-[&beta;-D-GlcNAc-(1&rarr;6)-]-&alpha;-D-mannosyl}-(Ser/Thr)-[protein]"	["core M2"]	null	null
 "GlcNAc-b2-O-D-mannosyl-Protein"	"a 3-<i>O</i>-[&beta;-D-GlcNAc-(1&rarr;2)-&alpha;-D-mannosyl]-(Ser/Thr)-[protein]"	["core M1"]	null	null
-"GlcNAc-GlcA-Gal-Gal-Xyl-Protein"	"a 3-<i>O</i>-[&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"	["&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosylproteoglycan", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]"]	null	null
-"GlcNAc-GlcA-GlcNAc-GlcA-Gal-Gal-Xyl-Core"	"a 3-<i>O</i>-[&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"	["&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosylproteoglycan", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]"]	null	null
+"GlcNAc-GlcA-Gal-Gal-Xyl-Protein"	"a 3-<i>O</i>-[&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-[core protein]"	["&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosylproteoglycan", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]", "a 3-<i>O</i>-[&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"]	null	null
+"GlcNAc-GlcA-GlcNAc-GlcA-Gal-Gal-Xyl-Core"	"a 3-<i>O</i>-[&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-[core protein]"	["&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[proteoglycan]", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosylproteoglycan", "&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&alpha;-N-acetyl-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->3)-&beta;-D-galactosyl-(1->3)-&beta;-D-galactosyl-(1->4)-&beta;-D-xylosyl-[core protein]", "a 3-<i>O</i>-[&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&alpha;-D-GlcNAc-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;3)-&beta;-D-Gal-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-Xyl]-L-seryl-[protein]"]	null	null
 "GlcNAc-MurNAc-tetrapeptide"	"an <i>N</i>-acetyl-D-glucosamine-<i>N</i>-acetylmuramyl-tetrapeptide"	["a GlcNAc-MurNAc-tetrapeptide"]	null	null
 "GlgE-Glycogen"	"a GlgE-glycogen"	["a mycobacterial &alpha;-D-glucan"]	null	null
 "GLN"	"L-glutamine"	["Q", "proglumide", "glum", "glutamine", "glumin", "2-aminoglutaramic acid", "glutamic acid 5-amide", "L-gln"]	"C5H10N2O3"	146.146
@@ -4585,7 +4601,7 @@
 "GLUCURONOXYLAN-4-O-METHYL-D-GLUCURONATE"	"[glucuronoxylan] 4-<i>O</i>-methyl-D-glucuronate"	[]	null	null
 "GLUCURONOXYLAN-D-GLUCURONATE"	"[glucuronoxylan] D-glucuronate"	[]	null	null
 "Glucuronoxylan-Oligosaccharides"	"a glucuronoxylan oligosaccharide"	[]	null	null
-"Glucuronoxylans"	"a glucuronoxylan"	["MGX", "4-<i>O</i>-methyl-D-glucurono-D-xylan"]	null	null
+"Glucuronoxylans"	"a glucuronoxylan"	[]	null	null
 "GLUCURONYL-ETCETERA-GALACTOSYLPROTEOGLYC"	"D-glucosyluronate-1,3-&beta;-D-galactosyl-[proteoglycan]"	["3-&beta;-D-glucosyluronate-3-&beta;-D-galactosyl-4-&beta;-D-galactosyl-O-&beta;-D-xylosyl-[protein]", "&beta;-D-glucosyluronate-1,3-D-galactosyl-[proteoglycan]"]	null	null
 "GLUTACONATE"	"(<i>E</i>)-glutaconate"	["<i>trans</i>-glutaconic acid", "<i>trans</i>-glutaconate", "(<i>E</i>)-glutaconic acid"]	"C5H4O4"	128.084
 "GLUTAMATE-1-SEMIALDEHYDE"	"(S)-4-amino-5-oxopentanoate"	["L-glutamate 1-semialdehyde"]	"C5H9NO3"	131.131
@@ -4597,7 +4613,7 @@
 "GLUTARATE"	"glutarate"	["pentanedioate", "glutaric acid"]	"C5H6O4"	130.1
 "GLUTATHIONE"	"glutathione"	["L-&gamma;-glutamyl-L-cysteinylglycine", "GSH", "reduced glutathione", "glutathionate"]	"C10H16N3O6S"	306.313
 "GLUTATHIONYLSPERMIDINE"	"glutathionylspermidine"	["N1-(&gamma;-L-glutamyl-L-cysteinyl-glycyl)-spermidine"]	"C17H36N6O5S"	436.569
-"GLY"	"glycine"	["G", "aminoacetic acid"]	"C2H5NO2"	75.067
+"GLY"	"glycine"	["G", "aminoacetic acid", "gly"]	"C2H5NO2"	75.067
 "Glycan-Groups"	"a glycan group"	[]	null	null
 "Glycans"	"a glycan"	[]	null	null
 "Glyceollins"	"a glyceollin"	[]	null	null
@@ -4677,7 +4693,7 @@
 "GLYCOSYLGLYCERIDES"	"a glycosylglyceride"	[]	null	null
 "GLYCYLGLYCINE"	"glycyl-glycine"	["Gly-Gly"]	"C4H8N2O3"	132.119
 "GLYOX"	"glyoxylate"	["glyoxalate", "glyox", "glyoxylic acid"]	"C2HO3"	73.028
-"GMP"	"GMP"	["guanylate", "guanylic acid", "guanosine phosphate", "guanosine 5'-phosphate", "guanosine monophosphate", "guanosine-5'-monophosphate"]	"C10H12N5O8P"	361.207
+"GMP"	"GMP"	["guanylate", "guanylic acid", "guanosine phosphate", "guanosine 5'-phosphate", "guanosine monophosphate", "guanosine-5'-monophosphate", "guanine ribotide"]	"C10H12N5O8P"	361.207
 "GMP-LYSINE-PHOSPHORAMIDATE"	"GMP-N-&epsilon;-(N-&alpha;-acetyl lysine methyl ester) 5'-phosphoramidate"	["GMP-lysine"]	"C19H29N7O10P"	546.453
 "Goods-Buffers"	"a Good's buffer substance"	[]	null	null
 "GPPOL"	"a triglycosyl phenolphthiocerol"	["[2,3,4-tri-<i>O</i>-methyl-&alpha;-L-fucopyranosyl-(1&rarr;3)-&alpha;-L-rhamnopyranosyl-(1&rarr;3)-2-<i>O</i>-methyl-&alpha;-L-rhamnopyranosyl] phenolphthiocerol", "GPPOL"]	null	null
@@ -4704,7 +4720,7 @@
 "Guanine46-in-tRNA"	"a guanine<sup>46</sup> in tRNA"	[]	null	null
 "Guanine6-in-tRNA"	"a guanine<sup>6</sup> in tRNA"	[]	null	null
 "Guanine9-in-tRNA"	"a guanine<sup>9</sup> in tRNA"	[]	null	null
-"GUANOSINE"	"guanosine"	["nucleoside Q"]	"C10H13N5O5"	283.243
+"GUANOSINE"	"guanosine"	["nucleoside Q", "guanine riboside", "guanine-9-&beta;-D-ribofuranoside"]	"C10H13N5O5"	283.243
 "Guanosine-2922-in-27S-pre-rRNA"	"a guanosine<sup>2922</sup> in 27S pre-rRNA"	[]	null	null
 "guanosine-34-tRNAs"	"a guanosine<sup>34</sup> in tRNA"	[]	null	null
 "GUANOSINE-5DP-3DP"	"ppGpp"	["guanosine tetraphosphate", "guanosine 5'-diphosphate,3'-diphosphate", "guanosine 3',5'-bispyrophosphate", "guanosine 3',5'-bis(diphosphate)", "guanosine 3'-diphosphate 5'-diphosphate", "magic spot", "guanosine-5',3'-tetraphosphate"]	"C10H11N5O17P4"	597.115
@@ -4717,7 +4733,7 @@
 "Haloacetates"	"a haloacetate"	[]	null	null
 "Haloalkanes"	"a haloalkane"	[]	null	null
 "HCL"	"HCl"	["hydrogen chloride", "hydrochloric acid"]	"HCl"	36.461
-"HCN"	"hydrogen cyanide"	["cyanide", "hydrocyanic acid"]	"CHN"	27.026
+"HCN"	"hydrogen cyanide"	["cyanide", "hydrocyanic acid", "prussic acid"]	"CHN"	27.026
 "HCO3"	"hydrogencarbonate"	["carbonate", "CO<SUB>3</SUB><SUP>-2</SUP>", "CO<SUB>3</SUB><SUP>2-</SUP>", "HCO<SUB>3</SUB><SUP>-</SUP>", "HCO<SUB>3</SUB>", "bicarbonate"]	"CHO3"	61.017
 "HECT-Ubiquitin-carrier-protein-E3-L-cys"	"a [HECT-type E3 ubiquitin transferase]-L-cysteine"	[]	null	null
 "Hederagenin-Monoglucosides"	"a hederagenin monoglucoside"	[]	null	null
@@ -4732,24 +4748,24 @@
 "Hemicelluloses"	"hemicellulose"	[]	null	null
 "Hemiterpenes"	"a hemiterpene"	[]	null	null
 "Heparan"	"heparosan-[core protein]"	[]	null	null
-"Heparan-Glc-N-3-6-trisulfate"	"a [heparan sulfate]-&alpha;-D-<i>N</i>-sulfoglucosamine 3,6-<i>O</i>-bissulfate"	["a heparin-3-<i>O</i>,6-<i>O</i>-disulfated, <i>N</i>-sulfated glucosamine", "a [heparan sulfate]-2-<i>N</i>,3,6-<i>O</i>-trisulfo-&alpha;-D-glucosamine"]	null	null
-"Heparan-GlcN-6-N-bisulfate"	"a [heparan sulfate]-&alpha;-D-<i>N</i>-sulfoglucosamine 6-<i>O</i>-sulfate"	["a heparin-6-<i>O</i>-sulfated, <i>N</i>-sulfated glucosamine", "a [heparan sulfate]-2-<i>N</i>,6-<i>O</i>-disulfo-&alpha;-D-glucosamine"]	null	null
+"Heparan-Glc-N-3-6-trisulfate"	"a [heparan sulfate] containing &alpha;-D-<i>N</i>-sulfoglucosamine 3,6-<i>O</i>-bissulfate"	["a heparin containing 3-<i>O</i>,6-<i>O</i>-disulfated, <i>N</i>-sulfated glucosamine", "a [heparan sulfate] containing 2-<i>N</i>,3,6-<i>O</i>-trisulfo-&alpha;-D-glucosamine"]	null	null
+"Heparan-GlcN-6-N-bisulfate"	"a [heparan sulfate] containing 2-<i>N</i>,6-<i>O</i>-disulfo-&alpha;-D-glucosamine"	["a heparin containing 6-<i>O</i>-sulfate,<i>N</i>-sulfate glucosamine", "a [heparan sulfate] containing &alpha;-D-<i>N</i>-sulfoglucosamine 6-<i>O</i>-sulfate"]	null	null
 "Heparan-glucuronate-terminal"	"&beta;-D-glucosyluronate-[heparan sulfate]"	["&beta;-D-glucosyluronate-(1->4)-N-acetyl-&alpha;-D-glucosaminyl-[proteoglycan]", "&beta;-D-glucosyluronate-(1->4)-N-acetyl-&alpha;-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-[proteoglycan]"]	null	null
 "Heparan-NAc-Glc"	"a [heparan sulfate]-<i>N</i>-acetyl-&alpha;-D-glucosamine"	[]	null	null
 "Heparan-NAc-Glc-6S"	"[heparan sulfate]-&alpha;-<i>N</i>-acetyl-D-glucosamine 6-<i>O</i>-sulfate"	["a heparin <i>N</i>-acetyl-glucosamine 6-<i>O</i>-sulfate", "[heparan sulfate] 6-<i>O</i>-sulfate"]	null	null
 "Heparan-NAc-glucosaminide"	"<i>N</i>-acetyl-&alpha;-D-glucosaminide-[heparan sulfate]"	["N-acetyl-&alpha;-D-glucosaminyl-(1->4)-&beta;-D-glucuronosyl-(1->4)-N-acetyl-&alpha;-D-glucosaminyl-[proteoglycan]", "N-acetyl-&alpha;-D-glucosaminyl-(1->4)-&beta;-D-glucosyluronate-[proteoglycan]", "<i>N</i>-acetyl-a-D-glucosaminide-[heparan sulfate]"]	null	null
 "Heparan-Sulfate"	"heparan sulfate"	["heparitin sulfate"]	null	null
-"Heparan-sulfate-3-N-disulfate"	"a [heparan sulfate]-&alpha;-D-<i>N</i>-sulfoglucosamine 3-<i>O</i>-sulfate"	["a heparin-3-<i>O</i>-sulfated, <i>N</i>-sulfated glucosamine", "a [heparan sulfate]-2-<i>N</i>,3-<i>O</i>-disulfo-&alpha;-D-glucosamine"]	null	null
-"Heparan-sulfate-D-GlcNS"	"a [heparan sulfate]-&alpha;-D-<i>N</i>-sulfoglucosamine"	["a [heparan sulfate]-<i>N</i>-sulfoglucosamine", "a heparin &alpha;-D-<i>N</i>-sulfoglucosamine", "a [heparan sulfate]-GlcNS"]	null	null
+"Heparan-sulfate-3-N-disulfate"	"a [heparan sulfate] containing &alpha;-D-<i>N</i>-sulfoglucosamine 3-<i>O</i>-sulfate"	["a heparin containing 3-<i>O</i>-sulfated, <i>N</i>-sulfated glucosamine", "a [heparan sulfate] containing 2-<i>N</i>,3-<i>O</i>-disulfo-&alpha;-D-glucosamine"]	null	null
+"Heparan-sulfate-D-GlcNS"	"a heparan sulfate containing &alpha;-D-<i>N</i>-sulfoglucosamine"	["a [heparan sulfate]-containing <i>N</i>-sulfoglucosamine", "a heparin containing &alpha;-D-<i>N</i>-sulfoglucosamine", "a [heparan sulfate] containing GlcNS"]	null	null
 "Heparan-sulfate-D-glucosaminides"	"&alpha;-D-glucosaminide-[heparan sulfate]"	[]	null	null
 "Heparan-sulfate-D-glucuronate"	"a [heparan-sulfate]-&beta;-D-glucuronate"	[]	null	null
 "Heparan-sulfate-GlcA2S"	"a [heparan-sulfate]-2-<i>O</i>-sulfo-&beta;-D-glucuronate"	[]	null	null
 "Heparan-sulfate-GlcN6S"	"[heparan sulfate]-&alpha;-D-glucosamine 6-<i>O</i>-sulfate"	["a heparin glucosamine 6-<i>O</i>-sulfate", "[heparan sulfate] 6-<i>O</i>-sulfate"]	null	null
-"Heparan-sulfate-L-IdoA-2S"	"a [heparan-sulfate]-2-<i>O</i>-sulfo-&alpha;-L-iduronate"	[]	null	null
-"Heparan-sulfate-L-iduronate"	"a [heparan sulfate]-&alpha;-L-iduronate"	[]	null	null
+"Heparan-sulfate-L-IdoA-2S"	"a [heparan-sulfate]-containing 2-<i>O</i>-sulfo-&alpha;-L-iduronate"	[]	null	null
+"Heparan-sulfate-L-iduronate"	"a [heparosan]-containing &alpha;-L-iduronate"	[]	null	null
 "HEPARIN"	"heparin"	["enoxaparin"]	null	null
-"HEPARIN-GLUCOSAMINE"	"a [heparan sulfate]-&alpha;-D-glucosamine"	["a [heparan sulfate]-glucosamine"]	null	null
-"HEPARIN-GLUCOSAMINE-3-O-SULFATE"	"a [heparan sulfate]-&alpha;-D-glucosamine 3-sulfate"	["a heparin-glucosamine 3-<i>O</i>-sulfate", "a [heparan sulfate]-glucosamine 3-sulfate"]	null	null
+"HEPARIN-GLUCOSAMINE"	"a deacetylated heparosan-[core protein]"	["a [heparan sulfate]-glucosamine"]	null	null
+"HEPARIN-GLUCOSAMINE-3-O-SULFATE"	"a [heparan sulfate] containing &alpha;-D-glucosamine 3-sulfate"	["a heparin containing glucosamine 3-<i>O</i>-sulfate", "a [heparan sulfate] containing glucosamine 3-sulfate"]	null	null
 "Heparin-NAcGlc-3S"	"[heparin]-&alpha;-<i>N</i>-acetyl-D-glucosamine 3-<i>O</i>-sulfate"	["a heparin <i>N</i>-acetylglucosamine 3-<i>O</i>-sulfate"]	null	null
 "Heparin-sulfo-NGlc"	"[heparin]-&alpha;-<i>N</i>-sulfo-D-glucosamine"	["a heparin <i>N</i>-sulfoglucosamine"]	null	null
 "Heparin-sulfo-NGlc-3S"	"[heparin]-&alpha;-<i>N</i>-sulfo-D-glucosamine 3-<i>O</i>-sulfate"	["a heparin <i>N</i>-sulfoglucosamine 3-<i>O</i>-sulfate"]	null	null
@@ -4797,6 +4813,7 @@
 "HOMOSERINE-LACTONE"	"homoserine lactone"	["2-aminobutan-4-olide", "2(3H)-furanone, 3-aminodihydro-", "&alpha;-amino-&gamma;-butyrolactone", "Hsl"]	"C4H8NO2"	102.113
 "Homoterpenoids"	"a homoterpenoid"	["a homoterpene"]	null	null
 "Hormones"	"a hormone"	[]	null	null
+"HPODE"	"an HpODE"	["a hydroperoxy-octadecadienoate", "an HPODE"]	null	null
 "Hpr-Histidine"	"an [HPr]-L-histidine"	[]	null	null
 "Hpr-pi-phospho-L-histidines"	"an [HPr protein]-<i>N<sup>&pi;</sup></i>-phospho-L-histidine"	[]	null	null
 "HS"	"hydrogen sulfide"	["sulfide", "H<SUB>2</SUB>S"]	"H2S"	34.076
@@ -4814,7 +4831,7 @@
 "HYDROGEN-PEROXIDE"	"hydrogen peroxide"	["hydroperoxide", "perhydrol", "H<SUB>2</SUB>O<SUB>2</SUB>"]	"H2O2"	34.015
 "HYDROLYZED-TANNIN"	"a hydrolyzable tannin"	[]	null	null
 "Hydroperoxy-Fatty-Acids"	"a hydroperoxy fatty acid"	[]	null	null
-"Hydroperoxy-icosatetraenoates"	"a hydroperoxy icosatetraenoate"	[]	null	null
+"Hydroperoxy-icosatetraenoates"	"an HpETE"	["a hydroperoxy icosatetraenoate"]	null	null
 "Hydroperoxy-octadecatrienoates"	"a hydroperoxy octadecatrienoate"	[]	null	null
 "Hydrophilic-Solute-Or-Ion-LT-600Da"	"hydrophilic solute or ion < 600 Da"	[]	null	null
 "Hydrophobic-amino-acid-esters"	"an ester of hydrophobic-amino acids"	[]	null	null
@@ -4877,7 +4894,7 @@
 "Imines"	"an imine"	[]	null	null
 "IMINO-GROUP"	"an imino group"	[]	"CH2N"	28.033
 "IMINOASPARTATE"	"2-iminosuccinate"	["2-iminobutanedioate", "&alpha;-iminosuccinate", "iminoaspartate"]	"C4H3NO4"	129.072
-"IMP"	"IMP"	["5'-IMP", "ribosylhypoxanthine monophosphate", "inosinate", "inosine monophosphate", "inosine 5'-monophosphate", "inosine 5'-phosphate", "5'-inosinate", "5'-inosinic acid", "5'-inosine monophosphate"]	"C10H11N4O8P"	346.193
+"IMP"	"IMP"	["5'-IMP", "ribosylhypoxanthine monophosphate", "inosinate", "inosine monophosphate", "inosine 5'-monophosphate", "inosine 5'-phosphate", "5'-inosinate", "5'-inosinic acid", "5'-inosine monophosphate", "hypoxanthin ribotide"]	"C10H11N4O8P"	346.193
 "IN-CHAIN-HYDROXY-FATTY-ACID"	"an in-chain hydroxy fatty acid"	["a mid-chain hydroxy fatty acid"]	null	null
 "In-Situ-Cofactors"	"a cofactor that is synthesized <i>in situ</i>"	[]	null	null
 "INDOLE"	"indole"	[]	"C8H7N"	117.15
@@ -4897,7 +4914,7 @@
 "Inorganic-Minerals"	"an inorganic mineral"	[]	null	null
 "Inorganic-Phosphorus-Ions"	"an inorganic phosphorus-containing ion"	[]	null	null
 "Inorganic-Salts"	"an inorganic salt"	[]	null	null
-"INOSINE"	"inosine"	["hypoxanthine-ribose", "iso-prinosine", "riboxine"]	"C10H12N4O5"	268.229
+"INOSINE"	"inosine"	["hypoxanthine-ribose", "iso-prinosine", "riboxine", "hypoxanthine riboside"]	"C10H12N4O5"	268.229
 "Inositol-Phosphates"	"an inositol phosphate"	[]	"C6H11O9P"	258.121
 "Inositol-Phosphoceramides"	"an inositol-phosphoceramide"	["an inositol-p-ceramide"]	null	null
 "Inositol-PhosphoManIno-PhosphoCera"	"an inositol phosphomannosylinositol phosphoceramide"	[]	null	null
@@ -4907,7 +4924,7 @@
 "Insecticides"	"an insecticide"	[]	null	null
 "Insertion-Sequences"	"an insertion sequence"	[]	null	null
 "Intracellular-Sulfur"	"intracellular S<sup>0</sup>"	[]	"S"	34.076
-"Inulin"	"an inulin"	["a [1-&beta;-D-fructofuranosyl-(2->1)<sub>n</sub>--&alpha;-D-glucopyranoside", "a (2,1-&beta;-D-fructan)"]	null	null
+"Inulin"	"an inulin"	["a [1-&beta;-D-fructofuranosyl-(2->1)<sub>n</sub>]-&alpha;-D-glucopyranoside", "a (2,1-&beta;-D-fructan)"]	null	null
 "Iodides"	"an iodo organic compound"	[]	null	null
 "IODOACETAMIDE"	"iodoacetamide"	["iodoacetoamide", "2-iodoacetamide", "acetamide, 2-iodo-", "monoiodoacetamide", "surauto", "N-(3-methoxy-4-butoxybenzyl)thiobarbituric acid"]	"C2H4NOI"	184.964
 "IODOACETATE"	"iodoacetate"	["2-iodoacetate", "monoiodoacetate"]	"C2H2O2I"	184.941
@@ -4930,7 +4947,7 @@
 "Isoflavones"	"an isoflavone"	["Isoflavones"]	null	null
 "Isoflavonoids"	"an isoflavonoid"	["an isoflavanoid"]	null	null
 "Isolichenin"	"isolichenan"	["isolichenin"]	null	null
-"Isomaltose"	"isomaltose"	["brachiose", "&alpha;-D-glucopyranose-(1&rarr;6)-D-glucopyranose", "6-<i>O</i>-&alpha;-D-glucopyranosyl-D-glucopyranose"]	"C12H22O11"	342.299
+"Isomaltose"	"isomaltose"	["brachiose", "&alpha;-D-glucopyranosyl-(1&rarr;6)-D-glucopyranose", "6-<i>O</i>-&alpha;-D-glucopyranosyl-D-glucopyranose"]	"C12H22O11"	342.299
 "ISONIAZIDE"	"isoniazid"	["isoniazide", "isonicotinate hydrazide", "isonicotinic acid hydrazide", "isonicotinylhydrazide", "INH"]	"C6H7N3O"	137.141
 "Isoprenoid-Derivatives"	"an isoprenoid derivative"	[]	null	null
 "Isoprenoid-Phosphates"	"an isoprenoid phosphate"	[]	null	null
@@ -4957,6 +4974,10 @@
 "kappa-Carrageenan"	"&kappa;-carrageenose"	["&kappa;-carrageenan"]	null	null
 "KCL"	"potassium chloride"	[]	"KCl"	74.551
 "KDO"	"3-deoxy-&alpha;-D-<i>manno</i>-2-octulosonate"	["&alpha;-2-keto-3-deoxyoctulosonic acid pyranose", "3-Kdo", "deoxy-manno-octulosonate", "ketodeoxyoctonate", "3-deoxy-&alpha;-D-<i>manno</i>-octulosonate", "3-deoxy-&alpha;-D-<i>manno</i>-oct-2-ulosonate"]	"C8H13O8"	237.186
+"Kdo-2-4-Kdo-2-6-acyl-Lipid-IVA"	"an &alpha;-Kdo-(2->4)-&alpha;-Kdo-(2->6)-(acyl)-[lipid IV<sub>A</sub>]"	["3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->4)-3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->6)-2-deoxy-2-{[(3R)-3-(acyloxy)acyl]amino}-3-O-[(3R)-3-hydroxyacyl]-4-O-phospho-&beta;-D-glucopyranosyl-(1->6)-2-deoxy-3-O-[(3R)-3-hydroxyacyl]-2-{[(3R)-3-hydroxyacyl]amino}-1-O-phosphono-&alpha;-D-glucopyranose"]	null	null
+"Kdo-2-4-Kdo-2-6-acyl2-Lipid-IVA"	"an &alpha;-Kdo-(2->4)-&alpha;-Kdo-(2->6)-(acyl)<sub>2</sub>-[lipid IV<sub>A</sub>]"	["3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->4)-3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->6)-2-deoxy-2-{[(3R)-3-(acyloxy)acyl]amino}-3-O-[(3R)-3-(acyloxy)acyl]-4-O-phospho-&beta;-D-glucopyranosyl-(1->6)-2-deoxy-3-O-[(3R)-3-hydroxyacyl]-2-{[(3R)-3-hydroxyacyl]amino}-1-O-phospho-&alpha;-D-glucopyranose"]	null	null
+"Kdo-2-4-Kdo-2-6-Lipid-IVA"	"an &alpha;-Kdo-(2->4)-&alpha;-Kdo-(2->6)-[lipid IV<sub>A</sub>]"	["a (Kdo)<sub>2</sub>-[lipid IV<sub>A</sub>]", "3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->4)-3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->6)-2-deoxy-2-{[(3R)-3-hydroxyacyl]amino}-3-O-[(3R)-3-hydroxyacyl]-4-O-phospho-&beta;-D-glucopyranosyl-(1->6)-2-deoxy-3-O-[(3R)-3-hydroxyacyl]-2-{[(3R)-3-hydroxyacyl]amino}-1-O-phosphono-&alpha;-D-glucopyranose"]	null	null
+"Kdo-2-6-Lipid-IVA"	"an &alpha;-Kdo-(2&rarr;6)-[lipid IV<sub>A</sub>]"	["a 3-deoxy-D-manno-octulosonyl-[lipid IV<sub>A</sub>]", "3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->6)-2-deoxy-2-{[(3R)-3-hydroxyacyl]amino}-3-O-[(3R)-3-hydroxyacyl]-4-O-phospho-&beta;-D-glucopyranosyl-(1->6)-2-deoxy-3-O-[(3R)-3-hydroxyacyl]-2-{[(3R)-3-hydroxyacyl]amino}-1-O-phosphono-&alpha;-D-glucopyranose", "(KDO)-lipid IV<sub>A</sub>"]	null	null
 "KDO-8P"	"3-deoxy-D-<i>manno</i>-octulosonate 8-phosphate"	["3-deoxy-D-<i>manno</i>-octulosonate 8-P", "2-dehydro-3-deoxy-D-octonate 8-P", "2-dehydro-3-deoxy-D-octonate 8-phosphate", "Kdo-8P"]	"C8H12O11P"	315.15
 "KDO-Containing-Capsular-Polysaccharides"	"a capsular polysaccharide with 3-deoxy-D-manno-2-octulosonate"	[]	null	null
 "KDO-LIPID-IVA"	"&alpha;-Kdo-(2&rarr;6)-lipid IV<sub>A</sub> (E. coli)"	["3-Deoxy-D-manno-octulosonyl-lipid IV(A) (E. coli)", "3-deoxy-&alpha;-D-manno-oct-2-ulopyranosyl-(2->6)-2-deoxy-2-{[(3R)-3-hydroxypentadecanoyl]amino}-3-O-[(3R)-3-hydroxytetradecanoyl]-4-O-phosphono-&beta;-D-glucopyranosyl-(1->6)-2-deoxy-3-O-[(3R)-3-hydroxytetradecanoyl]-2-{[(3R)-3-hydroxytetradecanoyl]amino}-1-O-phosphono-&alpha;-D-glucopyranose", "(KDO)-lipid IV<sub>A</sub> (E. coli)"]	"C76H137N2O30P2"	1620.861
@@ -4983,11 +5004,11 @@
 "L-1-GLYCERO-PHOSPHORYLCHOLINE"	"<i>sn</i>-glycero-3-phosphocholine"	["<i>sn</i>-3-GPC", "glycero-phosphocholine", "L-1-glycero-3-phosphocholine", "L-1-glycero-phosphorylcholine", "glycerophosphocholine"]	"C8H20NO6P"	257.223
 "L-1-GLYCEROPHOSPHORYLETHANOL-AMINE"	"<i>sn</i>-glycero-3-phosphoethanolamine"	["L-1-glycerophosphorylethanolamine", "1-glycerophosphorylethanolamine"]	"C5H14NO6P"	215.142
 "L-1-LECITHIN"	"1,2-distearoyl-<i>sn</i>-glycero-3-phosphocholine"	[]	"C44H88NO8P"	790.155
-"L-1-PHOSPHATIDYL-ETHANOLAMINE"	"an L-1-phosphatidylethanolamine"	["a glycerophosphoethanolamine", "a phosphatidylethanolamine", "a 1-phosphatidylethanolamine", "an L-1-phosphotidylethanolamine", "a phosphatidylethenolamine", "an <i>O</i>-(1-&beta;-acyl-2-acyl-<i>sn</i>-glycero-3-phospho)-ethanolamine", "PtdEtn", "a 1,2-diacyl-<i>sn</i>-glycero-3-phosphoethanolamine"]	null	null
-"L-1-PHOSPHATIDYL-GLYCEROL"	"an L-1-phosphatidyl-<i>sn</i>-glycerol"	["1-phosphatidylglycerol", "1,2-diacyl-<i>sn</i>-glycero-3-phospho-(1'-<i>sn</i>-glycerol)"]	null	null
-"L-1-PHOSPHATIDYL-GLYCEROL-P"	"1-(3-<i>sn</i>-phosphatidyl)-<i>sn</i>-glycerol 3-phosphate"	[]	null	null
+"L-1-PHOSPHATIDYL-ETHANOLAMINE"	"a phosphatidylethanolamine"	["a glycerophosphoethanolamine", "an L-1-phosphatidylethanolamine", "a 1-phosphatidylethanolamine", "an L-1-phosphotidylethanolamine", "a phosphatidylethenolamine", "an <i>O</i>-(1-&beta;-acyl-2-acyl-<i>sn</i>-glycero-3-phospho)-ethanolamine", "PtdEtn", "a 1,2-diacyl-<i>sn</i>-glycero-3-phosphoethanolamine"]	null	null
+"L-1-PHOSPHATIDYL-GLYCEROL"	"a phosphatidylglycerol"	["an L-1-phosphatidyl-<i>sn</i>-glycerol", "a 1,2-diacyl-<i>sn</i>-glycero-3-phospho-(1'-<i>sn</i>-glycerol)", "a 1-phosphatidylglycerol"]	null	null
+"L-1-PHOSPHATIDYL-GLYCEROL-P"	"a phosphatidylglycerophosphate"	["1-(3-<i>sn</i>-phosphatidyl)-<i>sn</i>-glycerol 3-phosphate"]	null	null
 "L-1-phosphatidyl-inositols"	"a 1-phosphatidyl-1D-<i>myo</i>-inositol"	["a 1,2-diacyl-<i>sn</i>-glycero-3-phospho-(1D-myo-inositol)", "1-phosphatidyl-1D-<i>myo</i>-inositol", "a phosphatidylinositol", "a 1-phosphatidyl-D-myo-inositol", "a 1-phosphatidylinositol", "an L-1-phosphatidylinositol", "a phosphatidyl-inositol", "an L-1-phosphatidyl-inositol", "a phosphatidyl-1D-<i>myo</i>-inositol", "a (3-phosphatidyl)-1-D-inositol", "PtdIns"]	null	null
-"L-1-PHOSPHATIDYL-SERINE"	"a 3-<i>sn</i>-phosphatidyl-L-serine"	["phosphatidylserine", "phosphatidyl-serine", "a 3-<i>O</i>-<i>sn</i>-phosphatidyl-L-serine", "an <i>O</i>-<i>sn</i>-phosphatidyl-L-serine", "a phosphatidyl-serine", "an L-1-phosphatidylserine", "a phosphatidyl-L-serine", "a 1-phosphatidyl-serine"]	null	null
+"L-1-PHOSPHATIDYL-SERINE"	"a phosphatidylserine"	["a 3-<i>sn</i>-phosphatidyl-L-serine", "a 3-<i>O</i>-<i>sn</i>-phosphatidyl-L-serine", "an <i>O</i>-<i>sn</i>-phosphatidyl-L-serine", "a phosphatidyl-serine", "an L-1-phosphatidylserine", "a phosphatidyl-L-serine", "a 1-phosphatidyl-serine"]	null	null
 "L-1-PHOSPHATIDYL-THREONINE"	"a phosphatidylthreonine"	["a 3-<i>O</i>-<i>sn</i>-phosphatidyl-L-threonine", "a phosphatidyl-L-threonine", "a 1-phosphatidyl-threonine", "an L-1-phosphatidylthreonine", "PtdThr"]	null	null
 "L-2-AMINOHEXANOATE"	"L-norleucine"	["L-2-aminohexanoate", "L-2-aminohexanoic acid", "L-aminohexanoate", "L-aminohexanoic acid"]	"C6H13NO2"	131.174
 "L-2-AMINOPENTANOIC-ACID"	"L-norvaline"	["L-2-aminopentanoic acid", "L-(+)-2-aminovaleric acid", "L-2-aminopentanoate"]	"C5H11NO2"	117.147
@@ -5000,11 +5021,11 @@
 "L-ALPHA-ALANINE"	"L-alanine"	["alanine", "L-&alpha;-alanine", "ala"]	"C3H7NO2"	89.094
 "L-ALPHA-AMINO-EPSILON-KETO-PIMELATE"	"L-&alpha;-amino-&epsilon;-keto-pimelate"	["L-2-Amino-6-oxopimelate", "L-2-Amino-6-oxoheptanedioate"]	"C7H10NO5"	188.16
 "L-Amino-Acids"	"an L-amino acid"	["an L-Amino acid", "an L-2-amino-acid", "L-&alpha;-amino acid"]	null	null
-"L-ARA4N-MODIFIED-KDO2-LIPID-A"	"4'-&alpha;-L-Ara4<i>N</i>-&alpha;-Kdo-(2&rarr;4)-&alpha;-Kdo-(2&rarr;6)-[P4'-&alpha;-L-ara4<i>N</i>]-lipid A"	["&alpha;-Kdo-(2&rarr;4)-&alpha;-Kdo-(2&rarr;6)-lipid II<sub>A</sub>", "L-Ara4N-modified (KDO)<sub>2</sub>-Lipid A"]	"C115H207N3O42P2"	2365.843
+"L-ARA4N-MODIFIED-KDO2-LIPID-A"	"&alpha;-Kdo-(2&rarr;4)-&alpha;-Kdo-(2&rarr;6)-[P4'-&alpha;-L-ara4<i>N</i>]-lipid A (<i>E. coli</i>)"	["&alpha;-Kdo-(2&rarr;4)-&alpha;-Kdo-(2&rarr;6)-lipid II<sub>A</sub>", "L-Ara4N-modified (KDO)<sub>2</sub>-Lipid A"]	"C115H207N3O42P2"	2365.843
 "L-Arabinans"	"an L-arabinan"	[]	null	null
-"L-arabinofuranose"	null	[]	"C5H10O5"	150.131
+"L-arabinofuranose"	"L-arabinofuranose"	["L-Ara<i>f</i>"]	"C5H10O5"	150.131
 "L-arabinopyranose"	null	[]	"C5H10O5"	150.131
-"L-ARABINOSE"	"L-arabinose"	[]	"C5H10O5"	150.131
+"L-ARABINOSE"	"L-arabinose"	["L-Ara"]	"C5H10O5"	150.131
 "L-Arabinosides"	"an L-arabinoside"	[]	null	null
 "L-ARABITOL"	"L-arabinitol"	["L-arabinol", "L-arabitol", "L-lyxitol", "(2S,4S)-pentane-1,2,3,4,5-pentol"]	"C5H12O5"	152.147
 "L-ARGININE-P"	"<i>N</i><sup>&omega;</sup>-phospho-L-arginine"	["L-arginine phosphate", "phospho-L-arginine", "L-arginine-phosphate", "L-arginine-P", "arg-P", "phosphoarginine", "arginine-phosphate", "N-phospho-L-arginine", "arginine-P"]	"C6H14N4O5P"	253.174
@@ -5016,7 +5037,7 @@
 "L-ASCORBATE-6-PHOSPHATE"	"L-ascorbate 6-phosphate"	[]	"C6H6O9P"	253.082
 "L-ASPARTATE"	"L-aspartate"	["L-aspartic acid", "aspartic acid", "D", "aspartate", "L-asp"]	"C4H6NO4"	132.096
 "L-ASPARTATE-SEMIALDEHYDE"	"L-aspartate 4-semialdehyde"	["L-aspartic 4-semialdehyde", "L-aspartate-semialdehyde", "L-aspartate &beta;-semialdehyde"]	"C4H7NO3"	117.104
-"L-AZASERINE"	"L-azaserine"	["azaserine"]	"C5H8N3O4"	174.136
+"L-AZASERINE"	"L-azaserine"	["azaserine", "L-&beta;-(diazoacetoxy)alanine", "L-serine diazoacetate", "L-serine diazoacetate ester"]	"C5H7N3O4"	173.128
 "L-BETA-ASPARTYL-P"	"L-aspartyl-4-phosphate"	["4-phospho-L-aspartate", "L-4-aspartyl phosphate", "L-&beta;-aspartyl-P", "L-&beta;-aspartyl-phosphate", "L-aspartyl-4-P", "L-aspartyl-&beta;-phosphate", "4-phosphonato-L-aspartate"]	"C4H6NO7P"	211.068
 "L-CARNITINYL-COA"	"(<i>R</i>)-carnitinyl-CoA"	["L-carnityl-CoA", "(3R)-3-hydroxy-4-(trimethylamino)butanoyl-CoA", "L-carnitinyl-CoA"]	"C28H46N8O18P3S"	907.695
 "L-CITRULLINE"	"L-citrulline"	["N<sup>&gamma;</sup>-carbamylornithine", "&alpha;-amino-&gamma;-ureidovaleric acid", "&gamma;-ureidonorvaline", "N<sup>5</sup>-(Aminocarbonyl)-L-ornithine"]	"C6H13N3O3"	175.187
@@ -5089,7 +5110,7 @@
 "L-phenylalanyl-L-amino-acid-Protein"	"L-phenylalanyl-L-amino acid-[protein]"	[]	null	null
 "L-phenylalanyl-L-arginyl-Protein"	"L-phenylalanyl-L-arginyl-[protein]"	[]	null	null
 "L-phenylalanyl-L-lysyl-Protein"	"L-phenylalanyl-L-lysyl-[protein]"	[]	null	null
-"L-PHOSPHATIDATE"	"a 1,2-diacyl-<i>sn</i>-glycerol 3-phosphate"	["A 3-SN-phosphatidate", "DGP", "diacylglycerol phosphate", "a 3-<i>sn</i>-phosphatidate", "a diacyl-glycerol-3P", "a diacylglycerol-3-phosphate", "a phosphatidic acid", "an L-phosphatidate", "a phosphatidate", "a 1,2-diacylglycerol 3-phosphate"]	null	null
+"L-PHOSPHATIDATE"	"a phosphatidate"	["A 3-SN-phosphatidate", "DGP", "diacylglycerol phosphate", "a 3-<i>sn</i>-phosphatidate", "a diacyl-glycerol-3P", "a diacylglycerol-3-phosphate", "a phosphatidic acid", "an L-phosphatidate", "a 1,2-diacyl-<i>sn</i>-glycerol 3-phosphate", "a 1,2-diacylglycerol 3-phosphate"]	null	null
 "L-PHOSPHINOTHRICIN"	"L-phosphinothricin"	["glufosinate", "DL-phosphinothricin", "phosphinothricin", "phosphinothricine", "(S)-phosphinothricin", "(S)-2-amino-4-(hydroxymethylphosphinyl)butyric acid", "(S)-4-[hydroxy(methyl)phosphinyl]-2-aminobutyric acid", "L-glufosinate"]	"C5H11NO4P"	180.12
 "L-PIPECOLATE"	"L-pipecolate"	["(<i>S</i>)-pipecolate", "L-pipecolic acid", "(<i>S</i>)-pipecolic acid"]	"C6H11NO2"	129.158
 "L-RHAMNOFURANOSE"	"L-rhamnofuranose"	[]	"C6H12O5"	164.158
@@ -5131,7 +5152,7 @@
 "LC-alcohol-VLC-acyl-ester"	"a long-chain alcohol--very-long-chain acyl wax ester"	[]	null	null
 "LDL-receptor-L-serine"	"[low-density-lipoprotein receptor]-L-serine"	[]	null	null
 "LDL-receptor-O-phospho-L-serine"	"[low-density-lipoprotein receptor]-O-phospho-L-serine"	[]	null	null
-"LEU"	"L-leucine"	["(2S)-&alpha;-2-amino-4-methylvaleric acid", "L", "leucine", "2-amino-4-methylvaleric acid", "(2S)-&alpha;-leucine", "L-leu"]	"C6H13NO2"	131.174
+"LEU"	"L-leucine"	["(2S)-&alpha;-2-amino-4-methylvaleric acid", "L", "leucine", "2-amino-4-methylvaleric acid", "(2S)-&alpha;-leucine", "L-leu", "leu"]	"C6H13NO2"	131.174
 "Levan"	"a levan"	[]	null	null
 "Lewis-a-epitope"	"a Lewis a epitope"	["1,3-&beta;-D-galactosyl-(&alpha;-1,4-L-fucosyl)-<i>N</i>-acetyl-D-glucosaminyl- R", "&beta;Gal-(1&rarr;3)-[&alpha;-Fuc-(1&rarr;4)-&beta;GlcNac]-(1&rarr;R)[", "&beta;-D-galactosyl-(1&rarr;3)-[(&alpha;-L-fucosyl)-(1&rarr;4)]-<i>N</i>-acetyl-&beta;-D-glucosaminyl-[protein]", "a histo-blood group Le<sup>a</sup> antigen"]	null	null
 "Lewis-Antigen"	"a Lewis epitope"	["a Lewis antigen"]	null	null
@@ -5154,13 +5175,17 @@
 "Lipid-A-1-4prime-2-aminoethyl-PP"	"lipid A 1,4'-<i>bis</i>(2-aminoethyl diphosphate) (<i>E. coli</i>)"	[]	"C98H188N4O31P4"	2042.466
 "Lipid-A-4prime-2-aminoethyl-PP"	"lipid A 4'-(2-aminoethyl diphosphate) (<i>E. coli</i>)"	[]	"C96H181N3O28P3"	1918.41
 "Lipid-A-containing-Glycolipids"	"a lipid A-containing glycolipid"	[]	null	null
+"Lipid-A-Disaccharide"	"a lipid A disaccharide"	["2-deoxy-2-{[(3R)-3-hydroxyacyl]amino}-3-O-[(3R)-3-hydroxyacyl]-&beta;-D-glucopyranosyl-(1&rarr;6)-2-deoxy-3-O-[(3R)-3-hydroxyacyl]-2-{[(3R)-3-hydroxyacyl]amino}-1-O-phospho-&alpha;-D-glucopyranose", "tetraacyldisaccharide-1-phosphate (ambiguous)", "a dephospho lipid IV<sub>A</sub>"]	null	null
 "Lipid-dihydrosterculate"	"a [phospholipid]-dihydrosterculate"	["a [phospholipid]-dihydrosterculic acid"]	null	null
 "Lipid-hydroxy-fatty-acids"	"a hydroxy-fatty-acyl-[lipid]"	[]	null	null
+"Lipid-I"	"a lipid I"	["an &alpha;-MurNAc-[pentapeptide]-diphospho-undecaprenol", "an undecaprenyldiphospho-<i>N</i>-acetylmuramoyl peptide", "an undecaprenyldiphospho-3-<i>O</i>-peptidyl-&alpha;-<i>N</i>-acetylmuramate"]	null	null
 "LIPID-IV-A"	"lipid IV<sub>A</sub> (<i>E. coli</i>)"	["2-deoxy-2-{[(3R)-3-hydroxypentadecanoyl]amino}-3-O-[(3R)-3-hydroxytetradecanoyl]-4-O-phosphono-&beta;-D-glucopyranosyl-(1->6)-2-deoxy-3-O-[(3R)-3-hydroxytetradecanoyl]-2-{[(3R)-3-hydroxytetradecanoyl]amino}-1-O-phosphono-&alpha;-D-glucopyranose"]	"C68H126N2O23P2"	1401.69
+"Lipid-IVA"	"a lipid IV<sub>A</sub>"	["2-deoxy-2-{[(3R)-3-hydroxyacyl]amino}-3-O-[(3R)-3-hydroxyacyl]-4-O-phospho-&beta;-D-glucopyranosyl-(1&rarr;6)-2-deoxy-3-O-[(3R)-3-hydroxyacyl]-2-{[(3R)-3-hydroxyacyl]amino}-1-O-phospho-&alpha;-D-glucopyranose"]	null	null
 "Lipid-linked-13-mannosyl-mannose-oligos"	"a lipid-linked &alpha;(1->3)-D-mannosyl-D-mannose-oligosaccharide"	[]	null	null
 "Lipid-linked-16-mannosyl-mannose-oligos"	"a lipid-linked &alpha;(1->6)-D-mannosyl-D-mannose-oligosaccharide"	[]	null	null
 "Lipid-linked-mannosyl-oligos"	"a lipid-linked D-mannose-oligosaccharide"	[]	null	null
 "Lipid-sterculate"	"a [phospholipid]-sterculate"	["a [phospholipid]-2-octyl-1-cyclopropene-1-octanoate", "a [phospholipid]-sterculic acid"]	null	null
+"Lipid-X"	"a lipid X"	["2-<i>N</i>-[(3<i>R</i>)-3-hydroxyacyl]-3-<i>O</i>-[(3<i>R</i>)-3-hydroxyacyl]-&alpha;-D-glucosamine 1-phosphate"]	null	null
 "Lipids"	"a lipid"	[]	null	null
 "LIPOAMIDE"	"lipoamide"	["5-(1,2-dithiolan-3-yl)-pentanamide", "DL-lipoamide", "6,8-dithiooctanoic amide"]	"C8H15NOS2"	205.333
 "LIPOIC-ACID"	"(<i>R</i>)-lipoate"	["&alpha;-liponic acid", "5-(1,2-dithiolan-3-yl)-pentanoate", "lipoic acid", "6,8-thioctic acid", "6,8-thioctate", "D-thioctic acid", "D-thioctate"]	"C8H13O2S2"	205.309
@@ -5200,33 +5225,33 @@
 "LPS-with-tetraacyl-lipidA"	"a lipopolysaccharide with tetraacyl lipid A"	["a lipopolysaccharide with lipid IV<sub>A</sub>"]	null	null
 "Luciferins"	"a luciferin"	[]	null	null
 "LuxE-long-chain-fatty-acyl-L-cysteine"	"a [LuxE]-<i>S</i>-(long-chain fatty acyl)-L-cysteine"	["an [acyl-protein synthetase]-S-(long-chain fatty acyl)-L-cysteine"]	null	null
-"LYS"	"L-lysine"	["K", "lysine", "L-lys", "2,6-diaminohexanoic acid", "lysine acid"]	"C6H15N2O2"	147.197
+"LYS"	"L-lysine"	["K", "lysine", "L-lys", "2,6-diaminohexanoic acid", "lysine acid", "lys"]	"C6H15N2O2"	147.197
 "Lysidine-tRNA-Ile2"	"a lysidine<sup>34</sup> in tRNA<sup>Ile2</sup>"	["a [tRNA<sup>Ile2</sup>]-<i>N</i><sup>6</sup>-(4-amino-1-&beta;-D-ribofuranosylpyrimidin-2-ylidene)-L-lysine<sup>34</sup>", "a [tRNA<sup>Ile2</sup>]-lysidine<sup>34</sup>"]	null	null
 "Lysine-or-DAP"	"an L-lysine or <i>meso</i>-2,6-diaminoheptanedioate"	[]	null	null
 "Lyso-Form-Lipoprotein-Cysteine"	"an <i>N</i>-acyl-[lipoprotein]-(<i>S</i>-acylglyceryl)-L-cysteine"	["a [lyso-form lipoprotein] L-cysteine"]	null	null
 "Lyso-Glycosphingolipids"	"a lyso-glycosphingolipid"	[]	null	null
 "LYSO-ORNITHINE-LIPIDS"	"a lyso-ornithine lipid"	["an <i>N</i><sup>&alpha;</sup>-[(3R)-3-hydroxyacyl]-L-ornithine"]	null	null
 "Lysophosphatidates"	"a lysophosphatidate"	[]	null	null
-"Lysophosphatidylcholines"	"a lyso-phosphatidylcholine"	["lysoPC"]	null	null
+"Lysophosphatidylcholines"	"a lysophosphatidylcholine"	["lysoPC"]	null	null
 "Lysophosphatidylcholines-16-0"	"lysophosphatidylcholine-16:0"	["lysoPC-16:0", "lysoPC16:0"]	null	null
 "Lysophosphatidylcholines-16-1"	"lysophosphatidylcholine-16:1"	["lysoPC-16:1", "lysoPC16:1"]	null	null
 "Lysophosphatidylcholines-18-0"	"lysophosphatidylcholine-18:0"	["lysoPC-18:0", "lysoPC18:0"]	null	null
 "Lysophosphatidylcholines-18-1"	"lysophosphatidylcholine-18:1"	["lysoPC-18:1", "lysoPC18:1"]	null	null
 "Lysophosphatidylcholines-18-2"	"lysophosphatidylcholine-18:2"	["lysoPC-18:2", "lysoPC18:2"]	null	null
 "Lysophosphatidylcholines-18-3"	"lysophosphatidylcholine-18:3"	["lysoPC-18:3", "lysoPC18:3"]	null	null
-"Lysophosphatidylethanolamines"	"a lyso-phosphatidylethanolamine"	["lysoPE"]	null	null
-"Lysophosphatidylethanolamines-16-0"	"lysophosphatidylethanolamine-16:0"	["lysoPE-16:0", "lysoPE16:0"]	null	null
+"Lysophosphatidylethanolamines"	"a lysophosphatidylethanolamine"	["lysoPE"]	null	null
+"Lysophosphatidylethanolamines-16-0"	"a lysophosphatidylethanolamine-16:0"	["lysoPE-16:0", "lysoPE16:0"]	null	null
 "Lysophosphatidylethanolamines-16-1"	"lysophosphatidylethanolamine-16:1"	["lysoPE-16:1", "lysoPE16:1"]	null	null
 "Lysophosphatidylethanolamines-18-1"	"lysophosphatidylethanolamine-18:1"	["lysoPE-18:1", "lysoPE18:1"]	null	null
-"Lysophosphatidylethanolamines-18-2"	"lysophosphatidylethanolamine-18:2"	["lysoPE-18:2", "lysoPE18:2"]	null	null
+"Lysophosphatidylethanolamines-18-2"	"a lysophosphatidylethanolamine-18:2"	["lysoPE-18:2", "lysoPE18:2"]	null	null
 "Lysophosphatidylethanolamines-18-3"	"lysophosphatidylethanolamine-18:3"	["lysoPE-18:3", "lysoPE18:3"]	null	null
-"Lysophosphatidylglycerols"	"a lyso-phosphatidylglycerol"	["lysoPG"]	null	null
-"Lysophosphatidylglycerols-18-1"	"lysophosphatidylglycerol-18:1"	["lysoPG-18:1", "lysoPG18:1"]	null	null
+"Lysophosphatidylglycerols"	"a lysophosphatidylglycerol"	["lysoPG"]	null	null
+"Lysophosphatidylglycerols-18-1"	"a lysophosphatidylglycerol-18:1"	["lysoPG-18:1", "lysoPG18:1"]	null	null
 "Lysophosphatidylglycerols-18-2"	"lysophosphatidylglycerol-18:2"	["lysoPG-18:2", "lysoPG18:2"]	null	null
 "Lysophosphatidylglycerols-18-3"	"lysophosphatidylglycerol-18:3"	["lysoPG-18:3", "lysoPG18:3"]	null	null
-"Lysophospholipids"	"a lyso-phospholipid"	[]	null	null
+"Lysophospholipids"	"a lysophospholipid"	[]	null	null
 "LYSOSOMAL-ENZYME-D-MANNOSE"	"an &alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;6)]-&alpha;-D-Man-(1&rarr;6)]-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&alpha;-D-GlcNAc-L-asparaginyl-[lysosomal protein]"	[]	null	null
-"LYSOSOMAL-ENZYME-N-ETCETERA-MANNOSE"	"an &alpha;-D-GlcNAc-(phospho)-3-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;6)]-&alpha;-D-Man-(1&rarr;6)]-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&alpha;-D-GlcNAc-L-asparaginyl-[lysosomal protein]"	[]	null	null
+"LYSOSOMAL-ENZYME-N-ETCETERA-MANNOSE"	"an &alpha;-D-GlcNAc-(phospho)-6-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;3)-[&alpha;-D-Man-(1&rarr;6)]-&alpha;-D-Man-(1&rarr;6)]-&beta;-D-Man-(1&rarr;4)-&beta;-D-GlcNAc-(1&rarr;4)-&alpha;-D-GlcNAc-L-asparaginyl-[lysosomal protein]"	[]	null	null
 "LysW-Alpha-Aminoadipate"	"an [amino-group carrier protein]-C-terminal-[<i>N</i>-(1,4-dicarboxybutyl)-L-glutamine]"	["an [amino-group carrier protein]-C-terminal-&gamma;-(L-2-aminoadip-2-yl)-L-glutamate", "an [amino-group carrier protein]-C-terminal-[<i>N</i>-(1,4-dicarboxybutan-1-yl)-L-glutamine]"]	null	null
 "LysW-Alpha-Aminoadipate-Phosphate"	"an [amino-group carrier protein]-C-terminal-{<i>N</i>-[1-carboxy-5-oxo-5-(phosphooxy)pentyl]-L-glutamine}"	["an [amino-group carrier protein]-C-terminal-&gamma;-(6-phospho-L-2-aminoadip-2-yl)-L-glutamate", "an [amino-group carrier protein]-C-terminal-{<i>N</i>-[1-carboxy-5-oxo-5-(phosphooxy)pentan-1-yl]-L-glutamine}"]	null	null
 "LysW-Alpha-Aminoadipate-Semialdehyde"	"an [amino-group carrier protein]-C-terminal-[<i>N</i>-(1-carboxy-5-oxopentyl)-L-glutamine]"	["an [amino-group carrier protein]-C-terminal-&gamma;-(L-2-aminoadipate semialdehyde-2-yl)-L-glutamate", "an [amino-group carrier protein]-C-terminal-<i>N</i>-(1-carboxy-5-oxopentan-1-yl)-L-glutamine"]	null	null
@@ -5253,7 +5278,7 @@
 "MALTOSE"	"maltose"	["&alpha;-D-glucopyranose-(1&rarr;4)-D-glucopyranose", "maltose"]	"C12H22O11"	342.299
 "Maltose-phosphates"	"a maltose phosphate"	[]	null	null
 "MALTOTETRAOSE"	"maltotetraose"	[]	"C24H42O21"	666.583
-"MALTOTRIOSE"	"maltotriose"	["amylotriose", "&alpha;-D-glucopyranosyl-(1&rarr;4)-&alpha;-D-glucopyranosyl-(1&rarr;4)-D-glucose"]	"C18H32O16"	504.441
+"MALTOTRIOSE"	"maltotriose"	["amylotriose"]	"C18H32O16"	504.441
 "Man-12-Man-12-Man-Proteins"	"an &alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-3-<i>O</i>-(Ser/Thr)-[protein]"	[]	null	null
 "Man-12-Man-Proteins"	"an &alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-3-<i>O</i>-(Ser/Thr)-[protein]"	[]	null	null
 "Man-13-Man-12-Man-12-Man-Proteins"	"an &alpha;-D-Man-(1&rarr;3)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-(1&rarr;2)-&alpha;-D-Man-3-<i>O</i>-(Ser/Thr)-[protein]"	[]	null	null
@@ -5299,6 +5324,7 @@
 "MAPKK-Ser-or-Thr-phosphate"	"a [MAP kinase kinase] (L-serine/L-threonine) phosphate"	["a [MAPKK] (L-serine/L-threonine) phosphate", "a [mitogen-activated protein kinase kinase] (L-serine/L-threonine) phosphate"]	null	null
 "Marinolic-Acids"	"a marinolic acid"	["a marinolate"]	null	null
 "Marinoloyl-Coa"	"a marinoloyl-CoA"	[]	null	null
+"Mature-Peptidoglycan"	"a mature peptidoglycan"	[]	null	null
 "MC-alcohol-LC-acyl-ester"	"a medium-chain alcohol--long-chain acyl wax ester"	[]	null	null
 "MC-alcohol-VLC-acyl-ester"	"a medium-chain alcohol--very-long-chain acyl wax ester"	[]	null	null
 "mcm5s2U-34-tRNA"	"a 5-(2-methoxy-2-oxoethyl)2-thiouridine<sup>34</sup> in tRNA"	["a tRNA containing 5-(2-methoxy-2-oxoethyl)2-thiouridine<sup>34</sup>", "an mcm<sup>5</sup>s<sup>2</sup>U<sup>34</sup> in tRNA", "a 5-methoxycarbonylmethyl-2-thiouridine<sup>34</sup> in tRNA"]	null	null
@@ -5344,6 +5370,7 @@
 "Methionine-synthase-cob-II-alamins"	"cob(II)alamin-[methionine synthase]"	[]	null	null
 "METHIONINE-SYNTHASE-METHYLCOBALAMIN"	"methylcob(III)alamin-[methionine synthase]"	[]	null	null
 "METHIONYL-PEPTIDE"	"an N-terminal L-methionyl-[protein]"	["a [protein] N-terminal L-methionine"]	null	null
+"Methoxybenzenes"	"a methoxylated aromatic compound"	["a methoxybenzene"]	null	null
 "Methyl-Acceptors"	"a methyl group donor"	["a methyl group acceptor", "a methyl donor"]	null	null
 "METHYL-ACETYLPHOSPHONATE"	"methyl-acetylphosphonate"	["monomethylacetylphosphonate"]	"C3H6O4P"	137.052
 "METHYL-BETA-D-GALACTOSIDE"	"methyl-&beta;-D-galactoside"	["1-O-methyl-&beta;-D-galactopyranose", "&beta;-methyl-D-galactopyranoside", "&beta;-methylgalactoside", "1-methyl-&beta;-D-galactopyranoside", "methyl-&beta;-D-galactopyranoside", "methyl &beta;-D-galactopyranoside", "&beta;-methyl-D-galactoside", "b-methyl-D-galactoside"]	"C7H14O6"	194.184
@@ -5519,7 +5546,7 @@
 "N-acetyl-alpha-D-hexosamines"	"an N-acetyl-&alpha;-D-hexosamine"	[]	"C8H15NO6"	221.21
 "N-Acetyl-alpha-D-Hexosaminides"	"an <i>N</i>-acetyl-&alpha;-D-hexosaminide"	[]	null	null
 "N-Acetyl-Amino-Acids"	"an <i>N</i>-acetyl L-amino acid"	[]	null	null
-"N-ACETYL-BETA-D-GLUCOSAMINYL-13-ETCETERA"	"an <i>N</i>-acetyl-&beta;-D-glucosaminyl-(1,3)-&beta;-D-galactosyl-(1,4)-<i>N</i>-acetyl-&beta;-D-glucosaminyl-R"	["an <i>N</i>-acetyl-&beta;-D-glucosaminyl-(1&rarr;3)-&beta;-D-galactosyl-(1&rarr;4)-<i>N</i>-acetyl-D-glucosaminyl-[glycoprotein]"]	null	null
+"N-ACETYL-BETA-D-GLUCOSAMINYL-13-ETCETERA"	"an <i>N</i>-acetyl-&beta;-D-glucosaminyl-(1,3)-&beta;-D-galactosyl-(1,4)-<i>N</i>-acetyl-&beta;-D-glucosaminyl-R"	["an <i>N</i>-acetyl-&beta;-D-glucosaminyl-(1&rarr;3)-&beta;-D-galactosyl-(1&rarr;4)-<i>N</i>-acetyl-D-glucosaminyl-[glycoprotein]", "a &beta;-D-GlcNAc-(1&rarr;3)-&beta;-D-Gal-(1&rarr;4)-&beta;-D-GlcNAc-R"]	null	null
 "N-ACETYL-BETA-D-GLUCOSAMINYL-16-ETCETERA"	"<i>N</i>-acetyl-&beta;-D-glucosaminyl-(1&rarr;6)-&beta;-D-galactosyl-(1&rarr;4)-<i>N</i>-acetyl-&beta;-D-glucosaminyl-R"	["<i>N</i>-acetyl-&beta;-D-glucosaminyl-1,6-&beta;-D-galactosyl-1,4-<i>N</i>-acetyl-D-glucosaminyl-R", "blood group I antigen"]	null	null
 "N-acetyl-beta-D-hexosamines"	"an <i>N</i>-acetyl-&beta;-D-hexosamine"	[]	"C8H15NO6"	221.21
 "N-Acetyl-beta-D-Hexosaminides"	"an <i>N</i>-acetyl-&beta;-D-hexosaminide"	[]	null	null
@@ -5562,7 +5589,6 @@
 "n-Alkanals"	"a 1-alkanal"	["an <i>n</i>-alkanal"]	null	null
 "N-Alkylglycine"	"an <i>N</i>-alkylglycine"	[]	null	null
 "N-Alpha-Acetylated-Amino-Acids"	"an N<SUP>&alpha;</SUP>-acetylated amino acid"	[]	null	null
-"N-Alpha-Acetylated-N-terminal-Amino-Acid"	"an N<sup>&alpha;</sup>-acetylated [protein] N-terminal amino acid"	["an N-terminal N<sup>&alpha;</sup>-acetylatedamino acid-[protein]"]	null	null
 "N-ALPHA-ACETYLORNITHINE"	"<i>N</i>-acetyl-L-ornithine"	["<i>N<sup>2</sup></i>-acetyl-ornithine", "<i>N</i>-&alpha;-acetylornithine", "<i>N</i>-acetylornithine", "acetylornithine", "<i>N<sup>2</sup></i>-acetyl-L-ornithine"]	"C7H14N2O3"	174.199
 "N-alpha-Acylated-L-Amino-Acids"	"an <i>N</i>-&alpha;-acylated L-amino acid"	["an <i>N</i>-&alpha;-acyl-L-amino acid"]	null	null
 "N-Alpha-Methyl-L-Amino-Acids"	"an <i>N</i><sup>&alpha;</sup>-methyl L-amino acid"	[]	null	null
@@ -5613,7 +5639,7 @@
 "N-terminal-N-Ac-L-Serine"	"an N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-seryl-[protein]"	["a [protein] N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-serine"]	null	null
 "N-terminal-N-Ac-L-Serine-Histone-2A"	"an N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-seryl-[histone H2A]"	[]	null	null
 "N-terminal-N-Ac-L-Serine-Histone-4"	"an N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-seryl-[histone H4]"	[]	null	null
-"N-terminal-N-alpha-acetyl-L-amino-acid"	"an N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-amino acyl-[protein]"	["a [protein] N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-amino acid"]	null	null
+"N-terminal-N-alpha-acetyl-L-amino-acid"	"an N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-amino acyl-[protein]"	["an N-terminal N<sup>&alpha;</sup>-acetylatedamino acid-[protein]", "an N<sup>&alpha;</sup>-acetylated [protein] N-terminal amino acid", "a [protein] N-terminal <i>N</i><sup>&alpha;</sup>-acetyl-L-amino acid"]	null	null
 "N-terminal-specific-UCP-E2-L-cysteine"	"an [N-terminal E2 ubiquitin-conjugating enzyme]-L-cysteine"	["an [N-terminal ubiquitin-conjugating enzyme E2]-L-cysteine"]	null	null
 "N-tetrasaccharide-protein-H-volcanii"	"an [<i>H. volcanii</i> glycoprotein]-L-asparagine-[tetrasaccharide]"	["methyl-<i>O</i>-4-&beta;-D-GlcA-(1&rarr;4)-&alpha;-D-GalA-(1&rarr;4)-&beta;-D-GlcA-(1&rarr;4)-&beta;-D-Glc-Asn-[protein]"]	null	null
 "N1-ACETYLSPERMINE"	"<i>N</i><sup>1</sup>-acetylspermine"	[]	"C12H31N4O"	247.403
@@ -5669,9 +5695,10 @@
 "NAc-glucosaminyl-b-D-mannosyl-R"	"<i>N</i>-acetyl-&beta;-D-glucosaminyl-(1&rarr;4)-&beta;-D-mannosyl-[glycoprotein]"	["4-(<i>N</i>-acetyl-&beta;-D-glucosaminyl)-&beta;-D-mannosyl-R", "4-(<i>N</i>-acetyl-&beta;-D-glucosaminyl)-&beta;-D-mannosyl-[glycoprotein]"]	null	null
 "NACL"	"sodium chloride"	[]	"NaCl"	58.443
 "NACMUR"	"<i>N</i>-acetyl-D-muramate"	["2-acetamido-3-<i>O</i>-(D-1-carboxyethyl)-2-deoxy-beta-D-glucose", "MurNAc", "<i>N</i>-acetylmuramic acid", "NAcMur", "2-[3-acetylamino-2,5-dihydroxy-6-(hydroxymethyl)tetrahydropyran-4-yl]oxypropanoic acid", "<i>N</i>-acetyl-D-muramic acid"]	"C11H18NO8"	292.265
-"NAcMur-4Peptide-NAcGlc-Undecaprenols"	"a <i>N</i>-acetylglucosamine--<i>N</i>-acetylmuramyl-(tetrapeptide) pyrophosphoryl-undecaprenol"	["a GlcNAc-(1->4)-MurNAc-tetrapeptide-diphosphoundecaprenol"]	null	null
+"NAcMur-4Peptide-NAcGlc-Undecaprenols"	"a &beta;-D-GlcNAc-(1&rarr;4)-<i>N</i>-acetylmuramyl-(tetrapeptide)-PP-Und"	["a GlcNAc-(1->4)-MurNAc-tetrapeptide-diphosphoundecaprenol"]	null	null
+"NAcMur-5Peptide-NAcGlc-Undecaprenols"	"a &beta;-D-GlcNAc-(1&rarr;4)-<i>N</i>-acetylmuramyl-(pentapeptide)-PP-Und"	["a GlcNAc-(1->4)-MurNAc-pentapeptide-diphosphoundecaprenol"]	null	null
 "NAcMur-Peptide-NAcGlc-Undecaprenols"	"a lipid II"	["a peptidoglycan monomer", "an undecaprenyldiphospho-<i>N</i>-acetyl-(<i>N</i>-acetylglucosaminyl)muramoyl peptide", "an undecaprenyldiphospho-4-<i>O</i>-(<i>N</i>-acetyl-&beta;-D-glucosaminyl)-3-<i>O</i>-peptidyl-&alpha;-<i>N</i>-acetylmuramate"]	null	null
-"NAcMur-Peptide-Undecaprenols"	"a <i>N</i>-acetylmuramoyl-pentapeptide-diphosphoundecaprenol"	["lipid I"]	null	null
+"Nacsent-Peptidoglycan"	"a nascent peptidoglycan molecule"	[]	null	null
 "NAD"	"NAD<sup>+</sup>"	["NAD+", "beta-nicotinamide adenine dinucleotide", "coenzyme I", "diphosphopyridine nucleotide", "diphosphopyridine nucleotide oxidized", "nicotinamide adenine dinucleotide", "nicotinamide adenine dinucleotide oxidized", "NAD-oxidized", "NAD-ox", "DPN+", "DPN-ox", "DPN", "&beta;-nicotinamide adenine dinucleotide", "NAD", "&beta;-NAD<sup>+</sup>"]	"C21H26N7O14P2"	662.422
 "NAD-P-OR-NOP"	"NAD(P)<sup>+</sup>"	["NAD(P)", "NAD(P)+", "&beta;-NAD(P)<sup>+</sup>"]	null	null
 "NADH"	"NADH"	["NADH<sub>2</sub>", "NADH2", "dihydrodiphosphopyridine nucleotide", "diphosphopyridine nucleotide reduced", "dihydronicotinamide adenine dinucleotide", "nicotinamide adenine dinucleotide reduced", "NAD-reduced", "NADH+H+", "DPNH", "&beta;-NADH"]	"C21H27N7O14P2"	663.43
@@ -5703,20 +5730,19 @@
 "Neutral-Amino-Acids"	"a neutral amino acid"	[]	null	null
 "NH42SO4"	"ammonium sulfate"	[]	"(NH4)2(SO4)"	132.134
 "NH4CL"	"ammonium chloride"	[]	"(NH4)Cl"	53.491
-"NI+2"	"Ni<SUP>2+</SUP>"	["nickel(II)", "Ni<SUP>++</SUP>", "Ni<sup>II</sup>"]	"Ni"	58.7
-"Ni-Fe-S-Clusters"	"a nickel-iron-sulfur cluster"	["[NiFe]-(CN)2CO", "Ni-Fe active site", "Ni-Fe bimetallic cofactor", "an NiFeS center", "an NiFeS cluster", "an [NiFeS] cluster"]	null	87.907
+"NI+2"	"Ni<sup>2+</sup>"	["nickel(II)", "Ni<sup>++</sup>", "Ni<sup>II</sup>"]	"Ni"	58.7
+"Ni-Fe-S-Clusters"	"a nickel-containing cofactor"	["Ni-Fe active site", "an NiFeS center", "an NiFeS cluster", "an [NiFeS] cluster"]	null	87.907
 "NIACINAMIDE"	"nicotinamide"	["6-aminonicotinamide", "vitamin PP", "niacinamide", "nicotinic acid amide"]	"C6H6N2O"	122.126
 "NIACINE"	"nicotinate"	["3-pyridinecarboxylic acid", "nicotinic acid", "wampocap", "nicolar", "nicocap", "nicobid", "nico-400-", "nicamin", "niacin", "niacine", "vitamin B<sub>3</sub>", "3-pyridinecarboxylate", "pyridine-3-carboxylate"]	"C6H4NO2"	122.103
 "Nicotinamide-Mononucleotides"	"a nicotinamide mononucleotide"	[]	null	null
 "NICOTINAMIDE_NUCLEOTIDE"	"&beta;-nicotinamide D-ribonucleotide"	["&beta;-nicotinamide mononucleotide", "&beta;-nicotinamide ribonucleotide", "&beta;-nicotinamide nucleotide"]	"C11H14N2O8P"	333.214
 "NICOTINAMIDE_RIBOSE"	"1-(&beta;-D ribofuranosyl)nicotinamide"	["&beta;-nicotinamide D-ribonucleotide", "<i>N</i>-ribosyl-nicotinamide", "nicotinamide ribonucleoside", "nicotinamide ribose", "nicotinamide riboside", "ribosylnicotinamide", "nicotinamide-&beta;-riboside"]	"C11H15N2O5"	255.25
 "NICOTINATE_NUCLEOTIDE"	"&beta;-nicotinate D-ribonucleotide"	["nicotinate dinucleotide", "&beta;-nicotinate-D-nucleotide", "nicotinic acid nucleotide", "nicotinic acid mononucleotide", "nicotinic acid ribonucleotide", "nicotinate-D-ribonucleotide", "nicotinate ribonucleotide", "nicotinate nucleotide", "deamido-nicotinamide mononucleotide", "deamido-NMN", "nicotinate D-ribonucleotide", "nicotinate mononucleotide", "NaMN"]	"C11H12NO9P"	333.191
-"NiFe-Clusters"	"an [NiFeS] cluster"	["[NiFe]-(CN)2CO", "Ni-Fe active site", "Ni-Fe bimetallic cofactor", "an NiFeS center", "an NiFeS cluster", "a nickel-iron-sulfur cluster"]	null	87.907
 "Nigerans"	"nigeran"	["mycodextran"]	null	null
 "NITRATE"	"nitrate"	["NO<SUB>3</SUB>", "NO<SUB>3</SUB><SUP>-</SUP>"]	"NO3"	62.005
 "NITRIC-OXIDE"	"nitric oxide"	["NO", "nitrogen monoxide", "nitrogen protoxide"]	"NO"	30.006
 "Nitriles"	"a nitrile"	["nitrile", "R-CN", "a nitrile"]	null	null
-"NITRITE"	"nitrite"	["NO<sub>2</sub>", "NO<sub>2</sub><sup>-</sup>"]	"NO2"	46.005
+"NITRITE"	"nitrite"	["NO<sub>2</sub>", "NO<sub>2</sub><sup>-</sup>", "nitrous acid"]	"NO2"	46.005
 "Nitroalkanes"	"a nitroalkane"	[]	null	null
 "Nitroaromatic-Compounds"	"a nitroaromatic compound"	[]	null	null
 "Nitroaromatic-Red-Compounds"	"a hydroxylamino group-containing compound"	[]	null	null
@@ -5729,7 +5755,7 @@
 "NN-DIACETYLCHITOBIOSYLDIPHOSPHODOLICHO"	"<i>N</i>-acetyl-&beta;-D-glucosaminyl-(1&rarr;4)-<i>N</i>-acetyl-&alpha;-D-glucosaminyl-diphosphodolichol"	["an {<i>N</i>-acetyl-&beta;-D-glucosaminyl-(1->4)-<i>N</i>-acetyl-&alpha;-D-glucosaminyl}diphosphodolichol", "an N,N'-diacetylchitobiosyldiphosphodolichol", "a chitobiosyldiphosphodolichol", "chitobiosyldiphosphodolichol", "N,N'-diacetylchitobiosyldiphosphodolichol", "an (<i>N</i>-acetylglucosaminyl)<sub>2</sub>-diphosphodolichol"]	"C96H158N2O17P2"	1674.255
 "NN-Dimethyl-Ornithine-Lipid"	"an <i>N</i>,<i>N</i>-dimethylornithine lipid"	[]	null	null
 "NNN-Trimethyl-Ornithine-Lipid"	"an <i>N</i>,<i>N</i>,<i>N</i>-trimethylornithine lipid"	[]	null	null
-"No-Alkenyl-Thiohydroximate-O-Sulfates"	"an aliphatic thiohydroximate-O-sulfate without a terminal alkene"	[]	null	null
+"No-Alkenyl-Thiohydroximate-O-Sulfates"	"an <i>N</i>-(sulfonatooxy)alkenimidothioic acid without a terminal double bond"	["an aliphatic thiohydroximate-O-sulfate without a terminal alkene"]	null	null
 "NOCARDICIN-A"	"nocardicin A"	["(2R)-2-amino-4-{4-[(1E)-{[(3S)-1-[(R)-carboxy(4-hydroxyphenyl)methyl]-2-oxoazetidin-3-yl]carbamoyl}(hydroxyimino)methyl]phenoxy}butanoate"]	"C23H23N4O9"	499.456
 "Nocardicins"	"a nocardicin"	[]	null	null
 "Non-Acetylated-Acetyl-Acceptors"	"a non-acetylated acetyl acceptor donor"	["a non-acetylated acetyl acceptor"]	null	null
@@ -5883,7 +5909,7 @@
 "Oxo-glutarate-dehydro-suc-DH-lipoyl"	"a [2-oxoglutarate dehydrogenase E2 protein] <i>N<sup>6</sup></i>-<i>S</i>-succinyldihydrolipoyl-L-lysine"	[]	null	null
 "Oxo-glutarate-dehydrogenase-DH-lipoyl"	"a [2-oxoglutarate dehydrogenase E2 protein] <i>N<sup>6</sup></i>-dihydrolipoyl-L-lysine"	[]	null	null
 "Oxo-glutarate-dehydrogenase-lipoyl"	"a [2-oxoglutarate dehydrogenase E2 protein] <i>N<sup>6</sup></i>-lipoyl-L-lysine"	[]	null	null
-"Oxoicosatetraenoates"	"an oxoicosatetraenoate"	[]	null	null
+"Oxoicosatetraenoates"	"an oxo-ETE"	["an oxoicosatetraenoate", "an oxoeicosatetraenoate"]	null	null
 "OXOPENTENOATE"	"2-oxopent-4-enoate"	["2-oxo-4-pentenoate", "2-oxopentenoate", "2-keto-4-pentenoate", "oxopent-4-enoate", "2-keto-4-pentenoic acid", "2-ketopent-4-enoic acid"]	"C5H5O3"	113.093
 "Oxosteroids"	"an oxosteroid"	["a ketosteroid"]	null	null
 "OXYGEN-HETEROCYCLES"	"an oxygen heterocycle"	[]	null	null
@@ -5928,6 +5954,7 @@
 "PENICILLIN-G"	"penicillin G"	["benzylpenicillin"]	"C16H17N2O4S"	333.381
 "PENTACHLOROPHENOL"	"pentachlorophenol"	["PCP"]	"C6OCl5"	265.33
 "Pentahydroxyflavones"	"a pentahydroxyflavone"	[]	null	null
+"Pentapeptides"	"a pentapeptide"	[]	null	null
 "Pentaric-Acids"	"a pentaric acid"	[]	null	null
 "Pentasaccharides"	"a pentasaccharide"	[]	null	null
 "Pentitols"	"a pentitol"	[]	"C5H12O5"	152.147
@@ -5942,15 +5969,21 @@
 "Peptide-C-terminal-Glycines"	"a [protein] C-terminal glycine"	["a C-terminal peptide glycine"]	null	null
 "PEPTIDE-FORMYLKYNURENINE"	"a [protein]-<i>N</i>-formyl-L-kynurenine"	["a peptide formylkynurenine", "a [protein]-formylkynurenine", "a [protein]-(2S)-2-amino-4-[2-(formamido)phenyl]-4-oxobutanoic acid"]	null	null
 "Peptide-Group"	"a peptide"	["a peptide group"]	null	null
+"Peptide-Peptidoglycan-NAcMur"	"a peptidoglycan with <i>N</i>-acetylmuramoyl-pentapeptide at the reducing end"	[]	null	null
 "PEPTIDE-TRYPTOPHAN"	"a [protein]-L-tryptophan"	["a peptide tryptophan"]	null	null
 "Peptides"	"a peptide"	[]	null	null
+"Peptidoglycan-Cleavage-Products"	"a peptidoglycan cleavage product"	[]	null	null
 "Peptidoglycan-DD-crosslinks"	"a peptidoglycan with D,D crosslinks"	[]	null	null
-"Peptidoglycan-dimer"	"a peptidoglycan dimer (generic)"	["a GlcNAc-(1->4)-MurNAc-pentapeptide dimer diphosphoundecaprenol", "a <i>N</i>-acetylglucosamine--<i>N</i>-acetylmuramoyl-(pentapeptide) dimer pyrophosphoryl-undecaprenol"]	null	null
+"Peptidoglycan-dimer"	"a nascent peptidoglycan dimer (generic)"	["a GlcNAc-(1->4)-MurNAc-pentapeptide dimer diphosphoundecaprenol", "a <i>N</i>-acetylglucosamine--<i>N</i>-acetylmuramoyl-(pentapeptide) dimer pyrophosphoryl-undecaprenol"]	null	null
+"Peptidoglycan-Dimer"	"a peptidoglycan dimer"	["a GlcNAc-(1->4)-MurNAc-peptide dimer", "a <i>N</i>-acetylglucosamine--<i>N</i>-acetylmuramoyl-(peptide) dimer"]	null	null
+"Peptidoglycan-GlcNAC"	"a peptidoglycan with <i>N</i>-acetyl-&beta;-D-glucosamine at the non-reducing end"	[]	null	null
 "Peptidoglycan-Internal-Segments"	"a peptidoglycan internal segment"	[]	null	null
-"Peptidoglycan-With-Cle-Pentagly-Bridges"	"a fragment of peptidoglycan with cleaved pentaglycine bridge"	[]	null	null
-"Peptidoglycan-With-Cleaved-Peptides"	"a peptidoglycan with cleaved peptide"	[]	null	null
-"Peptidoglycan-with-L-lysine-pentapeptide"	"a peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-L-lysyl-D-alanyl-D-alanine) pentapeptide"	[]	null	null
-"Peptidoglycan-With-Pentaglycine-Bridges"	"a peptidoglycan with pentaglycine bridge"	[]	null	null
+"Peptidoglycan-LD-crosslinks"	"a peptidoglycan with L,D crosslinks"	[]	null	null
+"Peptidoglycan-Monomer"	"a peptidoglycan monomer"	["a GlcNAc-(1->4)-MurNAc-peptide monomer", "a <i>N</i>-acetylglucosamine--<i>N</i>-acetylmuramoyl-(peptide) momer"]	null	null
+"Peptidoglycan-tetrapeptides"	"a peptidoglycan tetrapeptide"	["L-alanyl-&gamma;-D-glutamyl-L-lysyl/meso-2,6-diaminopimeloyl-D-alanine", "L-Ala-&gamma;-D-Glu-L-Lys/meso-A2pm-D-Ala", "L-alanyl-&gamma;-D-glutamyl-L-lysyl/meso-2,6-diaminoheptanedioyl-D-alanine"]	null	null
+"Peptidoglycan-With-Cle-Pentagly-Bridges"	"a peptidoglycan internal segment with cleaved pentaglycine bridge"	[]	null	null
+"Peptidoglycan-with-crosslinks"	"a peptidoglycan with cross-links"	[]	null	null
+"Peptidoglycan-with-L-lysine-pentapeptide"	"a nascent peptidoglycan with (L-alanyl-&gamma;-D-glutamyl-L-lysyl-D-alanyl-D-alanine) pentapeptide"	[]	null	null
 "Peptidoglycans"	"a peptidoglycan"	[]	null	null
 "Peptidyl-Carrier-Protein-Group"	"[peptidyl-carrier protein] group"	[]	null	null
 "Peptidyl-Carrier-Protein-L-proline"	"an L-prolyl-[peptidyl-carrier protein]"	[]	null	null
@@ -5960,7 +5993,7 @@
 "Peroxides"	"a peroxide"	[]	null	null
 "Perthiols"	"a perthiol"	["a persulfide"]	null	null
 "PGL"	"a dimycocerosyl glycosyl phenolphthiocerol"	["a glycosyl dimycocerosyl phenolphthiocerol", "PGL"]	null	null
-"PHE"	"L-phenylalanine"	["2S-&alpha;-phenylalanine", "F", "endophenyl", "phenylalanine", "L-phe"]	"C9H11NO2"	165.191
+"PHE"	"L-phenylalanine"	["2S-&alpha;-phenylalanine", "F", "endophenyl", "phenylalanine", "L-phe", "phe"]	"C9H11NO2"	165.191
 "PHENANTHRENE-RING"	"phenanthrene-ring"	[]	"C14H10"	178.233
 "Phenolcarboxyphthiodiolenones"	"a phenolcarboxyphthiodiolenone"	[]	null	null
 "Phenolic-Donors"	"a phenolic donor"	[]	null	null
@@ -6122,7 +6155,7 @@
 "Phosphorus-Molecular-Entities"	"a phosphorus molecular entity"	[]	null	null
 "Phosphorus-oxoacids-And-Derivatives"	"a phosphorus oxoacid and derivatives"	[]	null	null
 "PHOSPHORYL-CHOLINE"	"phosphocholine"	["choline-phosphate", "phosphoryl-choline", "<i>O</i>-phosphocholine"]	"C5H13NO4P"	182.136
-"PHOSPHORYL-ETHANOLAMINE"	"<i>O</i>-phosphoethanolamine"	["phosphoryl-ethanolamine", "O-phosphorylethanolamine", "phosphoethanolamine", "ethanolamine phosphate", "2-aminoethyl phosphate"]	"C2H7NO4P"	140.055
+"PHOSPHORYL-ETHANOLAMINE"	"<i>O</i>-phosphoethanolamine"	["phosphoryl-ethanolamine", "O-phosphorylethanolamine", "phosphoethanolamine", "ethanolamine phosphate", "2-aminoethyl phosphate", "pEtN"]	"C2H7NO4P"	140.055
 "Phosphorylated-Amino-Acids"	"a phosphorylated amino acid"	[]	null	null
 "Phosphoserines"	"L(or D)-<i>O</i>-phosphoserine"	[]	"C3H5NO6P"	182.049
 "Phosphosphingolipids"	"a phosphosphingolipid"	[]	null	null
@@ -6153,12 +6186,12 @@
 "PigJ-pyrrole-2-carboxylate"	"a 1<i>H</i>-pyrrole-2-carbonyl-[PigJ acyl-carrier protein]"	[]	null	null
 "PINENE"	"pinene"	["&alpha;-pinene"]	"C10H16"	136.236
 "pinolenoyl-lipid"	"a [glycerolipid]-pinolenate"	["a [glycerolipid]-(5Z,9Z,12Z)-octadecatri-5,9,12-enoate", "a [glycerolipid]-pinolenoic acid"]	null	null
-"Piperdines"	"a piperdine"	[]	null	null
+"Piperdines"	"a piperidine"	[]	null	null
 "piperidine-3-carboxylate"	"nipecotate"	["nipecotic acid", "piperidine-3-carboxylate"]	"C6H11NO2"	129.158
 "PKS-ACP-GROUP"	"[polyketide synthase acyl-carrier protein]-group"	["[polyketide synthase] group", "[pks-acp]-group"]	null	null
 "Plant-Arabinogalactans"	"a plant arabinogalactan"	[]	null	null
-"Plant-Arabinogalactans-I"	"a plant arabinogalactan type I"	["type I AG", "type II arabinogalactan"]	null	null
-"Plant-Arabinogalactans-II"	"a plant arabinogalactan type II"	["type I AG", "arabino-3,6-galactan", "type II arabinogalactan"]	null	null
+"Plant-Arabinogalactans-I"	"a type I plant arabinogalactan"	["type I AG", "type I arabinogalactan", "AGI"]	null	null
+"Plant-Arabinogalactans-II"	"a type II plant arabinogalactan"	["type II AG", "arabino-3,6-galactan", "type II arabinogalactan", "AGII"]	null	null
 "Plant-Ceramide-Phosphate"	"a dihydroceramide 1-phosphate"	["a plant ceramide 1-phosphate"]	null	null
 "Plant-Ceramides-IV"	"a (4<i>R</i>)-4-hydroxysphing-8-enine ceramide"	["a plant ceramide (IV)"]	null	null
 "Plant-Hormones"	"a plant hormone"	[]	null	null
@@ -6246,6 +6279,7 @@
 "PROGESTERONE"	"progesterone"	["pregn-4-ene-3,20-dione"]	"C21H30O2"	314.467
 "Progestogens"	"a progestogen"	[]	null	null
 "Prolipoprotein-Cysteines"	"a [prolipoprotein]-L-cysteine"	[]	null	null
+"Prolyltripeptides"	"a tripeptide with C-terminal L-proline"	["Xaa-Xaa-Pro", "a tripeptide with proline at the third position"]	null	null
 "PROPANE-1-2-DIOL"	"(<i>S</i>)-propane-1,2-diol"	["(<i>S</i>)-propane-1,2-diol", "(<i>S</i>)-1,2-propane-diol", "(<i>S</i>)-1,2-propanediol", "(<i>S</i>)-1,2-dihydroxypropane", "L-1,2-propanediol"]	"C3H8O2"	76.095
 "PROPANOL"	"propan-1-ol"	["osmosol extra", "optal", "1-hydroxypropane", "ethylcarbinol", "1-propanol", "n-propanol", "propanol", "propylalcohol"]	"C3H8O"	60.096
 "PROPIONATE"	"propanoate"	["propionic acid", "ethylformic acid", "methylacetic acid", "propionate"]	"C3H5O2"	73.071
@@ -6333,7 +6367,7 @@
 "Protein-nitrosothiol-L-alanine"	"a [protein] 3-nitrosothio-L-alanine"	[]	null	null
 "Protein-phospho-fructosamines"	"a [protein]-<i>N</i><sup>6</sup>-(3-<i>O</i>-phospho-D-fructosyl)-L-lysine"	[]	null	null
 "Protein-phospho-L-histidines"	"a [protein]-<i>N</i>-phospho-L-histidine"	[]	null	null
-"Protein-Phosphoserines"	"a [protein] L-serine phosphate"	["a [protein] L-phosphoserine"]	null	null
+"Protein-Phosphoserines"	"a [protein]-<i>O</i>-phospho-L-serine"	["a [protein] L-phosphoserine"]	null	null
 "Protein-Phosphothreonines"	"a [protein] L-threonine phosphate"	[]	null	null
 "Protein-pi-phospho-L-histidines"	"a [protein]-<i>N<sup>&pi;</sup></i>-phospho-L-histidine"	["a [protein]-<i>N</i>-phosphohistidine"]	null	null
 "Protein-Prolines"	"a [protein]-L-proline"	[]	null	null
@@ -6394,11 +6428,10 @@
 "Purine-Ribonucleosides"	"a purine ribonucleoside"	["nebularine", "purine riboside", "an N-D-ribosyl-purine"]	null	null
 "Purine-ribonucleosides-5-P"	"a purine ribonucleoside 5'-monophosphate"	[]	null	null
 "Purine-ribonucleosides-5-PP"	"a purine ribonucleoside 5'-diphosphate"	["RDP", "purine-diphosphate", "a purine diphosphate"]	null	null
-"Purine-ribonucleosides-5-PPP"	"a purine ribonucleoside 5'-triphosphate"	[]	null	null
+"Purine-ribonucleosides-5-PPP"	"a purine ribonucleoside 5'-triphosphate"	["RTP", "a purine triphosphate"]	null	null
 "Purine-ribonucleosides-5-PPPP"	"a purine ribonucleoside 5'-tetraphosphate"	[]	null	null
 "Purine-ribonucleotides"	"a purine ribonucleotide"	[]	null	null
 "PURINE-RING"	"purine-ring"	[]	"C5H4N4"	120.113
-"Purine-Triphosphates"	"a purine triphosphate"	["RTP"]	null	null
 "Purines"	"a purine"	["a purine-related compound"]	null	null
 "PUROMYCIN"	"puromycin"	[]	"C22H30N7O5"	472.523
 "PUTRESCINE"	"putrescine"	["diaminobutane", "1,4-diaminobutane", "1,4-butanediamine", "tetramethylenediamine"]	"C4H14N2"	90.168
@@ -6682,6 +6715,7 @@
 "SIROHYDROCHLORIN"	"sirohydrochlorin"	["Precorrin"]	"C42H38N4O16"	854.779
 "sLea-Antigen"	"a sialyl-Lewis a epitope"	["an sLe<sup>a</sup> antigen", "&alpha;NeuNAc-(2&rarr;3)-&beta;Gal-(1&rarr;3)-[&alpha;Fuc-(1&rarr;4]-&beta;GlcNAc-[protein]", "a histo-blood group sialyl Lewis a epitope"]	null	null
 "sLex-Antigen"	"a sialyl-Lewis x epitope"	["an sLe<sup>x</sup> antigen", "&alpha;NeuNAc-(2&rarr;3)-&beta;Gal-(1&rarr;4)-[&alpha;Fuc-(1&rarr;3]-&beta;GlcNAc-[protein]", "a sialyl Lewis x antigen", "a histo-blood group sialyl Lewis x antigen"]	null	null
+"Smooth-Form-LPS"	"a smooth-form lipopolysaccharide"	["smooth-form LPS", "(S)-form LPS"]	null	null
 "SN-3-D-GALACTOSYL-SN-2-ACYLGLYCEROL"	"an <i>sn</i>-3-D-galactosyl-<i>sn</i>-2-acylglycerol"	["a monogalactosyl-monoacylglycerol"]	null	null
 "SN-GLYCEROL-1-PHOSPHATE"	"<i>sn</i>-glycerol 1-phosphate"	["D-glycerol 3-phosphate", "L-glycerol 1-phosphate"]	"C3H7O6P"	170.058
 "snRNA-Adenines"	"an adenine in snRNA"	["an snRNA adenine"]	null	null
@@ -6722,6 +6756,7 @@
 "SS-DIMETHYL-BETA-PROPIOTHETIN"	"dimethylsulfoniopropanoate"	["<i>S,S</i>-dimethyl-&beta;-propiothetin", "DMPT", "dimethylpropiothetin", "<i>S</i>-dimethylsulfonium propionic acid", "dimethylsulfoniopropionate", "3-(dimethylsulfaniumyl)propanoate"]	"C5H10O2S"	134.193
 "SS-Oligodeoxyribonucleotides"	"a single-stranded oligodeoxyribonucleotide"	[]	null	null
 "SS-Oligoribonucleotides"	"a single-stranded oligoribonucleotide"	[]	null	null
+"ssDNA-Holder"	"a single-stranded DNA"	["a ssDNA"]	null	null
 "Stabilized-RecA-Filament-DNA-Complex"	"a stabilized RecA filament-DNA complex"	[]	null	null
 "Starch"	"starch"	[]	null	null
 "STEARIC_ACID"	"stearate"	["octadecanoate", "stearic acid", "octadecanoic acid", "n-C18:0"]	"C18H35O2"	283.473
@@ -6745,7 +6780,7 @@
 "SUC-COA"	"succinyl-CoA"	["succ-coenzyme-A", "succ-<i>S</i>-coenzyme-A", "succinyl-S-coenzyme-A", "succ-<i>S</i>-CoA", "succinylcoenzyme-A", "succ-CoA", "suc-CoA", "succinyl-<i>S</i>-CoA", "succinyl-coenzyme A"]	"C25H35N7O19P3S"	862.568
 "SUCC-S-ALD"	"succinate semialdehyde"	["succinyl semialdehyde", "succ-S-ald", "succinic semialdehyde"]	"C4H5O3"	101.082
 "SUCCINYL-OH-CYCLOHEXADIENE-COOH"	"(1<i>S</i>,6<i>R</i>)-2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate"	["2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate", "SHCHC", "(1<i>S</i>,6<i>R</i>)-6-hydroxy-2-succinylcyclohexa-2,4-diene-1-carboxylate"]	"C11H10O6"	238.196
-"SUCROSE"	"sucrose"	["saccharose", "Glc(&alpha;1->2&beta;)Fru", "&beta;-D-fructofuranosyl-(2&harr;1)-&alpha;-D-glucopyranoside"]	"C12H22O11"	342.299
+"SUCROSE"	"sucrose"	["saccharose", "Glc(&alpha;1->2&beta;)Fru", "&beta;-D-fructofuranosyl-(2&harr;1)-&alpha;-D-glucopyranoside", "&beta;-D-Fruf-(2&rarr;1)-&alpha;-D-Glcp", "1-&alpha;-D-Glucopyranosyl-2-&beta;-D-fructofuranoside"]	"C12H22O11"	342.299
 "SUCROSE-6P"	"sucrose 6<sup>F</sup>-phosphate"	["sucrose-6F-P", "6-<i>O</i>-phosphonato-&beta;-D-fructofuranosyl &alpha;-D-glucopyranoside"]	"C12H21O14P"	420.263
 "Sugar"	"a sugar"	[]	null	null
 "Sugar-1-Phosphate"	"a sugar 1-phosphate"	[]	null	null
@@ -6888,7 +6923,7 @@
 "Thioesters"	"a thioester"	[]	null	null
 "Thioglucosides"	"a thioglucoside"	[]	null	null
 "THIOGLYCOLATE"	"thioglycolate"	["mercaptoacetate", "thioglycolic acid", "mercaptoacetic acid"]	"C2H3O2S"	91.104
-"THIOHYDROXIMATE-O-SULFATES"	"a thiohydroximate-O-sulfate"	[]	null	null
+"THIOHYDROXIMATE-O-SULFATES"	"an <i>N</i>-(sulfonatooxy)alkenimidothioic acid"	["a thiohydroximate-O-sulfate"]	null	null
 "THIOL-GROUP"	"a thiol group"	[]	"CHS"	45.079
 "Thiols"	"a thiol"	["a mercaptan"]	null	null
 "Thiopurine-Methylethers"	"a thiopurine S-methylether"	[]	"C6H6N4S"	166.2
@@ -6898,7 +6933,7 @@
 "THREO-DS-ISO-CITRATE"	"D-<i>threo</i>-isocitrate"	["D-<i>threo</i>-isocitrate", "(1<i>R</i>, 2<i>S</i>)-1-hydroxypropane-1,2,3-tricarboxylate", "D-<i>threo</i>-isocitric acid", "isocitric acid", "isocitrate", "threo-D<SUB>s</SUB>-isocitrate", "I-CIT", "D-isocitrate"]	"C6H5O7"	189.101
 "Threo-GGE"	"<i>threo</i>-guaiacylglycerol-&beta;-guaiacyl ether"	["<i>threo</i>-GGE"]	"C17H20O6"	320.341
 "THRYROXINE"	"thyroxine"	["DL-thyroxine", "2-amino-3-[4-(4-hydroxy-3,5-diiodophenoxy)-3,5-diiodophenyl]propanoic acid", "O-(4-Hydroxy-3,5-diiodophenyl)-3,5-diiodo-DL-tyrosine", "Thx"]	"C15H11NO4I4"	776.874
-"THYMIDINE"	"thymidine"	["deoxythymidine"]	"C10H14N2O5"	242.231
+"THYMIDINE"	"thymidine"	["deoxythymidine", "thymine 2'-deoxyriboside"]	"C10H14N2O5"	242.231
 "THYMINE"	"thymine"	["5-methyluracil", "5-methyl-2,4(1H,3H)-pyrimidinedione", "T"]	"C5H6N2O2"	126.115
 "Thyroglobulin-3-5-diiodotyrosines"	"a [thyroglobulin]-3,5-diiodotyrosine"	[]	null	null
 "Thyroglobulin-3-iodotyrosines"	"a [thyroglobulin]-3-iodotyrosine"	[]	null	null
@@ -7041,12 +7076,10 @@
 "tRNAs-with-N7-methyl-guanine"	"an <i>N</i><sup>7</sup>-methylguanine in tRNA"	["a tRNA containing <i>N</i><sup>7</sup>-methylguanine"]	null	null
 "tRNAs-with-O-methyl-C-or-U"	"a tRNA containing 2'-<i>O</i>-methylcytosine or 2'-<i>O</i>-methyluridine"	[]	null	null
 "tRNAs-with-queuine"	"a queuosine<sup>34</sup> in tRNA"	["a tRNA containing queuosine", "queuosine at position 34 of a tRNA"]	null	null
-"TRP"	"L-tryptophan"	["W", "tryptacin", "trofan", "tryptophan", "2-amino-3-indolylpropanic acid", "L-trp"]	"C11H12N2O2"	204.228
+"TRP"	"L-tryptophan"	["W", "tryptacin", "trofan", "tryptophan", "2-amino-3-indolylpropanic acid", "L-trp", "trp"]	"C11H12N2O2"	204.228
 "Truncated-Limit-Dextrins"	"a &alpha;-limit dextrin with short branches"	[]	null	null
 "TTP"	"dTTP"	["thymidine triphosphate", "thymidine 5'-triphosphate", "TTP"]	"C10H13N2O14P3"	478.139
 "TtuD-S-sulfanyl-L-cysteine"	"a [TtuD protein]-<i>S</i>-sulfanyl-L-cysteine"	[]	null	null
-"Tubulin-acetyl-L-lysine"	"an [&alpha;-tubulin]-N<sup>6</sup>-acetyl-L-lysine"	[]	null	null
-"Tubulin-L-Lysine"	"an [&alpha;-tubuline]-L-lysine"	[]	null	null
 "TUM1-L-cysteine"	"a [3-mercaptopyruvate sulfurtransferase]-L-cysteine"	["a [TUM1 protein]-L-cysteine"]	null	null
 "TUM1-S-sulfanylcysteine"	"a [3-mercaptopyruvate sulfurtransferase]-<i>S</i>-sulfanyl-L-cysteine"	["a [TUM1] persulfide", "a sulfurylated [TUM1] protein", "a [TUM1]-<i>S</i>-sulfanyl-L-cysteine"]	null	null
 "TUNGSTATE"	"tungstate"	["wolframate"]	"O4W"	247.848
@@ -7060,12 +7093,12 @@
 "TYLOSIN"	"tylosin"	["tylosin A"]	"C46H78NO17"	917.119
 "Type-ALeb-antigen"	"an <i>N</i>-acetyl-&alpha;-D-galactosaminyl-(1,3)[&alpha;-L-fucosyl-(1,2)]-&beta;-D-galactosyl-(1,3)-[&alpha;-L-fucosyl-(1,4)]-<i>N</i>-acetyl-&beta;-D-glucosamine-(1&rarr;protein]"	["an A (Lewis b) histo-blood group epitope", "an ALe<sup>b</sup> epitope"]	null	null
 "Type-BLeb-antigen"	"a B (Lewis b) histo-blood group epitope"	["an &alpha;-D-galactosaminyl-(1,4)[&alpha;-L-fucosyl-(1,2)]-&beta;-D-galactosyl-(1,3)-[&alpha;-L-fucosyl-(1,4)]-<i>N</i>-acetyl-&beta;-D-glucosamine-(1&rarr;protein]", "a BLe<sup>b</sup> histo-blood group antigen"]	null	null
-"TYR"	"L-tyrosine"	["Y", "tyrosine", "L-tyr"]	"C9H11NO3"	181.191
+"TYR"	"L-tyrosine"	["Y", "tyrosine", "L-tyr", "tyr"]	"C9H11NO3"	181.191
 "TYR-tRNA-Containing-2O-MeGuanosine"	"a 2'-<i>O</i>-methylguanosine in tRNA<SUP>tyr</SUP>"	["tRNA<SUP>tyr</SUP>-containing-2'-O-methylguanosine"]	null	null
-"TYRAMINE"	"<i>p</i>-tyramine"	["tyrosamine", "4-(2-aminoethyl)phenol", "<i>p</i>-hydroxyphenethylamine", "2-(<i>p</i>-hydroxyphenyl)ethylamine", "<i>para</i>-tyramine"]	"C8H12NO"	138.189
+"TYRAMINE"	"tyramine"	["tyrosamine", "4-(2-aminoethyl)phenol", "<i>p</i>-hydroxyphenethylamine", "2-(<i>p</i>-hydroxyphenyl)ethylamine", "<i>para</i>-tyramine", "<i>p</i>-tyramine"]	"C8H12NO"	138.189
 "U6-snRNA-Adenines"	"an adenine in a U6 snRNA"	[]	null	null
 "Ubiquinol-Analogues"	"a ubiquinol analogue"	[]	null	null
-"Ubiquinols"	"an ubiquinol"	["a reduced ubiquinone", "a dihydroubiquinone", "a QH<sub>2</sub>"]	null	null
+"Ubiquinols"	"a ubiquinol"	["a reduced ubiquinone", "a dihydroubiquinone", "a QH<sub>2</sub>"]	null	null
 "UBIQUINONE-10"	"ubiquinone-<i>10</i>"	["coenzyme-Q<SUB>10</SUB>", "ubiquinone(10)"]	"C59H90O4"	863.358
 "UBIQUINONE-2"	"ubiquinone-2"	[]	"C19H26O4"	318.412
 "UBIQUINONE-6"	"ubiquinone-<i>6</i>"	["ubiquinone(6)", "CoQ-6", "ubiquinone(30)", "coenzyme-Q<SUB>6</SUB>", "Q6"]	"C39H58O4"	590.885
@@ -7076,6 +7109,9 @@
 "UBIQUITIN-CALMODULIN"	"an <i>N<sup>6</sup></i>-ubiquitinyl-[calmodulin]-L-lysine<sup>22</sup>"	[]	null	null
 "Ubiquitin-carrier-protein-E2-L-cysteine"	"an [E2 ubiquitin-conjugating enzyme]-L-cysteine"	["a [ubiquitin-conjugating enzyme E2]-L-cysteine"]	null	null
 "UDP"	"UDP"	["uridine-diphosphate", "uridine-5'-diphosphate"]	"C9H11N2O12P2"	401.14
+"UDP-2N-3R-hydroxyacyl-3O-3R-hydroxyacyl-GlcN"	"UDP-2-<i>N</i>,3-O-<i>bis</i>[(3<i>R</i>)-3-hydroxyacyl]-&alpha;-D-glucosamine"	["UDP-2-<i>N</i>-[(3<i>R</i>)-3-hydroxyacyl]-3-<i>O</i>-[(3<i>R</i>)-3-hydroxyacyl]-&alpha;-D-glucosamine"]	null	null
+"UDP-3R-hydroxyacyl-GlcN"	"UDP-3-<i>O</i>-[(3<i>R</i>)-3-hydroxyacyl]-&alpha;-D-glucosamine"	[]	null	null
+"UDP-3R-hydroxyacyl-GlcNAc"	"UDP-3-<i>O</i>-[(3<i>R</i>)-3-hydroxyacyl]-<i>N</i>-acetyl-&alpha;-D-glucosamine"	[]	null	null
 "UDP-4-AMINO-4-DEOXY-L-ARABINOSE"	"UDP-4-amino-4-deoxy-&beta;-L-arabinopyranose"	["uridine 5''-diphospho-{&beta;}-4-deoxy-4-amino-L-arabinose", "UDP-4-amino-4-deoxy-L-arabinose"]	"C14H22N3O15P2"	534.286
 "UDP-4-amino-sugars"	"a UDP-4-amino-4-deoxy sugar"	[]	null	null
 "UDP-4R-amino-sugars"	"a UDP-4(<i>R</i>)-amino-4-deoxy sugar"	[]	null	null
@@ -7103,13 +7139,13 @@
 "UDP-NAcMur-Peptides"	"a UDP-<i>N</i>-acetylmuramoyl-pentapeptide"	["a UDP-<i>N</i>-acetylmuramoyl-L-alanyl-&gamma;-D-glutamyl-X- D-alanyl-D-alanine"]	null	null
 "UDP-NAcMur-Tetrapeptides"	"a UDP-<i>N</i>-acetylmuramoyl-tetrapeptide"	["a UDP-<i>N</i>-acetylmuramoyl-L-alanyl-D-glutamyl-X- D-D-alanine"]	null	null
 "UDP-OHMYR-ACETYLGLUCOSAMINE"	"UDP-3-<i>O</i>-[(3<i>R</i>)-3-hydroxymyristoyl]-<i>N</i>-acetyl-&alpha;-D-glucosamine"	["UDP-3-<i>O</i>-(3-hydroxytetradecanoyl)-<i>N</i>-acetylglucosamine", "UDP-3-<i>O</i>-(3-hydroxymyristoyl)-<i>N</i>-acetylglucosamine"]	"C31H51N3O19P2"	831.7
-"UDP-OHMYR-GLUCOSAMINE"	"UDP-3-<i>O</i>-(3-hydroxymyristoyl)-&alpha;-D-glucosamine"	["UDP-3-<i>O</i>-(3-hydroxytetradecanoyl)-D-glucosamine", "UDP-3-<i>O</i>-(3-hydroxytetradecanoyl)glucosamine", "UDP-3-<i>O</i>-[(3<i>R</i>)-3-hydroxymyristoyl]-D-glucosamine"]	"C29H50N3O18P2"	790.671
+"UDP-OHMYR-GLUCOSAMINE"	"UDP-3-<i>O</i>-[(3<i>R</i>)-3-hydroxymyristoyl]-&alpha;-D-glucosamine"	["UDP-3-<i>O</i>-(3-hydroxytetradecanoyl)-D-glucosamine", "UDP-3-<i>O</i>-(3-hydroxytetradecanoyl)glucosamine", "UDP-3-<i>O</i>-(3-hydroxymyristoyl)-&alpha;-D-glucosamine"]	"C29H50N3O18P2"	790.671
 "UDP-sugar"	"a UDP-sugar"	[]	null	null
-"UMP"	"UMP"	["uridylate", "5'-UMP", "uridine 5'-phosphate", "5'-uridylic acid (8CI)(9CI)", "uridine monophosphate", "uridine 5'-monophosphate"]	"C9H11N2O9P"	322.168
+"UMP"	"UMP"	["uridylate", "5'-UMP", "uridine 5'-phosphate", "5'-uridylic acid (8CI)(9CI)", "uridine monophosphate", "uridine 5'-monophosphate", "uracil ribotide"]	"C9H11N2O9P"	322.168
 "Unbranched-1-6-Mannan"	"an unbranched &alpha;-(1,6)-D-mannan"	["a fungal cell wall mannan backbone"]	null	null
 "Uncharged-polar-amino-acids"	"an uncharged polar amino acid"	[]	null	null
 "undecaprenyl"	"all-<i>trans</i>-undecaprenyl group"	[]	"C55H90"	751.316
-"UNDECAPRENYL-DIPHOSPHATE"	"<i>di-trans,octa-cis</i>-undecaprenyl diphosphate"	["di-<i>trans</i>-poly-<i>cis</i>-undecaprenyl diphosphate", "undecaprenyl-PP (ambiguous)", "bactoprenyl pyrophosphate", "undecaprenyl pyrophosphate (ambiguous)", "UPP (ambiguous)", "di-<i>trans</i>,octa-<i>cis</i>-undecaprenyl diphosphate", "C<sub>55</sub>-PP", "Und-PP"]	"C55H89O7P2"	924.251
+"UNDECAPRENYL-DIPHOSPHATE"	"<i>di-trans,octa-cis</i>-undecaprenyl diphosphate"	["di-<i>trans</i>-poly-<i>cis</i>-undecaprenyl diphosphate", "undecaprenyl-PP (ambiguous)", "bactoprenyl pyrophosphate", "undecaprenyl pyrophosphate (ambiguous)", "UPP (ambiguous)", "C<sub>55</sub>-PP (ambiguous)", "Und-PP"]	"C55H89O7P2"	924.251
 "UNDECAPRENYL-P"	"all-<i>trans</i>-undecaprenyl phosphate"	[]	"C55H89O4P"	845.279
 "UNKNOWN"	"an unknown compound"	["unknown"]	null	null
 "Unknown-Inducers"	null	["an unknown inducer", "unknown inducer"]	null	null
@@ -7122,7 +7158,7 @@
 "Unspecified-Degradation-Products"	"[unspecified degradation products]"	[]	null	null
 "Unspecified-Ion-Or-Solute"	"non-specific ion/solute"	[]	null	null
 "Unstable-RecA-Filament-DNA-Complex"	"an unstable RecA filament-DNA complex"	[]	null	null
-"URACIL"	"uracil"	["U"]	"C4H4N2O2"	112.088
+"URACIL"	"uracil"	["U", "2,4-(1H,3H)-pyrimidinedione"]	"C4H4N2O2"	112.088
 "Uracil-54-in-tRNA"	"a uracil<sup>54</sup> in tRNA"	["a tRNA containing uracil at position 54", "a tRNA uracil<sup>54</sup>"]	null	null
 "Uracil-6666-apolipoprotein-B-mRNAs"	"a uracil<sup>6666</sup> in apolipoprotein B mRNA"	[]	null	null
 "Uracil-8-In-tRNAs"	"a uracil<sup>8</sup> in tRNA"	[]	null	null
@@ -7161,7 +7197,7 @@
 "Val-tRNA1-N6-MeAdenine37"	"an <i>N</i><sup>6</sup>-methyladenine<sup>37</sup> in tRNA<sub>1</sub><sup>val</sup>"	[]	null	null
 "VANILLATE"	"vanillate"	["4-hydroxy-3-methoxybenzoate", "vanillic acid", "4-hydroxy-3-methoxybenzoic acid"]	"C8H7O4"	167.141
 "VANILLIN"	"vanillin"	["4-hydroxy-3-methoxybenzaldehyde"]	"C8H8O3"	152.149
-"Vernolates"	"vernolate"	["12,13-epoxy-9-cis-octadecenoic acid", "12,13-epoxy-9-cis-octadecenoate", "vernolic acid", "(9Z)-11-(3-pentyloxiran-2-yl)undec-9-enoic acid", "(9Z)-11-(3-pentyloxiran-2-yl)undec-9-enoic acids", "12(13)-EpOME", "(9Z)-12,13-epoxyoctadecenoic acid", "12,13-cis-epoxyoctadecenoic acid", "cis-12,13-ep, 9c-18:1", "cis-12,13-epoxy-9-octadecenoic acid", "isoleukotoxin"]	"C18H31O3"	295.441
+"Vernolates"	"vernolate"	["12,13-epoxy-9-cis-octadecenoic acid", "12,13-epoxy-9-cis-octadecenoate", "vernolic acid", "(9Z)-11-(3-pentyloxiran-2-yl)undec-9-enoic acid", "(9Z)-11-(3-pentyloxiran-2-yl)undec-9-enoic acids", "12(13)-EpOME", "(9Z)-12,13-epoxyoctadecenoic acid", "12,13-cis-epoxyoctadecenoic acid", "cis-12,13-ep, 9c-18:1", "cis-12,13-epoxy-9-octadecenoic acid", "isoleukotoxin", "(&plusmn;)12(13)-EpOME", "(&plusmn;)vernolate"]	"C18H31O3"	295.441
 "Very-long-Chain-234-Saturated-acyl-CoAs"	"a very-long-chain 2,3,4-saturated fatty acyl CoA"	[]	null	null
 "Very-Long-Chain-234-Saturated-FAs"	"a very-long-chain 2,3,4-saturated fatty acid"	[]	null	null
 "Very-Long-Chain-3-Hydroxyacyl-CoAs"	"a very-long-chain (3<i>R</i>)-3-hydroxyacyl-CoA"	[]	null	null
@@ -7209,15 +7245,15 @@
 "Xanthan"	"xanthan"	["xanthan gum"]	null	null
 "XANTHINE"	"xanthine"	["2,6-dioxopurine"]	"C5H4N4O2"	152.112
 "Xanthophylls"	"a xanthophyll"	[]	null	null
-"XANTHOSINE"	"xanthosine"	["9 &beta;-D-ribofuranosylxanthine"]	"C10H12N4O6"	284.228
-"XANTHOSINE-5-PHOSPHATE"	"XMP"	["(9-D-ribosylxanthine) 5'-phosphate", "xanthosine 5-phosphate", "xanthosine 5'-phosphate", "xanthosine-5-P", "xanthosine-5'-P", "9-(5-phospho-&beta;-D-ribosyl)xanthine"]	"C10H11N4O9P"	362.192
+"XANTHOSINE"	"xanthosine"	["9 &beta;-D-ribofuranosylxanthine", "xanthine riboside"]	"C10H12N4O6"	284.228
+"XANTHOSINE-5-PHOSPHATE"	"XMP"	["(9-D-ribosylxanthine) 5'-phosphate", "xanthosine 5-phosphate", "xanthosine 5'-phosphate", "xanthosine-5-P", "xanthosine-5'-P", "9-(5-phospho-&beta;-D-ribosyl)xanthine", "xanthine ribotide"]	"C10H11N4O9P"	362.192
 "XDP"	"XDP"	["xanthosine diphosphate"]	"C10H11N4O12P2"	441.164
 "Xenobiotic"	"a xenobiotic"	[]	null	null
 "XLFG-Xyloglucans"	"an XLFG xylogulcan"	["a xyloglucan modified with galactose and fucose side chains"]	null	null
 "XTP"	"XTP"	["xanthosine 5' triphosphate"]	"C10H11N4O15P3"	520.136
 "Xyl-Glc-EGF-like-domain"	"a [protein with EGF-like domain]-3-<i>O</i>-[&alpha;-D-xylosyl-(1&rarr;3)-&beta;-D-glucosyl]-L-serine"	["Xyl-&alpha;(1-3)-Glc-&beta;-[EGF-like domain protein]"]	null	null
 "Xyl-Xyl-Glc-EGF-like-domain"	"a [protein with EGF-like domain]-3-<i>O</i>-[&alpha;-D-xylosyl-(1&rarr;3)-&alpha;-D-xylosyl-(1&rarr;3)-&beta;-D-glucosyl]-L-serine"	[]	null	null
-"Xylans"	"xylan"	[]	null	null
+"Xylans"	"a xylan"	[]	null	null
 "Xylarates"	"a xylarate"	[]	null	null
 "XYLITOL"	"xylitol"	["(2R,3R,4S)-pentane-1,2,3,4,5-pentaol"]	"C5H12O5"	152.147
 "Xylogalacturonan"	"a xylogalacturonan"	[]	null	null

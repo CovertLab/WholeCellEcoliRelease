@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 25.1
-# Date and time generated: September 13, 2021, 11:35:18
+# Version: 25.5
+# Date and time generated: January 8, 2022, 1:17:48
 "id"	"common_name"	"synonyms"	"type"	"left_end_pos"	"right_end_pos"	"direction"
 "BS-7046"	null	[]	"dna-binding-site"	1825765	1825784	null
 "BS-7048"	null	[]	"dna-binding-site"	3169748	3169760	null
@@ -445,6 +445,29 @@
 "BS0-10469"	null	[]	"dna-binding-site"	3884302	3884315	null
 "BS0-10470"	null	[]	"dna-binding-site"	null	null	null
 "BS0-10472"	null	[]	"dna-binding-site"	1787066	1787082	null
+"BS0-10474"	null	[]	"dna-binding-site"	3413672	3413689	null
+"BS0-10475"	null	[]	"dna-binding-site"	4105762	4105779	null
+"BS0-10476"	null	[]	"dna-binding-site"	3246527	3246544	null
+"BS0-10477"	null	[]	"dna-binding-site"	2001802	2001819	null
+"BS0-10478"	null	[]	"dna-binding-site"	4058129	4058146	null
+"BS0-10479"	null	[]	"dna-binding-site"	848089	848106	null
+"BS0-10485"	null	[]	"dna-binding-site"	3600914	3600931	null
+"BS0-10489"	null	[]	"dna-binding-site"	2755430	2755447	null
+"BS0-10490"	null	[]	"dna-binding-site"	2737006	2737023	null
+"BS0-10491"	null	[]	"dna-binding-site"	3793949	3793966	null
+"BS0-10492"	null	[]	"dna-binding-site"	3581015	3581032	null
+"BS0-10493"	null	[]	"dna-binding-site"	3377441	3377458	null
+"BS0-10494"	null	[]	"dna-binding-site"	3664641	3664658	null
+"BS0-10495"	null	[]	"dna-binding-site"	3419086	3419103	null
+"BS0-10496"	null	[]	"dna-binding-site"	null	null	null
+"BS0-10497"	null	[]	"dna-binding-site"	null	null	null
+"BS0-10498"	null	[]	"dna-binding-site"	null	null	null
+"BS0-10499"	null	[]	"dna-binding-site"	1933095	1933115	null
+"BS0-10500"	null	[]	"dna-binding-site"	2352538	2352558	null
+"BS0-10501"	null	[]	"dna-binding-site"	3241768	3241788	null
+"BS0-10502"	null	[]	"dna-binding-site"	1893242	1893261	null
+"BS0-10503"	null	[]	"dna-binding-site"	null	null	null
+"BS0-10505"	null	[]	"dna-binding-site"	1739803	1739825	null
 "BS0-1061"	null	[]	"dna-binding-site"	1277907	1277930	null
 "BS0-1062"	null	[]	"dna-binding-site"	1157715	1157736	null
 "BS0-1063"	null	[]	"dna-binding-site"	1157749	1157771	null
@@ -2285,7 +2308,7 @@
 "BS0-8300"	null	[]	"dna-binding-site"	1100194	1100214	null
 "BS0-8301"	null	[]	"dna-binding-site"	887393	887402	null
 "BS0-8303"	null	[]	"dna-binding-site"	887383	887392	null
-"BS0-8304"	null	[]	"dna-binding-site"	1655194	1655206	null
+"BS0-8304"	null	[]	"dna-binding-site"	1655202	1655210	null
 "BS0-8305"	null	[]	"dna-binding-site"	1020910	1020919	null
 "BS0-8306"	null	[]	"dna-binding-site"	1020896	1020905	null
 "BS0-8307"	null	[]	"dna-binding-site"	1215713	1215722	null

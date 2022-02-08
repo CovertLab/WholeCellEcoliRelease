@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 26.0
-# Date and time generated: November 24, 2021, 15:23:52
+# Version: 25.5
+# Date and time generated: January 8, 2022, 1:18:36
 "id"	"common_name"	"synonyms"	"type"	"modified_forms"	"gene_id"	"monomer_ids"	"anticodon"	"coding_segments"
 "EG10001_RNA"	"alr"	["alr", "alr5", "b4053", "ECK4045"]	"mRNA"	[]	"EG10001"	["ALARACEBIOSYN-MONOMER"]	null	[]
 "EG10002_RNA"	"modB"	["modB", "chlJ", "tslJ", "b0764", "ECK0753"]	"mRNA"	[]	"EG10002"	["MODB-MONOMER"]	null	[]
@@ -419,7 +419,7 @@
 "EG10421_RNA"	"guaB"	["guaB", "guaR", "b2508", "ECK2504"]	"mRNA"	[]	"EG10421"	["IMP-DEHYDROG-MONOMER"]	null	[]
 "EG10422_RNA"	"guaC"	["guaC", "b0104", "ECK0104"]	"mRNA"	[]	"EG10422"	["GMP-REDUCT-MONOMER"]	null	[]
 "EG10423_RNA"	"gyrA"	["gyrA", "hisW", "nalA", "nfxA", "norA", "parD", "b2231", "ECK2223"]	"mRNA"	[]	"EG10423"	["EG10423-MONOMER"]	null	[]
-"EG10424_RNA"	"gyrB"	["gyrB", "hopA", "pcpA", "pcbA", "parA", "nalC", "Cou", "acrB", "himB", "hisU", "b3699", "ECK3691"]	"mRNA"	[]	"EG10424"	["EG10424-MONOMER"]	null	[]
+"EG10424_RNA"	"gyrB"	["gyrB", "cou", "hopA", "pcpA", "pcbA", "parA", "nalC", "Cou", "acrB", "himB", "hisU", "b3699", "ECK3691"]	"mRNA"	[]	"EG10424"	["EG10424-MONOMER"]	null	[]
 "EG10425_RNA"	"hdhA"	["hdhA", "hsd", "hsdH", "b1619", "ECK1614"]	"mRNA"	[]	"EG10425"	["7-ALPHA-HYDROXYSTEROID-DEH-MONOMER"]	null	[]
 "EG10426_RNA"	"helD"	["helD", "srjB", "b0962", "ECK0953"]	"mRNA"	[]	"EG10426"	["EG10426-MONOMER"]	null	[]
 "EG10427_RNA"	"hemA"	["hemA", "gtrA", "b1210", "ECK1198"]	"mRNA"	[]	"EG10427"	["GLUTRNAREDUCT-MONOMER"]	null	[]
@@ -2658,7 +2658,7 @@
 "G0-10591_RNA"	"yciZ"	["yciZ", "deoL", "b4596", "ECK4406"]	"mRNA"	[]	"G0-10591"	["MONOMER0-2820"]	null	[]
 "RNA0-328"	"small regulatory RNA RydC"	["RydC"]	"miscRNA"	[]	"G0-10592"	[]	null	[]
 "G0-10593_RNA"	"ydgU"	["ydgU", "b4601", "ECK4410"]	"mRNA"	[]	"G0-10593"	["MONOMER0-2821"]	null	[]
-"G0-10594_RNA"	"cydH"	["cydH", "ynhF", "cydY", "b4602", "ECK4411"]	"mRNA"	[]	"G0-10594"	["MONOMER0-2822"]	null	[]
+"G0-10594_RNA"	"cydH"	["cydH", "ynhF", "b4602", "ECK4411"]	"mRNA"	[]	"G0-10594"	["MONOMER0-2822"]	null	[]
 "G0-10595_RNA"	"yojO"	["yojO", "b4604", "ECK4413"]	"mRNA"	[]	"G0-10595"	["MONOMER0-2823"]	null	[]
 "G0-10596_RNA"	"ypaB"	["ypaB", "b4605", "ECK4414"]	"mRNA"	[]	"G0-10596"	["MONOMER0-2824"]	null	[]
 "G0-10597_RNA"	"ryfB"	["ryfB", "shoB", "b4607", "ECK4416"]	"phantom"	[]	"G0-10597"	[]	null	[]
@@ -3623,7 +3623,7 @@
 "G6740_RNA"	null	["b1425"]	"phantom"	[]	"G6740"	[]	null	[]
 "G6741_RNA"	"ydcK"	["ydcK", "b1428", "ECK1421"]	"mRNA"	[]	"G6741"	["G6741-MONOMER"]	null	[]
 "G6742_RNA"	"ydcL"	["ydcL", "b1431", "ECK1424"]	"mRNA"	[]	"G6742"	["G6742-MONOMER"]	null	[]
-"G6743_RNA"	"insQ"	["insQ", "ydcM", "tnpB", "b1432", "ECK1426"]	"mRNA"	[]	"G6743"	["G6743-MONOMER"]	null	[]
+"G6743_RNA"	"insQ"	["insQ", "ydcM", "b1432", "ECK1426"]	"mRNA"	[]	"G6743"	["G6743-MONOMER"]	null	[]
 "G6744_RNA"	"ydcO"	["ydcO", "b1433", "ECK1427"]	"mRNA"	[]	"G6744"	["B1433-MONOMER"]	null	[]
 "G6745_RNA"	"sutR"	["sutR", "ydcN", "b1434", "ECK1428"]	"mRNA"	[]	"G6745"	["G6745-MONOMER"]	null	[]
 "G6746_RNA"	"rlhA"	["rlhA", "ydcP", "b1435", "ECK1429"]	"mRNA"	[]	"G6746"	["G6746-MONOMER"]	null	[]
@@ -3729,7 +3729,7 @@
 "G6848_RNA"	"ynfH"	["ynfH", "b1590", "ECK1585"]	"mRNA"	[]	"G6848"	["G6848-MONOMER"]	null	[]
 "G6849_RNA"	"dmsD"	["dmsD", "ynfI", "b1591", "ECK1586"]	"mRNA"	[]	"G6849"	["G6849-MONOMER"]	null	[]
 "G6850_RNA"	"clcB"	["clcB", "ynfJ", "mriT", "b1592", "ECK1587"]	"mRNA"	[]	"G6850"	["YNFJ-MONOMER"]	null	[]
-"G6851_RNA"	"bidA"	["bidA", "ynfK", "b1593", "ECK1588"]	"mRNA"	[]	"G6851"	["G6851-MONOMER"]	null	[]
+"G6851_RNA"	"ynfK"	["ynfK", "b1593", "ECK1588"]	"mRNA"	[]	"G6851"	["G6851-MONOMER"]	null	[]
 "G6852_RNA"	"mlc"	["mlc", "dgsA", "b1594", "ECK1589"]	"mRNA"	[]	"G6852"	["PD01896"]	null	[]
 "G6853_RNA"	"ynfL"	["ynfL", "b1595", "ECK1590"]	"mRNA"	[]	"G6853"	["G6853-MONOMER"]	null	[]
 "G6854_RNA"	"ynfM"	["ynfM", "yzyC", "b1596", "ECK1591"]	"mRNA"	[]	"G6854"	["B1596-MONOMER"]	null	[]

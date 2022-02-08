@@ -239,17 +239,28 @@ class KnowledgeBaseEcoli(object):
 			# Build the set of data to identify rows to be removed
 			data_to_remove = getattr(self, attr_to_remove)
 			removed_cols = list(data_to_remove[0].keys())
-			removed_ids = set()
+			ids_to_remove = set()
 			for row in data_to_remove:
-				removed_ids.add(tuple([row[col] for col in removed_cols]))
+				ids_to_remove.add(tuple([row[col] for col in removed_cols]))
 
 			# Remove any matching rows
 			data = getattr(self, data_attr)
 			n_entries = len(data)
+			removed_ids = set()
 			for i, row in enumerate(data[::-1]):
 				checked_id = tuple([row[col] for col in removed_cols])
-				if checked_id in removed_ids:
+				if checked_id in ids_to_remove:
 					data.pop(n_entries - i - 1)
+					removed_ids.add(checked_id)
+
+			# Print warnings for entries that were marked to be removed that
+			# does not exist in the original data file. Fold changes are
+			# excluded since the original entries are split between two files.
+			if not data_attr.startswith('fold_changes'):
+				for unremoved_id in (ids_to_remove - removed_ids):
+					print(f'Warning: Could not remove row {unremoved_id} '
+						  f'in flat file {data_attr} because the row does not '
+						  f'exist.')
 
 	def _join_data(self):
 		"""

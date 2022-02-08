@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 25.1
-# Date and time generated: September 10, 2021, 12:53:45
+# Version: 25.5
+# Date and time generated: January 8, 2022, 1:17:45
 "id"	"stoichiometry"	"common_name"
 "1-PFK_RXN"	{"1-PFK": 1, "1-PFK-MONOMER": -2}	null
 "2OXOGLUTARATEDEH-CPLX_RXN"	{"2OXOGLUTARATEDEH-CPLX": 1, "E1O": -1, "E2O": -1, "E3-CPLX": -1}	"2-oxoglutarate dehydrogenase complex"
@@ -313,7 +313,7 @@
 "CPLX0-3561_RXN"	{"CPLX0-3561": 1, "EG10484-MONOMER": -2}	"hydrogenase isozymes nickel incorporation protein HypB"
 "CPLX0-3581_RXN"	{"CPLX0-3581": 1, "EG11852-MONOMER": -2}	"D-aminoacyl-tRNA deacylase"
 "CPLX0-3601_RXN"	{"CPLX0-3601": 1, "G7175-MONOMER": -2}	"ribonuclease BN"
-"CPLX0-3602_RXN"	{"CPLX0-3602": 1, "EG11547-MONOMER": -2}	"RNase T"
+"CPLX0-3602_RXN"	{"CPLX0-3602": 1, "EG11547-MONOMER": -2}	"ribonuclease T"
 "CPLX0-3621_RXN"	{"CPLX0-3621": 1, "EG10236-MONOMER": -6}	"replicative DNA helicase"
 "CPLX0-3641_RXN"	{"CPLX0-3641": 1, "G6755-MONOMER": -4}	"&gamma;-aminobutyraldehyde dehydrogenase"
 "CPLX0-3661_RXN"	{"CPLX0-3661": 1, "G7590-MONOMER": -2}	"fused heptose 7-phosphate kinase/heptose 1-phosphate adenyltransferase"
@@ -462,7 +462,7 @@
 "CPLX0-7698_RXN"	{"CPLX0-7698": 1, "EG12165-MONOMER": -2}	"MukF dimer"
 "CPLX0-7704_RXN"	{"CPLX0-7704": 1, "EG10613-MONOMER": -2}	"ATP-dependent Lipid A-core flippase"
 "CPLX0-7705_RXN"	{"CPLX0-7705": 1, "PD00196": -2}	"DNA-binding transcriptional dual regulator Fis"
-"CPLX0-7707_RXN"	{"CPLX0-7707": 1, "MONOMER0-1781": -4}	"NikR-Ni DNA-binding transcriptional repressor"
+"CPLX0-7707_RXN"	{"CPLX0-7707": 1, "MONOMER0-1781": -4}	"NikR-Ni<SUP>2+</SUP> DNA-binding transcriptional repressor"
 "CPLX0-7708_RXN"	{"CPLX0-7708": 1, "CPLX0-7702": -2}	"DNA-binding transcriptional dual regulator CueR-Cu<sup>+</sup>"
 "CPLX0-7709_RXN"	{"CPLX0-7709": 1, "G6644-MONOMER": -12}	null
 "CPLX0-7710_RXN"	{"CPLX0-7710": 1, "PD00364": -2}	"DNA-binding transcriptional repressor MarR"
@@ -501,7 +501,7 @@
 "CPLX0-7766_RXN"	{"CPLX0-7766": 1, "EG11105-MONOMER": -4}	"proofreading thioesterase in enterobactin biosynthesis"
 "CPLX0-7776_RXN"	{"CPLX0-7776": 1, "EG11245-MONOMER": -2}	"fructose 1,6-bisphosphatase YggF"
 "CPLX0-7787_RXN"	{"CPLX0-7787": 1, "G6109-MONOMER": -2, "G6110-MONOMER": -2}	"DinJ-YafQ antitoxin/toxin complex / DNA-binding transcriptional repressor"
-"CPLX0-7788_RXN"	{"CPLX0-7788": 1, "G7145-MONOMER": -2, "EG11289-MONOMER": -2}	"NAD-dependent dihydropyrimidine dehydrogenase"
+"CPLX0-7788_RXN"	{"CPLX0-7788": 1, "G7145-MONOMER": -2, "EG11289-MONOMER": -2}	"dihydropyrimidine dehydrogenase (NAD<sup>+</sup>)"
 "CPLX0-7789_RXN"	{"CPLX0-7789": 1, "EG12855-MONOMER": -4}	"macrodomain Ter protein"
 "CPLX0-7791_RXN"	{"CPLX0-7791": 1, "EG10836-MONOMER": -4, "EG11131-MONOMER": -4}	"RelB-RelE antitoxin/toxin complex / DNA-binding transcriptional repressor"
 "CPLX0-7794_RXN"	{"CPLX0-7794": 1, "EG11847-MONOMER": -4}	"3-sulfolactaldehyde reductase"
@@ -711,7 +711,7 @@
 "CPLX0-8218_RXN"	{"CPLX0-8218": 1, "G6784-MONOMER": -2}	"diguanylate cyclase DosC"
 "CPLX0-8219_RXN"	{"CPLX0-8219": 1, "G7398-MONOMER": -2}	"thiosulfate sulfurtransferase YgaP"
 "CPLX0-821_RXN"	{"CPLX0-821": 1, "G7723-MONOMER": -12}	"fructoselysine 6-phosphate deglycase"
-"CPLX0-8223_RXN"	{"CPLX0-8223": 1, "EG12179-MONOMER": -2}	"transcription antiterminator and regulator of RNA stability"
+"CPLX0-8223_RXN"	{"CPLX0-8223": 1, "EG12179-MONOMER": -2}	"transcription antiterminator and regulator of RNA stability CspE"
 "CPLX0-8227_RXN"	{"CPLX0-8227": 1, "EG10307-MONOMER": -1, "EG12374-MONOMER": -1}	"FicT-FicA complex"
 "CPLX0-8229_RXN"	{"CPLX0-8229": 1, "G7601-MONOMER": -2}	"antitoxin/DNA-binding transcriptional repressor HigA"
 "CPLX0-8230_RXN"	{"CPLX0-8230": 1, "CPLX0-8229": -1, "G7602-MONOMER": -2}	"HigB-HigA toxin/antitoxin complex and DNA-binding transcriptional repressor"
@@ -757,7 +757,7 @@
 "CPLX0-8304_RXN"	{"CPLX0-8304": 1, "DCUB-MONOMER": -1, "DCUS-MONOMER": -1}	"DcuS-DcuB sensor complex"
 "CPLX0-8306_RXN"	{"CPLX0-8306": 1, "DCTA-MONOMER": -1, "DCUS-MONOMER": -1}	"DcuS-DctA sensor complex"
 "CPLX0-8308_RXN"	{"CPLX0-8308": 1, "G7653-MONOMER": -1, "G7652-MONOMER": -1}	"ubiquinone biosynthesis complex UbiUV"
-"CPLX0-8311_RXN"	{"CPLX0-8311": 1, "MONOMER0-1041": -2}	null
+"CPLX0-8311_RXN"	{"CPLX0-8311": 1, "MONOMER0-1041": -2}	"ribosome-dependent mRNA interferase toxin YoeB"
 "CPLX0-8312_RXN"	{"CPLX0-8312": 1, "G6494-MONOMER": null, "PD00257": null}	"DNA-binding transcriptional  repressor CRP-Sxy"
 "CPLX0-8314_RXN"	{"CPLX0-8314": 1, "EVGS-MONOMER": -2}	"sensor histidine kinase EvgS"
 "CPLX0-8315_RXN"	{"CPLX0-8315": 1, "EG10574-MONOMER": -6}	"McrB hexamer"
@@ -803,6 +803,8 @@
 "CPLX0-8589_RXN"	{"CPLX0-8589": 1, "G6521-MONOMER": -3}	"3-aminoacrylate deaminase"
 "CPLX0-8593_RXN"	{"CPLX0-8593": 1, "G7678-MONOMER": -2}	"DNA-binding transcriptional dual regulator NanR"
 "CPLX0-8595_RXN"	{"CPLX0-8595": 1, "EG10143-MONOMER": -2}	"DNA binding transcriptional dual regulator ChbR"
+"CPLX0-8596_RXN"	{"CPLX0-8596": 1, "EG10828-MONOMER": -2}	"recombination mediator protein RecF"
+"CPLX0-8597_RXN"	{"CPLX0-8597": 1, "G6444-MONOMER": -2}	"DNA binding transcriptional dual regulator RcdA"
 "CPLX0-861_RXN"	{"CPLX0-861": 1, "G7055-MONOMER": -2}	"protein/nucleic acid deglycase 1"
 "CPLX0-881_RXN"	{"CPLX0-881": 1, "EG10156-MONOMER": -6}	"ClpA ATP-dependent protease specificity component and chaperone"
 "CPLX0-901_RXN"	{"CPLX0-901": 1, "EG11372-MONOMER": -2}	"tRNA adenosine<sup>34</sup> deaminase"
@@ -925,7 +927,7 @@
 "HISS-CPLX_RXN"	{"HISS-CPLX": 1, "HISS-MONOMER": -2}	null
 "HISTDEHYD-CPLX_RXN"	{"HISTDEHYD-CPLX": 1, "HISTDEHYD-MONOMER": -2}	null
 "HISTPHOSTRANS-CPLX_RXN"	{"HISTPHOSTRANS-CPLX": 1, "HISTPHOSTRANS-MONOMER": -2}	"histidinol-phosphate aminotransferase"
-"HMP-P-KIN-CPLX_RXN"	{"HMP-P-KIN-CPLX": 1, "HMP-P-KIN-MONOMER": -4}	null
+"HMP-P-KIN-CPLX_RXN"	{"HMP-P-KIN-CPLX": 1, "HMP-P-KIN-MONOMER": -2}	null
 "HOLO-ACP-SYNTH-CPLX_RXN"	{"HOLO-ACP-SYNTH-CPLX": 1, "HOLO-ACP-SYNTH-MONOMER": -2}	null
 "HOMOSERKIN-CPLX_RXN"	{"HOMOSERKIN-CPLX": 1, "HOMOSERKIN-MONOMER": -2}	"homoserine kinase"
 "HOMSUCTRAN-CPLX_RXN"	{"HOMSUCTRAN-CPLX": 1, "HOMSUCTRAN-MONOMER": -2}	null
@@ -1003,7 +1005,7 @@
 "PC00086_RXN"	{"PC00086": 1, "PD00221": -2}	"transcriptional activator RhaS"
 "PC00103_RXN"	{"PC00103": 1, "PD01103": -2}	"DNA-binding transcriptional repressor MngR"
 "PDXH-CPLX_RXN"	{"PDXH-CPLX": 1, "PDXH-MONOMER": -2}	null
-"PDXK-CPLX_RXN"	{"PDXK-CPLX": 1, "PDXK-MONOMER": -2}	"pyridoxal kinase I / hydroxymethylpyrimidine kinase"
+"PDXK-CPLX_RXN"	{"PDXK-CPLX": 1, "PDXK-MONOMER": -2}	"pyridoxal kinase 1 / hydroxymethylpyrimidine kinase"
 "PEPCARBOX-CPLX_RXN"	{"PEPCARBOX-CPLX": 1, "PEPCARBOX-MONOMER": -4}	null
 "PEPSYNTH-CPLX_RXN"	{"PEPSYNTH-CPLX": 1, "PEPSYNTH-MONOMER": -2}	"phosphoenolpyruvate synthetase"
 "PGLYCDEHYDROG-CPLX_RXN"	{"PGLYCDEHYDROG-CPLX": 1, "PGLYCDEHYDROG-MONOMER": -4}	"phosphoglycerate dehydrogenase"
@@ -1015,8 +1017,8 @@
 "PHOSPHASERDECARB-DIMER_RXN"	{"PHOSPHASERDECARB-DIMER": 1, "PHOSPHASERDECARB-BETA-MONOMER": -2, "PHOSPHASERDECARB-ALPHA-MONOMER": -2}	"phosphatidylserine decarboxylase"
 "PII2-CPLX_RXN"	{"PII2-CPLX": 1, "PROTEIN-PII2": -3}	"nitrogen regulatory protein PII-2"
 "PIIPROTEIN-CPLX_RXN"	{"PIIPROTEIN-CPLX": 1, "PROTEIN-PII": -3}	"nitrogen regulatory protein PII-1"
-"PKI-COMPLEX_RXN"	{"PKI-COMPLEX": 1, "PKI-MONOMER": -4}	"pyruvate kinase I"
-"PKII-CPLX_RXN"	{"PKII-CPLX": 1, "PKII-MONOMER": -4}	"pyruvate kinase II"
+"PKI-COMPLEX_RXN"	{"PKI-COMPLEX": 1, "PKI-MONOMER": -4}	"pyruvate kinase 1"
+"PKII-CPLX_RXN"	{"PKII-CPLX": 1, "PKII-MONOMER": -4}	"pyruvate kinase 2"
 "PORPHOBILSYNTH-CPLX_RXN"	{"PORPHOBILSYNTH-CPLX": 1, "PORPHOBILSYNTH-MONOMER": -8}	null
 "PPK-CPLX_RXN"	{"PPK-CPLX": 1, "PPK-MONOMER": -2}	null
 "PPPGPPHYDRO-CPLX_RXN"	{"PPPGPPHYDRO-CPLX": 1, "PPPGPPHYDRO-MONOMER": -2}	null
@@ -1035,7 +1037,6 @@
 "QOR-CPLX_RXN"	{"QOR-CPLX": 1, "QOR-MONOMER": -2}	"putative quinone oxidoreductase 1"
 "QUINOPRIBOTRANS-CPLX_RXN"	{"QUINOPRIBOTRANS-CPLX": 1, "QUINOPRIBOTRANS-MONOMER": -2}	"quinolinate phosphoribosyltransferase (decarboxylating)"
 "RECBCD_RXN"	{"RECBCD": 1, "EG10826-MONOMER": -1, "EG10825-MONOMER": -1, "EG10824-MONOMER": -1}	"exodeoxyribonuclease V"
-"RECFOR-CPLX_RXN"	{"RECFOR-CPLX": 1, "EG10828-MONOMER": null, "EG10834-MONOMER": null, "EG10832-MONOMER": null}	"RecFOR complex"
 "RHAMNULPALDOL-CPLX_RXN"	{"RHAMNULPALDOL-CPLX": 1, "RHAMNULPALDOL-MONOMER": -4}	null
 "RIB5PISOMA-CPLX_RXN"	{"RIB5PISOMA-CPLX": 1, "RIB5PISOMA-MONOMER": -2}	"ribose-5-phosphate isomerase A"
 "RIB5PISOMB-CPLX_RXN"	{"RIB5PISOMB-CPLX": 1, "RIB5PISOMB-MONOMER": -2}	"allose-6-phosphate isomerase / ribose-5-phosphate isomerase B"
@@ -1080,7 +1081,7 @@
 "THYMIDYLATESYN-CPLX_RXN"	{"THYMIDYLATESYN-CPLX": 1, "THYMIDYLATESYN-MONOMER": -2}	null
 "TMAOREDUCTI-CPLX_RXN"	{"TMAOREDUCTI-CPLX": 1, "EG11815-MONOMER": null, "TORA-MONOMER": null}	"menaquinol:trimethylamine <i>N</i>-oxide oxidoreductase I"
 "TORR-CPLX_RXN"	{"TORR-CPLX": 1, "TORR-MONOMER": -2}	"DNA-binding transcriptional dual regulator TorR"
-"TORS-CPLX_RXN"	{"TORS-CPLX": 1, "TORS-MONOMER": -2}	"sensory histidine kinase TorS"
+"TORS-CPLX_RXN"	{"TORS-CPLX": 1, "TORS-MONOMER": -2}	"sensor histidine kinase TorS"
 "TPI_RXN"	{"TPI": 1, "TPI-MONOMER": -2}	null
 "TRANS-200-CPLX_RXN"	{"TRANS-200-CPLX": 1, "CPLX0-7964": -1, "MACB": -2, "MACA": -6}	"ABC-type tripartite efflux pump"
 "TRANS-CPLX-201_RXN"	{"TRANS-CPLX-201": 1, "CPLX0-7964": -1, "EG11703-MONOMER": -6, "ACRB-MONOMER": -3}	"multidrug efflux pump AcrAB-TolC"

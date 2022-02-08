@@ -1,3 +1,4 @@
 "id"	"common_name"	"synonyms"	"chemical_formula"	"mw"	"_comments"
 "glycogen-monomer"				163.149	"Currently part of biomass - needs to be included along with metabolic reaction glycogen-monomer-extension"
 "4FE-4S"				351.642	"Required to produce 1CS TF FNR-4FE-4S-CPLX, along with equilibrium reaction FNR-4FE-4S_RXN"
+"CPD-12261"	"a peptidoglycan with D,D cross-links (<I>meso</I>-diaminopimelate containing)"	[]	"C267H421N31O96P4"	5725.308	"Currently part of biomass - needs to be included along with metabolic reactions RXN0-5405 and RXN-11302"

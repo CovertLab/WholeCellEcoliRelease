@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 26.0
-# Date and time generated: November 24, 2021, 15:22:50
+# Version: 25.5
+# Date and time generated: January 8, 2022, 1:13:57
 "id"	"symbol"	"synonyms"	"left_end_pos"	"right_end_pos"	"direction"	"rna_ids"
 "EG10001"	"alr"	["alr", "alr5", "b4053", "ECK4045"]	4265782	4266861	"+"	["EG10001_RNA"]
 "EG10002"	"modB"	["modB", "chlJ", "tslJ", "b0764", "ECK0753"]	795862	796551	"+"	["EG10002_RNA"]
@@ -419,7 +419,7 @@
 "EG10421"	"guaB"	["guaB", "guaR", "b2508", "ECK2504"]	2632604	2634070	"-"	["EG10421_RNA"]
 "EG10422"	"guaC"	["guaC", "b0104", "ECK0104"]	113444	114487	"+"	["EG10422_RNA"]
 "EG10423"	"gyrA"	["gyrA", "hisW", "nalA", "nfxA", "norA", "parD", "b2231", "ECK2223"]	2336793	2339420	"-"	["EG10423_RNA"]
-"EG10424"	"gyrB"	["gyrB", "hopA", "pcpA", "pcbA", "parA", "nalC", "Cou", "acrB", "himB", "hisU", "b3699", "ECK3691"]	3877705	3880119	"-"	["EG10424_RNA"]
+"EG10424"	"gyrB"	["gyrB", "cou", "hopA", "pcpA", "pcbA", "parA", "nalC", "Cou", "acrB", "himB", "hisU", "b3699", "ECK3691"]	3877705	3880119	"-"	["EG10424_RNA"]
 "EG10425"	"hdhA"	["hdhA", "hsd", "hsdH", "b1619", "ECK1614"]	1697273	1698040	"-"	["EG10425_RNA"]
 "EG10426"	"helD"	["helD", "srjB", "b0962", "ECK0953"]	1024471	1026525	"+"	["EG10426_RNA"]
 "EG10427"	"hemA"	["hemA", "gtrA", "b1210", "ECK1198"]	1263714	1264970	"+"	["EG10427_RNA"]
@@ -2657,7 +2657,7 @@
 "G0-10591"	"yciZ"	["yciZ", "deoL", "b4596", "ECK4406"]	1344436	1344609	"-"	["G0-10591_RNA"]
 "G0-10592"	"rydC"	["rydC", "b4597", "ECK4407"]	1491442	1491506	"-"	["RNA0-328"]
 "G0-10593"	"ydgU"	["ydgU", "b4601", "ECK4410"]	1671777	1671860	"+"	["G0-10593_RNA"]
-"G0-10594"	"cydH"	["cydH", "ynhF", "cydY", "b4602", "ECK4411"]	1737456	1737545	"-"	["G0-10594_RNA"]
+"G0-10594"	"cydH"	["cydH", "ynhF", "b4602", "ECK4411"]	1737456	1737545	"-"	["G0-10594_RNA"]
 "G0-10595"	"yojO"	["yojO", "b4604", "ECK4413"]	2303606	2303770	"+"	["G0-10595_RNA"]
 "G0-10596"	"ypaB"	["ypaB", "b4605", "ECK4414"]	2344594	2344737	"-"	["G0-10596_RNA"]
 "G0-10597"	"ryfB"	["ryfB", "shoB", "b4607", "ECK4416"]	2700059	2700377	"-"	["G0-10597_RNA"]
@@ -3622,7 +3622,7 @@
 "G6740"	null	["b1425"]	1498432	1498635	"-"	["G6740_RNA"]
 "G6741"	"ydcK"	["ydcK", "b1428", "ECK1421"]	1499469	1500449	"-"	["G6741_RNA"]
 "G6742"	"ydcL"	["ydcL", "b1431", "ECK1424"]	1502457	1503125	"+"	["G6742_RNA"]
-"G6743"	"insQ"	["insQ", "ydcM", "tnpB", "b1432", "ECK1426"]	1503717	1504865	"+"	["G6743_RNA"]
+"G6743"	"insQ"	["insQ", "ydcM", "b1432", "ECK1426"]	1503717	1504865	"+"	["G6743_RNA"]
 "G6744"	"ydcO"	["ydcO", "b1433", "ECK1427"]	1504905	1506080	"-"	["G6744_RNA"]
 "G6745"	"sutR"	["sutR", "ydcN", "b1434", "ECK1428"]	1506172	1506708	"+"	["G6745_RNA"]
 "G6746"	"rlhA"	["rlhA", "ydcP", "b1435", "ECK1429"]	1506781	1508742	"+"	["G6746_RNA"]
@@ -3728,7 +3728,7 @@
 "G6848"	"ynfH"	["ynfH", "b1590", "ECK1585"]	1663609	1664463	"+"	["G6848_RNA"]
 "G6849"	"dmsD"	["dmsD", "ynfI", "b1591", "ECK1586"]	1664506	1665120	"+"	["G6849_RNA"]
 "G6850"	"clcB"	["clcB", "ynfJ", "mriT", "b1592", "ECK1587"]	1665315	1666571	"+"	["G6850_RNA"]
-"G6851"	"bidA"	["bidA", "ynfK", "b1593", "ECK1588"]	1666524	1667219	"-"	["G6851_RNA"]
+"G6851"	"ynfK"	["ynfK", "b1593", "ECK1588"]	1666524	1667219	"-"	["G6851_RNA"]
 "G6852"	"mlc"	["mlc", "dgsA", "b1594", "ECK1589"]	1667344	1668564	"-"	["G6852_RNA"]
 "G6853"	"ynfL"	["ynfL", "b1595", "ECK1590"]	1668699	1669592	"-"	["G6853_RNA"]
 "G6854"	"ynfM"	["ynfM", "yzyC", "b1596", "ECK1591"]	1669699	1670952	"+"	["G6854_RNA"]

@@ -691,18 +691,20 @@ class GetterFunctions(object):
 			sim_data.molecule_ids.full_chromosome[:-3]: ['c']
 			})
 
-		# Proteins are assumed to localize to a single compartment. If an
-		# experimentally determined localization exists, the first compartment
-		# given in the list is used. If an experimentally determined
-		# localization doesn't exist, the first compartment given in the list
-		# of computationally determined compartments is used. If no compartment
-		# information is given, the protein is assumed to localize to the
-		# cytosol.
+		# Proteins are assumed to localize to a single compartment. If there is
+		# experimental evidence for the protein existing in the cytosol, the
+		# protein is assigned to the cytosol. If there are multiple
+		# experimentally determined localizations other than the cytosol, the
+		# first compartment given in the list is used. If an experimentally
+		# determined localization doesn't exist, the first compartment given in
+		# the list of computationally determined compartments is used. If no
+		# compartment information is given, the protein is assumed to localize
+		# to the cytosol.
 		for protein in raw_data.proteins:
 			exp_compartment = protein['experimental_compartment']
 			comp_compartment = protein['computational_compartment']
 
-			if len(exp_compartment) + len(comp_compartment) == 0:
+			if 'CCO-CYTOSOL' in exp_compartment or len(exp_compartment) + len(comp_compartment) == 0:
 				compartment = 'CCO-CYTOSOL'
 			elif len(exp_compartment) > 0:
 				compartment = exp_compartment[0]
