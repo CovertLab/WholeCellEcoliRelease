@@ -1172,7 +1172,7 @@ class Metabolism(object):
 				print(f'*** {amino_acid}: {kcat_fwd:5.1f} {kcat_rev:5.1f} ***')
 
 			if kcat_fwd is None:
-				raise ValueError('Could not find positive foward and reverse'
+				raise ValueError('Could not find positive forward and reverse'
 					f' kcat for {amino_acid}. Run with VERBOSE to check input'
 					' parameters like KM and KI or check concentrations.')
 

@@ -1,3 +1,4 @@
 "id"	"common_name"	"genes"	"left_end_pos"	"right_end_pos"	"direction"	"_comments"
 "TU0-6512"	"rplKAJL"	["EG10873", "EG10871", "EG10864", "EG10872"]	4178354	4180925	"+"	"Truncated to allow for decoupled transcription of rpl and rpo genes"
 "TU00335"	"rplJL"	["EG10871", "EG10873"]	4179623	4180925	"+"	"Truncated to allow for decoupled transcription of rpl and rpo genes"
+"TU00285"	"hisGDCBHAFI"	["EG10449", "EG10447", "EG10446", "EG10445", "EG10450", "EG10444", "EG10448", "EG10451"]	2090192	2097225	"+"	"Leader peptide hisL removed to allow for higher expression of all other enzymes; ParCa fails without this modification"
