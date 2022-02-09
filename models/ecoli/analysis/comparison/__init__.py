@@ -6,6 +6,7 @@ ACTIVE = [
 	"excess_protein_monomers.py",
 	"growth_histograms.py",
 	"massFractionComparison.py",
+	"polycistronic_transcription.py",
 ]
 
 TAGS = {
