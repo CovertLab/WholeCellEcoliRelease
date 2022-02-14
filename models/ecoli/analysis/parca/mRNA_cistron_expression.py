@@ -218,7 +218,8 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 						cistron_labels,
 						expected_exp,
 						actual_exp)
-				except:
+				except Exception as e:
+					print(f'Scanning cistrons: {e}')
 					bad_cistrons.append(cistron_diff_index)
 
 			fig = plt.figure(figsize=(8, 8))

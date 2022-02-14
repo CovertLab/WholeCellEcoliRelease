@@ -119,11 +119,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			self.plot_hist(axes[2, 3], trna_fraction_prob, 0, 1, 'tRNA fraction\nsynthesis probability', label)
 			self.plot_hist(axes[3, 3], mrna_fraction_prob, 0, 1, 'mRNA fraction\nsynthesis probability', label)
 
-	def do_plot(self, inputDir1, plotOutDir, plotOutFileName, inputDir2, unused, metadata):
+	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
 		_, axes = plt.subplots(4, 4, figsize=(15, 15))
 
-		self.plot_sim(axes, inputDir1, 1)
-		self.plot_sim(axes, inputDir2, 2)
+		self.plot_sim(axes, reference_sim_dir, 1)
+		self.plot_sim(axes, input_sim_dir, 2)
 
 		for ax in axes.flatten():
 			ax.legend(fontsize=6)

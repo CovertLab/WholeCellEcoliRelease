@@ -5,7 +5,7 @@ import os
 from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from models.ecoli.analysis import variantAnalysisPlot
+from models.ecoli.analysis import comparisonAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import constants
@@ -18,18 +18,18 @@ COLORS = [
 	'tab:gray', 'tab:red']
 
 
-class Plot(variantAnalysisPlot.VariantAnalysisPlot):
+class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	mass_names = ['dryMass', 'proteinMass', 'rRnaMass', 'mRnaMass', 'dnaMass']
 	mass_labels = [name.replace('Mass', ' (fg)') for name in mass_names]
 
-	def do_plot(self, inputDir1, plotOutDir, plotOutFileName, inputDir2, unused, metadata):
+	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
 		# noinspection PyTypeChecker
 		_, self.axs = plt.subplots(len(self.mass_names), sharex=True)
 
 		self.max_time = 0
 
-		self.plot_wcm(inputDir1, 0)
-		self.plot_wcm(inputDir2, 1)
+		self.plot_wcm(reference_sim_dir, 0)
+		self.plot_wcm(input_sim_dir, 1)
 
 		for idx, ax in enumerate(self.axs):
 			ax.set_xlim(0, self.max_time)

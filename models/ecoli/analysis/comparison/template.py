@@ -18,11 +18,16 @@ from wholecell.io.tablereader import TableReader
 
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
-	def do_plot(self, inputDir1, plotOutDir, plotOutFileName, inputDir2, unused, metadata):
+	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
+		# From fw_queue, reference_sim_dir has operons="off"; input_sim_dir has
+		# operons="on".
+		# manual/analysisComparison.py can compare any two sim dirs.
+		# sim_data1.operons_on and sim_data2.operons_on indicate operons on/off.
+
 		# noinspection PyUnusedLocal
-		ap1, sim_data1, validation_data1 = self.setup(inputDir1)
+		ap1, sim_data1, validation_data1 = self.setup(reference_sim_dir)
 		# noinspection PyUnusedLocal
-		ap2, sim_data2, validation_data2 = self.setup(inputDir2)
+		ap2, sim_data2, validation_data2 = self.setup(input_sim_dir)
 
 		# TODO: Process data from ap1 and ap2 cells...
 

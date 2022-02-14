@@ -21,11 +21,13 @@ TU_ID = 'TU0-13388[c]'
 
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
-	def do_plot(self, inputDir1, plotOutDir, plotOutFileName, inputDir2, unused, metadata):
-		# operons="off"
-		ap1, _, _ = self.setup(inputDir1)
-		# operons="on"
-		ap2, sim_data, _ = self.setup(inputDir2)
+	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
+		# From fw_queue, reference_sim_dir has operons="off", input_sim_dir has
+		# operons="on".
+		# manual/analysisComparison.py can compare any two sim dirs.
+		# sim_data1.operons_on and sim_data2.operons_on indicate operons on/off.
+		ap1, _, _ = self.setup(reference_sim_dir)
+		ap2, sim_data, _ = self.setup(input_sim_dir)
 
 		cistron_ids = [
 			sim_data.process.transcription.cistron_data['id'][i]

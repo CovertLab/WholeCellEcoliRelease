@@ -18,8 +18,8 @@ class AnalysisComparisonTask(AnalysisBase):
 
 	_fw_name = "AnalysisComparisonTask"
 	required_params = [
-		"input_directory1",
-		"input_directory2",
+		"reference_sim_dir",
+		"input_sim_dir",
 		"output_plots_directory",
 		"metadata",
 		]
@@ -36,10 +36,10 @@ class AnalysisComparisonTask(AnalysisBase):
 		self["metadata"] = dict(self["metadata"], analysis_type = "comparison")
 
 		return (
-			self["input_directory1"],
+			self["reference_sim_dir"],
 			self["output_plots_directory"],
 			self['output_filename_prefix'] + module_filename[:-3],
-			self['input_directory2'],
+			self['input_sim_dir'],
 			'',
 			self["metadata"],
 			)

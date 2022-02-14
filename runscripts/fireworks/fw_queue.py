@@ -861,8 +861,8 @@ class WorkflowBuilder:
 				self.INDIV_OUT_DIRECTORY, constants.COMPARISON_PLOTOUT_DIR)
 			self.add_firework(
 				AnalysisComparisonTask(
-					input_directory1=reference_sim_dir,
-					input_directory2=self.INDIV_OUT_DIRECTORY,
+					reference_sim_dir=reference_sim_dir,
+					input_sim_dir=self.INDIV_OUT_DIRECTORY,
 					output_plots_directory=plot_out_dir,
 					metadata=self.metadata,
 					plot=PLOTS,
