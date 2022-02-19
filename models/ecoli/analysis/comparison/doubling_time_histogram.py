@@ -19,10 +19,6 @@ from wholecell.io.tablereader import TableReader, TableReaderError
 from wholecell.utils import units
 
 
-# First generation (counting from zero) from which to gather doubling time
-# values.
-FIRST_GENERATION = 0
-
 FIGSIZE = (4, 4)
 DOUBLING_TIME_BOUNDS_MINUTES = [20, 120]
 N_BINS = 20
@@ -41,10 +37,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ap2, _, _ = self.setup(input_sim_dir)
 
 		def read_sims(ap):
-			n_gens = ap.n_generation
-			sim_dirs = ap.get_cells(
-				generation=list(range(FIRST_GENERATION, n_gens))
-				)
+			sim_dirs = ap.get_cells()
 			doubling_times_minutes = []
 
 			for sim_dir in sim_dirs:
