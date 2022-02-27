@@ -67,11 +67,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Read actual counts
 		all_actual_counts = read_stacked_columns(
-			cell_paths, 'mRNACounts', 'mRNA_cistron_counts', fun=lambda x: x.mean(axis=0))
+			cell_paths, 'mRNACounts', 'mRNA_cistron_counts')
 		all_actual_rprotein_counts = all_actual_counts[:, rprotein_indexes]
 		all_actual_rnap_counts = all_actual_counts[:, rnap_indexes]
 
-		# Get average count across all sims
+		# Get average count across all timesteps across all sims
 		actual_rprotein_counts = all_actual_rprotein_counts.mean(axis=0)
 		actual_rnap_counts = all_actual_rnap_counts.mean(axis=0)
 
@@ -86,12 +86,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.scatter(
 			expected_rprotein_counts + NUMERICAL_ZERO,
 			actual_rprotein_counts + NUMERICAL_ZERO,
-			s=2, c='r',
+			s=3, c='r',
 			label='ribosomal proteins')
 		plt.scatter(
 			expected_rnap_counts + NUMERICAL_ZERO,
 			actual_rnap_counts + NUMERICAL_ZERO,
-			s=2, c='b',
+			s=3, c='b',
 			label='RNAP subunits')
 
 		plt.title('Expected vs actual RNA copies')
