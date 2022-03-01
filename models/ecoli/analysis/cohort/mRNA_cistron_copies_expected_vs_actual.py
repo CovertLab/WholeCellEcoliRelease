@@ -38,15 +38,41 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
 		mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
 
-		# Calculate expected copies from sim_data
+		# Get mask for mRNA genes that are
+		# i) Does not encode for ribosomal proteins or RNAPs
+		# ii) not affected by manual overexpression/underexpression
+		# to isolate the effects of operons on expression levels.
 		is_mRNA = sim_data.process.transcription.cistron_data['is_mRNA']
 		assert np.all(
 			mRNA_cistron_ids == sim_data.process.transcription.cistron_data['id'][is_mRNA])
+
 		mRNA_is_rnap_or_rprotein = np.logical_or(
 				sim_data.process.transcription.cistron_data['is_RNAP'],
 				sim_data.process.transcription.cistron_data['is_ribosomal_protein'])[is_mRNA]
+
+		is_adjusted = np.zeros_like(is_mRNA, dtype=bool)
+		all_rna_ids = sim_data.process.transcription.rna_data['id']
+		for adjusted_cistron_id in sim_data.adjustments.rna_expression_adjustments.keys():
+			# Include cistrons whose expression is adjusted because they belong
+			# to the same TU as the cistron that is bumped up
+			adjusted_rna_indexes = sim_data.process.transcription.cistron_id_to_rna_indexes(
+				adjusted_cistron_id)
+			adjusted_cistron_indexes = []
+			for adjusted_rna_index in adjusted_rna_indexes:
+				adjusted_cistron_indexes.extend(
+					sim_data.process.transcription.rna_id_to_cistron_indexes(
+						all_rna_ids[adjusted_rna_index]))
+
+			is_adjusted[adjusted_cistron_indexes] = True
+
+		mRNA_is_adjusted = is_adjusted[is_mRNA]
+		mRNA_mask = np.logical_and(~mRNA_is_rnap_or_rprotein, ~mRNA_is_adjusted)
+		plotted_mRNA_cistrons = []
+		for i in np.where(mRNA_mask)[0]:
+			plotted_mRNA_cistrons.append(mRNA_cistron_ids[i])
+
 		expected_counts = sim_data.process.transcription.cistron_expression[EXPECTED_COUNT_CONDITION][
-			is_mRNA][~mRNA_is_rnap_or_rprotein]
+			is_mRNA][mRNA_mask]
 
 		# Normalize counts
 		expected_counts /= expected_counts.sum()
@@ -56,7 +82,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			cell_paths, 'mRNACounts', 'mRNA_cistron_counts')
 
 		# Get average count across all timesteps over all sims
-		actual_counts = all_actual_counts[:, ~mRNA_is_rnap_or_rprotein].mean(axis=0)
+		actual_counts = all_actual_counts[:, mRNA_mask].mean(axis=0)
 		n_timesteps = all_actual_counts.shape[0]
 
 		# Normalize counts
@@ -77,12 +103,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.scatter(
 			expected_counts[~outlier_mask] + NUMERICAL_ZERO,
 			actual_counts[~outlier_mask] + NUMERICAL_ZERO,
-			c='#cccccc', s=1)
+			c='#cccccc', s=1, label=f'p ≥ {P_VALUE_THRESHOLD:g}')
 		# Highlight outliers in blue
 		plt.scatter(
 			expected_counts[outlier_mask] + NUMERICAL_ZERO,
 			actual_counts[outlier_mask] + NUMERICAL_ZERO,
-			c='b', s=1)
+			c='b', s=1, label=f'p < {P_VALUE_THRESHOLD:g}')
 
 		plt.title('Expected vs actual RNA copies')
 		plt.xlabel('Expected normalized copies')
@@ -91,6 +117,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.ylim(BOUNDS)
 		plt.xscale('log')
 		plt.yscale('log')
+		plt.legend()
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
