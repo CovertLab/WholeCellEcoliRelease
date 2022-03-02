@@ -20,8 +20,7 @@ from wholecell.io.tablereader import TableReader
 
 
 FIGSIZE = (6, 6)
-BOUNDS = [1e-8, 1e-1]
-NUMERICAL_ZERO = 1e-10
+BOUNDS = [-0.5, 3]
 P_VALUE_THRESHOLD = 1e-3
 
 EXPECTED_COUNT_CONDITION = 'basal'
@@ -67,15 +66,15 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		mRNA_is_adjusted = is_adjusted[is_mRNA]
 		mRNA_mask = np.logical_and(~mRNA_is_rnap_or_rprotein, ~mRNA_is_adjusted)
+
+		# Get list of cistron IDs that are plotted
 		plotted_mRNA_cistrons = []
 		for i in np.where(mRNA_mask)[0]:
 			plotted_mRNA_cistrons.append(mRNA_cistron_ids[i])
 
+		# Get expected counts
 		expected_counts = sim_data.process.transcription.cistron_expression[EXPECTED_COUNT_CONDITION][
 			is_mRNA][mRNA_mask]
-
-		# Normalize counts
-		expected_counts /= expected_counts.sum()
 
 		# Read actual counts
 		all_actual_counts = read_stacked_columns(
@@ -85,8 +84,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		actual_counts = all_actual_counts[:, mRNA_mask].mean(axis=0)
 		n_timesteps = all_actual_counts.shape[0]
 
-		# Normalize counts
-		actual_counts /= actual_counts.sum()
+		# Normalize expected counts with sum of actual counts
+		expected_counts = expected_counts/expected_counts.sum() * actual_counts.sum()
 
 		# Get statistical significance boundaries assuming a Poissonian
 		# distribution
@@ -101,13 +100,13 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		plt.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
 		plt.scatter(
-			expected_counts[~outlier_mask] + NUMERICAL_ZERO,
-			actual_counts[~outlier_mask] + NUMERICAL_ZERO,
+			np.log10(expected_counts[~outlier_mask] + 1),
+			np.log10(actual_counts[~outlier_mask] + 1),
 			c='#cccccc', s=1, label=f'p ≥ {P_VALUE_THRESHOLD:g}')
 		# Highlight outliers in blue
 		plt.scatter(
-			expected_counts[outlier_mask] + NUMERICAL_ZERO,
-			actual_counts[outlier_mask] + NUMERICAL_ZERO,
+			np.log10(expected_counts[outlier_mask] + 1),
+			np.log10(actual_counts[outlier_mask] + 1),
 			c='b', s=1, label=f'p < {P_VALUE_THRESHOLD:g}')
 
 		plt.title('Expected vs actual RNA copies')
@@ -115,8 +114,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.ylabel('Actual normalized copies')
 		plt.xlim(BOUNDS)
 		plt.ylim(BOUNDS)
-		plt.xscale('log')
-		plt.yscale('log')
 		plt.legend()
 
 		plt.tight_layout()
