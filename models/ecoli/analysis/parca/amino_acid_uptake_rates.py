@@ -20,13 +20,16 @@ from wholecell.utils import units
 FLUX_UNITS = units.mmol / units.g / units.h
 
 
-def subplot(x, y, x_err, labels, y_label, title):
+def subplot(x, y, x_err, labels, y_label, title, show_text=True, show_error=True):
 	# Filter out values that will causes error with log
 	mask = (x > 0) & (y > 0)
 	x = x[mask]
 	y = y[mask]
-	x_err = x_err[:, mask]
-	x_err[0, x_err[0, :] >= x] = 0
+	if show_error:
+		x_err = x_err[:, mask]
+		x_err[0, x_err[0, :] >= x] = 0
+	else:
+		x_err = None
 	labels = labels[mask]
 
 	# Statistics
@@ -37,12 +40,13 @@ def subplot(x, y, x_err, labels, y_label, title):
 	## Plot data
 	min_rate = min(x.min(), y.min())
 	max_rate = max(x.max(), y.max())
-	plt.errorbar(x, y, xerr=x_err, fmt='o')
-	plt.plot([min_rate, max_rate], [min_rate, max_rate], '--k')
+	plt.errorbar(x, y, xerr=x_err, fmt='o', markeredgewidth=0, markersize=10, alpha=0.5)
+	plt.plot([min_rate, max_rate], [min_rate, max_rate], '--k', linewidth=1, alpha=0.5)
 
 	## Show point labels
-	for aa, x, y in zip(labels, x, y):
-		plt.text(x, 1.1 * y, aa, ha='center', fontsize=6)
+	if show_text:
+		for aa, x, y in zip(labels, x, y):
+			plt.text(x, 1.1 * y, aa, ha='center', fontsize=6)
 
 	## Format axes
 	plt.xlabel('Zampieri et al. max uptake flux\n(mmol/g DCW/hr)')
@@ -95,23 +99,29 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		wcm_supply = np.array(wcm_supply)
 
 		# Create plot
-		plt.figure(figsize=(5, 10))
+		def plot(show_all=True, label=''):
+			plt.figure(figsize=(4, 8))
 
-		plt.subplot(2, 1, 1)
-		subplot(val_rates, wcm_rates, val_error, aa_ids,
-			'WCM uptake flux\n(mmol/g DCW/hr)',
-			'Amino acid import rate comparison')
-		self.remove_border()
+			plt.subplot(2, 1, 1)
+			subplot(val_rates, wcm_rates, val_error, aa_ids,
+				'WCM uptake flux\n(mmol/g DCW/hr)',
+				'Amino acid import rate comparison',
+				show_text=show_all, show_error=show_all)
+			self.remove_border()
 
-		plt.subplot(2, 1, 2)
-		subplot(val_rates, wcm_supply, val_error, aa_ids,
-			'WCM translation supply in rich media\n(mmol/g DCW/hr)',
-			'Translation vs import comparison')
-		self.remove_border()
+			plt.subplot(2, 1, 2)
+			subplot(val_rates, wcm_supply, val_error, aa_ids,
+				'WCM translation supply in rich media\n(mmol/g DCW/hr)',
+				'Translation vs import comparison',
+				show_text=show_all, show_error=show_all)
+			self.remove_border()
 
-		plt.tight_layout()
-		exportFigure(plt, plot_out_dir, plot_out_filename, metadata)
-		plt.close('all')
+			plt.tight_layout()
+			exportFigure(plt, plot_out_dir, plot_out_filename + label, metadata)
+			plt.close('all')
+
+		plot()
+		plot(show_all=False, label='_clean')
 
 
 if __name__ == "__main__":

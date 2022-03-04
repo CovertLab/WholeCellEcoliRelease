@@ -76,6 +76,9 @@ TAGS = {
 	'PPGPP_CONC': [
 		'ppgpp_conc',
 		],
+	'PPGPP_LIMITATIONS': [
+		'ppgpp_conc',
+		],
 	'REMOVE_AA_INHIBITION': [
 		'remove_aa_inhibition.py',
 		],

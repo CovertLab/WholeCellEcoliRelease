@@ -60,13 +60,13 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		x_amino_acids = np.arange(len(amino_acids))
 
 		# Plot data
-		plt.figure(figsize=(5, 15))
+		plt.figure(figsize=(4, 12))
 		gs = gridspec.GridSpec(3, 1)
 
 		## kcat scatter comparison
 		plt.subplot(gs[0, 0])
-		plt.loglog(kcat_data[positive_mask], kcat_calc[positive_mask], 'o')
-		plt.loglog(kcat_range, kcat_range, 'k--')
+		plt.loglog(kcat_data[positive_mask], kcat_calc[positive_mask], 'o', markeredgewidth=0, markersize=10, alpha=0.5)
+		plt.loglog(kcat_range, kcat_range, 'k--', linewidth=1, alpha=0.5)
 		plt.xlabel('kcat, from data')
 		plt.ylabel('kcat, calculated')
 		plt.title(f'r={r:.2f} (p={p:.2g}, n={n})', fontsize=8)

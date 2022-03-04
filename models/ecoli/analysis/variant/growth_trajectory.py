@@ -46,7 +46,8 @@ def plot(ax, x, y, sim_time=None, timeline=None, ma_time=None, xlabel=None, ylab
 	if ma_time is not None:
 		time_hr = np.floor(ma_time / 3600)
 		hour_markers = np.where(np.diff(time_hr))[0] + 1
-		ax.plot(x[hour_markers], y[hour_markers], 'o', alpha=kwargs['alpha'], markersize=markersize, color=trace.get_color())
+		ax.plot(x[hour_markers], y[hour_markers], 'o', alpha=kwargs['alpha'],
+			markeredgewidth=0, markersize=markersize*2, color=trace.get_color())
 
 	# Format axes
 	ax.set_xlabel(xlabel, fontsize=8)
@@ -185,8 +186,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			# Save average/std for output to a tsv
 			average_data[variant] = {
-				'Growth': mean_std(all_growth),
-				'R/P ratio': mean_std(all_ratio),
+				'Growth': mean_std(all_growth_ma),
+				'R/P ratio': mean_std(all_ratio_ma),
 				}
 
 		for axes in [main_axes, trimmed_axes]:

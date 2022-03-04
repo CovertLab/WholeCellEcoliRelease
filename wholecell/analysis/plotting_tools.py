@@ -54,6 +54,9 @@ COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
 	[247,129,191]
 	]
 
+with plt.style.context('seaborn-colorblind'):
+	COLORS_COLORBLIND = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
 def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=None, plotCorrCoef=True, formatString='o'):
 	"""
 	Plot a scatterplot matrix (Splom) of data contained in arrayOfdataArrays,

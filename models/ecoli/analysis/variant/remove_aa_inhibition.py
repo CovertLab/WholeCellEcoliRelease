@@ -132,18 +132,21 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ki_factors = []
 		for i, variant in enumerate(variants):
 			variant_conc = []
-			for sim_dir in self.ap.get_cells(variant=[variant], only_successful=True):
-				simOutDir = os.path.join(sim_dir, "simOut")
+			for seed in self.ap.get_seeds(variant):
+				seed_conc = []
+				for sim_dir in self.ap.get_cells(variant=[variant], seed=[seed], only_successful=True):
+					simOutDir = os.path.join(sim_dir, "simOut")
 
-				# Listeners used
-				kinetics_reader = TableReader(os.path.join(simOutDir, 'EnzymeKinetics'))
+					# Listeners used
+					kinetics_reader = TableReader(os.path.join(simOutDir, 'EnzymeKinetics'))
 
-				# Read data
-				(aa_counts,) = read_bulk_molecule_counts(simOutDir, aa_ids)
-				counts_to_molar = kinetics_reader.readColumn('countsToMolar').reshape(-1, 1)
+					# Read data
+					(aa_counts,) = read_bulk_molecule_counts(simOutDir, aa_ids)
+					counts_to_molar = kinetics_reader.readColumn('countsToMolar').reshape(-1, 1)
 
-				# Calculate amino acid concentration at each time step
-				variant_conc.append(aa_counts[1:, :]*counts_to_molar[1:])
+					# Calculate amino acid concentration at each time step
+					seed_conc.append(aa_counts[1:, :]*counts_to_molar[1:])
+				variant_conc.append(np.vstack(seed_conc).mean(0))
 
 			# Average concentration over all time steps
 			conc = np.vstack(variant_conc)

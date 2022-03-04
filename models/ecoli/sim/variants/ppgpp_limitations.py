@@ -129,9 +129,29 @@ def split_index(index):
 
 	return ppgpp_index, control, adjustment_index, factor_index
 
+def get_adjustment(index):
+	_, _, adjustment_index, _ = split_index(index)
+	return ADJUSTMENTS[adjustment_index]
+
+def get_factor(index):
+	_, control, adjustment_index, factor_index = split_index(index)
+	return 1 if control else FACTORS[adjustment_index][factor_index]
+
+def plot_split(index):
+	ppgpp_index, control, adjustment_index, factor_index = split_index(index)
+	condition = ppgpp_index * len(ADJUSTMENTS) + adjustment_index
+	factor = get_factor(index)
+	if control:
+		factor = 0
+	elif factor < 1:
+		factor = factor_index - np.sum(np.array(FACTORS[adjustment_index]) < 1)
+	else:
+		factor = factor_index - np.sum(np.array(FACTORS[adjustment_index]) < 1) + 1
+	return condition, factor
+
 def ppgpp_limitations(sim_data, index):
 	ppgpp_original = sim_data.growth_rate_parameters.get_ppGpp_conc(sim_data.doubling_time)
-	ppgpp_index, control, adjustment_index, factor_index = split_index(index)
+	ppgpp_index, control, _, _ = split_index(index)
 
 	ppgpp_desc, sim_data = ppgpp_conc(sim_data, ppgpp_index)
 
@@ -146,8 +166,8 @@ def ppgpp_limitations(sim_data, index):
 		short_name = 'control'
 		desc = 'No parameter changes'
 	else:
-		adjustment = ADJUSTMENTS[adjustment_index]
-		factor = FACTORS[adjustment_index][factor_index]
+		adjustment = get_adjustment(index)
+		factor = get_factor(index)
 		adjustment(sim_data, factor)
 
 		short_name = f'{adjustment.__name__}:{factor}x'
