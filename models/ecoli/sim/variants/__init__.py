@@ -18,6 +18,7 @@ variants = [
 	'param_sensitivity',
 	'ppgpp_conc',
 	'ppgpp_limitations',
+	'ppgpp_limitations_ribosome',
 	'remove_aa_inhibition',
 	'remove_aas_shift',
 	'remove_one_aa',

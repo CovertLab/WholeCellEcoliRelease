@@ -12,7 +12,7 @@ import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.single.ribosome_limitation import calculate_ribosome_excesses
-from models.ecoli.sim.variants import ppgpp_conc, ppgpp_limitations
+from models.ecoli.sim.variants import ppgpp_conc, ppgpp_limitations, ppgpp_limitations_ribosome
 from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns, read_stacked_bulk_molecules
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.plotting_tools import COLORS_COLORBLIND as COLORS
@@ -92,6 +92,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		data = {}
 		if metadata.get('variant') == 'ppgpp_limitations':
 			split_index = ppgpp_limitations.plot_split
+		elif metadata.get('variant') == 'ppgpp_limitations_ribosome':
+			split_index = ppgpp_limitations_ribosome.plot_split
 		else:
 			split_index = ppgpp_conc.split_index
 
@@ -163,7 +165,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			add_data('enzyme_protein_fraction', protein_fractions[:, 1])
 
 		# Compile for plots
-		if metadata.get('variant') == 'ppgpp_limitations':
+		if 'ppgpp_limitations' in metadata.get('variant'):
 			x = factors
 			xlabel = 'Adjustment factor'
 			condition_labels = {c: c for c in conditions}
