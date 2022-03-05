@@ -100,6 +100,10 @@ Modeling options:
 		effect if TRNA_CHARGING option is used.
 	PPGPP_REGULATION (int, "0"): if nonzero, ppGpp concentration is determined
 		with kinetic equations
+	DISABLE_PPGPP_ELONGATION_INHIBITION (int, "0"): if nonzero, ppGpp inhibition
+		of ribosome elongation (GTPase inhibition) is turned off (max elongation
+		rate is not dependent on ppGpp).  Only has an effect if
+		PPGPP_REGULATION option is used.
 	SUPERHELICAL_DENSITY (int, "0"): if nonzero, dynamically compute
 		superhelical densities of each DNA fragment
 	RECYCLE_STALLED_ELONGATION (int "0"): if nonzero, recycle RNAP and fragment
@@ -287,6 +291,7 @@ TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMU
 TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
 AA_SUPPLY_IN_CHARGING = bool(int(get_environment("AA_SUPPLY_IN_CHARGING", DEFAULT_SIMULATION_KWARGS["aa_supply_in_charging"])))
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
+DISABLE_PPGPP_ELONGATION_INHIBITION = bool(int(get_environment("DISABLE_PPGPP_ELONGATION_INHIBITION", DEFAULT_SIMULATION_KWARGS["disable_ppgpp_elongation_inhibition"])))
 SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_SIMULATION_KWARGS["superhelical_density"])))
 RECYCLE_STALLED_ELONGATION = bool(int(get_environment("RECYCLE_STALLED_ELONGATION", DEFAULT_SIMULATION_KWARGS["recycle_stalled_elongation"])))
 MECHANISTIC_REPLISOME = bool(int(get_environment("MECHANISTIC_REPLISOME", DEFAULT_SIMULATION_KWARGS["mechanistic_replisome"])))
@@ -451,6 +456,7 @@ class WorkflowBuilder:
 			"trna_charging": TRNA_CHARGING,
 			"aa_supply_in_charging": AA_SUPPLY_IN_CHARGING,
 			"ppgpp_regulation": PPGPP_REGULATION,
+			"disable_ppgpp_elongation_inhibition": DISABLE_PPGPP_ELONGATION_INHIBITION,
 			"superhelical_density": SUPERHELICAL_DENSITY,
 			"recycle_stalled_elongation": RECYCLE_STALLED_ELONGATION,
 			"mechanistic_replisome": MECHANISTIC_REPLISOME,
@@ -733,6 +739,7 @@ class WorkflowBuilder:
 							trna_charging=TRNA_CHARGING,
 							aa_supply_in_charging=AA_SUPPLY_IN_CHARGING,
 							ppgpp_regulation=PPGPP_REGULATION,
+							disable_ppgpp_elongation_inhibition=DISABLE_PPGPP_ELONGATION_INHIBITION,
 							superhelical_density=SUPERHELICAL_DENSITY,
 							recycle_stalled_elongation=RECYCLE_STALLED_ELONGATION,
 							mechanistic_replisome=MECHANISTIC_REPLISOME,

@@ -39,6 +39,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	trna_charging = True,
 	aa_supply_in_charging = False,
 	ppgpp_regulation = False,
+	disable_ppgpp_elongation_inhibition = False,
 	superhelical_density = False,
 	recycle_stalled_elongation = False,
 	mechanistic_replisome = True,

@@ -35,6 +35,7 @@ class SimulationTask(FiretaskBase):
 		"trna_charging",
 		"aa_supply_in_charging",
 		"ppgpp_regulation",
+		"disable_ppgpp_elongation_inhibition",
 		"superhelical_density",
 		"recycle_stalled_elongation",
 		"mechanistic_replisome",
@@ -79,6 +80,7 @@ class SimulationTask(FiretaskBase):
 		options["trna_charging"] = self._get_default("trna_charging")
 		options["aa_supply_in_charging"] = self._get_default("aa_supply_in_charging")
 		options["ppgpp_regulation"] = self._get_default("ppgpp_regulation")
+		options["disable_ppgpp_elongation_inhibition"] = self._get_default("disable_ppgpp_elongation_inhibition")
 		options["superhelical_density"] = self._get_default("superhelical_density")
 		options["recycle_stalled_elongation"] = self._get_default("recycle_stalled_elongation")
 		options["mechanistic_replisome"] = self._get_default("mechanistic_replisome")
