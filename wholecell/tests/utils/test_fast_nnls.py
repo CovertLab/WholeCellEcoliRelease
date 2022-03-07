@@ -40,10 +40,9 @@ class Test_fast_nnls(unittest.TestCase):
 		m = 5
 		n = 3
 		A = np.random.rand(m, n)
-		sA = sparse.csr_matrix(A)
 		b = np.random.rand(m)
 
-		x, r = fast_nnls(sA, b)
+		x, r = fast_nnls(A, b)
 		assert x.shape == (n, )
 		assert b.shape == (m, )
 
@@ -56,13 +55,14 @@ class Test_fast_nnls(unittest.TestCase):
 		n = 3
 		A = np.random.rand(m, n)
 		sA = sparse.csr_matrix(A)
+		A_wrongdim = np.random.rand(m)
 		b = np.random.rand(m)
 		sb = sparse.csr_matrix(b)
 		b_wrongsize = np.random.rand(n)
 
 		with self.assertRaisesRegex(TypeError, r'two-dimensional'):
-			fast_nnls(A, b)
-		with self.assertRaisesRegex(TypeError, r'two-dimensional'):
+			fast_nnls(A_wrongdim, b)
+		with self.assertRaisesRegex(TypeError, r'one-dimensional'):
 			fast_nnls(A, sb)
 		with self.assertRaisesRegex(TypeError, r'one-dimensional'):
 			fast_nnls(sA, sb)
@@ -75,23 +75,35 @@ class Test_fast_nnls(unittest.TestCase):
 		equivalent to b.
 		"""
 		A = np.eye(self.default_array_size)
-		sA = sparse.csr_matrix(A)
 		b = np.random.rand(self.default_array_size)
-		x, r = fast_nnls(sA, b)
+		x, r = fast_nnls(A, b)
 
 		npt.assert_array_equal(x, b)
 		npt.assert_array_equal(r, np.zeros(self.default_array_size))
+
+	def test_full_sparse_equivalence(self):
+		"""
+		Test if function returns same values for full and sparse matrix A's.
+		"""
+		A = np.random.rand(self.default_array_size, self.default_array_size)
+		sA = sparse.csr_matrix(A)
+		b = np.random.rand(self.default_array_size)
+
+		x1, r1 = fast_nnls(A, b)
+		x2, r2 = fast_nnls(sA, b)
+
+		npt.assert_array_equal(x1, x2)
+		npt.assert_array_equal(r1, r2)
 
 	def test_reproducibility(self):
 		"""
 		Test reproducibility of fast_nnls outputs.
 		"""
 		A = np.random.rand(self.default_array_size, self.default_array_size)
-		sA = sparse.csr_matrix(A)
 		b = np.random.rand(self.default_array_size)
 
-		x1, r1 = fast_nnls(sA, b)
-		x2, r2 = fast_nnls(sA, b)
+		x1, r1 = fast_nnls(A, b)
+		x2, r2 = fast_nnls(A, b)
 
 		npt.assert_array_equal(x1, x2)
 		npt.assert_array_equal(r1, r2)
@@ -102,11 +114,10 @@ class Test_fast_nnls(unittest.TestCase):
 		random matrix A.
 		"""
 		A = np.random.rand(self.default_array_size, self.default_array_size)
-		sA = sparse.csr_matrix(A)
 		b = np.random.rand(self.default_array_size)
 
 		_, rnorm_slow = nnls(A, b)
-		_, r = fast_nnls(sA, b)
+		_, r = fast_nnls(A, b)
 
 		rnorm_fast = np.linalg.norm(r)
 
@@ -130,10 +141,9 @@ class Test_fast_nnls(unittest.TestCase):
 			[0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 			])
-		sA = sparse.csr_matrix(A)
 		b = np.random.rand(10)
 
 		time_slow = time_this(lambda: nnls(A, b))
-		time_fast = time_this(lambda: fast_nnls(sA, b))
+		time_fast = time_this(lambda: fast_nnls(A, b))
 
 		self.assertLess(time_slow, time_fast)

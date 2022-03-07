@@ -13,20 +13,20 @@ def fast_nnls(A, b):
 	utilizes the property that both matrix A and vector b can be divided into
 	matrices and vectors that each form a smaller nonnegative least squares
 	problem, which can each be solved independently and the solutions later
-	concatenated to yield the full vector x. Argument A is given as a sparse
-	matrix.
+	concatenated to yield the full vector x. Argument A can given as either a
+	full numpy array or a scipy sparse matrix.
 
 	Args:
-		A: scipy.sparse.csr.csr_matrix of size (M, N)
+		A: np.ndarray or scipy.sparse.csr.csr_matrix of size (M, N)
 		b: numpy.ndarray of size (M, )
 	Returns:
 		x: numpy.ndarray of size (N, ), the solution to the NNLS problem.
 		r: numpy.ndarray of size (M, ), the residual vector (Ax - b) of the NNLS
 			problem.
 	"""
-	# Check input dimensions
-	if not issparse(A) or A.ndim != 2:
-		raise TypeError('Input array A must be a two-dimensional sparse csr_matrix')
+	# Check input types and dimensions
+	if A.ndim != 2:
+		raise TypeError('Input array A must be a two-dimensional numpy ndarray or sparse csr_matrix')
 	elif not isinstance(b, np.ndarray) or b.ndim != 1:
 		raise TypeError('Input array b must be a one-dimensional ndarray.')
 	elif A.shape[0] != len(b):
@@ -87,11 +87,10 @@ def fast_nnls(A, b):
 			# Build a full submatrix A for each subproblem
 			submatrix = np.zeros((len(row_indexes), len(column_indexes)))
 			mask = np.isin(A_nonzero_row_indexes, row_indexes)
-			for (i, j, v) in zip(
+			for (i, j) in zip(
 					A_nonzero_row_indexes[mask],
-					A_nonzero_column_indexes[mask],
-					A.data[mask]):
-				submatrix[np.where(row_indexes == i)[0][0], np.where(column_indexes == j)[0][0]] = v
+					A_nonzero_column_indexes[mask]):
+				submatrix[np.where(row_indexes == i)[0][0], np.where(column_indexes == j)[0][0]] = A[i, j]
 
 			# Solve the subproblem
 			x_subproblem, _ = nnls(submatrix, b[row_indexes])
