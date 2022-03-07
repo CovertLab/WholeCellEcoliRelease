@@ -458,9 +458,9 @@ class Transcription(object):
 
 		# Build mapping matrix between transcription units and constituent
 		# cistrons
-		mapping_matrix_i = []
-		mapping_matrix_j = []
-		mapping_matrix_v = []
+		cistron_indexes = []
+		rna_indexes = []
+		v = []
 
 		# Mapping from cistron ID to index
 		cistron_id_to_index = {
@@ -470,23 +470,75 @@ class Transcription(object):
 		for j, rna_id in enumerate(rna_ids):
 			if rna_id in tu_id_to_cistron_ids:
 				for mc_rna_id in tu_id_to_cistron_ids[rna_id]:
-					mapping_matrix_i.append(cistron_id_to_index[mc_rna_id])
-					mapping_matrix_j.append(j)
-					mapping_matrix_v.append(1)
+					cistron_indexes.append(cistron_id_to_index[mc_rna_id])
+					rna_indexes.append(j)
+					v.append(1)
 			else:
-				mapping_matrix_i.append(cistron_id_to_index[rna_id])
-				mapping_matrix_j.append(j)
-				mapping_matrix_v.append(1)
+				cistron_indexes.append(cistron_id_to_index[rna_id])
+				rna_indexes.append(j)
+				v.append(1)
 
-		mapping_matrix_i = np.array(mapping_matrix_i)
-		mapping_matrix_j = np.array(mapping_matrix_j)
-		mapping_matrix_v = np.array(mapping_matrix_v)
-		shape = (mapping_matrix_i.max() + 1, mapping_matrix_j.max() + 1)
+		cistron_indexes = np.array(cistron_indexes)
+		rna_indexes = np.array(rna_indexes)
+		v = np.array(v)
+		shape = (cistron_indexes.max() + 1, rna_indexes.max() + 1)
 
 		# Build sparse mapping matrix
 		self.cistron_tu_mapping_matrix = csr_matrix(
-			(mapping_matrix_v, (mapping_matrix_i, mapping_matrix_j)),
+			(v, (cistron_indexes, rna_indexes)),
 			shape=shape)
+
+		# Find groups of cistrons and TUs that belong to the same operons.
+		# self.operons is a list of tuples that each specify an operon with
+		# a list of cistron indexes and a list of RNA indexes
+		# (e.g. ([380, 379, 377], [2356, 2433]))
+		visited_cistron_indexes = set()
+		visited_rna_indexes = set()
+		self.operons = []
+
+		def rna_DFS(rna_index, operon_cistron_indexes, operon_rna_indexes):
+			"""
+            Recursive function to look for indexes of RNAs (transcription units)
+            and cistrons that belong to the same operon as the RNA with the
+            given index.
+            """
+			visited_rna_indexes.add(rna_index)
+			operon_rna_indexes.append(rna_index)
+
+			for i in cistron_indexes[rna_indexes == rna_index]:
+				if i not in visited_cistron_indexes:
+					cistron_DFS(i, operon_cistron_indexes, operon_rna_indexes)
+
+		def cistron_DFS(cistron_index, operon_cistron_indexes, operon_rna_indexes):
+			"""
+            Recursive function to look for indexes of RNAs (transcription units)
+            and cistrons that belong to the same operon as the cistron with the
+            given index.
+            """
+			visited_cistron_indexes.add(cistron_index)
+			operon_cistron_indexes.append(cistron_index)
+
+			for i in rna_indexes[cistron_indexes == cistron_index]:
+				if i not in visited_rna_indexes:
+					rna_DFS(i, operon_cistron_indexes, operon_rna_indexes)
+
+		# Loop through each RNA index
+		for rna_index in range(n_rnas):
+			# Search for cistrons and RNAs that can be grouped together into the
+			# same operon
+			if rna_index not in visited_rna_indexes:
+				operon_cistron_indexes = []
+				operon_rna_indexes = []
+				rna_DFS(rna_index, operon_cistron_indexes, operon_rna_indexes)
+
+				# Sort cistron indexes by coordinates
+				operon_cistron_indexes = sorted(
+					operon_cistron_indexes,
+					key=lambda i: self.cistron_data['replication_coordinate'][i])
+
+				self.operons.append((
+					operon_cistron_indexes, operon_rna_indexes
+					))
 
 		# Build list of all RNA IDs with compartment tags
 		compartments = sim_data.getter.get_compartments(rna_ids)

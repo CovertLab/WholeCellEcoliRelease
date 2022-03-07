@@ -26,74 +26,28 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			cistron['id']: cistron['gene_id']
 			for cistron in sim_data.process.transcription.cistron_data
 			}
-		cistron_coordinates = sim_data.process.transcription.cistron_data['replication_coordinate']
 		tu_ids = [x[:-3] for x in sim_data.process.transcription.rna_data['id']]
 
 		# Divide mapping matrix into individual operons
 		cistron_indexes, tu_indexes = cistron_tu_mapping_matrix.nonzero()
 
-		visited_cistron_indexes = set()
-		visited_tu_indexes = set()
-		all_operons = []
-
-		def tu_DFS(tu_index, operon_cistron_indexes, operon_tu_indexes):
-			"""
-            Recursive function to look for indexes of TUs and cistrons that
-            belong to the same operon as the TU with the given index.
-            """
-			visited_tu_indexes.add(tu_index)
-			operon_tu_indexes.append(tu_index)
-
-			for i in cistron_indexes[tu_indexes == tu_index]:
-				if i not in visited_cistron_indexes:
-					cistron_DFS(i, operon_cistron_indexes, operon_tu_indexes)
-
-		def cistron_DFS(index, all_row_indexes, all_column_indexes):
-			"""
-            Recursive function to look for columns and rows in matrix A that should
-            be grouped into the same NNLS problem.
-            """
-			visited_cistron_indexes.add(index)
-			all_row_indexes.append(index)
-
-			for i in tu_indexes[cistron_indexes == index]:
-				if i not in visited_tu_indexes:
-					tu_DFS(i, all_row_indexes, all_column_indexes)
-
-		# Loop through each TU index
-		for tu_index in range(len(tu_ids)):
-			# Search for cistrons and TUs that can be grouped together into the
-			# same operon
-			if tu_index not in visited_tu_indexes:
-				operon_cistron_indexes = []
-				operon_tu_indexes = []
-				tu_DFS(tu_index, operon_cistron_indexes, operon_tu_indexes)
-
-				# Skip single-gene operons
-				if len(operon_cistron_indexes) == 1 and len(operon_tu_indexes) == 1:
-					continue
-
-				# Sort cistron indexes by coordinates
-				operon_cistron_indexes = sorted(
-					operon_cistron_indexes,
-					key = lambda i: cistron_coordinates[i])
-
-				all_operons.append((
-					operon_cistron_indexes, operon_tu_indexes
-					))
+		# Get polycistronic operons
+		operons = [
+			operon for operon in sim_data.process.transcription.operons
+			if len(operon[0]) > 1
+			]
 
 		# Sort operons by size (number of cistrons)
-		all_operons = sorted(
-			all_operons,
-			key = lambda operon: len(operon[0]), reverse=True)
-		n_operons = len(all_operons)
+		operons_sorted = sorted(
+			operons, key = lambda operon: len(operon[0]), reverse=True)
+		n_operons = len(operons_sorted)
 
 		fig = plt.figure()
 		fig.set_size_inches(50, 50)
 
 		gs = gridspec.GridSpec(n_operons//30 + 1, 30)
 
-		for (operon_index, (operon_cistron_indexes, operon_tu_indexes)) in enumerate(all_operons):
+		for (operon_index, (operon_cistron_indexes, operon_tu_indexes)) in enumerate(operons_sorted):
 			ax = plt.subplot(gs[operon_index // 30, operon_index % 30])
 
 			# Get TU structure array of this operon
