@@ -1,8 +1,6 @@
 """
 Generates a scatter plot of mRNA cistron copy numbers that are expected from the
 expression levels calculated in the ParCa vs actual copies in the simulations.
-Both values are normalized such that the sum of copy numbers of all mRNA species
-sum to one.
 """
 
 import pickle
@@ -23,6 +21,7 @@ FIGSIZE = (6, 6)
 BOUNDS = [0, 2.5]
 P_VALUE_THRESHOLD = 1e-3
 
+SEED = 0
 EXPECTED_COUNT_CONDITION = 'basal'
 
 
@@ -40,7 +39,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Get mask for mRNA genes that are
 		# i) Does not encode for ribosomal proteins or RNAPs
 		# ii) not affected by manual overexpression/underexpression
-		# to isolate the effects of operons on expression levels.
 		is_mRNA = sim_data.process.transcription.cistron_data['is_mRNA']
 		assert np.all(
 			mRNA_cistron_ids == sim_data.process.transcription.cistron_data['id'][is_mRNA])
@@ -80,9 +78,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		all_actual_counts = read_stacked_columns(
 			cell_paths, 'mRNACounts', 'mRNA_cistron_counts')
 
-		# Get average count across all timesteps over all sims
-		actual_counts = all_actual_counts[:, mRNA_mask].mean(axis=0)
-		n_timesteps = all_actual_counts.shape[0]
+		# Sample timesteps from full array
+		np.random.seed(SEED)
+		n_samples = len(cell_paths)
+		sampled_counts = all_actual_counts[
+			np.random.choice(all_actual_counts.shape[0], n_samples), :]
+
+		# Take average from sampled timesteps
+		actual_counts = sampled_counts[:, mRNA_mask].mean(axis=0)
 
 		# Normalize expected counts with sum of actual counts
 		expected_counts = expected_counts/expected_counts.sum() * actual_counts.sum()
@@ -90,8 +93,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Get statistical significance boundaries assuming a Poissonian
 		# distribution
 		z_score_threshold = st.norm.ppf(1 - P_VALUE_THRESHOLD/2)
-		ub = expected_counts + z_score_threshold*np.sqrt(expected_counts/n_timesteps)
-		lb = expected_counts - z_score_threshold*np.sqrt(expected_counts/n_timesteps)
+		ub = expected_counts + z_score_threshold*np.sqrt(expected_counts/n_samples)
+		lb = expected_counts - z_score_threshold*np.sqrt(expected_counts/n_samples)
 
 		# Get mask for outliers
 		outlier_mask = np.logical_or(actual_counts > ub, actual_counts < lb)
@@ -103,12 +106,16 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ax.scatter(
 			np.log10(expected_counts[~outlier_mask] + 1),
 			np.log10(actual_counts[~outlier_mask] + 1),
-			c='#cccccc', s=2, label=f'p ≥ {P_VALUE_THRESHOLD:g}', clip_on=False)
-		# Highlight outliers in blue
+			c='#cccccc', s=2,
+			label=f'p ≥ {P_VALUE_THRESHOLD:g} (n = {len(expected_counts) - outlier_mask.sum():d})',
+			clip_on=False)
+		# Highlight outliers
 		ax.scatter(
 			np.log10(expected_counts[outlier_mask] + 1),
 			np.log10(actual_counts[outlier_mask] + 1),
-			c='b', s=2, label=f'p < {P_VALUE_THRESHOLD:g}', clip_on=False)
+			c='b', s=2,
+			label=f'p < {P_VALUE_THRESHOLD:g} (n = {outlier_mask.sum():d})',
+			clip_on=False)
 
 		ax.set_title('Expected vs actual RNA copies')
 		ax.set_xlabel('$\log_{10}$(Expected copies + 1)')
