@@ -20,7 +20,7 @@ from wholecell.io.tablereader import TableReader
 
 
 FIGSIZE = (6, 6)
-BOUNDS = [-0.5, 3]
+BOUNDS = [0, 2.5]
 P_VALUE_THRESHOLD = 1e-3
 
 EXPECTED_COUNT_CONDITION = 'basal'
@@ -96,25 +96,30 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Get mask for outliers
 		outlier_mask = np.logical_or(actual_counts > ub, actual_counts < lb)
 
-		plt.figure(figsize=FIGSIZE)
+		fig = plt.figure(figsize=FIGSIZE)
+		ax = fig.add_subplot(1, 1, 1)
 
-		plt.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
-		plt.scatter(
+		ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
+		ax.scatter(
 			np.log10(expected_counts[~outlier_mask] + 1),
 			np.log10(actual_counts[~outlier_mask] + 1),
-			c='#cccccc', s=1, label=f'p ≥ {P_VALUE_THRESHOLD:g}')
+			c='#cccccc', s=2, label=f'p ≥ {P_VALUE_THRESHOLD:g}', clip_on=False)
 		# Highlight outliers in blue
-		plt.scatter(
+		ax.scatter(
 			np.log10(expected_counts[outlier_mask] + 1),
 			np.log10(actual_counts[outlier_mask] + 1),
-			c='b', s=1, label=f'p < {P_VALUE_THRESHOLD:g}')
+			c='b', s=2, label=f'p < {P_VALUE_THRESHOLD:g}', clip_on=False)
 
-		plt.title('Expected vs actual RNA copies')
-		plt.xlabel('Expected normalized copies')
-		plt.ylabel('Actual normalized copies')
-		plt.xlim(BOUNDS)
-		plt.ylim(BOUNDS)
-		plt.legend()
+		ax.set_title('Expected vs actual RNA copies')
+		ax.set_xlabel('$\log_{10}$(Expected copies + 1)')
+		ax.set_ylabel('$\log_{10}$(Actual copies + 1)')
+		ax.spines["top"].set_visible(False)
+		ax.spines["right"].set_visible(False)
+		ax.spines["bottom"].set_position(("outward", 20))
+		ax.spines["left"].set_position(("outward", 20))
+		ax.set_xlim(BOUNDS)
+		ax.set_ylim(BOUNDS)
+		ax.legend(loc=2)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
