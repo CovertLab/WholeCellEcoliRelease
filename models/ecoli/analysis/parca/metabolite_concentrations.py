@@ -1,5 +1,8 @@
 """
 Compare metabolite concentrations from different datasets.
+
+TODO:
+	include species/conc from getBiomassAsConcentrations
 """
 
 from __future__ import absolute_import, division, print_function
@@ -22,6 +25,8 @@ from six.moves import zip
 CONC_UNITS = units.mmol / units.L
 INDEX_KEY = 'index'
 CONC_KEY = 'conc'
+WCM_KEY = 'WCM'
+SANDER_KEY = 'Sander Concentration'
 
 
 class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
@@ -92,9 +97,9 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 
 		# Compare sources against each other
 		plt.figure(figsize=(10, 10))
-		concentrations['WCM'] = {}
-		concentrations['WCM'][INDEX_KEY] = x
-		concentrations['WCM'][CONC_KEY] = cast(list, model_conc.tolist())
+		concentrations[WCM_KEY] = {}
+		concentrations[WCM_KEY][INDEX_KEY] = x
+		concentrations[WCM_KEY][CONC_KEY] = cast(list, model_conc.tolist())
 		sources = sorted(concentrations.keys())
 		n_sources = len(sources)
 
@@ -125,6 +130,41 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		## Save figure
 		plt.tight_layout()
 		exportFigure(plt, plot_out_dir, plot_out_filename + '_sources', metadata)
+		plt.close('all')
+
+		# Plot amino acids in Sander paper
+		metabolite_idx = {m: i for i, m in enumerate(metabolites)}
+		allosteric_aas = ['ARG', 'TRP', 'HIS', 'LEU', 'ILE', 'THR', 'PRO']
+		allosteric_idx = [metabolite_idx[aa] for aa in allosteric_aas]
+
+		plt.figure()
+		for source, data in concentrations.items():
+			conc = {i: c for i, c in zip(data[INDEX_KEY], data[CONC_KEY])}
+			x = []
+			y = []
+			for i, idx in enumerate(allosteric_idx):
+				if idx in conc:
+					x.append(i)
+					y.append(conc[idx])
+
+			marker = 'o'
+			options = dict(alpha=0.5, markersize=6, markeredgewidth=0)
+			if source == WCM_KEY:
+				marker = '_k'
+				options = dict(alpha=0.8)
+			elif source == SANDER_KEY:
+				marker = 'X'
+				options['markersize'] = 8
+
+			plt.semilogy(x, y, marker, label=source, **options)
+
+		plt.xticks(range(len(allosteric_aas)), allosteric_aas)
+		plt.ylabel('Concentration (mM)')
+		plt.legend()
+
+		## Save figure
+		plt.tight_layout()
+		exportFigure(plt, plot_out_dir, plot_out_filename + '_sander', metadata)
 		plt.close('all')
 
 

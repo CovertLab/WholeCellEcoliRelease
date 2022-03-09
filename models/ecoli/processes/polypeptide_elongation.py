@@ -41,6 +41,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.mechanistic_translation_supply = sim._mechanistic_translation_supply
 		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
 		self.ppgpp_regulation = sim._ppgpp_regulation
+		self.disable_ppgpp_elongation_inhibition = sim._disable_ppgpp_elongation_inhibition
 		self.variable_elongation = sim._variable_elongation_translation
 		self.variable_polymerize = self.ppgpp_regulation or self.variable_elongation
 		translation_supply = sim._translationSupply
@@ -435,7 +436,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.aa_exporters = self.process.bulkMoleculesView(metabolism.aa_exporter_names)
 
 	def elongation_rate(self):
-		if self.process.ppgpp_regulation:
+		if self.process.ppgpp_regulation and not self.process.disable_ppgpp_elongation_inhibition:
 			cell_mass = self.process.readFromListener("Mass", "cellMass") * units.fg
 			cell_volume = cell_mass / self.cellDensity
 			counts_to_molar = 1 / (self.process.n_avogadro * cell_volume)

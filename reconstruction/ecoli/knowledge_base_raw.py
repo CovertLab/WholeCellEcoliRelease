@@ -67,7 +67,7 @@ LIST_OF_DICT_FILENAMES = [
 	"sequence_motifs.tsv",
 	"transcription_factors.tsv",
 	# "transcription_units.tsv",  # special cased in the constructor
-	"transcription_units_modified.tsv",
+	"transcription_units_added.tsv",
 	"transcription_units_removed.tsv",
 	"transcriptional_attenuation.tsv",
 	"transcriptional_attenuation_removed.tsv",
@@ -111,7 +111,7 @@ LIST_OF_DICT_FILENAMES = [
 	os.path.join("adjustments", "rna_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "protein_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "relative_metabolite_concentrations_changes.tsv"),
-	os.path.join('transcription_unit_prototypes', 'transcription_units_modified_v1.tsv'),
+	os.path.join('transcription_unit_prototypes', 'transcription_units_added_v1.tsv'),
 	]
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = (
@@ -147,12 +147,12 @@ ADDED_DATA = {
 	'trna_charging_reactions': 'trna_charging_reactions_added',
 	}
 
-# Dictionary mapping operon option names to the name of the modification file
+# Dictionary mapping operon option names to the name of the added operons file
 # corresponding to the option. Must be specified for every operon option except
 # "off".
-OPERON_OPTION_TO_MODIFIED_DATA = {
-	'v1': 'transcription_unit_prototypes.transcription_units_modified_v1',
-	'on': 'transcription_units_modified',
+OPERON_OPTION_TO_ADDED_DATA = {
+	'v1': 'transcription_unit_prototypes.transcription_units_added_v1',
+	'on': 'transcription_units_added',
 	}
 
 class DataStore(object):
@@ -180,8 +180,8 @@ class KnowledgeBaseEcoli(object):
 			self.removed_data.update({
 				'transcription_units': 'transcription_units_removed',
 				})
-			self.modified_data.update({
-				'transcription_units': OPERON_OPTION_TO_MODIFIED_DATA[self.operon_option],
+			self.added_data.update({
+				'transcription_units': OPERON_OPTION_TO_ADDED_DATA[self.operon_option],
 				})
 
 		# Load raw data from TSV files
@@ -281,7 +281,9 @@ class KnowledgeBaseEcoli(object):
 		for data_attr, attr_to_add in self.added_data.items():
 			# Get datasets to join
 			data = getattr(self, data_attr)
-			added_data = getattr(self, attr_to_add)
+			added_data = getattr(self, attr_to_add.split('.')[0])
+			for attr in attr_to_add.split('.')[1:]:
+				added_data = getattr(added_data, attr)
 
 			# Check columns are the same for each dataset
 			col_diff = set(data[0].keys()).symmetric_difference(added_data[0].keys())

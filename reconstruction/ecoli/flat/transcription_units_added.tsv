@@ -1,0 +1,4 @@
+"id"	"common_name"	"genes"	"left_end_pos"	"right_end_pos"	"direction"	"evidence"	"_comments"
+"hisGDCBHAFI"	"hisGDCBHAFI"	["EG10449", "EG10447", "EG10446", "EG10445", "EG10450", "EG10444", "EG10448", "EG10451"]	2090192	2097225	"+"	[]	"Leader peptide hisL removed from TU00285 to allow for higher expression of all other enzymes; ParCa fails without this modification"
+"rplKAJL"	"rplKAJL"	["EG10873", "EG10871", "EG10864", "EG10872"]	4178354	4180925	"+"	[]	"Suggested from R-end sequencing data (Lalanne et al., 2018) by the existence of a transcription terminator after rplL"
+"rplJL"	"rplJL"	["EG10871", "EG10873"]	4179623	4180925	"+"	[]	"Suggested from R-end sequencing data (Lalanne et al., 2018) by the existence of a transcription terminator after rplL"

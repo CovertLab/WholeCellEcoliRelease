@@ -1,116 +1,72 @@
 """
-Adjusts amino acid synthesis parameters and enzymes as well as ribosomes at
-different fixed ppGpp concentrations to compare which ones are limiting growth
-at low or high ppGpp concentrations.
+Adjusts expression of rRNA and rProtein different fixed ppGpp concentrations to
+compare which ones are limiting growth at low or high ppGpp concentrations.
+Shares a lot of code with ppgpp_limitations
 
 Modifies:
 	Attributes from ppgpp_conc variant
 	Attributes from adjust_final_expression
 	sim_data.ppgpp_ramp: added class to include a ppGpp concentration ramp
-	sim_data.process.metabolism.aa_kcats_fwd
-	sim_data.process.metabolism.aa_kis
 
 Expected variant indices (depends on PPGPP_VARIANTS and FACTORS):
 	0: control at low ppGpp concentration
-	1-9: adjust amino acid KIs at low ppGpp concentration
-	10-18: adjust amino acid kcats at low ppGpp concentration
-	19-27: adjust amino acid enzyme expression at low ppGpp concentration
-	28-36: adjust ribosome expression at low ppGpp concentration
-	37: control at normal ppGpp concentration
-	38-73: adjustments at normal ppGpp concentration
-	74: control at high ppGpp concentration
-	75-110: adjustments at high ppGpp concentration
+	1-3: adjust rRNA expression at low ppGpp concentration
+	4-6: adjust rProtein expression at low ppGpp concentration
+	7-9: adjust rRNA and rProtein expression at low ppGpp concentration
+	10-12: adjust rRNA (2x rProtein adjustment) and rProtein expression at low ppGpp concentration
+	13-15: adjust rRNA (5x rProtein adjustment) and rProtein expression at low ppGpp concentration
+	16: control at normal ppGpp concentration
+	17-31: adjustments at normal ppGpp concentration
+	32: control at high ppGpp concentration
+	33-47: adjustments at high ppGpp concentration
 """
 
 import numpy as np
 
 from .ppgpp_conc import ppgpp_conc
+from .ppgpp_limitations import ppGpp
 from wholecell.utils import units
 
 
 PPGPP_VARIANTS = [1, 4, 8]  # Corresponds to low, control and high ppGpp from ppgpp_conc variant
 FACTORS = [
-	[0.001, 0.01, 0.1, 0.5, 2, 10, 100, 1000, np.inf],
-	[0.96, 0.97, 0.98, 0.99, 1.01, 1.02, 1.03, 1.04, 1.05],
-	[0.5, 0.75, 0.9, 0.95, 1.05, 1.1, 1.25, 1.5, 2],
-	[0.5, 0.75, 0.9, 0.95, 1.05, 1.1, 1.25, 1.5, 2],
+	[1.1, 1.25, 1.5],
+	[1.1, 1.25, 1.5],
+	[1.1, 1.25, 1.5],
+	[1.1, 1.25, 1.5],
+	[1.1, 1.25, 1.5],
 ]
 
 
-class ppGpp():
-	def __init__(self, original_conc, new_conc, rate):
-		self.original_conc = original_conc
-		self.new_conc = new_conc
-		self.rate = rate
-
-	def time(self):
-		return 0
-
-	def get_ppGpp_conc(self, doubling_time):
-		"""
-		Function to replace get_ppGpp_conc in growth_rate_parameters.  Needs to
-		have the same function signature but we want to fix the output
-		conentration to a new value.
-		"""
-		# TODO (travis): handle this error from sim side so that self.time()
-		# never raises an error even if called during process initialization
-		try:
-			t = self.time()
-		except Exception:
-			t = 0
-
-		if self.new_conc > self.original_conc:
-			conc = min(self.new_conc, self.original_conc + self.rate * t)
-		else:
-			conc = max(self.new_conc, self.original_conc - self.rate * t)
-		return conc
-
-	def set_time(self, time_fun):
-		self.time = time_fun
-
-def adjust_amino_acids(sim_data, factor):
-	sim_data.process.metabolism.aa_kcats_fwd *= factor
-
-def adjust_amino_acid_kis(sim_data, factor):
-	sim_data.process.metabolism.aa_kis *= factor
-
-def adjust_enzymes(sim_data, factor):
-	metabolism = sim_data.process.metabolism
-	complexation = sim_data.process.complexation
-	translation = sim_data.process.translation
-	transcription = sim_data.process.transcription
-
-	# Enzymes involved in mechanistic amino acid synthesis
-	synthesis_enzymes = metabolism.aa_enzymes[metabolism.enzyme_to_amino_acid_fwd.sum(1).astype(bool)]
-	synthesis_monomers = sorted({
-		subunit
-		for enzyme in synthesis_enzymes
-		for subunit in complexation.get_monomers(enzyme)['subunitIds']
-		})
-
-	# Map monomers to RNA for a knockout
-	cistron_to_index = {cistron['id']: i for i, cistron in enumerate(transcription.cistron_data)}
-	monomer_to_index = {monomer['id']: cistron_to_index[monomer['cistron_id']] for monomer in translation.monomer_data}
-	cistron_indices = [
-		monomer_to_index[monomer]
-		for monomer in synthesis_monomers
-		if monomer in monomer_to_index
-		]
-
-	factors = [factor] * len(cistron_indices)
-	sim_data.adjust_final_expression(cistron_indices, factors)
-
-def adjust_ribosomes(sim_data, factor):
+def adjust_rrna(sim_data, factor):
 	rna_data = sim_data.process.transcription.rna_data
-	cistron_indices = np.where(rna_data['is_rRNA'] | rna_data['includes_ribosomal_protein'])[0]
+	cistron_indices = np.where(rna_data['is_rRNA'])[0]
 	factors = [factor] * len(cistron_indices)
 	sim_data.adjust_final_expression(cistron_indices, factors)
+
+def adjust_rprotein(sim_data, factor):
+	rna_data = sim_data.process.transcription.rna_data
+	cistron_indices = np.where(rna_data['includes_ribosomal_protein'])[0]
+	factors = [factor] * len(cistron_indices)
+	sim_data.adjust_final_expression(cistron_indices, factors)
+
+def adjust_both(sim_data, factor, scale=1):
+	rrna_factor = 1 + (factor - 1) * scale
+	adjust_rrna(sim_data, rrna_factor)
+	adjust_rprotein(sim_data, factor)
+
+def adjust_double(sim_data, factor):
+	adjust_both(sim_data, factor, scale=2)
+
+def adjust_5x(sim_data, factor):
+	adjust_both(sim_data, factor, scale=5)
 
 ADJUSTMENTS = [
-	adjust_amino_acid_kis,
-	adjust_amino_acids,
-	adjust_enzymes,
-	adjust_ribosomes,
+	adjust_rrna,
+	adjust_rprotein,
+	adjust_both,
+	adjust_double,
+	adjust_5x,
 	]
 
 def split_index(index):
@@ -149,7 +105,7 @@ def plot_split(index):
 		factor = factor_index - np.sum(np.array(FACTORS[adjustment_index]) < 1) + 1
 	return condition, factor
 
-def ppgpp_limitations(sim_data, index):
+def ppgpp_limitations_ribosome(sim_data, index):
 	ppgpp_original = sim_data.growth_rate_parameters.get_ppGpp_conc(sim_data.doubling_time)
 	ppgpp_index, control, _, _ = split_index(index)
 
