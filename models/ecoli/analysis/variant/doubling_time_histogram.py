@@ -11,14 +11,14 @@ MAX_CELL_LENGTH = 180  # filter sims that reach the max time of 180 min
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
-	def hist(self, ax, data, xlabel, bin_width=1., xlim=None):
+	def hist(self, ax, data, xlabel, bin_width=1., xlim=None, sf=1):
 		for variant, variant_data in data.items():
 			color = COLORS[variant % len(COLORS)]
 			bins = max(1, int(np.ceil((variant_data.max() - variant_data.min()) / bin_width)))
 			mean = variant_data.mean()
 			std = variant_data.std()
 			ax.hist(variant_data, bins, color=color, alpha=0.5,
-				label=f'Var {variant}: {mean:.1f} +/- {std:.2f}')
+				label=f'Var {variant}: {mean:.{sf}f} +/- {std:.{sf+1}f}')
 			ax.axvline(mean, color=color, linestyle='--', linewidth=1)
 
 		if xlim:
@@ -53,7 +53,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		_, axes = plt.subplots(2, 1, figsize=(10, 10))
 
 		self.hist(axes[0], doubling_times, 'Doubling Time (min)')
-		self.hist(axes[1], growth_rates, 'Growth rates (1/hr)', bin_width=0.05)
+		self.hist(axes[1], growth_rates, 'Growth rates (1/hr)', bin_width=0.05, sf=2)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

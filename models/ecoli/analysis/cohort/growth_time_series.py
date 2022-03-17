@@ -95,8 +95,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			ax.set_xlabel('Time (min)', fontsize=8)
 		else:
 			ax.xaxis.set_ticklabels([])
-		ax.set_ylabel(ylabel, fontsize=6)
-		ax.tick_params(labelsize=6)
+		ax.set_ylabel(ylabel, fontsize=8)
+		ax.tick_params(labelsize=8)
 		self.remove_border(ax)
 
 		# Show any media changes
@@ -307,7 +307,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			}
 		data_4['LEU concentration\n(mM)']['lim'] = [0, 20]
 		data_5 = {
-			'Growth rates\n(1/hr)': {'y': [growth_rate, rna_growth, protein_growth], 'lim': [0, 2]},
+			'Growth rates (1/hr)': {'y': [growth_rate, rna_growth, protein_growth], 'lim': [0, 2]},
 			}
 		# Subset of the data to plot for the paper
 		paper_2_keys = [
@@ -405,7 +405,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Plots specific for figure 5 in paper
 		subplots(f'{plotOutFileName}_fig5', data_5, data_5.keys(), filtered,
-			downsample=10, trim=True, cols=1)
+			downsample=10, trim=True, cols=1, row_scale=2.7, col_scale=2.7)
 
 		# Plots specific for figure 6 in paper
 		subplots(f'{plotOutFileName}_fig6', data, paper_6_keys, filtered,
