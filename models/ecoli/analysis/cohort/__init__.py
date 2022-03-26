@@ -8,7 +8,6 @@ ACTIVE = [
 	"centralCarbonMetabolismScatter.py",
 	"doubling_times_histogram_all.py",
 	"expression_dynamics.py",
-	"growth_cistron_copies_expected_vs_actual.py",
 	"growthDynamics.py",
 	"growth_time_series.py",
 	# "proteinFoldChangeVsTranscriptionFrequency.py",

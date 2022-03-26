@@ -6,6 +6,7 @@ ACTIVE = [
 	"doubling_time_histogram.py",
 	"excess_protein_monomers.py",
 	"growth_histograms.py",
+	"mRNA_copy_numbers.py",
 	"massFractionComparison.py",
 	"polycistronic_transcription.py",
 ]
