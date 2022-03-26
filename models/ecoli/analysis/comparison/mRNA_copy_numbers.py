@@ -23,7 +23,9 @@ from wholecell.io.tablereader import TableReader
 
 FIGSIZE = (12, 6)
 BOUNDS = [0, 2.5]
-P_VALUE_THRESHOLD = 1e-7
+P_VALUE_THRESHOLD = 1e-3
+N_BOOTSTRAP = 20000
+NUMERICAL_ZERO = 1e-30
 
 SEED = 0
 EXPECTED_COUNT_CONDITION = 'basal'
@@ -98,91 +100,97 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		fig = plt.figure(figsize=FIGSIZE)
 
 		def read_data(ap):
-			cell_paths = ap.get_cells(generation=[2, 3, 4, 5, 6, 7])
-			all_actual_counts = read_stacked_columns(
-				cell_paths, 'mRNACounts', 'mRNA_cistron_counts')[:, mask]
+			# Ignore data from first two gens
+			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
 
-			n_samples = 48
-			n_bootstrap = 1000
+			# Sample initial mRNA counts from each cell
+			all_initial_counts = read_stacked_columns(
+				cell_paths, 'mRNACounts', 'mRNA_cistron_counts',
+				fun=lambda x: x[0])[:, mask]
 
-			# Calculate mean from select timesteps
-			counts = all_actual_counts[np.random.choice(all_actual_counts.shape[0], n_samples), :].mean(axis=0)
+			return all_initial_counts
 
-			# Estimate variance by bootstrapping
-			sampled_counts = all_actual_counts[np.random.choice(all_actual_counts.shape[0], n_samples * n_bootstrap), :].reshape((n_bootstrap, n_samples, -1)).mean(axis=1)
-			var = sampled_counts.var(axis=0)
+		c1 = read_data(ap1)
+		c2 = read_data(ap2)
 
-			return counts, var
+		# Normalize counts from two conditions
+		ratio = c1.mean(axis=0).sum()/c2.mean(axis=0).sum()
+		c2 = ratio * c2.astype(np.float)
 
-		counts1, v1 = read_data(ap1)
-		counts2, v2 = read_data(ap2)
+		# Calculate mean and variance
+		m1 = c1.mean(axis=0)
+		v1 = c1.var(axis=0)
+		m2 = c2.mean(axis=0)
+		v2 = c2.var(axis=0)
 
-		# Normalize counts
-		r = counts1.sum()/counts2.sum()
-		counts2 *= r
-		v2 *= r
+		def get_bootstrapped_samples(counts, sample_mean, combined_mean):
+			# Bootstrap from counts corrected to have equal means
+			n = counts.shape[0]
 
-		# Get statistical significance boundaries assuming a Poissonian
-		# distribution
-		z_score_threshold = st.norm.ppf(1 - P_VALUE_THRESHOLD/2)
-		ub = counts1 + z_score_threshold*np.sqrt(v1 + v2)
-		lb = counts1 - z_score_threshold*np.sqrt(v1 + v2)
+			bs_counts_mean = np.zeros((N_BOOTSTRAP, counts.shape[1]))
+			bs_counts_var = np.zeros((N_BOOTSTRAP, counts.shape[1]))
+
+			# Vectorizing this ran into memory issues with high values of
+			# N_BOOTSTRAP
+			for i in np.arange(N_BOOTSTRAP):
+				bs_counts = (counts - sample_mean + combined_mean)[
+					np.random.choice(n, n), :]
+
+				bs_counts_mean[i, :] = bs_counts.mean(axis=0)
+				bs_counts_var[i, :] = bs_counts.var(axis=0)
+
+			return bs_counts_mean, bs_counts_var
+
+		# Get bootstrapped samples from each count array
+		n1 = c1.shape[0]
+		n2 = c2.shape[1]
+		combined_mean = (m1*n1 + m2*n2)/(n1 + n2)
+		bm1, bv1 = get_bootstrapped_samples(c1, m1, combined_mean)
+		bm2, bv2 = get_bootstrapped_samples(c2, m2, combined_mean)
+
+		# Calculate t-score from the original sample and each of the
+		# bootstrapped samples
+		t_score = (m1 - m2)/np.sqrt(v1/n1 + v2/n2 + NUMERICAL_ZERO)
+		t_score_bs = (bm1 - bm2)/np.sqrt(bv1/n1 + bv2/n2 + NUMERICAL_ZERO)
+
+		# Calculate p-values of a two-tailed test using the empirical t-score
+		# distribution calculated from the bootstrapped samples
+		p_values = 2*np.minimum(
+			((t_score <= t_score_bs).sum(axis=0) + 1)/(N_BOOTSTRAP + 1),
+			((t_score >= t_score_bs).sum(axis=0) + 1)/(N_BOOTSTRAP + 1)
+			)
 
 		# Get mask for outliers
-		outlier_mask = np.logical_or(counts2 > ub, counts2 < lb)
+		mRNA_mask_outlier = p_values < P_VALUE_THRESHOLD
 
-		ax = fig.add_subplot(1, 2, 1)
-		ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
-		ax.scatter(
-			np.log10(counts1[np.logical_and(mRNA_mask_polycistronic, ~outlier_mask)] + 1),
-			np.log10(counts2[np.logical_and(mRNA_mask_polycistronic, ~outlier_mask)] + 1),
-			c='#cccccc', s=2,
-			label=f'p ≥ {P_VALUE_THRESHOLD:g} (n = {np.logical_and(mRNA_mask_polycistronic, ~outlier_mask).sum():d})',
-			clip_on=False)
-		# Highlight outliers
-		ax.scatter(
-			np.log10(counts1[np.logical_and(mRNA_mask_polycistronic, outlier_mask)] + 1),
-			np.log10(counts2[np.logical_and(mRNA_mask_polycistronic, outlier_mask)] + 1),
-			c='b', s=2,
-			label=f'p < {P_VALUE_THRESHOLD:g} (n = {np.logical_and(mRNA_mask_polycistronic, outlier_mask).sum():d})',
-			clip_on=False)
+		for i, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
+			ax = fig.add_subplot(1, 2, i + 1)
+			ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
+			category_mask = np.logical_xor(np.full_like(mRNA_mask_poly, i), mRNA_mask_poly)
+			ax.scatter(
+				np.log10(m1[np.logical_and(category_mask, ~mRNA_mask_outlier)] + 1),
+				np.log10(m2[np.logical_and(category_mask, ~mRNA_mask_outlier)] + 1),
+				c='#cccccc', s=2, alpha=0.5,
+				label=f'p ≥ {P_VALUE_THRESHOLD:g} (n = {np.logical_and(category_mask, ~mRNA_mask_outlier).sum():d})',
+				clip_on=False)
+			# Highlight outliers
+			ax.scatter(
+				np.log10(m1[np.logical_and(category_mask, mRNA_mask_outlier)] + 1),
+				np.log10(m2[np.logical_and(category_mask, mRNA_mask_outlier)] + 1),
+				c='r', s=2, alpha=0.5,
+				label=f'p < {P_VALUE_THRESHOLD:g} (n = {np.logical_and(category_mask, mRNA_mask_outlier).sum():d})',
+				clip_on=False)
 
-		ax.set_title('Polycistronic genes')
-		ax.set_xlabel('$\log_{10}$(mRNA copies + 1), old sims')
-		ax.set_ylabel('$\log_{10}$(mRNA copies + 1), new sims')
-		ax.spines["top"].set_visible(False)
-		ax.spines["right"].set_visible(False)
-		ax.spines["bottom"].set_position(("outward", 20))
-		ax.spines["left"].set_position(("outward", 20))
-		ax.set_xlim(BOUNDS)
-		ax.set_ylim(BOUNDS)
-		ax.legend(loc=2)
-
-		ax = fig.add_subplot(1, 2, 2)
-		ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
-		ax.scatter(
-			np.log10(counts1[np.logical_and(~mRNA_mask_polycistronic, ~outlier_mask)] + 1),
-			np.log10(counts2[np.logical_and(~mRNA_mask_polycistronic, ~outlier_mask)] + 1),
-			c='#cccccc', s=2,
-			label=f'p ≥ {P_VALUE_THRESHOLD:g} (n = {np.logical_and(~mRNA_mask_polycistronic, ~outlier_mask).sum():d})',
-			clip_on=False)
-		# Highlight outliers
-		ax.scatter(
-			np.log10(counts1[np.logical_and(~mRNA_mask_polycistronic, outlier_mask)] + 1),
-			np.log10(counts2[np.logical_and(~mRNA_mask_polycistronic, outlier_mask)] + 1),
-			c='b', s=2,
-			label=f'p < {P_VALUE_THRESHOLD:g} (n = {np.logical_and(~mRNA_mask_polycistronic, outlier_mask).sum():d})',
-			clip_on=False)
-		ax.set_title('Monocistronic genes')
-		ax.set_xlabel('$\log_{10}$(mRNA copies + 1), old sims')
-		ax.set_ylabel('$\log_{10}$(mRNA copies + 1), new sims')
-		ax.spines["top"].set_visible(False)
-		ax.spines["right"].set_visible(False)
-		ax.spines["bottom"].set_position(("outward", 20))
-		ax.spines["left"].set_position(("outward", 20))
-		ax.set_xlim(BOUNDS)
-		ax.set_ylim(BOUNDS)
-		ax.legend(loc=2)
+			ax.set_title(category)
+			ax.set_xlabel('$\log_{10}$(mRNA copies + 1), old sims')
+			ax.set_ylabel('$\log_{10}$(mRNA copies + 1), new sims')
+			ax.spines["top"].set_visible(False)
+			ax.spines["right"].set_visible(False)
+			ax.spines["bottom"].set_position(("outward", 20))
+			ax.spines["left"].set_position(("outward", 20))
+			ax.set_xlim(BOUNDS)
+			ax.set_ylim(BOUNDS)
+			ax.legend(loc=2)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
