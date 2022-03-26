@@ -3,14 +3,13 @@ Generates a scatter plot of mRNA cistron copy numbers that are expected from the
 expression levels calculated in the ParCa vs actual copies in the simulations
 for a set of simulations run with operons, and a set run without operons.
 """
-import pickle
+import itertools
 import os
 from typing import Tuple
 
 from matplotlib import pyplot as plt
 # noinspection PyUnresolvedReferences
 import numpy as np
-import scipy.stats as st
 
 from models.ecoli.analysis import comparisonAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -47,8 +46,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		# Get mask for mRNA genes that are
 		# i) Does not encode for ribosomal proteins or RNAPs
 		# ii) not affected by manual overexpression/underexpression
-		# iii) not monocistronic
-		# to isolate the effects of operons on expression levels.
+		# to avoid confounding effects that come from manual adjustments of
+		# expression levels.
 		is_mRNA = sim_data2.process.transcription.cistron_data['is_mRNA']
 		assert np.all(
 			mRNA_cistron_ids == sim_data2.process.transcription.cistron_data['id'][is_mRNA])
@@ -59,7 +58,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		is_adjusted = np.zeros_like(is_mRNA, dtype=bool)
 		all_rna_ids = sim_data2.process.transcription.rna_data['id']
-		for adjusted_cistron_id in sim_data2.adjustments.rna_expression_adjustments.keys():
+		for adjusted_cistron_id in itertools.chain(
+				sim_data2.adjustments.rna_expression_adjustments.keys(),
+				sim_data2.adjustments.rna_deg_rates_adjustments.keys()):
 			# Include cistrons whose expression is adjusted because they belong
 			# to the same TU as the cistron that is bumped up
 			adjusted_rna_indexes = sim_data2.process.transcription.cistron_id_to_rna_indexes(
@@ -73,7 +74,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			is_adjusted[adjusted_cistron_indexes] = True
 
 		mRNA_is_adjusted = is_adjusted[is_mRNA]
+		mask = np.logical_and(~mRNA_is_rnap_or_rprotein, ~mRNA_is_adjusted)
 
+		# Get mask for genes that are part of polycistronic transcription units
 		polycistronic_cistron_indexes = []
 		for rna_id in sim_data2.process.transcription.rna_data['id']:
 			cistron_indexes = sim_data2.process.transcription.rna_id_to_cistron_indexes(rna_id)
@@ -85,11 +88,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				list(set(polycistronic_cistron_indexes)))] = True
 
 		mRNA_is_polycistronic = is_polycistronic[is_mRNA]
+		mRNA_mask_poly = mRNA_is_polycistronic[mask]
 
-		mask = np.logical_and(~mRNA_is_rnap_or_rprotein, ~mRNA_is_adjusted)
-		mRNA_mask_polycistronic = mRNA_is_polycistronic[mask]
-
-		# Get list of polycistron IDs that are plotted
+		# Get list of mRNA IDs that are plotted
 		plotted_mRNA_ids = []
 		for i in np.where(mask)[0]:
 			plotted_mRNA_ids.append(mRNA_cistron_ids[i])
