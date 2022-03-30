@@ -112,6 +112,7 @@ LIST_OF_DICT_FILENAMES = [
 	os.path.join("adjustments", "protein_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "relative_metabolite_concentrations_changes.tsv"),
 	os.path.join('transcription_unit_prototypes', 'transcription_units_added_v1.tsv'),
+	os.path.join('transcription_unit_prototypes', 'transcription_units_added_v2.tsv'),
 	]
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = (
@@ -152,6 +153,7 @@ ADDED_DATA = {
 # "off".
 OPERON_OPTION_TO_ADDED_DATA = {
 	'v1': 'transcription_unit_prototypes.transcription_units_added_v1',
+	'v2': 'transcription_unit_prototypes.transcription_units_added_v2',
 	'on': 'transcription_units_added',
 	}
 
