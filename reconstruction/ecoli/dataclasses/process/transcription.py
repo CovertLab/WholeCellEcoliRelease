@@ -29,7 +29,7 @@ ESTIMATE_ENDO_RNASES = 5000
 PPGPP_CONC_UNITS = units.umol / units.L
 PRINT_VALUES = False  # print values for supplemental table if True
 
-LP_CORRECTION_OPERON_VERSIONS = ['v3', 'on']
+RNASEQ_CORRECTION_OPERON_VERSIONS = ['v3', 'on']
 
 
 class Transcription(object):
@@ -408,12 +408,15 @@ class Transcription(object):
 			x['Gene']: x[sim_data.basal_expression_condition]
 			for x in getattr(raw_data.rna_seq_data, f'rnaseq_{RNA_SEQ_ANALYSIS}_mean')}
 
+		cistron_rnaseq_coverage = []
 		for cistron_id in self.cistron_data['id']:
 			gene_id = cistron_id_to_gene_id[cistron_id]
 			# If sequencing data is not found, initialize expression to zero.
 			cistron_expression.append(seq_data.get(gene_id, 0.))
+			cistron_rnaseq_coverage.append(gene_id in seq_data)
 
 		cistron_expression = np.array(cistron_expression)
+		self._cistron_is_rnaseq_covered = np.array(cistron_rnaseq_coverage)
 
 		# Set basal expression levels of each cistron - conditional values are
 		# set in the parca.
@@ -565,6 +568,10 @@ class Transcription(object):
 
 		# Convert to degradation rates
 		rna_deg_rates = np.log(2) / rna_half_lives
+
+		# Apply RNAseq corrections to shorter genes if required by operon version
+		if sim_data.operon_option in RNASEQ_CORRECTION_OPERON_VERSIONS:
+			self._apply_rnaseq_correction()
 
 		expression, _ = self.fit_rna_expression(self.cistron_expression['basal'])
 
@@ -829,6 +836,60 @@ class Transcription(object):
 			relative_coordinates = coordinates - self._oric_coordinate
 
 		return relative_coordinates
+
+	def _apply_rnaseq_correction(self):
+		"""
+		Applies correction to RNAseq data for shorter genes as required when
+		operon structure is included in the model.
+		"""
+		cistron_expression = self.cistron_expression['basal'].copy()
+		zero_exp_mask = (cistron_expression == 0)
+
+		# Find minimum length of cistron with nonzero expression
+		cistron_lengths = self.cistron_data['length'].asNumber(units.nt)
+		length_threshold = cistron_lengths[~zero_exp_mask].min()
+
+		# Get mask for cistrons that are mRNAs, shorter than the threshold
+		# length, covered by RNAseq data, and with zero expression
+		correction_mask = np.logical_and.reduce((
+			self.cistron_data['is_mRNA'], zero_exp_mask,
+			cistron_lengths < length_threshold,
+			self._cistron_is_rnaseq_covered))
+
+		for cistron_index in np.where(correction_mask)[0]:
+			# Get indexes of cistrons in the same operon
+			cistrons_in_operon = None
+			for operon in self.operons:
+				if cistron_index in operon[0]:
+					cistrons_in_operon = operon[0]
+					break
+			assert cistrons_in_operon is not None
+
+			# Skip monocistronic operons
+			if len(cistrons_in_operon) == 1:
+				continue
+
+			# Sort cistrons according to their genomic coordinates
+			cistrons_in_operon = sorted(
+				cistrons_in_operon,
+				key=lambda x: self.cistron_data['replication_coordinate'][x])
+
+			# Set expression of cistron to average of adjacent cistrons in the
+			# same operon
+			pos_in_operon = cistrons_in_operon.index(cistron_index)
+			if pos_in_operon == 0:
+				exp = cistron_expression[cistrons_in_operon[1]]
+			elif pos_in_operon == len(cistrons_in_operon) - 1:
+				exp = cistron_expression[cistrons_in_operon[-2]]
+			else:
+				exp = (
+					cistron_expression[cistrons_in_operon[pos_in_operon + 1]]
+					+ cistron_expression[cistrons_in_operon[pos_in_operon - 1]])/2
+
+			cistron_expression[cistron_index] = exp
+
+		# Reset cistron_expression to new values
+		self.cistron_expression['basal'] = cistron_expression / cistron_expression.sum()
 
 	def _build_transcription(self, raw_data, sim_data):
 		"""
