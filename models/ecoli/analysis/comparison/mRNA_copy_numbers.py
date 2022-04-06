@@ -8,6 +8,7 @@ import os
 from typing import Tuple
 
 from matplotlib import pyplot as plt
+import matplotlib.gridspec as gridspec
 # noinspection PyUnresolvedReferences
 import numpy as np
 
@@ -50,9 +51,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		# ii) not affected by manual overexpression/underexpression
 		# to avoid confounding effects that come from manual adjustments of
 		# expression levels.
+		all_cistron_ids = sim_data2.process.transcription.cistron_data['id']
 		is_mRNA = sim_data2.process.transcription.cistron_data['is_mRNA']
 		assert np.all(
-			mRNA_cistron_ids == sim_data2.process.transcription.cistron_data['id'][is_mRNA])
+			mRNA_cistron_ids == all_cistron_ids[is_mRNA])
 
 		mRNA_is_rnap_or_rprotein = np.logical_or(
 				sim_data2.process.transcription.cistron_data['is_RNAP'],
@@ -76,7 +78,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			is_adjusted[adjusted_cistron_indexes] = True
 
 		mRNA_is_adjusted = is_adjusted[is_mRNA]
-		mask = np.logical_and(~mRNA_is_rnap_or_rprotein, ~mRNA_is_adjusted)
+		plot_mask = np.logical_and(~mRNA_is_rnap_or_rprotein, ~mRNA_is_adjusted)
 
 		# Get mask for genes that are part of polycistronic transcription units
 		polycistronic_cistron_indexes = []
@@ -89,13 +91,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			is_polycistronic[np.array(
 				list(set(polycistronic_cistron_indexes)))] = True
 
-		mRNA_is_polycistronic = is_polycistronic[is_mRNA]
-		mRNA_mask_poly = mRNA_is_polycistronic[mask]
-
-		# Get list of mRNA IDs that are plotted
-		plotted_mRNA_ids = []
-		for i in np.where(mask)[0]:
-			plotted_mRNA_ids.append(mRNA_cistron_ids[i])
+		mRNA_mask_poly = is_polycistronic[is_mRNA]
 
 		fig = plt.figure(figsize=FIGSIZE)
 
@@ -106,7 +102,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			# Sample initial mRNA counts from each cell
 			all_initial_counts = read_stacked_columns(
 				cell_paths, 'mRNACounts', 'mRNA_cistron_counts',
-				fun=lambda x: x[0])[:, mask]
+				fun=lambda x: x[0])
 
 			return all_initial_counts
 
@@ -160,25 +156,27 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			((t_score >= t_score_bs).sum(axis=0) + 1)/(N_BOOTSTRAP + 1)
 			)
 
-		# Get mask for outliers
-		mRNA_mask_outlier = p_values < P_VALUE_THRESHOLD
+		# Get mask for mRNAs with low p-values
+		mRNA_mask_low_p = p_values < P_VALUE_THRESHOLD
 
 		for i, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
 			ax = fig.add_subplot(1, 2, i + 1)
 			ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
 			category_mask = np.logical_xor(np.full_like(mRNA_mask_poly, i), mRNA_mask_poly)
+			mask = np.logical_and.reduce((plot_mask, category_mask, ~mRNA_mask_low_p))
 			ax.scatter(
-				np.log10(m1[np.logical_and(category_mask, ~mRNA_mask_outlier)] + 1),
-				np.log10(m2[np.logical_and(category_mask, ~mRNA_mask_outlier)] + 1),
+				np.log10(m1[mask] + 1),
+				np.log10(m2[mask] + 1),
 				c='#cccccc', s=2, alpha=0.5,
-				label=f'p ≥ {P_VALUE_THRESHOLD:g} (n = {np.logical_and(category_mask, ~mRNA_mask_outlier).sum():d})',
+				label=f'p ≥ {P_VALUE_THRESHOLD:g} (n = {mask.sum():d})',
 				clip_on=False)
-			# Highlight outliers
+			# Highlight genes with low p-values
+			mask = np.logical_and.reduce((plot_mask, category_mask, mRNA_mask_low_p))
 			ax.scatter(
-				np.log10(m1[np.logical_and(category_mask, mRNA_mask_outlier)] + 1),
-				np.log10(m2[np.logical_and(category_mask, mRNA_mask_outlier)] + 1),
+				np.log10(m1[mask] + 1),
+				np.log10(m2[mask] + 1),
 				c='r', s=2, alpha=0.5,
-				label=f'p < {P_VALUE_THRESHOLD:g} (n = {np.logical_and(category_mask, mRNA_mask_outlier).sum():d})',
+				label=f'p < {P_VALUE_THRESHOLD:g} (n = {mask.sum():d})',
 				clip_on=False)
 
 			ax.set_title(category)
@@ -194,6 +192,74 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		plt.close('all')
+
+		# Get bar plots of expression levels for operons with low p-values
+		cistron_id_to_mRNA_index = {
+			cistron_id: i for i, cistron_id in enumerate(mRNA_cistron_ids)
+			}
+		cistron_id_to_cistron_index = {
+			cistron_id: i for i, cistron_id in enumerate(all_cistron_ids)
+			}
+		low_p_cistron_indexes = np.array([
+			cistron_id_to_cistron_index[mRNA_cistron_ids[i]] for i
+			in np.where(np.logical_and.reduce((plot_mask, mRNA_mask_poly, mRNA_mask_low_p)))[0]
+			])
+
+		operons_to_plot = [
+			operon for operon in sim_data2.process.transcription.operons
+			if np.any(np.isin(operon[0], low_p_cistron_indexes))]
+		n_operons = len(operons_to_plot)
+
+		# Get expression levels from each set
+		operon_expression = []
+		for operon_index, operon in enumerate(operons_to_plot):
+			operon_cistron_ids = [all_cistron_ids[i] for i in operon[0]]
+			operon_cistron_mRNA_indexes = np.array([
+				cistron_id_to_mRNA_index[cistron_id]
+				for cistron_id in operon_cistron_ids])
+
+			operon_expression.append((
+				m1[operon_cistron_mRNA_indexes], m2[operon_cistron_mRNA_indexes]
+				))
+
+		# Sort operons in descending order of average expression
+		avg_expression = np.array([exp[0].mean() for exp in operon_expression])
+		plot_order = np.argsort(avg_expression)[::-1]
+
+		fig = plt.figure()
+		fig.set_size_inches(30, 80)
+
+		gs = gridspec.GridSpec(n_operons // 7 + 1, 7)
+
+		for i, operon_index in enumerate(plot_order):
+			ax = plt.subplot(gs[i // 7, i % 7])
+			operon = operons_to_plot[operon_index]
+
+			# Cistron IDs with low p-values are starred
+			operon_cistron_ids = ['*' + all_cistron_ids[i]
+				if (i in low_p_cistron_indexes) else all_cistron_ids[i]
+				for i in operon[0]
+				]
+			operon_size = len(operon_cistron_ids)
+
+			ax.bar(
+				np.arange(operon_size) - 0.2,
+				operon_expression[operon_index][0],
+				width=0.4, label='without operons')
+			ax.bar(
+				np.arange(operon_size) + 0.2,
+				operon_expression[operon_index][1],
+				width=0.4, label='with operons')
+			ax.set_xticks(np.arange(operon_size))
+			ax.set_xticklabels(operon_cistron_ids, rotation=90)
+			ax.set_ylabel('mRNA counts')
+
+			if i == 0:
+				ax.legend()
+
+		plt.tight_layout()
+		exportFigure(plt, plotOutDir, plotOutFileName + '_bar_plots', metadata)
 		plt.close('all')
 
 
