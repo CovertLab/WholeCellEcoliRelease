@@ -869,11 +869,6 @@ class Transcription(object):
 			if len(cistrons_in_operon) == 1:
 				continue
 
-			# Sort cistrons according to their genomic coordinates
-			cistrons_in_operon = sorted(
-				cistrons_in_operon,
-				key=lambda x: self.cistron_data['replication_coordinate'][x])
-
 			# Set expression of cistron to average of adjacent cistrons in the
 			# same operon
 			pos_in_operon = cistrons_in_operon.index(cistron_index)
