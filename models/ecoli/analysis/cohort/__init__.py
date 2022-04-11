@@ -17,7 +17,6 @@ ACTIVE = [
 	"initialVsFinalMass.py",
 	"kinetics_flux_comparison.py",
 	"mass_fraction_instantaneous_growth_rates.py",
-	"mRNA_cistron_copies_expected_vs_actual.py",
 	"promoter_probabilities.py",
 	"proteinCopyNumberDistribution.py",
 	"rnaCopyNumberDistribution.py",
