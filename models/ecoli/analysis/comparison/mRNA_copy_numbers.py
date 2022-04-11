@@ -93,8 +93,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		mRNA_mask_poly = is_polycistronic[is_mRNA]
 
-		fig = plt.figure(figsize=FIGSIZE)
-
 		def read_data(ap):
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
@@ -108,6 +106,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		c1 = read_data(ap1)
 		c2 = read_data(ap2)
+
+		if len(c1) == 0 or len(c2) == 0:
+			print('Skipping analysis -- not enough sims run.')
+			return
 
 		# Normalize counts from two conditions
 		ratio = c1.mean(axis=0).sum()/c2.mean(axis=0).sum()
@@ -158,6 +160,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		# Get mask for mRNAs with low p-values
 		mRNA_mask_low_p = p_values < P_VALUE_THRESHOLD
+
+		fig = plt.figure(figsize=FIGSIZE)
 
 		for i, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
 			ax = fig.add_subplot(1, 2, i + 1)
