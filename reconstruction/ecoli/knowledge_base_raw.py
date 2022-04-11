@@ -111,7 +111,6 @@ LIST_OF_DICT_FILENAMES = [
 	os.path.join("adjustments", "rna_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "protein_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "relative_metabolite_concentrations_changes.tsv"),
-	os.path.join('transcription_unit_prototypes', 'transcription_units_added_v1.tsv'),
 	]
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = (
@@ -147,13 +146,6 @@ ADDED_DATA = {
 	'trna_charging_reactions': 'trna_charging_reactions_added',
 	}
 
-# Dictionary mapping operon option names to the name of the added operons file
-# corresponding to the option. Must be specified for every operon option except
-# "off".
-OPERON_OPTION_TO_ADDED_DATA = {
-	'v1': 'transcription_unit_prototypes.transcription_units_added_v1',
-	'on': 'transcription_units_added',
-	}
 
 class DataStore(object):
 	def __init__(self):
@@ -162,8 +154,8 @@ class DataStore(object):
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
-	def __init__(self, operon_option: str):
-		self.operon_option = operon_option
+	def __init__(self, operons_on: bool):
+		self.operons_on = operons_on
 
 		self.compartments: List[dict] = []  # mypy can't track setattr(self, attr_name, rows)
 		self.transcription_units: List[dict] = []
@@ -175,13 +167,13 @@ class KnowledgeBaseEcoli(object):
 		self.modified_data: Dict[str, str] = MODIFIED_DATA.copy()
 		self.added_data: Dict[str, str] = ADDED_DATA.copy()
 
-		if self.operon_option != "off":
+		if self.operons_on:
 			self.list_of_dict_filenames.append('transcription_units.tsv')
 			self.removed_data.update({
 				'transcription_units': 'transcription_units_removed',
 				})
 			self.added_data.update({
-				'transcription_units': OPERON_OPTION_TO_ADDED_DATA[self.operon_option],
+				'transcription_units': 'transcription_units_added',
 				})
 
 		# Load raw data from TSV files
@@ -303,9 +295,7 @@ class KnowledgeBaseEcoli(object):
 		# Check each pair of files to be modified
 		for data_attr, modify_attr in self.modified_data.items():
 			# Build the set of data to identify rows to be modified
-			data_to_modify = getattr(self, modify_attr.split('.')[0])
-			for attr in modify_attr.split('.')[1:]:
-				data_to_modify = getattr(data_to_modify, attr)
+			data_to_modify = getattr(self, modify_attr)
 			id_col_name = list(data_to_modify[0].keys())[0]
 
 			id_to_modified_cols = {}

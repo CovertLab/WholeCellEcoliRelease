@@ -21,3 +21,4 @@
 "lrp"	"ilvD"	"Remove to get stable growth with ppGpp regulation and amino acid supply especially with Leu added (shut down Val synthesis)"
 "lrp"	"pyrI"	"Remove to get stable growth with ppGpp regulation and amino acid supply especially with Leu added (shut down UTP synthesis)"
 "lrp"	"ilvE"	"Remove to get stable growth with ppGpp regulation and amino acid supply especially with Leu added (catalyzes the forward and reverse reaction for the last step of multiple amino acids but only account for the reverse direction with the current amino acid synthesis implementation)"
+"argR"	"hisL"	"Remove to get sufficient expression of histidine biosynthesis enzymes in the His operon when operon structures are used"

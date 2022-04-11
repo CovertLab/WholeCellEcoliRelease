@@ -51,7 +51,7 @@ def load_raw_data(path):
 			raw_data = cPickle.load(f)
 	else:
 		print('Loading raw_data from flat files...')
-		raw_data = KnowledgeBaseEcoli(operon_option="off")
+		raw_data = KnowledgeBaseEcoli(operons_on=False)
 
 	return raw_data
 

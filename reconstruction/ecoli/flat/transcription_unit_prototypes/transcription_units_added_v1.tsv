@@ -1,3 +1,0 @@
-# Modifications to transcription units required to successfully run the model
-"id"	"common_name"	"genes"	"left_end_pos"	"right_end_pos"	"direction"	"evidence"	"_comments"
-"hisGDCBHAFI"	"hisGDCBHAFI"	["EG10449", "EG10447", "EG10446", "EG10445", "EG10450", "EG10444", "EG10448", "EG10451"]	2090192	2097225	"+"	[]	"Leader peptide hisL removed from TU00285 to allow for higher expression of all other enzymes; ParCa fails without this modification"

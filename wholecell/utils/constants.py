@@ -7,7 +7,7 @@ Simulation constants.  Biological constants should go into the knowledge base.
 from __future__ import absolute_import, division, print_function
 
 
-OPERON_OPTIONS = ('off', 'v1', 'on')
+OPERON_OPTIONS = ('off', 'on')
 EXTENDED_OPERON_OPTIONS = OPERON_OPTIONS + ('both',)
 DEFAULT_OPERON_OPTION = 'off'
 

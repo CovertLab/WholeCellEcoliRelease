@@ -18,18 +18,16 @@ def apply_variant(sim_data_file, variant_type, variant_index):
 	with open(sim_data_file, "rb") as f:
 		sim_data = cPickle.load(f)
 
-	operon_msg = (f", Operons: {sim_data.operon_option}"
-				  if hasattr(sim_data, 'operon_option') else '')
+	operon_msg = (f", Operons: {'on' if sim_data.operons_on else 'off'}"
+				  if hasattr(sim_data, 'operons_on') else '')
 	print(f"{time.ctime()}: Creating sim_data for Variant: {variant_type},"
 		  f" Index: {variant_index}{operon_msg}")
 
 	info, sim_data = nameToFunctionMapping[variant_type](sim_data, variant_index)
 
-	if getattr(sim_data, 'operon_option', '') == "on":
-		info = dict(
-			info,
-			shortName=info["shortName"] + ", operons",
-			desc=info["desc"] + ", operons")
+	if getattr(sim_data, 'operons_on', ''):
+		info["shortName"] += ", operons"
+		info["desc"] += ", operons"
 
 	print("Variant short name:", info["shortName"])
 
