@@ -64,7 +64,7 @@ def fast_nnls(A, b):
 				column_DFS(i, all_row_indexes, all_column_indexes)
 
 	# Loop through each column of matrix A
-	for column_index in range(A_nonzero_column_indexes.max() + 1):
+	for column_index in range(A.shape[1]):
 		# Search for columns and rows that can be grouped into a single NNLS
 		# problem as the given column
 		if column_index not in visited_column_indexes:
@@ -72,12 +72,13 @@ def fast_nnls(A, b):
 			submatrix_column_indexes = []
 			column_DFS(column_index, submatrix_row_indexes, submatrix_column_indexes)
 
-			submatrix_indexes.append((
-				np.array(submatrix_row_indexes), np.array(submatrix_column_indexes)
-				))
+			if len(submatrix_row_indexes) > 0:
+				submatrix_indexes.append((
+					np.array(submatrix_row_indexes), np.array(submatrix_column_indexes)
+					))
 
 	# Initialize x
-	x = np.zeros(A_nonzero_column_indexes.max() + 1)
+	x = np.zeros(A.shape[1])
 
 	# Solve NNLS for each subproblem identified above
 	for (row_indexes, column_indexes) in submatrix_indexes:
