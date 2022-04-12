@@ -123,6 +123,21 @@ class Test_fast_nnls(unittest.TestCase):
 
 		self.assertAlmostEqual(rnorm_slow, rnorm_fast)
 
+	def test_zero_column(self):
+		"""
+		Test fast_nnls returns a solution with a value of zero in the index
+		corresponding to a column of zeros in matrix A.
+		"""
+		A = np.random.rand(self.default_array_size, self.default_array_size)
+		b = np.random.rand(self.default_array_size)
+
+		for i in range(A.shape[1]):
+			A_copy = A.copy()
+			A_copy[:, i] = 0
+			x, _ = fast_nnls(A_copy, b)
+
+			assert x[i] == 0
+
 	def test_improved_performance(self):
 		"""
 		Test fast_nnls is faster than nnls for sparse arrays that can be
