@@ -857,9 +857,11 @@ class Transcription(object):
 		for cistron_index in np.where(correction_mask)[0]:
 			# Get indexes of cistrons in the same operon
 			cistrons_in_operon = None
+			rnas_in_operon = None
 			for operon in self.operons:
 				if cistron_index in operon[0]:
 					cistrons_in_operon = operon[0]
+					rnas_in_operon = operon[1]
 					break
 			assert cistrons_in_operon is not None
 
@@ -867,18 +869,22 @@ class Transcription(object):
 			if len(cistrons_in_operon) == 1:
 				continue
 
-			# Set expression of cistron to average of adjacent cistrons in the
-			# same operon
-			pos_in_operon = cistrons_in_operon.index(cistron_index)
-			if pos_in_operon == 0:
-				exp = cistron_expression[cistrons_in_operon[1]]
-			elif pos_in_operon == len(cistrons_in_operon) - 1:
-				exp = cistron_expression[cistrons_in_operon[-2]]
-			else:
-				exp = (
-					cistron_expression[cistrons_in_operon[pos_in_operon + 1]]
-					+ cistron_expression[cistrons_in_operon[pos_in_operon - 1]])/2
+			# Get cistron-TU mapping matrix for this operon
+			mapping_matrix_this_operon = self.cistron_tu_mapping_matrix[
+				cistrons_in_operon, :][:, rnas_in_operon].toarray()
 
+			# Remove given gene from operon and run NNLS
+			pos_in_operon = cistrons_in_operon.index(cistron_index)
+			mapping_matrix_gene_removed = mapping_matrix_this_operon.copy()
+			mapping_matrix_gene_removed[pos_in_operon, :] = 0
+
+			rna_exp, _ = fast_nnls(
+				mapping_matrix_gene_removed,
+				cistron_expression[cistrons_in_operon]
+				)
+
+			# Use solution to get expected expression for given gene
+			exp = mapping_matrix_this_operon.dot(rna_exp)[pos_in_operon]
 			cistron_expression[cistron_index] = exp
 
 		# Reset cistron_expression to new values
