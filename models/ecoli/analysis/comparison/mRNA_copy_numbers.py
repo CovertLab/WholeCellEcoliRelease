@@ -7,6 +7,7 @@ import itertools
 import os
 from typing import Tuple
 
+import csv
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 # noinspection PyUnresolvedReferences
@@ -22,6 +23,7 @@ from wholecell.analysis.analysis_tools import (
 from wholecell.io.tablereader import TableReader
 
 
+GENERATE_OPERON_TABLE = False
 FIGSIZE = (12, 6)
 BOUNDS = [0, 2.5]
 P_VALUE_THRESHOLD = 1e-3
@@ -285,6 +287,24 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName + '_bar_plots', metadata)
 		plt.close('all')
 
+		if GENERATE_OPERON_TABLE:
+			with open(os.path.join(plotOutDir, plotOutFileName + '_operon_table.tsv'), 'w') as f:
+				writer = csv.writer(f, delimiter='\t')
+				writer.writerow([
+					'first_gene', 'last_gene', 'min_p'
+					])
+
+				for operon_index in plot_order:
+					operon = operons_to_plot[operon_index]
+					cistron_indexes = operon[0]
+					p_values_this_operon = [
+						p_values[cistron_id_to_mRNA_index[all_cistron_ids[i]]]
+						for i in cistron_indexes]
+					writer.writerow([
+						cistron_id_to_gene_name[all_cistron_ids[cistron_indexes[0]]],
+						cistron_id_to_gene_name[all_cistron_ids[cistron_indexes[-1]]],
+						min(p_values_this_operon),
+						])
 
 	def setup(self, inputDir: str) -> Tuple[
 			AnalysisPaths, SimulationDataEcoli, ValidationDataEcoli]:
