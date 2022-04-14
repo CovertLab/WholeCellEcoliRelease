@@ -29,7 +29,6 @@ N_BOOTSTRAP = 20000
 NUMERICAL_ZERO = 1e-30
 
 SEED = 0
-EXPECTED_COUNT_CONDITION = 'basal'
 
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
@@ -231,32 +230,52 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		avg_expression = np.array([exp[0].mean() for exp in operon_expression])
 		plot_order = np.argsort(avg_expression)[::-1]
 
-		fig = plt.figure()
-		fig.set_size_inches(30, 80)
+		# Get mapping from cistron ids to gene names and transcription direction
+		cistron_id_to_gene_name = {
+			gene['cistron_id']: gene['symbol']
+			for gene in sim_data2.process.replication.gene_data}
+		cistron_is_forward = sim_data2.process.transcription.cistron_data['is_forward']
 
-		gs = gridspec.GridSpec(n_operons // 7 + 1, 7)
+		fig = plt.figure()
+		fig.set_size_inches(30, 4 * (n_operons//7 + 1))
+
+		gs = gridspec.GridSpec(n_operons//7 + 1, 7)
 
 		for i, operon_index in enumerate(plot_order):
-			ax = plt.subplot(gs[i // 7, i % 7])
+			ax = plt.subplot(gs[i//7, i % 7])
 			operon = operons_to_plot[operon_index]
+			cistron_indexes_in_operon = operon[0]
+			is_forward = cistron_is_forward[cistron_indexes_in_operon[0]]
+
+			if not is_forward:
+				cistron_indexes_in_operon = cistron_indexes_in_operon[::-1]
 
 			# Cistron IDs with low p-values are starred
-			operon_cistron_ids = ['*' + all_cistron_ids[i]
-				if (i in low_p_cistron_indexes) else all_cistron_ids[i]
-				for i in operon[0]
+			operon_gene_names = [
+				'*' + cistron_id_to_gene_name[all_cistron_ids[i]]
+				if (i in low_p_cistron_indexes)
+				else cistron_id_to_gene_name[all_cistron_ids[i]]
+				for i in cistron_indexes_in_operon
 				]
-			operon_size = len(operon_cistron_ids)
+			operon_size = len(operon_gene_names)
+
+			if is_forward:
+				exp_without_operons = operon_expression[operon_index][0]
+				exp_with_operons = operon_expression[operon_index][1]
+			else:
+				exp_without_operons = operon_expression[operon_index][0][::-1]
+				exp_with_operons = operon_expression[operon_index][1][::-1]
 
 			ax.bar(
 				np.arange(operon_size) - 0.2,
-				operon_expression[operon_index][0],
+				exp_without_operons,
 				width=0.4, label='without operons')
 			ax.bar(
 				np.arange(operon_size) + 0.2,
-				operon_expression[operon_index][1],
+				exp_with_operons,
 				width=0.4, label='with operons')
 			ax.set_xticks(np.arange(operon_size))
-			ax.set_xticklabels(operon_cistron_ids, rotation=90)
+			ax.set_xticklabels(operon_gene_names, rotation=90)
 			ax.set_ylabel('mRNA counts')
 
 			if i == 0:
