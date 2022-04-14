@@ -22,9 +22,9 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		# Load data from sim_data
 		cistron_tu_mapping_matrix = sim_data.process.transcription.cistron_tu_mapping_matrix
 		cistron_ids = sim_data.process.transcription.cistron_data['id']
-		cistron_id_to_gene_id = {
-			cistron['id']: cistron['gene_id']
-			for cistron in sim_data.process.transcription.cistron_data
+		cistron_id_to_gene_name = {
+			gene['cistron_id']: gene['symbol']
+			for gene in sim_data.process.replication.gene_data
 			}
 		tu_ids = [x[:-3] for x in sim_data.process.transcription.rna_data['id']]
 
@@ -70,7 +70,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 				[tu_ids[i] for i in operon_tu_indexes],
 				rotation=90, fontsize=6)
 			ax.set_yticklabels(
-				[cistron_id_to_gene_id[cistron_ids[i]] for i in operon_cistron_indexes],
+				[cistron_id_to_gene_name[cistron_ids[i]] for i in operon_cistron_indexes],
 				fontsize=6)
 
 			ax.spines['top'].set_visible(False)
