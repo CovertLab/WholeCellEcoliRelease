@@ -83,7 +83,7 @@ def fast_nnls(A, b):
 	# Solve NNLS for each subproblem identified above
 	for (row_indexes, column_indexes) in submatrix_indexes:
 		if len(row_indexes) == 1 and len(column_indexes) == 1:
-			x[column_indexes] = b[row_indexes]
+			x[column_indexes] = max(0, b[row_indexes])
 		else:
 			# Build a full submatrix A for each subproblem
 			submatrix = np.zeros((len(row_indexes), len(column_indexes)))
