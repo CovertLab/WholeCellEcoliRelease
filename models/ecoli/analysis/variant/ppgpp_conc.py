@@ -90,16 +90,22 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			sim_data = pickle.load(f)
 		metabolism = sim_data.process.metabolism
 		transcription = sim_data.process.transcription
+		translation = sim_data.process.translation
+
 		aa_enzyme_ids = metabolism.aa_enzymes
 		get_enzymes = metabolism.get_pathway_enzyme_counts_per_aa
 		fwd_kcats = metabolism.aa_kcats_fwd
 		ribosome_subunit_ids = [sim_data.molecule_ids.s30_full_complex, sim_data.molecule_ids.s50_full_complex]
 		aa_ids = sim_data.molecule_groups.amino_acids
 		aa_mws = sim_data.getter.get_masses(aa_ids).asNumber(units.fg / units.count)
-		max_elong_rate = sim_data.process.translation.basal_elongation_rate
+		aa_kis = metabolism.aa_kis * 1000
+		max_elong_rate = translation.basal_elongation_rate
 		uncharged_trna_names = transcription.rna_data['id'][transcription.rna_data['is_tRNA']]
 		charged_trna_names = transcription.charged_trna_names
 		aa_from_trna = transcription.aa_from_trna.T
+		rna_contains_rprotein = transcription.rna_data['includes_ribosomal_protein'][transcription.rna_data['is_mRNA']]
+		rprotein_idx = translation.ribosomal_protein_indexes
+		elong_rate_by_ppgpp = sim_data.growth_rate_parameters.get_ribosome_elongation_rate_by_ppgpp
 
 		variants = self.ap.get_variants()
 		n_variants = len(variants)
@@ -123,8 +129,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			ribosome_idx = unique_molecule_ids.index('active_ribosome')
 
 			# Read data from listeners
-			ppgpp = read_stacked_columns(all_cells, 'GrowthLimits', 'ppgpp_conc')
-			elong_rate = read_stacked_columns(all_cells, 'RibosomeData', 'effectiveElongationRate')
+			ppgpp = read_stacked_columns(all_cells, 'GrowthLimits', 'ppgpp_conc', remove_first=True).squeeze()
+			elong_rate = read_stacked_columns(all_cells, 'RibosomeData', 'effectiveElongationRate', remove_first=True)
 			growth_rate = read_stacked_columns(all_cells, 'Mass', 'instantaneous_growth_rate', remove_first=True) * 3600
 			rna_mass = read_stacked_columns(all_cells, 'Mass', 'rnaMass', remove_first=True).squeeze()
 			protein_mass = read_stacked_columns(all_cells, 'Mass', 'proteinMass', remove_first=True).squeeze()
@@ -134,16 +140,27 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			time_step = read_stacked_columns(all_cells, 'Main', 'timeStepSec', remove_first=True).squeeze()
 			counts_to_molar = read_stacked_columns(all_cells, 'EnzymeKinetics', 'countsToMolar', remove_first=True).squeeze()
 			unique_mol_counts = read_stacked_columns(all_cells, 'UniqueMoleculeCounts', 'uniqueMoleculeCounts', remove_first=True)
+			rprotein_rna_counts = read_stacked_columns(all_cells, 'mRNACounts', 'mRNA_counts',
+				remove_first=True, fun=lambda x: np.sum(x[:, rna_contains_rprotein], 1).reshape(-1, 1)).squeeze()
+			rprotein_monomer_counts = read_stacked_columns(all_cells, 'MonomerCounts', 'monomerCounts',
+				remove_first=True, fun=lambda x: np.sum(x[:, rprotein_idx], 1).reshape(-1, 1)).squeeze()
 			enzymes, ribosome_subunits, aas, uncharged_trna_counts, charged_trna_counts = read_stacked_bulk_molecules(
 				all_cells, (aa_enzyme_ids, ribosome_subunit_ids, aa_ids, uncharged_trna_names, charged_trna_names), remove_first=True)
 			excess, synth_fractions, protein_fractions = calculate_ribosome_excesses(sim_data, all_cells)
+
+			# TODO: rRNA counts to compare to rProtein?
 
 			aa_mass = aas @ aa_mws
 			rna_to_protein = rna_mass / protein_mass
 			rna_to_aa = rna_mass / (protein_mass + aa_mass)
 			ribosome_output = counts_to_molar * aas_elongated.sum(1) / time_step
 			aa_output = counts_to_molar * aas_supplied.sum(1) / time_step
-			aa_conc = counts_to_molar * aas.sum(1)
+			aa_conc = counts_to_molar.reshape(-1, 1) * aas
+			total_aa_conc = aa_conc.sum(1)
+			aa_inhibition = (1 - 1 / (1 + aa_conc / aa_kis)).mean(1)
+			gtpase_inhibition = 1 - units.strip_empty_units(
+				elong_rate_by_ppgpp(units.umol / units.L * ppgpp)
+				/ elong_rate_by_ppgpp(units.umol / units.L * 0))
 
 			fwd_enzymes, rev_enzymes = get_enzymes(enzymes)
 			aa_capacity = fwd_enzymes @ fwd_kcats * counts_to_molar
@@ -175,7 +192,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			add_data('fraction_charged', fraction_charged)
 			add_data('ribosome_saturation', ribosome_saturation)
 			add_data('aa_saturation', aa_saturation)
-			add_data('aa_conc', aa_conc)
+			add_data('aa_inhibition', aa_inhibition)
+			add_data('gtpase_inhibition', gtpase_inhibition)
+			add_data('total_aa_conc', total_aa_conc)
 			add_data('excess_rna', excess[:, 0])
 			add_data('excess_protein', excess[:, 1])
 			add_data('rrna_synth_fraction', synth_fractions[:, 0])
@@ -183,6 +202,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			add_data('enzyme_synth_fraction', synth_fractions[:, 2])
 			add_data('rprotein_protein_fraction', protein_fractions[:, 0])
 			add_data('enzyme_protein_fraction', protein_fractions[:, 1])
+			add_data('rprotein_rna_conc', rprotein_rna_counts * counts_to_molar * 1000)
+			add_data('rprotein_monomer_conc', rprotein_monomer_counts * counts_to_molar)
 
 		# Compile for plots
 		if 'ppgpp_limitations' in metadata.get('variant'):
@@ -207,7 +228,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			'fraction_charged': 'Fraction charged',
 			'ribosome_saturation': 'Ribosome saturation',
 			'aa_saturation': 'AA synthesis average saturation',
-			'aa_conc': 'AA conc (mM)',
+			'aa_inhibition': 'AA synthesis average inhibition',
+			'gtpase_inhibition': 'GTPase average inhibition',
+			'total_aa_conc': 'AA conc (mM)',
 			'excess_rna': 'rRNA excess',
 			'excess_protein': 'rProtein excess',
 			'rrna_synth_fraction': 'rRNA synth fraction\n(per rRNA, rProtein, enzymes mass)',
@@ -215,9 +238,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			'enzyme_synth_fraction': 'Enzyme synth fraction\n(per rRNA, rProtein, enzymes mass)',
 			'rprotein_protein_fraction': 'rProtein fraction\n(per protein mass)',
 			'enzyme_protein_fraction': 'Enzyme fraction\n(per protein mass)',
+			'rprotein_rna_conc': 'rProtein mRNA conc (uM)',
+			'rprotein_monomer_conc': 'rProtein monomer conc (mM)',
 			'Output': ['ribosome_output', 'aa_output'],
 			'Capacity-twin': ['ribosome_capacity', 'aa_capacity'],
-			'Excess-twin': ['excess_rna', 'aa_conc'],
+			'Excess-twin': ['excess_rna', 'total_aa_conc'],
+			'AA-twin': ['total_aa_conc', 'aa_inhibition'],
+			'Inhibition': ['gtpase_inhibition', 'aa_inhibition'],
 			}
 
 		# Create plots
