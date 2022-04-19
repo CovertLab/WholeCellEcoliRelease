@@ -174,6 +174,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					conc[:, i, j] = aa_conc[key]
 					variance[:, i, j] = aa_var[key]
 
+		np.save(os.path.join(plotOutDir, plotOutFileName + '_control.npy'), control_conc)
+		np.save(os.path.join(plotOutDir, plotOutFileName + '_control_var.npy'), control_var)
+		np.save(os.path.join(plotOutDir, plotOutFileName + '.npy'), conc)
+		np.save(os.path.join(plotOutDir, plotOutFileName + '_var.npy'), variance)
+
 		# Skip plotting if data does not exist
 		if len(aa_variants) == 0 or len(ki_factors) == 0:
 			print(f'Not enough data to plot for {plotOutFileName}')
