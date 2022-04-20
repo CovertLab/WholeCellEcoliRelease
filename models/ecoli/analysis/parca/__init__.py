@@ -9,6 +9,7 @@ ACTIVE = [
 	'amino_acid_uptake_rates.py',
 	'mRNA_cistron_expression.py',
 	'expression_probabilities.py',
+	'fit_cistron_degradation_ls_residuals.py',
 	'fit_cistron_expression_ls_residuals.py',
 	'fold_changes.py',
 	'growth_expression_comparison.py',
