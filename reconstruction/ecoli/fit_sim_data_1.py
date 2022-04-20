@@ -989,7 +989,9 @@ def setRNAExpression(sim_data):
 		rna_id[:-3]: i for (i, rna_id)
 		in enumerate(sim_data.process.transcription.rna_data['id'])}
 
-	for mol_id in sim_data.adjustments.rna_expression_adjustments:
+	rna_index_to_adjustment = {}
+
+	for mol_id, adj_factor in sim_data.adjustments.rna_expression_adjustments.items():
 		if mol_id in cistron_ids:
 			# Find indexes of all RNAs containing the cistron
 			rna_indexes = sim_data.process.transcription.cistron_id_to_rna_indexes(mol_id)
@@ -999,8 +1001,15 @@ def setRNAExpression(sim_data):
 			raise ValueError(
 				f'Molecule ID {mol_id} not found in list of cistrons or transcription units.')
 
-		# Multiply all expression levels with the specified adjustment factor
-		sim_data.process.transcription.rna_expression["basal"][rna_indexes] *= sim_data.adjustments.rna_expression_adjustments[mol_id]
+		# If multiple adjustments are made for the same RNA, take the maximum
+		# adjustment factor
+		for rna_index in rna_indexes:
+			rna_index_to_adjustment[rna_index] = max(
+				rna_index_to_adjustment.get(rna_index, 0), adj_factor)
+
+	# Multiply all degradation rates with the specified adjustment factor
+	for rna_index, adj_factor in rna_index_to_adjustment.items():
+		sim_data.process.transcription.rna_expression["basal"][rna_index] *= adj_factor
 
 	sim_data.process.transcription.rna_expression["basal"] /= sim_data.process.transcription.rna_expression["basal"].sum()
 
@@ -1032,7 +1041,9 @@ def setRNADegRates(sim_data):
 		rna_id[:-3]: i for (i, rna_id)
 		in enumerate(sim_data.process.transcription.rna_data['id'])}
 
-	for mol_id in sim_data.adjustments.rna_deg_rates_adjustments:
+	rna_index_to_adjustment = {}
+
+	for mol_id, adj_factor in sim_data.adjustments.rna_deg_rates_adjustments.items():
 		if mol_id in cistron_id_to_index:
 			# Multiply the cistron degradation rate with the specified
 			# adjustment factor (Note: these rates are not actually used by the
@@ -1048,8 +1059,15 @@ def setRNADegRates(sim_data):
 			raise ValueError(
 				f'Molecule ID {mol_id} not found in list of cistrons or transcription units.')
 
-		# Multiply all degradation rates with the specified adjustment factor
-		sim_data.process.transcription.rna_data.struct_array["deg_rate"][rna_indexes] *= sim_data.adjustments.rna_deg_rates_adjustments[mol_id]
+		# If multiple adjustments are made for the same RNA, take the maximum
+		# adjustment factor
+		for rna_index in rna_indexes:
+			rna_index_to_adjustment[rna_index] = max(
+				rna_index_to_adjustment.get(rna_index, 0), adj_factor)
+
+	# Multiply all degradation rates with the specified adjustment factor
+	for rna_index, adj_factor in rna_index_to_adjustment.items():
+		sim_data.process.transcription.rna_data.struct_array["deg_rate"][rna_index] *= adj_factor
 
 def setProteinDegRates(sim_data):
 	"""
