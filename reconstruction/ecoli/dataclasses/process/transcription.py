@@ -635,8 +635,8 @@ class Transcription(object):
 			if rna['id'] in rna_id_to_index and rna['id'] not in cistron_id_to_index:
 				rna_deg_rates[rna_id_to_index[rna['id']]] = np.log(2) / rna['half_life'].asNumber(units.s)
 
-		# Get mask for RNAs with no measured deg rates
-		mask_no_measured_deg_rate = (rna_deg_rates == 0)
+		# Get mask for RNAs with measured deg rates
+		mask_measured_deg_rate = (rna_deg_rates > 0)
 
 		# Set the minimum possible degradation rates of mRNAs to the minimum of
 		# the measured degradation rates of mRNA cistrons
@@ -644,19 +644,20 @@ class Transcription(object):
 		cistron_deg_rates = self.cistron_data['deg_rate'].asNumber(1/units.s)
 		mRNA_cistron_deg_rates = cistron_deg_rates[self.cistron_data['is_mRNA']]
 		min_deg_rates[is_mRNA] = mRNA_cistron_deg_rates.min()
-		min_deg_rates = min_deg_rates[mask_no_measured_deg_rate]
+		min_deg_rates = min_deg_rates[~mask_measured_deg_rate]
 
 		# Solve NNLS for unmeasured degredation rates, using the fact that
 		# A(x + m) = b is equivalent to Ax = b - Am
-		abundancy_no_measurements = cistron_tu_relative_abundancy_matrix[:, mask_no_measured_deg_rate]
-		abundancy_with_measurements = cistron_tu_relative_abundancy_matrix[:, ~mask_no_measured_deg_rate]
+		abundancy_no_measurements = cistron_tu_relative_abundancy_matrix[:, ~mask_measured_deg_rate]
+		abundancy_with_measurements = cistron_tu_relative_abundancy_matrix[:, mask_measured_deg_rate]
 		deg_rates_from_min_rates = abundancy_no_measurements.dot(min_deg_rates)
-		deg_rates_from_measured_rates = abundancy_with_measurements.dot(rna_deg_rates[~mask_no_measured_deg_rate])
+		deg_rates_from_measured_rates = abundancy_with_measurements.dot(
+			rna_deg_rates[mask_measured_deg_rate])
 		rna_deg_rates_estimated_minus_min, _ = fast_nnls(
 			abundancy_no_measurements,
 			cistron_deg_rates - deg_rates_from_measured_rates - deg_rates_from_min_rates)
 
-		rna_deg_rates[mask_no_measured_deg_rate] = rna_deg_rates_estimated_minus_min + min_deg_rates
+		rna_deg_rates[~mask_measured_deg_rate] = rna_deg_rates_estimated_minus_min + min_deg_rates
 
 		# Clip mRNA degradation rates that are higher than the maximum measured
 		# degradation rate
@@ -778,6 +779,7 @@ class Transcription(object):
 			dtype = [
 				('id', 'U{}'.format(max_rna_id_length)),
 				('deg_rate', 'f8'),
+				('deg_rate_is_measured', 'bool'),
 				('length', 'i8'),
 				('counts_ACGU', '4i8'),
 				('mw', 'f8'),
@@ -798,6 +800,7 @@ class Transcription(object):
 
 		rna_data['id'] = rna_ids_with_compartments
 		rna_data['deg_rate'] = rna_deg_rates
+		rna_data['deg_rate_is_measured'] = mask_measured_deg_rate
 		rna_data['length'] = rna_lengths
 		rna_data['counts_ACGU'] = nt_counts
 		rna_data['mw'] = mws
@@ -817,6 +820,7 @@ class Transcription(object):
 		field_units = {
 			'id': None,
 			'deg_rate': 1 / units.s,
+			'deg_rate_is_measured': None,
 			'length': units.nt,
 			'counts_ACGU': units.nt,
 			'mw': units.g / units.mol,
