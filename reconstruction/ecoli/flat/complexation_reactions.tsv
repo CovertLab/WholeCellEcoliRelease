@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 25.5
-# Date and time generated: January 8, 2022, 1:17:45
+# Version: 26.0
+# Date and time generated: April 20, 2022, 16:49:54
 "id"	"stoichiometry"	"common_name"
 "1-PFK_RXN"	{"1-PFK": 1, "1-PFK-MONOMER": -2}	null
 "2OXOGLUTARATEDEH-CPLX_RXN"	{"2OXOGLUTARATEDEH-CPLX": 1, "E1O": -1, "E2O": -1, "E3-CPLX": -1}	"2-oxoglutarate dehydrogenase complex"
@@ -104,7 +104,7 @@
 "ANTHRANSYN-CPLX_RXN"	{"ANTHRANSYN-CPLX": 1, "ANTHRANSYNCOMPI-MONOMER": -2, "ANTHRANSYNCOMPII-MONOMER": -2}	null
 "APHA-CPLX_RXN"	{"APHA-CPLX": 1, "APHA-MONOMER": -4}	"acid phosphatase / phosphotransferase"
 "APORNAP-CPLX_RXN"	{"APORNAP-CPLX": 1, "EG10893-MONOMER": -2, "RPOC-MONOMER": -1, "RPOB-MONOMER": -1}	"RNA polymerase, core enzyme"
-"APP-UBIOX-CPLX_RXN"	{"APP-UBIOX-CPLX": 1, "APPC-MONOMER": -1, "APPB-MONOMER": -1}	"cytochrome <i>bd</i>-II ubiquinol oxidase"
+"APP-UBIOX-CPLX_RXN"	{"APP-UBIOX-CPLX": 1, "APPC-MONOMER": -1, "APPB-MONOMER": -1, "MONOMER0-2817": -1}	"cytochrome <i>bd</i>-II ubiquinol:oxygen oxidoreductase"
 "ARABISOM-CPLX_RXN"	{"ARABISOM-CPLX": 1, "ARABISOM-MONOMER": -6}	"L-arabinose isomerase"
 "ARGDECARBOXBIO-CPLX_RXN"	{"ARGDECARBOXBIO-CPLX": 1, "ARGDECARBOXBIO-MONOMER": -4}	"biosynthetic arginine decarboxylase"
 "ARGDECARBOXDEG-CPLX_RXN"	{"ARGDECARBOXDEG-CPLX": 1, "ARGDECARBOXDEG-MONOMER": -10}	null
@@ -143,7 +143,7 @@
 "BIOTIN-SYN-CPLX_RXN"	{"BIOTIN-SYN-CPLX": 1, "BIOTIN-SYN-MONOMER": -2}	"biotin synthase"
 "BRANCHED-CHAINAMINOTRANSFER-CPLX_RXN"	{"BRANCHED-CHAINAMINOTRANSFER-CPLX": 1, "BRANCHED-CHAINAMINOTRANSFER-MONOMER": -6}	"branched-chain-amino-acid aminotransferase"
 "CARBODEHYDRAT-CPLX_RXN"	{"CARBODEHYDRAT-CPLX": 1, "CARBODEHYDRAT-MONOMER": -2}	"carbonic anhydrase 1"
-"CARBPSYN-CPLX_RXN"	{"CARBPSYN-CPLX": 1, "CARBPSYN-LARGE": -2, "CARBPSYN-SMALL": -2}	null
+"CARBPSYN-CPLX_RXN"	{"CARBPSYN-CPLX": 1, "CARBPSYN-LARGE": -2, "CARBPSYN-SMALL": -2}	"carbamoyl-phosphate synthetase, glutamine-hydrolyzing"
 "CARNDEHYDRA-CPLX_RXN"	{"CARNDEHYDRA-CPLX": 1, "CARNDEHYDRA-MONOMER": -2}	null
 "CFA-CPLX_RXN"	{"CFA-CPLX": 1, "CFA-MONOMER": -2}	null
 "CHEZ-CPLX_RXN"	{"CHEZ-CPLX": 1, "CHEZ-MONOMER": -2}	"chemotaxis protein CheZ"
@@ -283,7 +283,7 @@
 "CPLX0-3021_RXN"	{"CPLX0-3021": 1, "G7925-MONOMER": -8}	"isoaspartyl dipeptidase"
 "CPLX0-303_RXN"	{"CPLX0-303": 1, "EG11517-MONOMER": -2}	"fructose-1,6-bisphosphatase 2"
 "CPLX0-3041_RXN"	{"CPLX0-3041": 1, "EG11549-MONOMER": -2}	"peptidase T"
-"CPLX0-3061_RXN"	{"CPLX0-3061": 1, "EG10694-MONOMER": -6}	"aminopeptidase A/I and DNA-binding transcriptional repressor"
+"CPLX0-3061_RXN"	{"CPLX0-3061": 1, "EG10694-MONOMER": -6}	"aminopeptidase A/I and DNA-binding transcriptional repressor PepA"
 "CPLX0-3081_RXN"	{"CPLX0-3081": 1, "EG10697-MONOMER": -4}	"Xaa-Pro aminopeptidase"
 "CPLX0-3101_RXN"	{"CPLX0-3101": 1, "EG10158-MONOMER": -14}	"ClpP serine protease"
 "CPLX0-3102_RXN"	{"CPLX0-3102": 1, "EG10159-MONOMER": -6}	"ClpX ATP-dependent protease specificity component and chaperone"
@@ -296,7 +296,7 @@
 "CPLX0-3181_RXN"	{"CPLX0-3181": 1, "MONOMER0-2001": -2}	null
 "CPLX0-3201_RXN"	{"CPLX0-3201": 1, "EG10580-MONOMER": -2}	"peptidoglycan DD-endopeptidase/peptidoglycan LD-endopeptidase"
 "CPLX0-321_RXN"	{"CPLX0-321": 1, "PDXJ-MONOMER": -8}	null
-"CPLX0-3221_RXN"	{"CPLX0-3221": 1, "YRAO-MONOMER": -4}	"DnaA initiator-associating factor for replication initiation"
+"CPLX0-3221_RXN"	{"CPLX0-3221": 1, "YRAO-MONOMER": -4}	"DnaA initiator-associating protein DiaA"
 "CPLX0-322_RXN"	{"CPLX0-322": 1, "GSK-MONOMER": -2}	"inosine/guanosine kinase"
 "CPLX0-3241_RXN"	{"CPLX0-3241": 1, "NAPG-MONOMER": -1, "NAPH-MONOMER": -1}	"ubiquinol&mdash;[NapC cytochrome <i>c</i>] reductase NapGH"
 "CPLX0-3281_RXN"	{"CPLX0-3281": 1, "EG10857-MONOMER": -2}	"RNase III"
@@ -325,7 +325,7 @@
 "CPLX0-3801_RXN"	{"CPLX0-3801": 1, "EG10245-MONOMER": -3, "EG11500-MONOMER": -1, "EG11412-MONOMER": -1}	"DNA polymerase III, preinitiation complex"
 "CPLX0-3802_RXN"	{"CPLX0-3802": 1, "EG10245-MONOMER": -2}	"DNA polymerase III, &tau; subunit dimer"
 "CPLX0-3803_RXN"	{"CPLX0-3803": 1, "CPLX0-2361": -3, "CPLX0-3801": -1, "CPLX0-3761": -2, "CPLX0-3802": -1, "CPLX0-7910": -4}	"DNA polymerase III, holoenzyme"
-"CPLX0-3821_RXN"	{"CPLX0-3821": 1, "EG10483-MONOMER": null, "EG10484-MONOMER": null}	"HypA-HypB heterodimer"
+"CPLX0-3821_RXN"	{"CPLX0-3821": 1, "EG10483-MONOMER": -1, "EG10484-MONOMER": -1}	"HypA-HypB heterodimer"
 "CPLX0-3841_RXN"	{"CPLX0-3841": 1, "EG11294-MONOMER": -2}	null
 "CPLX0-3861_RXN"	{"CPLX0-3861": 1, "G7724-MONOMER": -8}	null
 "CPLX0-3881_RXN"	{"CPLX0-3881": 1, "FCL-MONOMER": -2}	null
@@ -373,7 +373,7 @@
 "CPLX0-7418_RXN"	{"CPLX0-7418": 1, "EG10603-MONOMER": -2}	"DNA-binding transcriptional repressor MprA"
 "CPLX0-7420_RXN"	{"CPLX0-7420": 1, "G7327-MONOMER": -2}	"tRNA Cm32/Um32 methyltransferase"
 "CPLX0-7421_RXN"	{"CPLX0-7421": 1, "EG11888-MONOMER": -2}	"tRNA (cytidine/uridine-2'-<i>O</i>)-ribose methyltransferase"
-"CPLX0-7422_RXN"	{"CPLX0-7422": 1, "EG12309-MONOMER": -2}	"predicted rRNA methyltransferase"
+"CPLX0-7422_RXN"	{"CPLX0-7422": 1, "EG12309-MONOMER": -2}	"putative tRNA/rRNA methyltransferase YjtD"
 "CPLX0-7423_RXN"	{"CPLX0-7423": 1, "EG11254-MONOMER": -2}	"23S rRNA m<sup>3</sup>&Psi;1915 methyltransferase"
 "CPLX0-7425_RXN"	{"CPLX0-7425": 1, "CPLX0-7757": -1, "EG10443-MONOMER": -1}	"HipAB toxin/antitoxin complex / DNA-binding transcriptional repressor"
 "CPLX0-7426_RXN"	{"CPLX0-7426": 1, "OPPSYN-MONOMER": -2}	"<i>all-trans</i>-octaprenyl-diphosphate synthase"
@@ -462,7 +462,7 @@
 "CPLX0-7698_RXN"	{"CPLX0-7698": 1, "EG12165-MONOMER": -2}	"MukF dimer"
 "CPLX0-7704_RXN"	{"CPLX0-7704": 1, "EG10613-MONOMER": -2}	"ATP-dependent Lipid A-core flippase"
 "CPLX0-7705_RXN"	{"CPLX0-7705": 1, "PD00196": -2}	"DNA-binding transcriptional dual regulator Fis"
-"CPLX0-7707_RXN"	{"CPLX0-7707": 1, "MONOMER0-1781": -4}	"NikR-Ni<SUP>2+</SUP> DNA-binding transcriptional repressor"
+"CPLX0-7707_RXN"	{"CPLX0-7707": 1, "MONOMER0-1781": -4}	"DNA-binding transcriptional repressor NikR-Ni<SUP>2+</SUP>"
 "CPLX0-7708_RXN"	{"CPLX0-7708": 1, "CPLX0-7702": -2}	"DNA-binding transcriptional dual regulator CueR-Cu<sup>+</sup>"
 "CPLX0-7709_RXN"	{"CPLX0-7709": 1, "G6644-MONOMER": -12}	null
 "CPLX0-7710_RXN"	{"CPLX0-7710": 1, "PD00364": -2}	"DNA-binding transcriptional repressor MarR"
@@ -473,7 +473,7 @@
 "CPLX0-7718_RXN"	{"CPLX0-7718": 1, "G7168-MONOMER": -6}	"UDP-4-amino-4-deoxy-L-arabinose formyltransferase/UDP-glucuronate dehydrogenase"
 "CPLX0-7719_RXN"	{"CPLX0-7719": 1, "QUINOLINATE-SYNTHA-MONOMER": -2}	null
 "CPLX0-7720_RXN"	{"CPLX0-7720": 1, "MONOMER0-2682": null, "G7171-MONOMER": null}	null
-"CPLX0-7721_RXN"	{"CPLX0-7721": 1, "PHOSPHO-DCUR-MONOMER": -2}	"DcuR-Phosphorylated DNA-binding transcriptional activator"
+"CPLX0-7721_RXN"	{"CPLX0-7721": 1, "PHOSPHO-DCUR-MONOMER": -2}	"DNA-binding transcriptional activator DcuR-phosphorylated"
 "CPLX0-7722_RXN"	{"CPLX0-7722": 1, "G7160-MONOMER": -8}	null
 "CPLX0-7723_RXN"	{"CPLX0-7723": 1, "G7158-MONOMER": -6}	null
 "CPLX0-7724_RXN"	{"CPLX0-7724": 1, "EG10284-MONOMER": -2}	"formate dehydrogenase formation protein"
@@ -490,8 +490,8 @@
 "CPLX0-7744_RXN"	{"CPLX0-7744": 1, "G7858-MONOMER": -2}	"3-keto-L-gulonate-6-phosphate decarboxylase UlaD"
 "CPLX0-7745_RXN"	{"CPLX0-7745": 1, "G7262-MONOMER": -4}	"DNA-binding transcriptional dual regulator MurR"
 "CPLX0-7747_RXN"	{"CPLX0-7747": 1, "G6660-MONOMER": -2}	"lipid hydroperoxide peroxidase"
-"CPLX0-7748_RXN"	{"CPLX0-7748": 1, "PHOSPHO-CPXR": -2}	"CpxR-P<sup>asp</sup> DNA-binding transcriptional dual regulator"
-"CPLX0-7754_RXN"	{"CPLX0-7754": 1, "PHOSPHO-UHPA": -2}	"UhpA-Phosphorylated DNA-binding transcriptional activator"
+"CPLX0-7748_RXN"	{"CPLX0-7748": 1, "PHOSPHO-CPXR": -2}	"DNA-binding transcriptional dual regulator CpxR-phosphorylated"
+"CPLX0-7754_RXN"	{"CPLX0-7754": 1, "PHOSPHO-UHPA": -2}	"DNA-binding transcriptional activator UhpA-phosphorylated"
 "CPLX0-7755_RXN"	{"CPLX0-7755": 1, "EG12172-MONOMER": -2}	null
 "CPLX0-7756_RXN"	{"CPLX0-7756": 1, "EG11212-MONOMER": -2}	"DNA-binding transcriptional dual regulator NsrR"
 "CPLX0-7757_RXN"	{"CPLX0-7757": 1, "EG10442-MONOMER": -2}	"HipB antitoxin / DNA-binding transcriptional repressor"
@@ -505,8 +505,8 @@
 "CPLX0-7789_RXN"	{"CPLX0-7789": 1, "EG12855-MONOMER": -4}	"macrodomain Ter protein"
 "CPLX0-7791_RXN"	{"CPLX0-7791": 1, "EG10836-MONOMER": -4, "EG11131-MONOMER": -4}	"RelB-RelE antitoxin/toxin complex / DNA-binding transcriptional repressor"
 "CPLX0-7794_RXN"	{"CPLX0-7794": 1, "EG11847-MONOMER": -4}	"3-sulfolactaldehyde reductase"
-"CPLX0-7795_RXN"	{"CPLX0-7795": 1, "PHOSPHO-KDPE": -2}	"KdpE-Phosphorylated DNA-binding transcriptional activator"
-"CPLX0-7796_RXN"	{"CPLX0-7796": 1, "MONOMER0-157": -2}	"MetJ-S-adenosylmethionine DNA-binding transcriptional repressor"
+"CPLX0-7795_RXN"	{"CPLX0-7795": 1, "PHOSPHO-KDPE": -2}	"DNA-binding transcriptional activator KdpE-phosphorylated"
+"CPLX0-7796_RXN"	{"CPLX0-7796": 1, "MONOMER0-157": -2}	"DNA-binding transcriptional repressor MetJ-<i>S</i>-adenosyl-L-methionine"
 "CPLX0-7797_RXN"	{"CPLX0-7797": 1, "PD00197": -2}	"DNA-binding transcriptional dual regulator FNR"
 "CPLX0-7801_RXN"	{"CPLX0-7801": 1, "G7271-MONOMER": -3}	"predicted structural protein, ethanolamine utilization microcompartment"
 "CPLX0-7802_RXN"	{"CPLX0-7802": 1, "EG11643-MONOMER": -2}	"diguanylate cyclase DgcZ"
@@ -524,7 +524,7 @@
 "CPLX0-7823_RXN"	{"CPLX0-7823": 1, "G6783-MONOMER": null, "G6784-MONOMER": null}	"DosC-DosP complex"
 "CPLX0-7824_RXN"	{"CPLX0-7824": 1, "EG11378-MONOMER": -2}	"iron-sulfur cluster insertion protein SufA"
 "CPLX0-7826_RXN"	{"CPLX0-7826": 1, "G7530-MONOMER": -2}	"dITP/XTP pyrophosphatase"
-"CPLX0-7827_RXN"	{"CPLX0-7827": 1, "G6326-MONOMER": -2}	"carboxylate-amine ligase"
+"CPLX0-7827_RXN"	{"CPLX0-7827": 1, "G6326-MONOMER": -2}	"putative glutamate&mdash;cysteine ligase 2"
 "CPLX0-782_RXN"	{"CPLX0-782": 1, "EG11306-MONOMER": -2}	"lipoyl synthase"
 "CPLX0-7835_RXN"	{"CPLX0-7835": 1, "G7287-MONOMER": -6}	"putative ethanolamine catabolic microcompartment shell protein EutM"
 "CPLX0-7836_RXN"	{"CPLX0-7836": 1, "G7292-MONOMER": -6}	"putative ethanolamine catabolic microcompartment shell protein EutS"
@@ -649,7 +649,7 @@
 "CPLX0-8109_RXN"	{"CPLX0-8109": 1, "EG11236-MONOMER": -2}	"DNA-binding transcriptional dual regulator/c-di-GMP phosphodiesterase PdeL"
 "CPLX0-8110_RXN"	{"CPLX0-8110": 1, "G6154-MONOMER": -2}	"molybdenum cofactor insertion chaperone PaoD"
 "CPLX0-8111_RXN"	{"CPLX0-8111": 1, "EG11064-MONOMER": -2}	"DNA helicase II"
-"CPLX0-8112_RXN"	{"CPLX0-8112": 1, "EG11430-MONOMER": -2}	"ribosomal protein-arginine oxygenase"
+"CPLX0-8112_RXN"	{"CPLX0-8112": 1, "EG11430-MONOMER": -2}	"50S ribosomal protein L16-arginine 3-hydroxylase"
 "CPLX0-8113_RXN"	{"CPLX0-8113": 1, "EG10735-MONOMER": -2}	"phosphate signaling protein PhoU"
 "CPLX0-8119_RXN"	{"CPLX0-8119": 1, "MONOMER0-6": -1, "G7250-MONOMER": -1, "G7246-MONOMER": -1}	"putative PTS enzyme II FryBCA"
 "CPLX0-8120_RXN"	{"CPLX0-8120": 1, "ARTI-MONOMER": -1, "ARTM-MONOMER": -1, "ARTQ-MONOMER": -1, "ARTP-MONOMER": -2}	"putative ABC transporter ArtPQMI"
@@ -733,7 +733,7 @@
 "CPLX0-8254_RXN"	{"CPLX0-8254": 1, "EG10203-MONOMER": -2}	"D-alanyl-D-alanine carboxypeptidase DacC"
 "CPLX0-8255_RXN"	{"CPLX0-8255": 1, "PTSG-MONOMER": null, "PD01896": null}	"Mlc-PtsG"
 "CPLX0-8256_RXN"	{"CPLX0-8256": 1, "EG10466-MONOMER": -2}	"HU&alpha;&alpha;"
-"CPLX0-8259_RXN"	{"CPLX0-8259": 1, "EG11870-MONOMER": -2}	"2-amino-6-<i>N</i>-hydroxylaminopurine resistance protein"
+"CPLX0-8259_RXN"	{"CPLX0-8259": 1, "EG11870-MONOMER": -2}	"6-hydroxyaminopurine reductase"
 "CPLX0-8260_RXN"	{"CPLX0-8260": 1, "DTMPKI-MONOMER": -2}	"dTMP kinase"
 "CPLX0-8261_RXN"	{"CPLX0-8261": 1, "TDK-MONOMER": null}	null
 "CPLX0-8262_RXN"	{"CPLX0-8262": 1, "EG12373-MONOMER": -4}	"nucleotide 5'-monophosphate nucleosidase"
@@ -790,7 +790,7 @@
 "CPLX0-8571_RXN"	{"CPLX0-8571": 1, "G6862-MONOMER": -4}	"dihydromonapterin reductase"
 "CPLX0-8573_RXN"	{"CPLX0-8573": 1, "G7193-MONOMER": -2}	"glutathione <i>S</i>-transferase YfcF"
 "CPLX0-8574_RXN"	{"CPLX0-8574": 1, "G7188-MONOMER": -24}	"PF03887 family protein YfbU"
-"CPLX0-8576_RXN"	{"CPLX0-8576": 1, "G7727-MONOMER": -2}	"DNA binding transcriptional repressor FrlR"
+"CPLX0-8576_RXN"	{"CPLX0-8576": 1, "G7727-MONOMER": -2}	"DNA-binding transcriptional repressor FrlR"
 "CPLX0-8578_RXN"	{"CPLX0-8578": 1, "G7790-MONOMER": -2}	"DNA-binding transcriptional repressor DgoR"
 "CPLX0-8581_RXN"	{"CPLX0-8581": 1, "EG11548-MONOMER": -4}	"ATP-dependent helicase Lhr"
 "CPLX0-8582_RXN"	{"CPLX0-8582": 1, "GALPMUT-MONOMER": -2}	null
@@ -805,6 +805,14 @@
 "CPLX0-8595_RXN"	{"CPLX0-8595": 1, "EG10143-MONOMER": -2}	"DNA binding transcriptional dual regulator ChbR"
 "CPLX0-8596_RXN"	{"CPLX0-8596": 1, "EG10828-MONOMER": -2}	"recombination mediator protein RecF"
 "CPLX0-8597_RXN"	{"CPLX0-8597": 1, "G6444-MONOMER": -2}	"DNA binding transcriptional dual regulator RcdA"
+"CPLX0-8612_RXN"	{"CPLX0-8612": 1, "EG10609-MONOMER": -2}	"cell shape determining protein MreC"
+"CPLX0-8613_RXN"	{"CPLX0-8613": 1, "G6851-MONOMER": -2}	"dethiobiotin synthetase BidA"
+"CPLX0-8614_RXN"	{"CPLX0-8614": 1, "TDPFUCACTRANS-MONOMER": -2}	null
+"CPLX0-8615_RXN"	{"CPLX0-8615": 1, "MALTODEXGLUCOSID-MONOMER": -2}	"maltodextrin glucosidase"
+"CPLX0-8616_RXN"	{"CPLX0-8616": 1, "G6621-MONOMER": -2}	"murein tetrapeptide carboxypeptidase"
+"CPLX0-8617_RXN"	{"CPLX0-8617": 1, "EG11167-MONOMER": -2}	"divalent metal ion transporter ZupT"
+"CPLX0-8618_RXN"	{"CPLX0-8618": 1, "G7940-MONOMER": null}	"nucleoid-associated protein SymE"
+"CPLX0-8619_RXN"	{"CPLX0-8619": 1, "EG12159-MONOMER": -2}	"nucleoside phosphorylase PpnP"
 "CPLX0-861_RXN"	{"CPLX0-861": 1, "G7055-MONOMER": -2}	"protein/nucleic acid deglycase 1"
 "CPLX0-881_RXN"	{"CPLX0-881": 1, "EG10156-MONOMER": -6}	"ClpA ATP-dependent protease specificity component and chaperone"
 "CPLX0-901_RXN"	{"CPLX0-901": 1, "EG11372-MONOMER": -2}	"tRNA adenosine<sup>34</sup> deaminase"
@@ -817,8 +825,8 @@
 "CYANLY-CPLX_RXN"	{"CYANLY-CPLX": 1, "CYANLY-MONOMER": -10}	"cyanase"
 "CYSSYNMULTI-CPLX_RXN"	{"CYSSYNMULTI-CPLX": 1, "CPLX0-237": -1, "ACSERLYA-CPLX": -1}	"cysteine synthase complex"
 "CYSTATHIONINE-BETA-LYASE-CPLX_RXN"	{"CYSTATHIONINE-BETA-LYASE-CPLX": 1, "CYSTATHIONINE-BETA-LYASE-MONOMER": -4}	null
-"CYT-D-UBIOX-CPLX_RXN"	{"CYT-D-UBIOX-CPLX": 1, "CYDA-MONOMER": -1, "CYDB-MONOMER": -1, "MONOMER0-2663": -1, "MONOMER0-2822": -1}	"cytochrome <i>bd</i>-I ubiquinol oxidase"
-"CYT-O-UBIOX-CPLX_RXN"	{"CYT-O-UBIOX-CPLX": 1, "CYOD-MONOMER": -1, "CYOA-MONOMER": -1, "CYOB-MONOMER": -1, "CYOC-MONOMER": -1}	"cytochrome <i>bo<sub>3</sub></i> ubiquinol oxidase"
+"CYT-D-UBIOX-CPLX_RXN"	{"CYT-D-UBIOX-CPLX": 1, "CYDA-MONOMER": -1, "CYDB-MONOMER": -1, "MONOMER0-2663": -1, "MONOMER0-2822": -1}	"cytochrome <i>bd</i>-I ubiquinol:oxygen oxidoreductase"
+"CYT-O-UBIOX-CPLX_RXN"	{"CYT-O-UBIOX-CPLX": 1, "CYOD-MONOMER": -1, "CYOA-MONOMER": -1, "CYOB-MONOMER": -1, "CYOC-MONOMER": -1}	"cytochrome <i>bo<sub>3</sub></i> ubiquinol:oxygen oxidoreductase"
 "CYTIDEAM-CPLX_RXN"	{"CYTIDEAM-CPLX": 1, "CYTIDEAM-MONOMER": -2}	"cytidine/deoxycytidine deaminase"
 "DALADALALIGB-CPLX_RXN"	{"DALADALALIGB-CPLX": 1, "DALADALALIGB-MONOMER": -2}	"D-alanine&mdash;D-alanine ligase B"
 "DALADEHYDROG-CPLX_RXN"	{"DALADEHYDROG-CPLX": 1, "DALADEHYDROGA-MONOMER": -2}	"D-amino acid dehydrogenase"
@@ -865,7 +873,7 @@
 "FABB-CPLX_RXN"	{"FABB-CPLX": 1, "FABB-MONOMER": -2}	"3-oxoacyl-[acyl carrier protein] synthase 1"
 "FABZ-CPLX_RXN"	{"FABZ-CPLX": 1, "FABZ-MONOMER": -6}	"3-hydroxy-acyl-[acyl-carrier-protein] dehydratase"
 "FAO-CPLX_RXN"	{"FAO-CPLX": 1, "FADB-MONOMER": -2, "FADA-MONOMER": -2}	"aerobic fatty acid oxidation complex"
-"FHLMULTI-CPLX_RXN"	{"FHLMULTI-CPLX": 1, "FORMATEDEHYDROGH-MONOMER": -1, "HYDROG3-CPLX": -1}	null
+"FHLMULTI-CPLX_RXN"	{"FHLMULTI-CPLX": 1, "FORMATEDEHYDROGH-MONOMER": -1, "HYDROG3-CPLX": -1}	"formate hydrogenlyase complex"
 "FLAGELLAR-MOTOR-COMPLEX_RXN"	{"FLAGELLAR-MOTOR-COMPLEX": 1, "CPLX0-7450": null, "FLGH-FLAGELLAR-L-RING": null, "MOTA-FLAGELLAR-MOTOR-STATOR-PROTEIN": null, "MOTB-FLAGELLAR-MOTOR-STATOR-PROTEIN": null, "FLGB-FLAGELLAR-MOTOR-ROD-PROTEIN": null, "FLGC-FLAGELLAR-MOTOR-ROD-PROTEIN": null, "FLGF-FLAGELLAR-MOTOR-ROD-PROTEIN": null, "FLGG-FLAGELLAR-MOTOR-ROD-PROTEIN": null, "FLGI-FLAGELLAR-P-RING": null, "FLIF-FLAGELLAR-MS-RING": null}	"flagellar basal body"
 "FOLD-CPLX_RXN"	{"FOLD-CPLX": 1, "FOLD-MONOMER": -2}	"bifunctional methylenetetrahydrofolate dehydrogenase / methenyltetrahydrofolate cyclohydrolase"
 "FOLE-CPLX_RXN"	{"FOLE-CPLX": 1, "GTP-CYCLOHYDRO-I-MONOMER": -10}	"GTP cyclohydrolase 1"
@@ -1111,7 +1119,7 @@
 "YDGEF-CPLX_RXN"	{"YDGEF-CPLX": 1, "B1600-MONOMER": null, "B1599-MONOMER": null}	"multidrug/spermidine efflux pump"
 "CPLX0-1041_RXN"	{"CPLX0-1041": 1, "CSRB-RNA": -1, "EG11447-MONOMER": -18}	"CsrA complex with CsrB RNA"
 "CPLX0-1382_RXN"	{"CPLX0-1382": 1, "RNPB-RNA": -1, "EG10862-MONOMER": -1}	"RNase P"
-"CPLX0-3953_RXN"	{"CPLX0-3953": 1, "RRSA-RRNA": null, "EG10900-MONOMER": null, "EG10901-MONOMER": null, "EG10902-MONOMER": null, "EG10903-MONOMER": null, "EG10904-MONOMER": null, "EG10905-MONOMER": null, "EG10906-MONOMER": null, "EG10907-MONOMER": null, "EG10908-MONOMER": null, "EG10909-MONOMER": null, "EG10910-MONOMER": null, "EG10911-MONOMER": null, "EG10912-MONOMER": null, "EG10913-MONOMER": null, "EG10914-MONOMER": null, "EG10915-MONOMER": null, "EG10916-MONOMER": null, "EG10917-MONOMER": null, "EG10918-MONOMER": null, "EG10919-MONOMER": null, "EG10920-MONOMER": null, "EG11508-MONOMER": null}	"30S ribosomal subunit"
+"CPLX0-3953_RXN"	{"CPLX0-3953": 1, "RRSA-RRNA": null, "EG10900-MONOMER": null, "EG10901-MONOMER": null, "EG10902-MONOMER": null, "EG10903-MONOMER": null, "EG10904-MONOMER": null, "EG10905-MONOMER": null, "EG10906-MONOMER": null, "EG10907-MONOMER": null, "EG10908-MONOMER": null, "EG10909-MONOMER": null, "EG10910-MONOMER": null, "EG10911-MONOMER": null, "EG10912-MONOMER": null, "EG10913-MONOMER": null, "EG10914-MONOMER": null, "EG10915-MONOMER": null, "EG10916-MONOMER": null, "EG10917-MONOMER": null, "EG10918-MONOMER": null, "EG10919-MONOMER": null, "EG10920-MONOMER": null}	"30S ribosomal subunit"
 "CPLX0-3962_RXN"	{"CPLX0-3962": 1, "RRLA-RRNA": null, "RRFA-RRNA": null, "EG10864-MONOMER": null, "EG10865-MONOMER": null, "EG10866-MONOMER": null, "EG10867-MONOMER": null, "EG10868-MONOMER": null, "EG10869-MONOMER": null, "CPLX0-3956": null, "EG10870-MONOMER": null, "EG10872-MONOMER": null, "EG10874-MONOMER": null, "EG10875-MONOMER": null, "EG10876-MONOMER": null, "EG10877-MONOMER": null, "EG10878-MONOMER": null, "EG10879-MONOMER": null, "EG10880-MONOMER": null, "EG10881-MONOMER": null, "EG50001-MONOMER": null, "EG10882-MONOMER": null, "EG10883-MONOMER": null, "EG10884-MONOMER": null, "EG10885-MONOMER": null, "EG50002-MONOMER": null, "EG10886-MONOMER": null, "EG10887-MONOMER": null, "EG10888-MONOMER": null, "EG10889-MONOMER": null, "EG10890-MONOMER": null, "EG10891-MONOMER": null, "EG10892-MONOMER": null, "EG11231-MONOMER": null, "EG11232-MONOMER": null}	"50S ribosomal subunit"
 "CPLX0-3964_RXN"	{"CPLX0-3964": 1, "CPLX0-3953": -1, "CPLX0-3962": -1}	"ribosome"
 "CPLX0-8028_RXN"	{"CPLX0-8028": 1, "IS061-RNA": null, "CPLX0-7956": null}	"CsrA complex with McaS RNA"

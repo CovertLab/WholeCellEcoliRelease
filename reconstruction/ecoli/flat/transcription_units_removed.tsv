@@ -79,6 +79,7 @@
 "TU0-8476"	"RNA type not supported (tRNA)"
 "TU00038"	"Contains two or more different types of RNA cistrons"
 "TU00045"	"Contains two or more different types of RNA cistrons"
+"TU00103"	"Contains two or more different types of RNA cistrons"
 "TU00303"	"Contains two or more different types of RNA cistrons"
 "TU00345"	"Contains two or more different types of RNA cistrons"
 "TU00489"	"RNA type not supported (tRNA)"
