@@ -1,7 +1,7 @@
 # Organism: Escherichia coli K-12 substr. MG1655
 # Database: EcoCyc
-# Version: 25.5
-# Date and time generated: January 8, 2022, 1:14:45
+# Version: 26.0
+# Date and time generated: April 20, 2022, 16:50:36
 "id"	"stoichiometry"	"catalyzed_by"	"common_name"
 "ALANINE--TRNA-LIGASE-RXN_alaT-tRNA"	{"L-ALPHA-ALANINE": -1, "ATP": -1, "alaT-tRNA": -1, "PPI": 1, "AMP": 1, "charged-alaT-tRNA": 1}	["ALAS-CPLX"]	"ALANYL-TRNA SYNTHETASE"
 "ALANINE--TRNA-LIGASE-RXN_alaU-tRNA"	{"L-ALPHA-ALANINE": -1, "ATP": -1, "alaU-tRNA": -1, "PPI": 1, "AMP": 1, "charged-alaU-tRNA": 1}	["ALAS-CPLX"]	"ALANYL-TRNA SYNTHETASE"
