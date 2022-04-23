@@ -196,11 +196,12 @@ class GetterFunctions(object):
 		# Keep track of gene tuples of TUs to remove duplicate TUs that cover
 		# the same set of genes but have different left & right end coordinates.
 		# The first TU in the list that covers the given set of genes is always
-		# selected over later TUs.
-		all_tu_gene_tuples = set()
+		# selected over later TUs. Later TUs are discarded, but their evidence
+		# codes are added to the list of evidence codes of the first TU.
+		gene_tuple_to_tu_index = {}
 
 		# Add sequences from transcription_units file
-		for tu in raw_data.transcription_units:
+		for i, tu in enumerate(raw_data.transcription_units):
 			# Get list of genes in TU after excluding invalid genes
 			gene_tuple = tuple(sorted(
 				[gene_id for gene_id in tu['genes'] if gene_id in valid_gene_ids]
@@ -210,11 +211,17 @@ class GetterFunctions(object):
 			if len(gene_tuple) == 0:
 				continue
 
-			# Skip duplicate TUs
-			if gene_tuple in all_tu_gene_tuples:
+			# Skip duplicate TUs but compile all evidence codes
+			if gene_tuple in gene_tuple_to_tu_index:
+				evidence_list = raw_data.transcription_units[
+					gene_tuple_to_tu_index[gene_tuple]]['evidence']
+				new_evidence = tu['evidence']
+
+				# Add nonduplicate evidence codes to original list
+				evidence_list.extend(list(set(new_evidence) - set(evidence_list)))
 				continue
 			else:
-				all_tu_gene_tuples.add(gene_tuple)
+				gene_tuple_to_tu_index[gene_tuple] = i
 
 			left_end_pos = tu['left_end_pos']
 			right_end_pos = tu['right_end_pos']
