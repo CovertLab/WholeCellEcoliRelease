@@ -138,7 +138,13 @@ class Translation(object):
 			if protein['id'] in measured_deg_rates:
 				deg_rate[i] = measured_deg_rates[protein['id']]
 			elif protein['id'] not in ribosomalProteins:
-				deg_rate[i] = n_end_rule_deg_rates[protein['seq'][0]]
+				seq = protein['seq']
+				assert seq[0] == 'M'  # All protein sequences should start with methionine
+
+				# Set N-end residue as second amino acid if initial methionine
+				# is cleaved
+				n_end_residue = seq[protein['cleavage_of_initial_methionine']]
+				deg_rate[i] = n_end_rule_deg_rates[n_end_residue]
 			else:
 				deg_rate[i] = slow_deg_rate
 
