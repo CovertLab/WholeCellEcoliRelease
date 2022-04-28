@@ -111,7 +111,6 @@ LIST_OF_DICT_FILENAMES = [
 	os.path.join("adjustments", "rna_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "protein_deg_rates_adjustments.tsv"),
 	os.path.join("adjustments", "relative_metabolite_concentrations_changes.tsv"),
-	os.path.join('transcription_unit_prototypes', 'transcription_units_added_v1.tsv'),
 	os.path.join('transcription_unit_prototypes', 'transcription_units_added_v2.tsv'),
 	]
 SEQUENCE_FILE = 'sequence.fasta'
@@ -149,12 +148,11 @@ ADDED_DATA = {
 	}
 
 # Dictionary mapping operon option names to the name of the added operons file
-# corresponding to the option. Must be specified for every operon option except
-# "off".
+# corresponding to the option.
 OPERON_OPTION_TO_ADDED_DATA = {
-	'v1': 'transcription_unit_prototypes.transcription_units_added_v1',
 	'v2': 'transcription_unit_prototypes.transcription_units_added_v2',
-	'on': 'transcription_units_added',
+	'v3': 'transcription_unit_prototypes.transcription_units_added_v2',
+	'on': 'transcription_units_added'
 	}
 
 class DataStore(object):
@@ -182,9 +180,10 @@ class KnowledgeBaseEcoli(object):
 			self.removed_data.update({
 				'transcription_units': 'transcription_units_removed',
 				})
-			self.added_data.update({
-				'transcription_units': OPERON_OPTION_TO_ADDED_DATA[self.operon_option],
-				})
+			if self.operon_option in OPERON_OPTION_TO_ADDED_DATA:
+				self.added_data.update({
+					'transcription_units': OPERON_OPTION_TO_ADDED_DATA[self.operon_option],
+					})
 
 		# Load raw data from TSV files
 		for filename in self.list_of_dict_filenames:
