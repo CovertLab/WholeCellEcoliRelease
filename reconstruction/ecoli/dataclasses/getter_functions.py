@@ -201,6 +201,16 @@ class GetterFunctions(object):
 		gene_tuple_to_tu_index = {}
 
 		# Add sequences from transcription_units file
+		gene_id_to_left_end_pos = {
+			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
+			}
+		gene_id_to_right_end_pos = {
+			gene['id']: gene['right_end_pos'] for gene in raw_data.genes
+			}
+		gene_id_to_direction = {
+			gene['id']: gene['direction'] for gene in raw_data.genes
+			}
+
 		for i, tu in enumerate(raw_data.transcription_units):
 			# Get list of genes in TU after excluding invalid genes
 			gene_tuple = tuple(sorted(
@@ -223,31 +233,27 @@ class GetterFunctions(object):
 			else:
 				gene_tuple_to_tu_index[gene_tuple] = i
 
-			left_end_pos = tu['left_end_pos']
-			right_end_pos = tu['right_end_pos']
-			assert left_end_pos is not None and right_end_pos is not None
+			# Use gene coordinates if left and right end positions are not given
+			if not isinstance(tu['left_end_pos'], int):
+				tu['left_end_pos'] = min([
+					gene_id_to_left_end_pos[gene_id] for gene_id in tu['genes']
+					])
+			if not isinstance(tu['right_end_pos'], int):
+				tu['right_end_pos'] = max([
+					gene_id_to_right_end_pos[gene_id] for gene_id in tu['genes']
+					])
 
 			# Keep track of genes that are covered
 			covered_gene_ids |= set(tu['genes'])
 
 			self._sequences[tu['id']] = parse_sequence(
-				tu['id'], left_end_pos, right_end_pos, tu['direction'])
+				tu['id'], tu['left_end_pos'], tu['right_end_pos'], tu['direction'])
 
 		# Add sequences of individual RNAs that are not part of any
 		# transcription unit (these genes are assumed to be transcribed as
 		# monocistronic transcription units)
 		rna_id_to_gene_id = {
 			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
-		gene_id_to_left_end_pos = {
-			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
-			}
-		gene_id_to_right_end_pos = {
-			gene['id']: gene['right_end_pos'] for gene in raw_data.genes
-			}
-		gene_id_to_direction = {
-			gene['id']: gene['direction'] for gene in raw_data.genes
-			}
-
 		all_rna_ids = sorted(set([rna['id'] for rna in raw_data.rnas]))
 
 		for rna_id in all_rna_ids:
