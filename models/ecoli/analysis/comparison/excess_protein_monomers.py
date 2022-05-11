@@ -10,6 +10,7 @@ from typing import Tuple
 
 import csv
 from matplotlib import pyplot as plt
+import matplotlib.gridspec as gridspec
 # noinspection PyUnresolvedReferences
 import numpy as np
 
@@ -18,13 +19,12 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from validation.ecoli.validation_data import ValidationDataEcoli
 from wholecell.analysis.analysis_tools import (exportFigure,
-    read_stacked_columns)
+    read_stacked_columns, read_stacked_bulk_molecules)
 # noinspection PyUnresolvedReferences
 from wholecell.io.tablereader import TableReader
 
 
-DIFF_THRESHOLD = 0.05
-WRITE_TABLE = False
+SEED = 0
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
@@ -34,6 +34,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		# sim_data1.operons_on and sim_data2.operons_on indicate operons on/off.
 		ap1, sim_data1, _ = self.setup(reference_sim_dir)
 		ap2, sim_data2, _ = self.setup(input_sim_dir)
+
+		np.random.seed(SEED)
 
 		# Load from sim_data
 		all_subunit_ids = sim_data1.process.complexation.molecule_names
@@ -98,9 +100,12 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		def read_sims(ap):
 			all_monomer_counts = read_stacked_columns(
 				ap.get_cells(), 'MonomerCounts', 'monomerCounts')
+			(all_complex_counts, ) = read_stacked_bulk_molecules(
+				ap.get_cells(), (all_complex_ids, ))
 
 			# Take averages across all sims and timepoints
 			all_monomer_counts_mean = all_monomer_counts.mean(axis=0)
+			all_complex_counts_mean = all_complex_counts.mean(axis=0)
 
 			complex_id_to_gini_coeff = {}
 
@@ -139,10 +144,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 					/ (2 * len(rescaled_monomer_counts) * rescaled_monomer_counts.sum())
 				)
 
-			return complex_id_to_gini_coeff
+			return complex_id_to_gini_coeff, all_monomer_counts_mean, all_complex_counts_mean
 
-		gini_coeff1 = read_sims(ap1)
-		gini_coeff2 = read_sims(ap2)
+		gini_coeff1, m1, c1 = read_sims(ap1)
+		gini_coeff2, m2, c2 = read_sims(ap2)
 
 		# Select complexes that have Gini coefficients calculated for both sims
 		# and has cotranscribed subunits and known stoichiometries
@@ -152,81 +157,77 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			   and complex_id_to_is_cotranscribed[complex_id]
 			   and not complex_id_to_stoich_unknown[complex_id]
 			]
-		complex_ids_increased_gini = []
 
-		# Plot comparison
-		plt.figure(figsize=(4, 6))
-
+		# Calculate total counts of relevant complexes and monomers
+		complex_id_to_index = {
+			complex_id: i for (i, complex_id) in enumerate(all_complex_ids)}
+		complex_indexes = np.array([
+			complex_id_to_index[complex_id] for complex_id in complexes_to_plot])
+		monomer_indexes = []
 		for complex_id in complexes_to_plot:
-			# Highlight complexes whose coefficients increased with operons
-			if gini_coeff2[complex_id] - gini_coeff1[complex_id] > DIFF_THRESHOLD:
-				c = '#222222'
-				lw = 2
-				zorder = 5
-				complex_ids_increased_gini.append(complex_id)
-			else:
-				c = '#cccccc'
-				lw = 1
-				zorder = 0
-			plt.plot(
-				[0, 1], [gini_coeff1[complex_id], gini_coeff2[complex_id]],
-				color=c, lw=lw, zorder=zorder)
+			monomer_indexes.extend([
+				monomer_id_to_index[subunit_id] for subunit_id
+				in complex_id_to_subunit_ids[complex_id]])
+		monomer_indexes = np.array(monomer_indexes)
 
-		plt.xticks([0, 1], ["off", "on"])
-		plt.yticks([0, 1])
-		plt.xlim([-0.2, 1.2])
-		plt.ylim([-0.1, 1.1])
-		plt.ylabel('Gini coefficient')
+		m_total1 = m1[monomer_indexes].sum()
+		m_total2 = m2[monomer_indexes].sum()
+		c_total1 = c1[complex_indexes].sum()
+		c_total2 = c2[complex_indexes].sum()
+
+		# Plot comparison of Gini coefficient distributions
+		plt.figure(figsize=(6, 4))
+		gs = gridspec.GridSpec(1, 2)
+
+		ax_gini = plt.subplot(gs[0, 0])
+		y1 = np.array([
+			gini_coeff1[complex_id] for complex_id in complexes_to_plot])
+		y2 = np.array([
+			gini_coeff2[complex_id] for complex_id in complexes_to_plot])
+
+		x_jitter1 = np.random.normal(0, 0.02, len(complexes_to_plot))
+		x_jitter2 = np.random.normal(0.8, 0.02, len(complexes_to_plot))
+
+		ax_gini.scatter(x_jitter1, y1, s=5)
+		ax_gini.scatter(x_jitter2, y2, s=5)
+
+		ax_gini.violinplot(y1, positions=[0], showextrema=False)
+		ax_gini.violinplot(y2, positions=[0.8], showextrema=False)
+
+		ax_gini.set_xticks([0, 0.8])
+		ax_gini.set_xticklabels(['reference', 'input'])
+		ax_gini.set_yticks([0, 1])
+		ax_gini.set_xlim([-0.5, 1.3])
+		ax_gini.set_ylim([0, 1.1])
+		ax_gini.set_ylabel('Gini coefficient')
+
+		ax_gini.spines['top'].set_visible(False)
+		ax_gini.spines['right'].set_visible(False)
+
+		# Plot comparisons of total monomer and complex counts
+		ax_monomer = plt.subplot(gs[0, 1])
+		ax_monomer.bar(-0.15, m_total1, width=0.3)
+		ax_monomer.bar(0.15, m_total2, width=0.3)
+		ax_monomer.set_xticks([0, 1])
+		ax_monomer.set_xticklabels(['subunits', 'complexes'])
+		ax_monomer.set_xlim([-0.5, 1.5])
+		ax_monomer.set_ylabel('Total subunit counts')
+		ax_monomer.set_ylim([0, 600000])
+		ax_monomer.spines['top'].set_visible(False)
+		plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+
+		ax_complex = ax_monomer.twinx()
+		ax_complex.bar(0.85, c_total1, width=0.3, label='reference')
+		ax_complex.bar(1.15, c_total2, width=0.3, label='input')
+		ax_complex.set_ylabel('Total complex counts')
+		ax_complex.set_ylim([0, 50000])
+		ax_complex.spines['top'].set_visible(False)
+		plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+		ax_complex.legend(loc=1, prop={'size': 8})
+
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
-
-		# If True, generate table of relevant parameters for complexes whose
-		# coefficients increased significantly with operons
-		if WRITE_TABLE:
-			cistron_exp_off = sim_data2.process.transcription.cistron_expression['basal']
-			cistron_exp_on = sim_data2.process.transcription.cistron_tu_mapping_matrix.dot(
-				sim_data2.process.transcription.rna_expression['basal'])
-			cistron_id_to_index = {
-				cistron_id: i for i, cistron_id
-				in enumerate(sim_data2.process.transcription.cistron_data['id'])}
-			translation_efficiencies = sim_data1.process.translation.translation_efficiencies_by_monomer
-
-			with open(os.path.join(plotOutDir, plotOutFileName) + '.tsv', 'w') as f:
-				writer = csv.writer(f, delimiter='\t')
-				writer.writerow([
-					'complex_id', 'gini_operons_off', 'gini_operons_on',
-					'subunit_ids', 'subunit_stoichs', 'subunit_exp_off',
-					'subunit_exp_on', 'subunit_translation_eff'
-					])
-
-				# Add one row for each complex
-				for complex_id in complex_ids_increased_gini:
-					gini_operons_off = gini_coeff1[complex_id]
-					gini_operons_on = gini_coeff2[complex_id]
-					subunit_ids = complex_id_to_subunit_ids[complex_id]
-					subunit_stoichs = complex_id_to_subunit_stoichs[complex_id]
-
-					subunit_cistron_ids = [
-						monomer_id_to_cistron_id[monomer_id] for monomer_id in subunit_ids]
-					cistron_indexes = np.array([
-						cistron_id_to_index[cistron_id] for cistron_id in subunit_cistron_ids])
-					exp_off = cistron_exp_off[cistron_indexes]
-					exp_on = cistron_exp_on[cistron_indexes]
-
-					subunit_indexes = np.array([
-						monomer_id_to_index[monomer_id] for monomer_id in subunit_ids])
-					translation_effs = translation_efficiencies[subunit_indexes]
-
-					writer.writerow([
-						f'{complex_id}', f'{gini_operons_off:.2f}',
-						f'{gini_operons_on:.2f}',
-						', '.join([subunit_id for subunit_id in subunit_ids]),
-						', '.join([f'{int(stoich):d}' for stoich in subunit_stoichs]),
-						', '.join([f'{e:.2g}' for e in exp_off]),
-						', '.join([f'{e:.2g}' for e in exp_on]),
-						', '.join([f'{e:.2g}' for e in translation_effs])
-						])
 
 
 	def setup(self, inputDir: str) -> Tuple[

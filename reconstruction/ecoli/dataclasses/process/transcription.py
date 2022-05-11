@@ -356,6 +356,7 @@ class Transcription(object):
 				('is_5S_rRNA', 'bool'),
 				('is_ribosomal_protein', 'bool'),
 				('is_RNAP', 'bool'),
+				('uses_corrected_seq_counts', 'bool')
 				]
 			)
 
@@ -374,6 +375,7 @@ class Transcription(object):
 		cistron_data['is_5S_rRNA'] = is_5S
 		cistron_data['is_ribosomal_protein'] = is_ribosomal_protein
 		cistron_data['is_RNAP'] = is_RNAP
+		cistron_data['uses_corrected_seq_counts'] = np.zeros(n_cistrons, dtype=np.bool)
 
 		cistron_field_units = {
 			'id': None,
@@ -391,6 +393,7 @@ class Transcription(object):
 			'is_5S_rRNA': None,
 			'is_ribosomal_protein': None,
 			'is_RNAP': None,
+			'uses_corrected_seq_counts': None,
 			}
 
 		self.cistron_data = UnitStructArray(cistron_data, cistron_field_units)
@@ -906,6 +909,7 @@ class Transcription(object):
 			self.cistron_data['is_mRNA'], zero_exp_mask,
 			cistron_lengths < length_threshold,
 			self._cistron_is_rnaseq_covered))
+		corrected_indexes = []
 
 		for cistron_index in np.where(correction_mask)[0]:
 			# Get indexes of cistrons in the same operon
@@ -939,9 +943,13 @@ class Transcription(object):
 			# Use solution to get expected expression for given gene
 			exp = mapping_matrix_this_operon.dot(rna_exp)[pos_in_operon]
 			cistron_expression[cistron_index] = exp
+			corrected_indexes.append(cistron_index)
 
 		# Reset cistron_expression to new values
 		self.cistron_expression['basal'] = cistron_expression / cistron_expression.sum()
+
+		# Keep record of cistrons whose expression was corrected
+		self.cistron_data['uses_corrected_seq_counts'][np.array(corrected_indexes)] = True
 
 	def _build_transcription(self, raw_data, sim_data):
 		"""

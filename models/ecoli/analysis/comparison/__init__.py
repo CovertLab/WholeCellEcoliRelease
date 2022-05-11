@@ -8,6 +8,8 @@ ACTIVE = [
 	"growth_histograms.py",
 	"mRNA_copy_numbers.py",
 	"massFractionComparison.py",
+	"mRNA_copy_numbers.py",
+	"mRNA_length_histogram.py",
 	"polycistronic_transcription.py",
 ]
 

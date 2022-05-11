@@ -29,6 +29,26 @@ BOUNDS = [0, 2.5]
 P_VALUE_THRESHOLD = 1e-3
 N_BOOTSTRAP = 20000
 NUMERICAL_ZERO = 1e-30
+OPERON_COUNT_CUTOFF = 20
+
+EVIDENCE_CODE_TO_DESCRIPTIONS = {
+	'COMP': 'Inferred from computation',
+	'IC': 'Inferred by curator',
+	'EXP': 'Inferred from experiment',
+	'EV-COMP-HINF': 'Human inference from computation',
+	'EV-COMP-AINF': 'Automated inference from computation',
+	'EV-EXP-IEP': 'Inferred from expression pattern',
+	'EV-EXP-IEP-COREGULATION': 'Inferred from co-regulation',
+	'EV-IC-ADJ-GENES-SAME-BIO-PROCESS': 'Inferred by curator from adjacency',
+	'EV-IC': 'Inferred by curator',
+	'EV-EXP-IDA-TRANSCRIPT-LEN-DETERMINATION': 'Inferred from transcript lengths',
+	'EV-EXP-IDA-BOUNDARIES-DEFINED': 'Inferred from transcription boundaries',
+	'EV-EXP-IMP-POLAR-MUTATION': 'Inferred from polar effects',
+	0: 'No evidence',
+	1: 'Single evidence',
+	2: 'Multiple evidences',
+	}
+
 
 SEED = 0
 
@@ -164,10 +184,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		fig = plt.figure(figsize=FIGSIZE)
 
-		for i, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
-			ax = fig.add_subplot(1, 2, i + 1)
+		for left, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
+			ax = fig.add_subplot(1, 2, left + 1)
 			ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
-			category_mask = np.logical_xor(np.full_like(mRNA_mask_poly, i), mRNA_mask_poly)
+			category_mask = np.logical_xor(np.full_like(mRNA_mask_poly, left), mRNA_mask_poly)
+
 			mask = np.logical_and.reduce((plot_mask, category_mask, ~mRNA_mask_low_p))
 			ax.scatter(
 				np.log10(m1[mask] + 1),
@@ -211,14 +232,14 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			in np.where(np.logical_and.reduce((plot_mask, mRNA_mask_poly, mRNA_mask_low_p)))[0]
 			])
 
-		operons_to_plot = [
+		low_p_operons = [
 			operon for operon in sim_data2.process.transcription.operons
 			if np.any(np.isin(operon[0], low_p_cistron_indexes))]
-		n_operons = len(operons_to_plot)
+		n_low_p_operons = len(low_p_operons)
 
 		# Get expression levels from each set
 		operon_expression = []
-		for operon_index, operon in enumerate(operons_to_plot):
+		for operon_index, operon in enumerate(low_p_operons):
 			operon_cistron_ids = [all_cistron_ids[i] for i in operon[0]]
 			operon_cistron_mRNA_indexes = np.array([
 				cistron_id_to_mRNA_index[cistron_id]
@@ -239,13 +260,14 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		cistron_is_forward = sim_data2.process.transcription.cistron_data['is_forward']
 
 		fig = plt.figure()
-		fig.set_size_inches(30, 4 * (n_operons//7 + 1))
+		fig.set_size_inches(30, 4 * (n_low_p_operons//7 + 1))
 
-		gs = gridspec.GridSpec(n_operons//7 + 1, 7)
+		gs = gridspec.GridSpec(n_low_p_operons//7 + 1, 7)
 
-		for i, operon_index in enumerate(plot_order):
-			ax = plt.subplot(gs[i//7, i % 7])
-			operon = operons_to_plot[operon_index]
+		for left, operon_index in enumerate(plot_order):
+			ax = plt.subplot(gs[left//7, left % 7])
+			operon = low_p_operons[operon_index]
+
 			cistron_indexes_in_operon = operon[0]
 			is_forward = cistron_is_forward[cistron_indexes_in_operon[0]]
 
@@ -280,13 +302,14 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax.set_xticklabels(operon_gene_names, rotation=90)
 			ax.set_ylabel('mRNA counts')
 
-			if i == 0:
+			if left == 0:
 				ax.legend()
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName + '_bar_plots', metadata)
 		plt.close('all')
 
+		# (Optional) Get table of operons with low p-value genes
 		if GENERATE_OPERON_TABLE:
 			with open(os.path.join(plotOutDir, plotOutFileName + '_operon_table.tsv'), 'w') as f:
 				writer = csv.writer(f, delimiter='\t')
@@ -295,7 +318,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 					])
 
 				for operon_index in plot_order:
-					operon = operons_to_plot[operon_index]
+					operon = low_p_operons[operon_index]
 					cistron_indexes = operon[0]
 					p_values_this_operon = [
 						p_values[cistron_id_to_mRNA_index[all_cistron_ids[i]]]
@@ -305,6 +328,134 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 						cistron_id_to_gene_name[all_cistron_ids[cistron_indexes[-1]]],
 						min(p_values_this_operon),
 						])
+
+		# Get bar plots of "failure" rates of each evidence code to align with
+		# RNAseq data
+		# Map each operon to the list of evidence codes for the transcription
+		# units in the operon
+		all_operons = sim_data2.process.transcription.operons
+		operon_index_to_evidence_codes = {}
+
+		for (left, operon) in enumerate(all_operons):
+			# Skip monocistronic operons
+			if len(operon[0]) == 1:
+				continue
+
+			# TODO: skip operons with RNAseq corrections
+
+			evidence_codes = []
+			for rna_index in operon[1]:
+				evidence_codes.extend(
+					sim_data2.process.transcription.rna_id_to_evidence_codes.get(
+						all_rna_ids[rna_index][:-3], [])
+					)
+
+			operon_index_to_evidence_codes[left] = list(set(evidence_codes))
+
+		# Map evidence superclass, code and multiplicity to minimum p-values of
+		# each operon
+		all_operon_p_values = []
+		evidence_superclass_to_p_values = {}
+		evidence_code_to_p_values = {}
+		evidence_multiplicity_to_p_values = {}
+
+		for (operon_index, evidence_codes) in operon_index_to_evidence_codes.items():
+			operon = all_operons[operon_index]
+			operon_cistron_ids = [all_cistron_ids[i] for i in operon[0]]
+			operon_cistron_mRNA_indexes = np.array([
+				cistron_id_to_mRNA_index[cistron_id]
+				for cistron_id in operon_cistron_ids])
+			min_p = p_values[operon_cistron_mRNA_indexes].min()
+
+			for evidence_code in evidence_codes:
+				evidence_superclass_to_p_values.setdefault(
+					evidence_code.split('-')[1], []).append(min_p)
+				evidence_code_to_p_values.setdefault(
+					evidence_code, []).append(min_p)
+
+			# Evidence multiplicity is maxed out at two
+			evidence_multiplicity_to_p_values.setdefault(
+				min(len(evidence_codes), 2), []).append(min_p)
+
+			all_operon_p_values.append(min_p)
+
+		all_operon_p_values = np.array(all_operon_p_values)
+
+		def calculate_low_p_fraction(p_value_dict):
+			failure_rate_dict = {}
+			for key, p_values in p_value_dict.items():
+				n_operons = len(p_values)
+				if n_operons < OPERON_COUNT_CUTOFF:
+					continue
+				failure_rate_dict[key] = (
+					(np.array(p_values) < P_VALUE_THRESHOLD).sum() / n_operons,
+					n_operons
+					)
+
+			failure_rate_dict = dict(sorted(
+				failure_rate_dict.items(), key=lambda item: item[1][0]
+				))
+			return failure_rate_dict
+
+		# Calculate fraction of low-p operons in each group
+		all_operons_low_p_fraction = {
+			'All operons': (
+				(all_operon_p_values < P_VALUE_THRESHOLD).sum() / len(all_operon_p_values),
+				len(all_operon_p_values)
+				)
+			}
+		evidence_superclass_to_low_p_fraction = calculate_low_p_fraction(
+			evidence_superclass_to_p_values)
+		evidence_code_to_low_p_fraction = calculate_low_p_fraction(
+			evidence_code_to_p_values)
+		evidence_multiplicity_to_low_p_fraction = calculate_low_p_fraction(
+			evidence_multiplicity_to_p_values)
+
+		fig = plt.figure(figsize=(9, 5))
+		ax = fig.add_subplot(111)
+
+		left = 0
+		all_xticks = []
+		labels = []
+
+		# TODO: break y-axis for better scaling
+		for low_p_frac_dict in [
+			all_operons_low_p_fraction,
+			evidence_superclass_to_low_p_fraction,
+			evidence_code_to_low_p_fraction,
+			evidence_multiplicity_to_low_p_fraction]:
+
+			keys = [key for key in low_p_frac_dict.keys()]
+			fractions = [value[0] for value in low_p_frac_dict.values()]
+			n_samples = [value[1] for value in low_p_frac_dict.values()]
+			xticks = np.arange(left, left + len(keys))
+			all_xticks.extend(xticks)
+			labels.extend([
+				f'{EVIDENCE_CODE_TO_DESCRIPTIONS.get(key, key)} (n={n_sample})'
+					for (key, n_sample) in zip(keys, n_samples)
+				])
+
+			high_p = ax.bar(
+				xticks, np.ones(len(keys)),
+				label=f'p ≥ {P_VALUE_THRESHOLD}', width=0.7, color='#cccccc')
+			low_p = ax.bar(
+				xticks, fractions,
+				label=f'p < {P_VALUE_THRESHOLD}', width=0.7, color='r')
+			left = left + len(keys) + 1
+
+		ax.legend(handles=[high_p, low_p], bbox_to_anchor=(1, 1))
+		ax.set_xlim([-1, left - 1])
+		ax.set_ylim([0, 1])
+		ax.set_ylabel(f'Fraction of operons')
+		ax.set_xticks(all_xticks)
+		ax.set_xticklabels(labels, rotation=45, ha='right')
+		ax.spines["top"].set_visible(False)
+		ax.spines["right"].set_visible(False)
+
+		plt.tight_layout()
+		exportFigure(plt, plotOutDir, plotOutFileName + '_evidence_codes', metadata)
+		plt.close('all')
+
 
 	def setup(self, inputDir: str) -> Tuple[
 			AnalysisPaths, SimulationDataEcoli, ValidationDataEcoli]:

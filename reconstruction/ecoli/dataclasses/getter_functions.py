@@ -196,41 +196,11 @@ class GetterFunctions(object):
 		# Keep track of gene tuples of TUs to remove duplicate TUs that cover
 		# the same set of genes but have different left & right end coordinates.
 		# The first TU in the list that covers the given set of genes is always
-		# selected over later TUs.
-		all_tu_gene_tuples = set()
+		# selected over later TUs. Later TUs are discarded, but their evidence
+		# codes are added to the list of evidence codes of the first TU.
+		gene_tuple_to_tu_index = {}
 
 		# Add sequences from transcription_units file
-		for tu in raw_data.transcription_units:
-			# Get list of genes in TU after excluding invalid genes
-			gene_tuple = tuple(sorted(
-				[gene_id for gene_id in tu['genes'] if gene_id in valid_gene_ids]
-				))
-
-			# Skip TUs with only invalid genes
-			if len(gene_tuple) == 0:
-				continue
-
-			# Skip duplicate TUs
-			if gene_tuple in all_tu_gene_tuples:
-				continue
-			else:
-				all_tu_gene_tuples.add(gene_tuple)
-
-			left_end_pos = tu['left_end_pos']
-			right_end_pos = tu['right_end_pos']
-			assert left_end_pos is not None and right_end_pos is not None
-
-			# Keep track of genes that are covered
-			covered_gene_ids |= set(tu['genes'])
-
-			self._sequences[tu['id']] = parse_sequence(
-				tu['id'], left_end_pos, right_end_pos, tu['direction'])
-
-		# Add sequences of individual RNAs that are not part of any
-		# transcription unit (these genes are assumed to be transcribed as
-		# monocistronic transcription units)
-		rna_id_to_gene_id = {
-			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		gene_id_to_left_end_pos = {
 			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
 			}
@@ -241,6 +211,49 @@ class GetterFunctions(object):
 			gene['id']: gene['direction'] for gene in raw_data.genes
 			}
 
+		for i, tu in enumerate(raw_data.transcription_units):
+			# Get list of genes in TU after excluding invalid genes
+			gene_tuple = tuple(sorted(
+				[gene_id for gene_id in tu['genes'] if gene_id in valid_gene_ids]
+				))
+
+			# Skip TUs with only invalid genes
+			if len(gene_tuple) == 0:
+				continue
+
+			# Skip duplicate TUs but compile all evidence codes
+			if gene_tuple in gene_tuple_to_tu_index:
+				evidence_list = raw_data.transcription_units[
+					gene_tuple_to_tu_index[gene_tuple]]['evidence']
+				new_evidence = tu['evidence']
+
+				# Add nonduplicate evidence codes to original list
+				evidence_list.extend(list(set(new_evidence) - set(evidence_list)))
+				continue
+			else:
+				gene_tuple_to_tu_index[gene_tuple] = i
+
+			# Use gene coordinates if left and right end positions are not given
+			if not isinstance(tu['left_end_pos'], int):
+				tu['left_end_pos'] = min([
+					gene_id_to_left_end_pos[gene_id] for gene_id in tu['genes']
+					])
+			if not isinstance(tu['right_end_pos'], int):
+				tu['right_end_pos'] = max([
+					gene_id_to_right_end_pos[gene_id] for gene_id in tu['genes']
+					])
+
+			# Keep track of genes that are covered
+			covered_gene_ids |= set(tu['genes'])
+
+			self._sequences[tu['id']] = parse_sequence(
+				tu['id'], tu['left_end_pos'], tu['right_end_pos'], tu['direction'])
+
+		# Add sequences of individual RNAs that are not part of any
+		# transcription unit (these genes are assumed to be transcribed as
+		# monocistronic transcription units)
+		rna_id_to_gene_id = {
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
 		all_rna_ids = sorted(set([rna['id'] for rna in raw_data.rnas]))
 
 		for rna_id in all_rna_ids:
