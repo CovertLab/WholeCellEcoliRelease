@@ -1,4 +1,4 @@
-# Measured half lives, other proteins follow N-end rule in protein_half_lives_n_end_rule.tsv
+# Measured half lives (from Macklin et al., 2020)
 "id"	"half life (units.min)"	"_comments"
 "DCUR-MONOMER"	108	"DcuR"
 "DETHIOBIOTIN-SYN-MONOMER"	324	"BioD"

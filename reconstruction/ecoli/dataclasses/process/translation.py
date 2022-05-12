@@ -119,13 +119,6 @@ class Translation(object):
 		n_end_rule_deg_rates = {
 			row['aa_code']: (np.log(2)/(row['half life'])).asNumber(deg_rate_units)
 			for row in raw_data.protein_half_lives_n_end_rule}
-		slow_deg_rate = min(n_end_rule_deg_rates.values())
-
-		# Build list of ribosomal proteins
-		# Give all ribosomal proteins the slowAA rule
-		ribosomalProteins = []
-		ribosomalProteins.extend([x[:-3] for x in sim_data.molecule_groups.s30_proteins])
-		ribosomalProteins.extend([x[:-3] for x in sim_data.molecule_groups.s50_proteins])
 
 		# Get degradation rates from measured protein half lives
 		measured_deg_rates = {
@@ -133,11 +126,21 @@ class Translation(object):
 			for p in raw_data.protein_half_lives_measured
 			}
 
+		# Get degradation rates from Nagar (2022) pulsed-SILAC half lives
+		pulsed_silac_deg_rates = {
+			p['id']: (np.log(2) / p['half_life']).asNumber(deg_rate_units)
+			for p in raw_data.protein_half_lives_pulsed_silac
+		}
+
 		deg_rate = np.zeros(len(all_proteins))
 		for i, protein in enumerate(all_proteins):
+			# Use measured degradation rates if available
 			if protein['id'] in measured_deg_rates:
 				deg_rate[i] = measured_deg_rates[protein['id']]
-			elif protein['id'] not in ribosomalProteins:
+			elif protein['id'] in pulsed_silac_deg_rates:
+				deg_rate[i] = pulsed_silac_deg_rates[protein['id']]
+			# If measured rates are unavailable, use N-end rule
+			else:
 				seq = protein['seq']
 				assert seq[0] == 'M'  # All protein sequences should start with methionine
 
@@ -145,8 +148,6 @@ class Translation(object):
 				# is cleaved
 				n_end_residue = seq[protein['cleavage_of_initial_methionine']]
 				deg_rate[i] = n_end_rule_deg_rates[n_end_residue]
-			else:
-				deg_rate[i] = slow_deg_rate
 
 		max_protein_id_length = max(
 			len(protein_id) for protein_id in protein_ids_with_compartments)
