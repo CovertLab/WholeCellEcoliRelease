@@ -184,10 +184,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		fig = plt.figure(figsize=FIGSIZE)
 
-		for left, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
-			ax = fig.add_subplot(1, 2, left + 1)
+		for i, category in enumerate(['Polycistronic genes', 'Monocistronic genes']):
+			ax = fig.add_subplot(1, 2, i + 1)
 			ax.plot(BOUNDS, BOUNDS, ls='--', lw=2, c='k', alpha=0.05)
-			category_mask = np.logical_xor(np.full_like(mRNA_mask_poly, left), mRNA_mask_poly)
+			category_mask = np.logical_xor(np.full_like(mRNA_mask_poly, i), mRNA_mask_poly)
 			mask = np.logical_and.reduce((plot_mask, category_mask, ~mRNA_mask_low_p))
 			ax.scatter(
 				np.log10(m1[mask] + 1),
@@ -264,8 +264,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		gs = gridspec.GridSpec(n_low_p_operons//7 + 1, 7)
 
-		for left, operon_index in enumerate(plot_order):
-			ax = plt.subplot(gs[left//7, left % 7])
+		for i, operon_index in enumerate(plot_order):
+			ax = plt.subplot(gs[i//7, i % 7])
 			operon = low_p_operons[operon_index]
 			cistron_indexes_in_operon = operon[0]
 			is_forward = cistron_is_forward[cistron_indexes_in_operon[0]]
@@ -301,7 +301,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax.set_xticklabels(operon_gene_names, rotation=90)
 			ax.set_ylabel('mRNA counts')
 
-			if left == 0:
+			if i == 0:
 				ax.legend()
 
 		plt.tight_layout()
@@ -337,7 +337,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		all_operons = sim_data2.process.transcription.operons
 		operon_index_to_evidence_codes = {}
 
-		for (left, operon) in enumerate(all_operons):
+		for (i, operon) in enumerate(all_operons):
 			# Skip monocistronic operons
 			if len(operon[0]) == 1:
 				continue
@@ -351,7 +351,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 						all_rna_ids[rna_index][:-3], [])
 					)
 
-			operon_index_to_evidence_codes[left] = list(set(evidence_codes))
+			operon_index_to_evidence_codes[i] = list(set(evidence_codes))
 
 		# Map evidence superclass, code and multiplicity to minimum p-values of
 		# each operon
@@ -415,7 +415,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		fig = plt.figure(figsize=(9, 5))
 		ax = fig.add_subplot(111)
 
-		left = 0
+		i = 0
 		all_xticks = []
 		labels = []
 
@@ -429,7 +429,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			keys = [key for key in low_p_frac_dict.keys()]
 			fractions = [value[0] for value in low_p_frac_dict.values()]
 			n_samples = [value[1] for value in low_p_frac_dict.values()]
-			xticks = np.arange(left, left + len(keys))
+			xticks = np.arange(i, i + len(keys))
 			all_xticks.extend(xticks)
 			labels.extend([
 				f'{EVIDENCE_CODE_TO_DESCRIPTIONS.get(key, key)} (n={n_sample})'
@@ -442,10 +442,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			low_p = ax.bar(
 				xticks, fractions,
 				label=f'p < {P_VALUE_THRESHOLD}', width=0.7, color='r')
-			left = left + len(keys) + 1
+			i = i + len(keys) + 1
 
 		ax.legend(handles=[high_p, low_p], bbox_to_anchor=(1, 1))
-		ax.set_xlim([-1, left - 1])
+		ax.set_xlim([-1, i - 1])
 		ax.set_ylim([0, 1])
 		ax.set_ylabel(f'Fraction of operons')
 		ax.set_xticks(all_xticks)
