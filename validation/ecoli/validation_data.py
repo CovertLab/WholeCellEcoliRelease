@@ -39,6 +39,7 @@ class ValidationDataEcoli(object):
 		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
 		self.essential_genes = EssentialGenes(validation_data_raw)
 		self.geneFunctions = GeneFunctions(validation_data_raw)
+		self.macromolecular_growth_rate_modulation = MacromolecularGrowthRateModulation(validation_data_raw)
 
 		self._add_dna_footprint_sizes(validation_data_raw)
 		self._add_amino_acid_growth_rates(validation_data_raw)
@@ -336,3 +337,21 @@ class GeneFunctions(object):
 
 		for row in validation_data_raw.geneFunctions:
 			self.geneFunctions[row["FrameID"]] = row["Function"]
+
+class MacromolecularGrowthRateModulation(object):
+	""" MacromolecularGrowthRateModulation """
+	def __init__(self, validation_data_raw):
+		self._load_macromolecular_growth_rate_modulation(validation_data_raw)
+
+	def _load_macromolecular_growth_rate_modulation(self, validation_data_raw):
+		dataset = validation_data_raw.macromolecular_growth_rate_modulation
+		# List of data value names extracted from the raw flat file
+		values = list(dataset[0].keys())
+		for value in values:
+			# Store numerical value of raw data into a temporary ndarray
+			temp = np.zeros(len(dataset))
+			for idx, row in enumerate (dataset):
+				y = row[value]
+				temp[idx] = Unum.coerceToUnum(y).asNumber()
+			# Set each ndarray as the corresponding attribute, while tagging the data's original units onto the ndarray
+			setattr(self, value, Unum(Unum.coerceToUnum(dataset[0][value])._unit, temp))

@@ -19,8 +19,7 @@ class InitRawDataTask(FiretaskBase):
 		operon_option = self.get('operons') or DEFAULT_OPERON_OPTION
 		print(f"{time.ctime()}: Instantiating raw_data with operons={operon_option}")
 
-		raw_data = KnowledgeBaseEcoli(
-			operon_option=operon_option)
+		raw_data = KnowledgeBaseEcoli(operon_option=operon_option)
 
 		print(f"{time.ctime()}: Saving raw_data")
 

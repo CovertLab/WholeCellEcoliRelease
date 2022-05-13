@@ -219,7 +219,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
 
-
 		# Get bar plots of expression levels for operons with low p-values
 		cistron_id_to_mRNA_index = {
 			cistron_id: i for i, cistron_id in enumerate(mRNA_cistron_ids)
@@ -308,7 +307,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName + '_bar_plots', metadata)
 		plt.close('all')
 
-
 		# (Optional) Get table of operons with low p-value genes
 		if GENERATE_OPERON_TABLE:
 			with open(os.path.join(plotOutDir, plotOutFileName + '_operon_table.tsv'), 'w') as f:
@@ -328,7 +326,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 						cistron_id_to_gene_name[all_cistron_ids[cistron_indexes[-1]]],
 						min(p_values_this_operon),
 						])
-
 
 		# Get bar plots of "failure" rates of each evidence code to align with
 		# RNAseq data

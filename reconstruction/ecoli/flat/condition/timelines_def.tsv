@@ -27,4 +27,4 @@
 "000024_cut_calcium"	"0 minimal, 1200 minimal_minus_calcium"
 "000025_cut_aa"	"0 minimal_plus_amino_acids, 1200 minimal"
 "000026_add_and_cut_aa"	"0 minimal, 3600 minimal_plus_amino_acids, 14400 minimal"
-"000027_cut_and_add_aa"	"0 minimal_plus_amino_acids, 3600 minimal, 21600 minimal_plus_amino_acids"
+"000027_cut_and_add_aa"	"0 minimal_plus_amino_acids, 18000 minimal, 36000 minimal_plus_amino_acids"

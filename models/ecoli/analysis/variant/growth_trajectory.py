@@ -14,7 +14,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from models.ecoli.analysis import variantAnalysisPlot
-from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
+from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns, read_stacked_bulk_molecules
+from wholecell.utils import units
 
 
 def mean_std(data):
@@ -80,10 +81,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			else:
 				timeline = []
 
+			aa_ids = sim_data.molecule_groups.amino_acids
+			aa_mws = sim_data.getter.get_masses(aa_ids).asNumber(units.fg / units.count)
+
 			all_mass_means = []
 			all_growth_means = []
 			all_ratio_means = []
 			all_ratio_ma = []
+			all_rna_to_aa_ma = []
 			all_growth_ma = []
 			all_protein_growth_ma = []
 			all_rna_growth_ma = []
@@ -111,6 +116,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				protein_means = read_stacked_columns(cell_paths, 'Mass', 'proteinMass', remove_first=True, fun=np.mean).reshape(-1)
 				rna_means = read_stacked_columns(cell_paths, 'Mass', 'rnaMass', remove_first=True, fun=np.mean).reshape(-1)
 				mass_means = read_stacked_columns(cell_paths, 'Mass', 'cellMass', remove_first=True, fun=np.mean).reshape(-1)
+				aas,  = read_stacked_bulk_molecules(cell_paths, (aa_ids,), remove_first=True)
 
 				if len(np.unique(time_step)) > 1:
 					raise ValueError('Check plot implementation to handle variable time step across sims.')
@@ -119,10 +125,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				convolution_array = np.ones(moving_window) / moving_window
 
 				# Process data
+				aa_mass = aas @ aa_mws
 				ratio = rna / protein
+				rna_to_aa = rna / (protein + aa_mass)
 				ratio_means = rna_means / protein_means
 				growth_ma = np.convolve(growth, convolution_array, mode='valid')
 				ratio_ma = np.convolve(ratio, convolution_array, mode='valid')
+				rna_to_aa_ma = np.convolve(rna_to_aa, convolution_array, mode='valid')
 				protein_growth_ma = np.convolve(protein_growth, convolution_array, mode='valid')
 				rna_growth_ma = np.convolve(rna_growth, convolution_array, mode='valid')
 				small_mol_growth_ma = np.convolve(small_mol_growth, convolution_array, mode='valid')
@@ -139,6 +148,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				all_growth_means.append(growth_means)
 				all_ratio_means.append(ratio_means)
 				all_ratio_ma.append(ratio_ma)
+				all_rna_to_aa_ma.append(rna_to_aa_ma)
 				all_growth_ma.append(growth_ma)
 				all_protein_growth_ma.append(protein_growth_ma)
 				all_rna_growth_ma.append(rna_growth_ma)
@@ -188,6 +198,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			average_data[variant] = {
 				'Growth': mean_std(all_growth_ma),
 				'R/P ratio': mean_std(all_ratio_ma),
+				'R/(P+A) ratio': mean_std(all_rna_to_aa_ma),
 				}
 
 		for axes in [main_axes, trimmed_axes]:
@@ -203,10 +214,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		plt.figure(trimmed_fig)
 		set_lim(trimmed_axes[0, 0], xmin=0, xmax=4000)
 		set_lim(trimmed_axes[1, 0])
-		set_lim(trimmed_axes[2, 0])
+		set_lim(trimmed_axes[2, 0], ymin=-0.5, ymax=3.5)
 		set_lim(trimmed_axes[0, 1])
 		set_lim(trimmed_axes[1, 1])
-		set_lim(trimmed_axes[2, 1], ymax=4)
+		set_lim(trimmed_axes[2, 1], ymin=-1, ymax=4.5)
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName + '_trimmed', metadata)
 

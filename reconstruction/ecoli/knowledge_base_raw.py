@@ -59,6 +59,7 @@ LIST_OF_DICT_FILENAMES = [
 	"ppgpp_regulation_removed.tsv",
 	"protein_half_lives_measured.tsv",
 	"protein_half_lives_n_end_rule.tsv",
+	"protein_half_lives_pulsed_silac.tsv",
 	"proteins.tsv",
 	"relative_metabolite_concentrations.tsv",
 	"rna_half_lives.tsv",
@@ -175,7 +176,7 @@ class KnowledgeBaseEcoli(object):
 		self.modified_data: Dict[str, str] = MODIFIED_DATA.copy()
 		self.added_data: Dict[str, str] = ADDED_DATA.copy()
 
-		if self.operon_option != "off":
+		if self.operon_option != 'off':
 			self.list_of_dict_filenames.append('transcription_units.tsv')
 			self.removed_data.update({
 				'transcription_units': 'transcription_units_removed',

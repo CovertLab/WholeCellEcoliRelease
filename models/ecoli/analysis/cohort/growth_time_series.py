@@ -7,6 +7,7 @@ import os
 import pickle
 
 from matplotlib import pyplot as plt
+import matplotlib
 import numpy as np
 
 from models.ecoli.analysis import cohortAnalysisPlot
@@ -19,7 +20,12 @@ from wholecell.utils import units
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def plot_time_series(self, ax, t_flat, y_flat, ylabel, timeline, filtered_t,
-			downsample=5, log_scale=False, single_cells=False, show_x_labels=True):
+			downsample=5, log_scale=False, single_cells=False, distinct=False,
+			show_x_labels=True, plot_options=None, single_scale=1, shade=True, use_hr=False):
+		if plot_options is None:
+			plot_options = {}
+		t_scaling = 60 if use_hr else 1
+
 		# TODO: add trace labels as arg
 		# Extract y data for each time point (assumes time step lines up across samples)
 		data = {}
@@ -45,7 +51,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			t.append(ts.mean())
 			mean.append(d.mean(0))
 			std.append(d.std(0))
-		t = np.array(t)
+		t = np.array(t) / t_scaling
 		mean = np.array(mean).squeeze()
 		std = np.array(std).squeeze()
 
@@ -57,13 +63,18 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Scale transparency and width with number of cells to make more
 			# readable with many traces
-			alpha = 1 / (1 + n_cells)
-			linewidth = 1 / (1 + np.log(n_cells))
+			linewidth = 1 / (1 + np.log(n_cells)) * single_scale
+			if distinct:
+				alphas = np.linspace(0.2, 0.8, n_cells)
+				color = matplotlib.colors.TABLEAU_COLORS['tab:blue']
+			else:
+				alphas = 1 / (1 + n_cells) * np.ones(n_cells)
+				color = 'k'
 
 			# Plot each cell trace
-			for start, end in zip(splits[:-1], splits[1:]):
+			for start, end, alpha in zip(splits[:-1], splits[1:], alphas):
 				# Select cell specific trace
-				t_single = t_flat[start:end]
+				t_single = t_flat[start:end] / t_scaling
 				y_single = y_flat[start:end]
 
 				# Downsample data
@@ -76,34 +87,36 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 					y_single = y_single[:drop_slice].reshape(-1, downsample).mean(axis=1)
 
 				# Plot single trace
-				ax.plot(t_single, y_single, 'k',
+				ax.plot(t_single, y_single, color,
 					alpha=alpha, linewidth=linewidth)
 
 		# Plot mean as a trace and standard deviation as a shaded area
-		ax.plot(t, mean)
-		if len(mean.shape) > 1:
-			for m, s in zip(mean.T, std.T):
-				ax.fill_between(t, m - s, m + s, alpha=0.1)
-		else:
-			ax.axhline(mean.mean(), linestyle='--', color='k', linewidth=0.5)
-			ax.fill_between(t, mean - std, mean + std, alpha=0.1)
+		ax.plot(t, mean, **plot_options)
+		if shade:
+			if len(mean.shape) > 1:
+				for m, s in zip(mean.T, std.T):
+					ax.fill_between(t, m - s, m + s, alpha=0.1)
+			else:
+				ax.axhline(mean.mean(), linestyle='--', color='k', linewidth=0.5)
+				ax.fill_between(t, mean - std, mean + std, alpha=0.1)
 
 		# Format axes
 		if log_scale:
 			ax.set_yscale('log')
 		if show_x_labels:
-			ax.set_xlabel('Time (min)', fontsize=8)
+			t_units = 'hr' if use_hr else 'min'
+			ax.set_xlabel(f'Time ({t_units})', fontsize=8)
 		else:
 			ax.xaxis.set_ticklabels([])
-		ax.set_ylabel(ylabel, fontsize=6)
-		ax.tick_params(labelsize=6)
+		ax.set_ylabel(ylabel, fontsize=8)
+		ax.tick_params(labelsize=8)
 		self.remove_border(ax)
 
 		# Show any media changes
 		t_max = t.max()
 		y_min, y_max = ax.get_ylim()
 		for i, (t_media, media) in enumerate(timeline):
-			t_media /= 60
+			t_media /= 60 * t_scaling
 			if t_media < t_max:
 				ax.axvline(t_media, color='k', linestyle='--', linewidth=0.5, alpha=0.3)
 				if log_scale:
@@ -289,12 +302,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			'Protein mass fraction\n(with and without free AA)': {'y': [protein_fraction, aa_fraction], 'lim': [0, 0.3]},
 			'# cells': {'x': unique_time, 'y': [cell_count]},
 			'RNAP conc\n(uM)': {'y': [rnap_conc], 'lim': [0, 10]},
-			'RNAP output\n(mM NTPs/s)': {'y': [rnap_output], 'lim': [0, 0.16]},
+			'RNAP output\n(mM NTPs/s)': {'y': [rnap_output], 'lim': [0.03, 0.14]},
 			'Ribosome conc\n(uM)': {'y': [ribosome_conc], 'lim': [0, 40]},
 			'Ribosome output\n(mM AA/s)': {'y': [ribosome_output], 'lim': [0, 1]},
-			'mRNA:rRNA ratio': {'y': [mrna_rrna_ratio], 'lim': [0, 0.1]},
+			'mRNA:rRNA ratio': {'y': [mrna_rrna_ratio], 'lim': [0.03, 0.09]},
 			'RNA mass fractions': {'y': [mrna_fraction, rrna_fraction, trna_fraction], 'lim': [0, 1]},
-			'RNA deg rate': {'y': [rna_deg_rate], 'lim': [0, 0.8]},
+			'RNA deg rate': {'y': [rna_deg_rate], 'lim': [0.2, 0.7]},
 			'RNA deg ratio': {'y': [mrna_deg_ratio, rrna_deg_ratio, trna_deg_ratio], 'lim': [0, 1]},
 			'Excess ribosome RNA/protein': {'y': [excess], 'lim': [0, 1]},
 			'Synthesis fraction rRNA/rProtein/enzymes': {'y': [synth_fractions], 'lim': [0, 1]},
@@ -305,9 +318,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			f'{aa_ids[i][:-3]} concentration\n(mM)': {'y': [aa_conc[:, i]]}
 			for i in range(len(aa_ids))
 			}
-		data_4['LEU concentration\n(mM)']['lim'] = [0, 20]
 		data_5 = {
-			'Growth rates\n(1/hr)': {'y': [growth_rate, rna_growth, protein_growth], 'lim': [0, 2]},
+			'Growth rates (1/hr)': {'y': [growth_rate, rna_growth, protein_growth], 'lim': [0, 2]},
 			}
 		# Subset of the data to plot for the paper
 		paper_2_keys = [
@@ -332,8 +344,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			]
 
 		def subplots(filename, data, keys, filtered, rows=None, cols=None,
-				downsample=5, trim=False, single_cells=False,
-				row_scale=3., col_scale=3., all_x_labeled=True):
+				trim=False, row_scale=3., col_scale=3., all_x_labeled=True,
+				xlim=None, **kwargs):
 			# Determine layout
 			if rows:
 				cols = int(np.ceil(len(keys) / rows))
@@ -364,11 +376,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				for j, y in enumerate(entry['y']):
 					self.plot_time_series(ax, x, y, key,
 						timeline if j == 0 else [], filtered,
-						log_scale=entry.get('log', False), downsample=downsample,
-						single_cells=single_cells, show_x_labels=show_x_labels)
+						log_scale=entry.get('log', False),
+						show_x_labels=show_x_labels,
+						**kwargs)
 
 				if trim and (lim := entry.get('lim')):
 					ax.set_ylim(lim)
+				if xlim is not None:
+					ax.set_xlim(xlim)
 
 			# Cleanup text if trimming
 			if trim:
@@ -401,17 +416,20 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Plots specific for figure 4 in paper
 		subplots(f'{plotOutFileName}_fig4_single', data_4, paper_4_keys, filtered,
-			downsample=10, trim=True, cols=1, single_cells=True)
+			downsample=10, trim=True, cols=1, single_cells=True, distinct=True,
+			plot_options=dict(color='k', alpha=0.6), single_scale=2,
+			shade=False, use_hr=True, xlim=(0, 5))
 
 		# Plots specific for figure 5 in paper
 		subplots(f'{plotOutFileName}_fig5', data_5, data_5.keys(), filtered,
-			downsample=10, trim=True, cols=1)
+			downsample=10, trim=True, cols=1, row_scale=2.7, col_scale=2.7)
 
 		# Plots specific for figure 6 in paper
 		subplots(f'{plotOutFileName}_fig6', data, paper_6_keys, filtered,
 			downsample=10, trim=True, cols=1, row_scale=1.5, all_x_labeled=False)
-		subplots(f'{plotOutFileName}_fig6_single', data, paper_6_keys, filtered,
-			downsample=10, trim=True, cols=1, single_cells=True)
+		subplots(f'{plotOutFileName}_fig6_xlim', data, paper_6_keys, filtered,
+			downsample=10, trim=True, cols=1, row_scale=1.5, all_x_labeled=False,
+			xlim=(-40, 950))
 
 		# Plot histograms of data
 		# TODO: use data dict from above to generalize this to match any changes in time series traces
