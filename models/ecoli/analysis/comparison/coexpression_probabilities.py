@@ -1,5 +1,6 @@
 """
-Compare coexpression probabilities of operons.
+Compare coexpression probabilities of genes in the same operon at the mRNA and
+protein level.
 """
 
 from typing import Tuple
@@ -7,6 +8,7 @@ from typing import Tuple
 from matplotlib import pyplot as plt
 # noinspection PyUnresolvedReferences
 import numpy as np
+from scipy import stats
 
 from models.ecoli.analysis import comparisonAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -17,7 +19,8 @@ from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
 from wholecell.io.tablereader import TableReader, TableReaderError
 
 
-FIGSIZE = (8, 4)
+FIGSIZE = (14.85, 4)
+LOW_EXP_THRESHOLD = 100
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
@@ -61,7 +64,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		def read_sims(ap):
 			mRNA_coexp_probs = np.zeros(len(gene_group_indexes))
 			protein_coexp_probs = np.zeros(len(gene_group_indexes))
-			all_genes_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
+			is_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
+			is_lowly_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
 
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
@@ -70,60 +74,90 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				cell_paths, 'mRNACounts', 'mRNA_cistron_counts')
 			all_monomer_counts = read_stacked_columns(
 				cell_paths, 'MonomerCounts', 'monomerCounts')
-			n_timesteps = all_mRNA_counts.shape[0]
 
 			for i in range(len(gene_group_indexes)):
 				operon_mRNA_counts = all_mRNA_counts[:, np.array(mRNA_group_indexes[i])]
-				mRNA_coexp_probs[i] = np.all(operon_mRNA_counts, axis=1).sum()/n_timesteps
+				mRNA_coexp_probs[i] = (
+					(np.all(operon_mRNA_counts, axis=1).sum() + 1) /
+					(np.any(operon_mRNA_counts, axis=1).sum() + 1)
+				)
+				is_expressed[i] = np.all(operon_mRNA_counts.sum(axis=0))
+
 				operon_monomer_counts = all_monomer_counts[:, np.array(monomer_group_indexes[i])]
-				protein_coexp_probs[i] = np.all(operon_monomer_counts, axis=1).sum() / n_timesteps
-				all_genes_expressed[i] = np.all(operon_mRNA_counts.sum(axis=0))
+				protein_coexp_probs[i] = (
+					(np.all(operon_monomer_counts, axis=1).sum() + 1) /
+					(np.any(operon_monomer_counts, axis=1).sum() + 1)
+				)
+				is_lowly_expressed[i] = (operon_monomer_counts.mean() < LOW_EXP_THRESHOLD)
 
-			return mRNA_coexp_probs, protein_coexp_probs, all_genes_expressed
+			return mRNA_coexp_probs, protein_coexp_probs, is_expressed, is_lowly_expressed
 
-		mRNA_probs1, protein_probs1, all_genes_expressed = read_sims(ap1)
-		mRNA_probs2, protein_probs2, _ = read_sims(ap2)
+		mRNA_p1, protein_p1, is_expressed, is_lowly_expressed = read_sims(ap1)
+		mRNA_p2, protein_p2, _, _ = read_sims(ap2)
 
 		fig = plt.figure(figsize=FIGSIZE)
-		ax0 = fig.add_subplot(1, 2, 1)
-		ax0.plot([0, 1], [0, 1], ls='--', lw=2, c='k', alpha=0.05)
-		ax0.scatter(
-			mRNA_probs1[all_genes_expressed], mRNA_probs2[all_genes_expressed],
-			alpha=0.5, s=5, c='k', clip_on=False, edgecolors='none')
+		gs = fig.add_gridspec(
+			2, 6, width_ratios=(4, 1, 4, 1, 4, 1), height_ratios=(1, 4))
 
-		ax0.set_xlim([0, 1])
-		ax0.set_ylim([0, 1])
-		ax0.set_title('mRNA')
-		ax0.set_xlabel('Reference')
-		ax0.set_ylabel('Input')
+		def draw_plot(p1, p2, grid_i, grid_j, y_max):
+			scatter_ax = fig.add_subplot(gs[grid_i, grid_j])
+			scatter_ax.plot([0, 1], [0, 1], ls='--', lw=2, c='k', alpha=0.1)
+			scatter_ax.scatter(
+				p1, p2,
+				alpha=0.5, s=5, c='k', clip_on=False, edgecolors='none')
 
-		ax0.spines["top"].set_visible(False)
-		ax0.spines["right"].set_visible(False)
-		ax0.spines["bottom"].set_position(("outward", 20))
-		ax0.spines["left"].set_position(("outward", 20))
+			scatter_ax.set_xlim([0, 1])
+			scatter_ax.set_ylim([0, 1])
+			scatter_ax.set_xlabel('Reference')
+			scatter_ax.set_ylabel('Input')
 
-		ax1 = fig.add_subplot(1, 2, 2)
-		ax1.plot([0, 1], [0, 1], ls='--', lw=2, c='k', alpha=0.05)
-		ax1.scatter(
-			protein_probs1[all_genes_expressed], protein_probs2[all_genes_expressed],
-			alpha=0.5, s=5, c='k', clip_on=False, edgecolors='none')
+			scatter_ax.spines["top"].set_visible(False)
+			scatter_ax.spines["right"].set_visible(False)
+			scatter_ax.spines["bottom"].set_position(("outward", 20))
+			scatter_ax.spines["left"].set_position(("outward", 20))
 
-		ax1.set_xlim([0, 1])
-		ax1.set_ylim([0, 1])
-		ax1.set_title('protein')
-		ax1.set_xlabel('Reference')
-		ax1.set_ylabel('Input')
+			x = np.linspace(0, 1, 1000)
+			kde1 = stats.gaussian_kde(p1)
+			kde2 = stats.gaussian_kde(p2)
 
-		ax1.spines["top"].set_visible(False)
-		ax1.spines["right"].set_visible(False)
-		ax1.spines["bottom"].set_position(("outward", 20))
-		ax1.spines["left"].set_position(("outward", 20))
+			hist1_ax = fig.add_subplot(gs[grid_i - 1, grid_j], sharex=scatter_ax)
+			hist1_ax.fill_between(x, kde1(x), alpha=0.5)
+			hist1_ax.set_xlim([0, 1])
+			hist1_ax.set_ylim([0, y_max])
+			hist1_ax.set_yticks([])
+			hist1_ax.spines["top"].set_visible(False)
+			hist1_ax.spines["right"].set_visible(False)
+			hist1_ax.spines["left"].set_visible(False)
+			hist1_ax.spines["bottom"].set_visible(False)
+			plt.setp(hist1_ax.get_xaxis(), visible=False)
+
+			hist2_ax = fig.add_subplot(gs[grid_i, grid_j + 1], sharey=scatter_ax)
+			hist2_ax.fill_betweenx(x, kde2(x), fc='C1', alpha=0.5)
+			hist2_ax.set_ylim([0, 1])
+			hist2_ax.set_xlim([0, y_max])
+			hist2_ax.set_xticks([])
+			hist2_ax.spines["top"].set_visible(False)
+			hist2_ax.spines["right"].set_visible(False)
+			hist2_ax.spines["left"].set_visible(False)
+			hist2_ax.spines["bottom"].set_visible(False)
+			plt.setp(hist2_ax.get_yaxis(), visible=False)
+
+		draw_plot(
+			mRNA_p1[is_expressed],
+			mRNA_p2[is_expressed],
+			1, 0, 5)
+		draw_plot(
+			protein_p1[np.logical_and(is_expressed, is_lowly_expressed)],
+			protein_p2[np.logical_and(is_expressed, is_lowly_expressed)],
+			1, 2, 4)
+		draw_plot(
+			protein_p1[np.logical_and(is_expressed, ~is_lowly_expressed)],
+			protein_p2[np.logical_and(is_expressed, ~is_lowly_expressed)],
+			1, 4, 12)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
-
-		import ipdb; ipdb.set_trace()
 
 	def setup(self, inputDir: str) -> Tuple[
 			AnalysisPaths, SimulationDataEcoli, ValidationDataEcoli]:
