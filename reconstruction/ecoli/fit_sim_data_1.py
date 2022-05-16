@@ -34,7 +34,7 @@ MAX_FITTING_ITERATIONS = 100
 N_SEEDS = 10
 
 # Parameters used in fitPromoterBoundProbability()
-PROMOTER_PDIFF_THRESHOLD = 0.07  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
+PROMOTER_PDIFF_THRESHOLD = 0.06  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
 PROMOTER_REG_COEFF = 1e-3  # Optimization weight on how much probability should stay close to original values
 PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
 PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
