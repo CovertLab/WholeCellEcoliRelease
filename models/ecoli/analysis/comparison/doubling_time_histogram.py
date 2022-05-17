@@ -23,11 +23,6 @@ FIGSIZE = (4, 4)
 DOUBLING_TIME_BOUNDS_MINUTES = [20, 120]
 N_BINS = 20
 
-TARGET_LINE_STYLE = dict(
-	color = 'crimson',
-	lw = 2
-	)
-
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
@@ -71,11 +66,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		plt.hist(
 			dt2, bins=bins, alpha=0.5,
 			label=f'input (n={len(dt2)}, {np.mean(dt2):.1f} $\pm$ {np.std(dt2):.1f})')
-
-		plt.axvline(
-			sim_data.doubling_time.asNumber(units.min),
-			**TARGET_LINE_STYLE
-			)
 		plt.legend(prop={'size': 8})
 
 		plt.xlim(*DOUBLING_TIME_BOUNDS_MINUTES)
