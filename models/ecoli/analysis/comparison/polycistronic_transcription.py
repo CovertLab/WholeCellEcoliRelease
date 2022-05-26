@@ -51,7 +51,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			for cistron_id in cistron_ids]
 
 		def read_sims(ap):
-			cell_paths = ap.get_cells()
+			cell_paths = ap.get_cells(seed=[0])
 
 			simOutDir = os.path.join(cell_paths[0], "simOut")
 			mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
