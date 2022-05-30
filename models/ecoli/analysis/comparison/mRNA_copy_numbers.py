@@ -1,7 +1,6 @@
 """
-Generates a scatter plot of mRNA cistron copy numbers that are expected from the
-expression levels calculated in the ParCa vs actual copies in the simulations
-for a set of simulations run with operons, and a set run without operons.
+Generates a comparison scatter plot of mRNA copy numbers from two sets of
+simulations, one without operons and one with operons.
 """
 import itertools
 import os
@@ -162,15 +161,15 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		# Get bootstrapped samples from each count array
 		n1 = c1.shape[0]
-		n2 = c2.shape[1]
+		n2 = c2.shape[0]
 		combined_mean = (m1*n1 + m2*n2)/(n1 + n2)
 		bm1, bv1 = get_bootstrapped_samples(c1, m1, combined_mean)
 		bm2, bv2 = get_bootstrapped_samples(c2, m2, combined_mean)
 
 		# Calculate t-score from the original sample and each of the
 		# bootstrapped samples
-		t_score = (m1 - m2)/np.sqrt(v1/n1 + v2/n2 + NUMERICAL_ZERO)
-		t_score_bs = (bm1 - bm2)/np.sqrt(bv1/n1 + bv2/n2 + NUMERICAL_ZERO)
+		t_score = (m1 - m2)/(np.sqrt(v1/n1 + v2/n2) + NUMERICAL_ZERO)
+		t_score_bs = (bm1 - bm2)/(np.sqrt(bv1/n1 + bv2/n2) + NUMERICAL_ZERO)
 
 		# Calculate p-values of a two-tailed test using the empirical t-score
 		# distribution calculated from the bootstrapped samples
@@ -332,6 +331,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		# Map each operon to the list of evidence codes for the transcription
 		# units in the operon
 		all_operons = sim_data2.process.transcription.operons
+		corrected_cistron_indexes = np.where(
+			sim_data2.process.transcription.cistron_data['uses_corrected_seq_counts']
+			)[0]
 		operon_index_to_evidence_codes = {}
 
 		for (i, operon) in enumerate(all_operons):
@@ -339,7 +341,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			if len(operon[0]) == 1:
 				continue
 
-			# TODO: skip operons with RNAseq corrections
+			# Skip operons that contain cistrons whose expression was corrected
+			if np.any(np.isin(operon[0], corrected_cistron_indexes)):
+				continue
 
 			evidence_codes = []
 			for rna_index in operon[1]:

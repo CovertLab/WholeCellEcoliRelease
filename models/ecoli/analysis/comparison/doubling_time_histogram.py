@@ -41,11 +41,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 					# Assume simulated time == doubling time
 					time = TableReader(os.path.join(sim_out_dir, 'Main')).readColumn('time')
-				except TableReaderError:
-					continue
+					doubling_time = time[-1] - time[0]
+					doubling_times_minutes.append(doubling_time / 60.)
 
-				doubling_time = time[-1] - time[0]
-				doubling_times_minutes.append(doubling_time / 60.)
+				except (TableReaderError, IndexError):
+					continue
 
 			return doubling_times_minutes
 

@@ -26,7 +26,6 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			gene['cistron_id']: gene['symbol']
 			for gene in sim_data.process.replication.gene_data
 			}
-		tu_ids = [x[:-3] for x in sim_data.process.transcription.rna_data['id']]
 
 		# Divide mapping matrix into individual operons
 		cistron_indexes, tu_indexes = cistron_tu_mapping_matrix.nonzero()
@@ -64,11 +63,8 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 
 			# Display TU structure as binary heatmap
 			ax.imshow(tu_structure, cmap='gray')
-			ax.set_xticks(np.arange(len(operon_tu_indexes)))
+			ax.set_xticks([])
 			ax.set_yticks(np.arange(len(operon_cistron_indexes)))
-			ax.set_xticklabels(
-				[tu_ids[i] for i in operon_tu_indexes],
-				rotation=90, fontsize=6)
 			ax.set_yticklabels(
 				[cistron_id_to_gene_name[cistron_ids[i]] for i in operon_cistron_indexes],
 				fontsize=6)
