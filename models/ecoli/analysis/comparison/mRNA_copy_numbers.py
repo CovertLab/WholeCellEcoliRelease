@@ -285,7 +285,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			with open(os.path.join(plotOutDir, plotOutFileName + '_operon_table.tsv'), 'w') as f:
 				writer = csv.writer(f, delimiter='\t')
 				writer.writerow([
-					'first_gene', 'last_gene', 'max_t'
+					'operon_name', 'first_gene', 'last_gene', 'max_t'
 					])
 
 				for operon_index in plot_order:
@@ -294,11 +294,21 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 					t_scores_this_operon = [
 						abs_t_scores[cistron_id_to_mRNA_index[all_cistron_ids[i]]]
 						for i in cistron_indexes]
+
+					is_forward = cistron_is_forward[cistron_indexes[0]]
+					if is_forward:
+						gene_list = [cistron_id_to_gene_name[all_cistron_ids[i]] for i in cistron_indexes]
+					else:
+						gene_list = [cistron_id_to_gene_name[all_cistron_ids[i]] for i in cistron_indexes[::-1]]
+
 					writer.writerow([
+						'-'.join(gene_list),
 						cistron_id_to_gene_name[all_cistron_ids[cistron_indexes[0]]],
 						cistron_id_to_gene_name[all_cistron_ids[cistron_indexes[-1]]],
 						max(t_scores_this_operon),
 						])
+
+		return
 
 		# Get bar plots of "failure" rates of each evidence code to align with
 		# RNAseq data
