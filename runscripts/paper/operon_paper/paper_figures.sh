@@ -6,7 +6,7 @@
 ## Figure 1
 # Panel B
 python models/ecoli/analysis/comparison/polycistronic_transcription.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 
@@ -17,7 +17,7 @@ out/20220518.174606__SET_B_8_gens_128_seeds_operons_v1_with_glucose_minimal_medi
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panel C
-python models/ecoli/analysis/comparison/growth_mRNA_copy_numbers.py \
+python models/ecoli/analysis/comparison/mRNA_copy_numbers_growth_genes.py \
 out/20220518.174606__SET_B_8_gens_128_seeds_operons_v1_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
@@ -25,7 +25,7 @@ out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_med
 # See Rend-seq repository
 
 # Panel G
-python models/ecoli/analysis/comparison/growth_mRNA_copy_numbers.py \
+python models/ecoli/analysis/comparison/mRNA_copy_numbers_growth_genes.py \
 out/20220518.174626__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
@@ -49,39 +49,34 @@ out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_med
 # Panel F, G
 # See Rend-seq repository
 
-# Panel H?
-python models/ecoli/analysis/comparison/mRNA_copy_numbers.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
-out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
-
 
 ## Figure 4
 # Panel A
 python models/ecoli/analysis/cohort/centralCarbonMetabolismScatter.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media
 
 # Panel B
 python models/ecoli/analysis/multigen/proteinCountsValidation.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media
 
 # Panel C
 python models/ecoli/analysis/comparison/mRNA_length_histogram.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 
 ## Figure 5
 # Panels A, B, C
 python models/ecoli/analysis/comparison/coexpression_probabilities.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panels E, F
 python models/ecoli/analysis/comparison/excess_protein_monomers.py \
-out/20220518.174706__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panel G?
 python models/ecoli/analysis/comparison/doubling_time_histogram.py \
-out/SET_G \
-out/SET_F
+out/20220602.133751__SET_G_8_gens_128_seeds_operons_on_with_glucose_minimal_media_without_oxygen \
+out/20220526.173949__SET_F_8_gens_128_seeds_operons_off_with_glucose_minimal_media_without_oxygen

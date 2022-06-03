@@ -23,8 +23,8 @@ from wholecell.analysis.analysis_tools import (
 from wholecell.io.tablereader import TableReader
 
 
-FIGSIZE = (6, 6)
-BOUNDS = [0, 2.5]
+FIGSIZE = (4, 3.9)
+BOUNDS = [0.5, 2.5]
 
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
@@ -82,25 +82,27 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax.scatter(
 			np.log10(m1[mRNA_is_ribosomal_protein] + 1),
 			np.log10(m2[mRNA_is_ribosomal_protein] + 1),
-			c='#cccccc', s=2, alpha=0.5,
+			c='turquoise', edgecolor='none', s=12, alpha=0.7,
 			label=f'ribosomal subunits',
 			clip_on=False)
 		ax.scatter(
 			np.log10(m1[mRNA_is_rnap] + 1),
 			np.log10(m2[mRNA_is_rnap] + 1),
-			c='r', s=2, alpha=0.5,
+			c='darkslategray', edgecolor='none', s=12, alpha=0.7,
 			label='RNAP subunits',
 			clip_on=False)
 
 		ax.set_xlabel('$\log_{10}$(mRNA copies + 1), old sims')
 		ax.set_ylabel('$\log_{10}$(mRNA copies + 1), new sims')
+		ax.set_xticks(np.arange(BOUNDS[0], BOUNDS[1] + 0.5, 0.5))
+		ax.set_yticks(np.arange(BOUNDS[0], BOUNDS[1] + 0.5, 0.5))
 		ax.spines["top"].set_visible(False)
 		ax.spines["right"].set_visible(False)
-		ax.spines["bottom"].set_position(("outward", 20))
-		ax.spines["left"].set_position(("outward", 20))
+		ax.spines["bottom"].set_position(("outward", 15))
+		ax.spines["left"].set_position(("outward", 15))
 		ax.set_xlim(BOUNDS)
 		ax.set_ylim(BOUNDS)
-		ax.legend(loc=2)
+		ax.legend(loc=2, prop={'size': 8})
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

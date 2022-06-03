@@ -163,7 +163,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax.scatter(
 				np.log10(m1[mask] + 1),
 				np.log10(m2[mask] + 1),
-				c='#555555', edgecolor='none', s=7, alpha=0.3,
+				c='#555555', edgecolor='none', s=10, alpha=0.3,
 				label=f'|t| < {t_score_cutoff:.1f} (n = {mask.sum():d})',
 				clip_on=False)
 			# Highlight genes with high t-scores
@@ -171,7 +171,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax.scatter(
 				np.log10(m1[mask] + 1),
 				np.log10(m2[mask] + 1),
-				c='r', edgecolor='none', s=7, alpha=0.5,
+				c='red', edgecolor='none', s=10, alpha=0.5,
 				label=f'|t| ≥ {t_score_cutoff:.1f} (n = {mask.sum():d})',
 				clip_on=False)
 

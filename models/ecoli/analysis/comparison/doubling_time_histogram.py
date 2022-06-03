@@ -20,8 +20,9 @@ from wholecell.utils import units
 
 
 FIGSIZE = (4, 4)
-DOUBLING_TIME_BOUNDS_MINUTES = [20, 120]
-N_BINS = 20
+DOUBLING_TIME_BOUNDS_MINUTES = [20, 180]
+XLIM = [20, 100]
+N_BINS = 32
 
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
@@ -52,7 +53,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		dt1 = read_sims(ap1)
 		dt2 = read_sims(ap2)
 
-		plt.figure(figsize=FIGSIZE)
+		fig = plt.figure(figsize=FIGSIZE)
+		ax = fig.add_subplot(1, 1, 1)
 
 		bins = np.linspace(
 			DOUBLING_TIME_BOUNDS_MINUTES[0],
@@ -60,17 +62,19 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			N_BINS + 1
 			)
 
-		plt.hist(
+		ax.hist(
 			dt1, bins=bins, alpha=0.5,
-			label=f'reference (n={len(dt1)}, {np.mean(dt1):.1f} $\pm$ {np.std(dt1):.1f})')
-		plt.hist(
+			label=f'reference ({np.mean(dt1):.1f} $\pm$ {np.std(dt1):.1f})')
+		ax.hist(
 			dt2, bins=bins, alpha=0.5,
-			label=f'input (n={len(dt2)}, {np.mean(dt2):.1f} $\pm$ {np.std(dt2):.1f})')
-		plt.legend(prop={'size': 8})
+			label=f'input ({np.mean(dt2):.1f} $\pm$ {np.std(dt2):.1f})')
+		ax.legend(prop={'size': 8})
 
-		plt.xlim(*DOUBLING_TIME_BOUNDS_MINUTES)
+		ax.set_xlim(*XLIM)
 
-		plt.xlabel('Doubling time (minutes)')
+		ax.set_xlabel('Doubling time (min)')
+		ax.spines["top"].set_visible(False)
+		ax.spines["right"].set_visible(False)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
