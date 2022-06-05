@@ -163,7 +163,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax.scatter(
 				np.log10(m1[mask] + 1),
 				np.log10(m2[mask] + 1),
-				c='#555555', edgecolor='none', s=10, alpha=0.3,
+				c='#555555', edgecolor='none', s=10, alpha=0.4,
 				label=f'|t| < {t_score_cutoff:.1f} (n = {mask.sum():d})',
 				clip_on=False)
 			# Highlight genes with high t-scores
@@ -171,7 +171,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax.scatter(
 				np.log10(m1[mask] + 1),
 				np.log10(m2[mask] + 1),
-				c='red', edgecolor='none', s=10, alpha=0.5,
+				c='C3', edgecolor='none', s=10, alpha=0.4,
 				label=f'|t| ≥ {t_score_cutoff:.1f} (n = {mask.sum():d})',
 				clip_on=False)
 
@@ -426,7 +426,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				label=f'|t| < {t_score_cutoff:.1f}', width=0.7, color='#cccccc')
 			high_t = ax.bar(
 				xticks, fractions,
-				label=f'|t| ≥ {t_score_cutoff:.1f}', width=0.7, color='r')
+				label=f'|t| ≥ {t_score_cutoff:.1f}', width=0.7, color='C3')
 			i = i + len(keys) + 1
 
 		ax.legend(handles=[low_t, high_t], bbox_to_anchor=(1, 1))
