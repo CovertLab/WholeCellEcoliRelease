@@ -51,7 +51,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			for cistron_id in cistron_ids]
 
 		def read_sims(ap):
-			cell_paths = ap.get_cells(seed=[0])
+			cell_paths = ap.get_cells(seed=[2])
 
 			simOutDir = os.path.join(cell_paths[0], "simOut")
 			mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
@@ -81,7 +81,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		time_off, gen_start_time_off, cistron_counts_off, monomer_counts_off = read_sims(ap1)
 		time_on, gen_start_time_on, cistron_counts_on, monomer_counts_on = read_sims(ap2)
 
-		plt.figure(figsize=(7.5, 3))
+		plt.figure(figsize=(8, 3))
 
 		# Plot counts of each cistron when operon="off"
 		ax1 = plt.subplot(2, 2, 1)
@@ -89,8 +89,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax1.set_ylabel('RNA Counts')
 		ax1.spines["top"].set_visible(False)
 		ax1.spines["right"].set_visible(False)
-		ax1.spines["bottom"].set_position(("outward", 15))
-		ax1.spines["left"].set_position(("outward", 15))
+		ax1.spines["bottom"].set_position(("outward", 10))
+		ax1.spines["left"].set_position(("outward", 10))
 		ax1.spines["bottom"].set_visible(False)
 		ax1.get_xaxis().set_visible(False)
 		ax1.set_xlim([0, time_off[-1]/60])
@@ -105,8 +105,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax2.legend(loc=1, prop={'size': 8})
 		ax2.spines["top"].set_visible(False)
 		ax2.spines["right"].set_visible(False)
-		ax2.spines["bottom"].set_position(("outward", 15))
-		ax2.spines["left"].set_position(("outward", 15))
+		ax2.spines["bottom"].set_position(("outward", 10))
+		ax2.spines["left"].set_position(("outward", 10))
 		ax2.spines["bottom"].set_visible(False)
 		ax2.get_xaxis().set_visible(False)
 		ax2.spines["left"].set_visible(False)
@@ -120,11 +120,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax3.set_xlabel('Generations')
 		ax3.spines["top"].set_visible(False)
 		ax3.spines["right"].set_visible(False)
-		ax3.spines["bottom"].set_position(("outward", 15))
-		ax3.spines["left"].set_position(("outward", 15))
+		ax3.spines["bottom"].set_position(("outward", 10))
+		ax3.spines["left"].set_position(("outward", 10))
 		ax3.set_xlim([0, time_off[-1] / 60])
-		ax3.set_ylim([0, 500])
-		ax3.set_yticks([0, 500])
+		ax3.set_ylim([0, 300])
+		ax3.set_yticks([0, 300])
 		ax3.set_xticks(list(gen_start_time_off / 60) + [time_off[-1]/60])
 		ax3.set_xticklabels(np.arange(len(gen_start_time_off) + 1))
 
@@ -138,8 +138,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax4.set_xlabel('Generations')
 		ax4.spines["top"].set_visible(False)
 		ax4.spines["right"].set_visible(False)
-		ax4.spines["bottom"].set_position(("outward", 15))
-		ax4.spines["left"].set_position(("outward", 15))
+		ax4.spines["bottom"].set_position(("outward", 10))
+		ax4.spines["left"].set_position(("outward", 10))
 		ax4.spines["left"].set_visible(False)
 		ax4.get_yaxis().set_visible(False)
 		ax4.set_xlim([0, time_on[-1]/60])
