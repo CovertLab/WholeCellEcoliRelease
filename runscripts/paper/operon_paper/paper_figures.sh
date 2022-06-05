@@ -26,19 +26,19 @@ out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_med
 
 # Panel G
 python models/ecoli/analysis/comparison/mRNA_copy_numbers_growth_genes.py \
-out/20220518.174626__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
+out/20220526.173929__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panel H
 python models/ecoli/analysis/comparison/doubling_time_histogram.py \
-out/20220518.174626__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
+out/20220526.173929__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 
 ## Figure 3
 # Panel A (+Figure S2)
 python models/ecoli/analysis/comparison/mRNA_copy_numbers.py \
-out/20220518.174626__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
+out/20220526.173929__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panel D (+Figure S3)
