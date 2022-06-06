@@ -98,10 +98,13 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		}
 
 		def read_sims(ap):
+			# Ignore data from first two gens
+			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
+
 			all_monomer_counts = read_stacked_columns(
-				ap.get_cells(), 'MonomerCounts', 'monomerCounts')
+				cell_paths, 'MonomerCounts', 'monomerCounts', ignore_exception=True)
 			(all_complex_counts, ) = read_stacked_bulk_molecules(
-				ap.get_cells(), (all_complex_ids, ))
+				cell_paths, (all_complex_ids, ), ignore_exception=True)
 
 			# Take averages across all sims and timepoints
 			all_monomer_counts_mean = all_monomer_counts.mean(axis=0)
