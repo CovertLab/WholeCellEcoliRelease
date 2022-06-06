@@ -1,5 +1,5 @@
 """
-Compare histograms of mRNA lengths.
+Compare histograms of total counts of mRNA molecules.
 """
 
 from typing import Tuple
@@ -19,8 +19,8 @@ from wholecell.utils import units
 
 
 FIGSIZE = (4, 4)
-BOUNDS = [0, 3000]
-N_BINS = 30
+BOUNDS = [0, 10000]
+N_BINS = 20
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
@@ -29,19 +29,20 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		# noinspection PyUnusedLocal
 		ap2, sim_data2, _ = self.setup(input_sim_dir)
 
-		def read_sims(ap, sim_data):
+		def read_sims(ap):
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
 
 			mRNA_counts = read_stacked_columns(
-				cell_paths, 'mRNACounts', 'full_mRNA_counts', ignore_exception=True)
+				cell_paths, 'mRNACounts', 'full_mRNA_counts',
+				ignore_exception=True, fun=lambda x: x[0])
 
-			total_mRNA_counts_per_timestep = mRNA_counts.sum(axis=1)
+			total_mRNA_counts = mRNA_counts.sum(axis=1)
 
-			return total_mRNA_counts_per_timestep
+			return total_mRNA_counts
 
-		total_mRNA_counts1 = read_sims(ap1, sim_data1)
-		total_mRNA_counts2 = read_sims(ap2, sim_data2)
+		total_mRNA_counts1 = read_sims(ap1)
+		total_mRNA_counts2 = read_sims(ap2)
 
 		fig = plt.figure(figsize=FIGSIZE)
 		ax = fig.add_subplot(1, 1, 1)
@@ -53,11 +54,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			label=f'reference ({np.mean(total_mRNA_counts1):.1f} $\pm$ {np.std(total_mRNA_counts1):.1f})')
 		ax.hist(
 			total_mRNA_counts2, bins=bins, alpha=0.5,
-			label=f'input ({np.mean(total_mRNA_counts1):.1f} $\pm$ {np.std(total_mRNA_counts2):.1f})')
+			label=f'input ({np.mean(total_mRNA_counts2):.1f} $\pm$ {np.std(total_mRNA_counts2):.1f})')
 
 		ax.legend(prop={'size': 6})
 
-		ax.set_xlim([0, 3000])
+		ax.set_xlim([0, 10000])
 		ax.set_xlabel('mRNA counts')
 		ax.spines["top"].set_visible(False)
 		ax.spines["right"].set_visible(False)
