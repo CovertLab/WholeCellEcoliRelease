@@ -33,8 +33,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			rna_lengths = sim_data.process.transcription.rna_data['length'].asNumber(units.nt)
 			is_mRNA = sim_data.process.transcription.rna_data['is_mRNA']
 
+			# Ignore data from first two gens
+			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
+
 			mRNA_counts = read_stacked_columns(
-				ap.get_cells(), 'mRNACounts', 'full_mRNA_counts')
+				cell_paths, 'mRNACounts', 'full_mRNA_counts', ignore_exception=True)
 
 			mean_mRNA_counts = mRNA_counts.mean(axis=0)
 			mRNA_lengths = rna_lengths[is_mRNA]
@@ -44,23 +47,24 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		lengths1, mean_counts1 = read_sims(ap1, sim_data1)
 		lengths2, mean_counts2 = read_sims(ap2, sim_data2)
 
-		plt.figure(figsize=FIGSIZE)
+		fig = plt.figure(figsize=FIGSIZE)
+		ax = fig.add_subplot(1, 1, 1)
 
 		bins = np.logspace(BOUNDS[0], BOUNDS[1], N_BINS + 1)
 
-		plt.hist(
+		ax.hist(
 			lengths1, bins=bins, weights=mean_counts1, alpha=0.5,
 			label=f'reference ({np.mean(lengths1):.1f} $\pm$ {np.std(lengths1):.1f})')
-		plt.hist(
+		ax.hist(
 			lengths2, bins=bins, weights=mean_counts2, alpha=0.5,
 			label=f'input ({np.mean(lengths2):.1f} $\pm$ {np.std(lengths2):.1f})')
+		ax.legend(prop={'size': 6})
 
-		plt.legend(prop={'size': 6})
-
-		plt.xlim([10**1.5, 10**4.5])
-		plt.xscale('log')
-		plt.xlabel('mRNA lengths (nt)')
-		plt.ylabel('mRNA counts')
+		ax.set_xlim([10**1.5, 10**4.5])
+		ax.set_xscale('log')
+		ax.set_xlabel('mRNA lengths (nt)')
+		ax.spines["top"].set_visible(False)
+		ax.spines["right"].set_visible(False)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
