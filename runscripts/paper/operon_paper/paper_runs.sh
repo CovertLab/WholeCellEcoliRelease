@@ -49,24 +49,6 @@ SINGLE_DAUGHTERS=1 N_GENS=8 N_INIT_SIMS=128 \
 RUN_AGGREGATE_ANALYSIS=0 \
 python runscripts/fireworks/fw_queue.py
 
-## Set F - operons off, glucose minimal media without oxygen
-# Used for comparisons in Figures 5
-DESC="SET F 8 gens 128 seeds operons off with glucose minimal media without oxygen" \
-OPERONS="off" \
-VARIANT="condition" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 \
-SINGLE_DAUGHTERS=1 N_GENS=8 N_INIT_SIMS=128 \
-RUN_AGGREGATE_ANALYSIS=0 \
-python runscripts/fireworks/fw_queue.py
-
-## Set G - operons on (final), glucose minimal media without oxygen
-# Used for comparisons in Figures 5
-DESC="SET G 8 gens 128 seeds operons on with glucose minimal media without oxygen" \
-OPERONS="on" \
-VARIANT="condition" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 \
-SINGLE_DAUGHTERS=1 N_GENS=8 N_INIT_SIMS=128 \
-RUN_AGGREGATE_ANALYSIS=0 \
-python runscripts/fireworks/fw_queue.py
-
 
 ## Launch the fireworks created with fw_queue.py
 # Uncomment one method - rlaunch is interactive, qlaunch is distributed

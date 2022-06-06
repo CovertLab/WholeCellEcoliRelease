@@ -76,7 +76,3 @@ python models/ecoli/analysis/comparison/excess_protein_monomers.py \
 out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
-# Panel G?
-python models/ecoli/analysis/comparison/doubling_time_histogram.py \
-out/20220602.133751__SET_G_8_gens_128_seeds_operons_on_with_glucose_minimal_media_without_oxygen \
-out/20220526.173949__SET_F_8_gens_128_seeds_operons_off_with_glucose_minimal_media_without_oxygen
