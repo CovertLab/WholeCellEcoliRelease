@@ -61,19 +61,15 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			for gene_indexes in gene_group_indexes
 			]
 
-		def read_sims(ap):
+		def read_sims_for_mRNA(ap):
 			mRNA_coexp_probs = np.zeros(len(gene_group_indexes))
-			protein_coexp_probs = np.zeros(len(gene_group_indexes))
 			is_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
-			is_lowly_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
 
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
 
 			all_mRNA_counts = read_stacked_columns(
-				cell_paths, 'mRNACounts', 'mRNA_cistron_counts')
-			all_monomer_counts = read_stacked_columns(
-				cell_paths, 'MonomerCounts', 'monomerCounts')
+				cell_paths, 'mRNACounts', 'mRNA_cistron_counts', ignore_exception=True)
 
 			for i in range(len(gene_group_indexes)):
 				operon_mRNA_counts = all_mRNA_counts[:, np.array(mRNA_group_indexes[i])]
@@ -83,6 +79,20 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				)
 				is_expressed[i] = np.all(operon_mRNA_counts.sum(axis=0))
 
+			return mRNA_coexp_probs, is_expressed
+
+		def read_sims_for_protein(ap):
+			protein_coexp_probs = np.zeros(len(gene_group_indexes))
+			is_lowly_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
+
+			# Ignore data from first two gens
+			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
+
+			all_monomer_counts = read_stacked_columns(
+				cell_paths, 'MonomerCounts', 'monomerCounts', ignore_exception=True)
+
+			for i in range(len(gene_group_indexes)):
+
 				operon_monomer_counts = all_monomer_counts[:, np.array(monomer_group_indexes[i])]
 				protein_coexp_probs[i] = (
 					(np.all(operon_monomer_counts, axis=1).sum() + 1) /
@@ -90,10 +100,13 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				)
 				is_lowly_expressed[i] = (operon_monomer_counts.mean() < LOW_EXP_THRESHOLD)
 
-			return mRNA_coexp_probs, protein_coexp_probs, is_expressed, is_lowly_expressed
+			return protein_coexp_probs, is_lowly_expressed
 
-		mRNA_p1, protein_p1, is_expressed, is_lowly_expressed = read_sims(ap1)
-		mRNA_p2, protein_p2, _, _ = read_sims(ap2)
+
+		mRNA_p1, is_expressed = read_sims_for_mRNA(ap1)
+		mRNA_p2, _ = read_sims_for_mRNA(ap2)
+		protein_p1, is_lowly_expressed = read_sims_for_protein(ap1)
+		protein_p2, _ = read_sims_for_protein(ap2)
 
 		fig = plt.figure(figsize=FIGSIZE)
 		gs = fig.add_gridspec(
