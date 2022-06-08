@@ -308,8 +308,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 						max(t_scores_this_operon),
 						])
 
-		# Get bar plots of "failure" rates of each evidence code to align with
-		# RNAseq data
+		# Get violin plots of log t-scores of each evidence code
 		# Map each operon to the list of evidence codes for the transcription
 		# units in the operon
 		all_operons = sim_data2.process.transcription.operons
@@ -336,10 +335,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			operon_index_to_evidence_codes[i] = list(set(evidence_codes))
 
-		# Map evidence code and multiplicity to maximum t-scores of each operon
-		all_operon_t_scores = []
-		evidence_code_to_t_scores = {}
-		evidence_multiplicity_to_t_scores = {}
+		# Map evidence code and multiplicity to maximum log t-scores of each
+		# operon
+		all_operons_log_t_scores = []
+		evidence_code_to_log_t_scores = {}
+		evidence_multiplicity_to_log_t_scores = {}
 
 		for (operon_index, evidence_codes) in operon_index_to_evidence_codes.items():
 			operon = all_operons[operon_index]
@@ -347,50 +347,42 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			operon_cistron_mRNA_indexes = np.array([
 				cistron_id_to_mRNA_index[cistron_id]
 				for cistron_id in operon_cistron_ids])
-			max_t = abs_t_scores[operon_cistron_mRNA_indexes].max()
+			max_log_t = np.log10(
+				abs_t_scores[operon_cistron_mRNA_indexes].max() + 1)
 
 			for evidence_code in evidence_codes:
-				evidence_code_to_t_scores.setdefault(
-					evidence_code, []).append(max_t)
+				evidence_code_to_log_t_scores.setdefault(
+					evidence_code, []).append(max_log_t)
 
 			# Evidence multiplicity is maxed out at two
-			evidence_multiplicity_to_t_scores.setdefault(
-				min(len(evidence_codes), 2), []).append(max_t)
+			evidence_multiplicity_to_log_t_scores.setdefault(
+				min(len(evidence_codes), 2), []).append(max_log_t)
 
-			all_operon_t_scores.append(max_t)
+			all_operons_log_t_scores.append(max_log_t)
 
-		all_operon_t_scores = np.array(all_operon_t_scores)
-		median_t_score = np.median(all_operon_t_scores)
+		def sort_t_score_dict(t_score_dict):
+			sorted_t_score_dict = {}
 
-		def calculate_high_t_fraction(t_score_dict):
-			failure_rate_dict = {}
-			for key, t_scores in t_score_dict.items():
-				n_operons = len(t_scores)
-				if n_operons < OPERON_COUNT_CUTOFF:
+			for key, value in t_score_dict.items():
+				if len(value) < OPERON_COUNT_CUTOFF:
 					continue
-				failure_rate_dict[key] = (
-					(np.array(t_scores) > median_t_score).sum() / n_operons,
-					n_operons
-					)
+				sorted_t_score_dict[key] = np.array(value)
 
-			failure_rate_dict = dict(sorted(
-				failure_rate_dict.items(), key=lambda item: item[1][0], reverse=True
-				))
-			return failure_rate_dict
+			sorted_t_score_dict = dict(sorted(
+				sorted_t_score_dict.items(), key=lambda item: np.median(item[1]),
+				reverse=True))
 
-		# Calculate fraction of low-p operons in each group
-		all_operons_high_t_fraction = {
-			'All operons': (
-				(all_operon_t_scores > median_t_score).sum() / len(all_operon_t_scores),
-				len(all_operon_t_scores)
-				)
+			return sorted_t_score_dict
+
+		all_operons_log_t_scores = {
+			'All operons': np.array(all_operons_log_t_scores)
 			}
-		evidence_code_to_high_t_fraction = calculate_high_t_fraction(
-			evidence_code_to_t_scores)
-		evidence_multiplicity_to_high_t_fraction = calculate_high_t_fraction(
-			evidence_multiplicity_to_t_scores)
+		evidence_code_to_log_t_scores = sort_t_score_dict(
+			evidence_code_to_log_t_scores)
+		evidence_multiplicity_to_log_t_scores = sort_t_score_dict(
+			evidence_multiplicity_to_log_t_scores)
 
-		fig = plt.figure(figsize=(9, 5))
+		fig = plt.figure(figsize=(9, 6))
 		ax = fig.add_subplot(111)
 
 		i = 0
@@ -398,36 +390,43 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		labels = []
 
 		# TODO: break y-axis for better scaling
-		for high_t_frac_dict in [
-			evidence_multiplicity_to_high_t_fraction,
-			evidence_code_to_high_t_fraction,
-			all_operons_high_t_fraction,
+		for log_t_score_dict in [
+			evidence_multiplicity_to_log_t_scores,
+			evidence_code_to_log_t_scores,
+			all_operons_log_t_scores,
 			]:
-
-			keys = [key for key in high_t_frac_dict.keys()]
-			fractions = [value[0] for value in high_t_frac_dict.values()]
-			n_samples = [value[1] for value in high_t_frac_dict.values()]
+			keys = [key for key in log_t_score_dict.keys()]
+			log_t_scores = [value for value in log_t_score_dict.values()]
+			n_samples = [len(t) for t in log_t_scores]
 			yticks = np.arange(i, i + len(keys))
 			all_yticks.extend(yticks)
 			labels.extend([
 				f'{EVIDENCE_CODE_TO_DESCRIPTIONS.get(key, key)} (n={n_sample})'
-					for (key, n_sample) in zip(keys, n_samples)
+				for (key, n_sample) in zip(keys, n_samples)
 				])
 
-			low_t = ax.barh(
-				yticks, np.ones(len(keys)),
-				label=f'|t| < {median_t_score:.1f}', height=0.7, color='#cccccc')
-			high_t = ax.barh(
-				yticks, fractions,
-				label=f'|t| ≥ {median_t_score:.1f}', height=0.7, color='C3')
+			for j, t_scores in enumerate(log_t_scores):
+				parts = ax.violinplot(
+					t_scores, positions=[i + j],
+					showextrema=False, vert=False)
+
+				for pc in parts['bodies']:
+					pc.set_facecolor('#cccccc')
+					pc.set_edgecolor('none')
+					pc.set_alpha(1)
+
+				quartile1, median, quartile3 = np.percentile(
+					t_scores, [25, 50, 75])
+
+				ax.scatter(median, i + j, marker='o', color='white', s=15, zorder=3)
+				ax.hlines(i + j, quartile1, quartile3, color='k', linestyle='-', lw=3)
+
 			i = i + len(keys) + 1
 
-		ax.legend(handles=[low_t, high_t], bbox_to_anchor=(1, 1))
 		ax.set_ylim([-1, i - 1])
-		ax.set_xlim([0, 1])
 		ax.xaxis.tick_top()
 		ax.xaxis.set_label_position('top')
-		ax.set_xlabel(f'Fraction of operons')
+		ax.set_xlabel('log10(max t-score + 1)')
 		ax.set_yticks(all_yticks)
 		ax.set_yticklabels(labels)
 		ax.spines["bottom"].set_visible(False)
