@@ -308,8 +308,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 						max(t_scores_this_operon),
 						])
 
-		return
-
 		# Get bar plots of "failure" rates of each evidence code to align with
 		# RNAseq data
 		# Map each operon to the list of evidence codes for the transcription
@@ -338,10 +336,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			operon_index_to_evidence_codes[i] = list(set(evidence_codes))
 
-		# Map evidence superclass, code and multiplicity to maximum t-scores of
-		# each operon
+		# Map evidence code and multiplicity to maximum t-scores of each operon
 		all_operon_t_scores = []
-		evidence_superclass_to_t_scores = {}
 		evidence_code_to_t_scores = {}
 		evidence_multiplicity_to_t_scores = {}
 
@@ -354,8 +350,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			max_t = abs_t_scores[operon_cistron_mRNA_indexes].max()
 
 			for evidence_code in evidence_codes:
-				evidence_superclass_to_t_scores.setdefault(
-					evidence_code.split('-')[1], []).append(max_t)
 				evidence_code_to_t_scores.setdefault(
 					evidence_code, []).append(max_t)
 
@@ -366,6 +360,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			all_operon_t_scores.append(max_t)
 
 		all_operon_t_scores = np.array(all_operon_t_scores)
+		median_t_score = np.median(all_operon_t_scores)
 
 		def calculate_high_t_fraction(t_score_dict):
 			failure_rate_dict = {}
@@ -374,24 +369,22 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				if n_operons < OPERON_COUNT_CUTOFF:
 					continue
 				failure_rate_dict[key] = (
-					(np.array(t_scores) > t_score_cutoff).sum() / n_operons,
+					(np.array(t_scores) > median_t_score).sum() / n_operons,
 					n_operons
 					)
 
 			failure_rate_dict = dict(sorted(
-				failure_rate_dict.items(), key=lambda item: item[1][0]
+				failure_rate_dict.items(), key=lambda item: item[1][0], reverse=True
 				))
 			return failure_rate_dict
 
 		# Calculate fraction of low-p operons in each group
 		all_operons_high_t_fraction = {
 			'All operons': (
-				(all_operon_t_scores > t_score_cutoff).sum() / len(all_operon_t_scores),
+				(all_operon_t_scores > median_t_score).sum() / len(all_operon_t_scores),
 				len(all_operon_t_scores)
 				)
 			}
-		evidence_superclass_to_high_t_fraction = calculate_high_t_fraction(
-			evidence_superclass_to_t_scores)
 		evidence_code_to_high_t_fraction = calculate_high_t_fraction(
 			evidence_code_to_t_scores)
 		evidence_multiplicity_to_high_t_fraction = calculate_high_t_fraction(
@@ -401,41 +394,43 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax = fig.add_subplot(111)
 
 		i = 0
-		all_xticks = []
+		all_yticks = []
 		labels = []
 
 		# TODO: break y-axis for better scaling
 		for high_t_frac_dict in [
-			all_operons_high_t_fraction,
-			evidence_superclass_to_high_t_fraction,
+			evidence_multiplicity_to_high_t_fraction,
 			evidence_code_to_high_t_fraction,
-			evidence_multiplicity_to_high_t_fraction]:
+			all_operons_high_t_fraction,
+			]:
 
 			keys = [key for key in high_t_frac_dict.keys()]
 			fractions = [value[0] for value in high_t_frac_dict.values()]
 			n_samples = [value[1] for value in high_t_frac_dict.values()]
-			xticks = np.arange(i, i + len(keys))
-			all_xticks.extend(xticks)
+			yticks = np.arange(i, i + len(keys))
+			all_yticks.extend(yticks)
 			labels.extend([
 				f'{EVIDENCE_CODE_TO_DESCRIPTIONS.get(key, key)} (n={n_sample})'
 					for (key, n_sample) in zip(keys, n_samples)
 				])
 
-			low_t = ax.bar(
-				xticks, np.ones(len(keys)),
-				label=f'|t| < {t_score_cutoff:.1f}', width=0.7, color='#cccccc')
-			high_t = ax.bar(
-				xticks, fractions,
-				label=f'|t| ≥ {t_score_cutoff:.1f}', width=0.7, color='C3')
+			low_t = ax.barh(
+				yticks, np.ones(len(keys)),
+				label=f'|t| < {median_t_score:.1f}', height=0.7, color='#cccccc')
+			high_t = ax.barh(
+				yticks, fractions,
+				label=f'|t| ≥ {median_t_score:.1f}', height=0.7, color='C3')
 			i = i + len(keys) + 1
 
 		ax.legend(handles=[low_t, high_t], bbox_to_anchor=(1, 1))
-		ax.set_xlim([-1, i - 1])
-		ax.set_ylim([0, 1])
-		ax.set_ylabel(f'Fraction of operons')
-		ax.set_xticks(all_xticks)
-		ax.set_xticklabels(labels, rotation=45, ha='right')
-		ax.spines["top"].set_visible(False)
+		ax.set_ylim([-1, i - 1])
+		ax.set_xlim([0, 1])
+		ax.xaxis.tick_top()
+		ax.xaxis.set_label_position('top')
+		ax.set_xlabel(f'Fraction of operons')
+		ax.set_yticks(all_yticks)
+		ax.set_yticklabels(labels)
+		ax.spines["bottom"].set_visible(False)
 		ax.spines["right"].set_visible(False)
 
 		plt.tight_layout()
