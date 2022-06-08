@@ -27,21 +27,18 @@ FIGSIZE = (8, 4.1)
 BOUNDS = [[0, 2], [0, 2.5]]
 SELECTION_RATIO = 0.1
 NUMERICAL_ZERO = 1e-30
-OPERON_COUNT_CUTOFF = 20
+OPERON_COUNT_CUTOFF = 10
 
 EVIDENCE_CODE_TO_DESCRIPTIONS = {
-	'COMP': 'Inferred from computation',
-	'IC': 'Inferred by curator',
-	'EXP': 'Inferred from experiment',
-	'EV-COMP-HINF': 'Human inference from computation',
-	'EV-COMP-AINF': 'Automated inference from computation',
-	'EV-EXP-IEP': 'Inferred from expression pattern',
-	'EV-EXP-IEP-COREGULATION': 'Inferred from co-regulation',
-	'EV-IC-ADJ-GENES-SAME-BIO-PROCESS': 'Inferred by curator from adjacency',
-	'EV-IC': 'Inferred by curator',
-	'EV-EXP-IDA-TRANSCRIPT-LEN-DETERMINATION': 'Inferred from transcript lengths',
-	'EV-EXP-IDA-BOUNDARIES-DEFINED': 'Inferred from transcription boundaries',
-	'EV-EXP-IMP-POLAR-MUTATION': 'Inferred from polar effects',
+	'EV-COMP-HINF': 'Human inference from comp. evidence',
+	'EV-COMP-AINF': 'Automated inference from comp. evidence',
+	'EV-EXP-IEP': 'Expression pattern',
+	'EV-EXP-IEP-COREGULATION': 'Coregulation',
+	'EV-IC-ADJ-GENES-SAME-BIO-PROCESS': 'Gene adjacency',
+	'EV-IC': 'Curator inference',
+	'EV-EXP-IDA-TRANSCRIPT-LEN-DETERMINATION': 'Transcript lengths',
+	'EV-EXP-IDA-BOUNDARIES-DEFINED': 'Transcription boundaries',
+	'EV-EXP-IMP-POLAR-MUTATION': 'Polar effects',
 	0: 'No evidence',
 	1: 'Single evidence',
 	2: 'Multiple evidences',
@@ -418,12 +415,14 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				quartile1, median, quartile3 = np.percentile(
 					t_scores, [25, 50, 75])
 
-				ax.scatter(median, i + j, marker='o', color='white', s=15, zorder=3)
+				ax.scatter(median, i + j, marker='o', color='white', s=10, zorder=3)
 				ax.hlines(i + j, quartile1, quartile3, color='k', linestyle='-', lw=3)
 
 			i = i + len(keys) + 1
 
+		ax.set_xlim([0, 2])
 		ax.set_ylim([-1, i - 1])
+		ax.set_xticks([0, 0.5, 1, 1.5, 2])
 		ax.xaxis.tick_top()
 		ax.xaxis.set_label_position('top')
 		ax.set_xlabel('log10(max t-score + 1)')
