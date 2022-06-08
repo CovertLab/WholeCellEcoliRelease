@@ -30,8 +30,8 @@ NUMERICAL_ZERO = 1e-30
 OPERON_COUNT_CUTOFF = 10
 
 EVIDENCE_CODE_TO_DESCRIPTIONS = {
-	'EV-COMP-HINF': 'Human inference from comp. evidence',
-	'EV-COMP-AINF': 'Automated inference from comp. evidence',
+	'EV-COMP-HINF': 'Human inference from comp. ev.',
+	'EV-COMP-AINF': 'Automated inference from comp. ev.',
 	'EV-EXP-IEP': 'Expression pattern',
 	'EV-EXP-IEP-COREGULATION': 'Coregulation',
 	'EV-IC-ADJ-GENES-SAME-BIO-PROCESS': 'Gene adjacency',
@@ -379,7 +379,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		evidence_multiplicity_to_log_t_scores = sort_t_score_dict(
 			evidence_multiplicity_to_log_t_scores)
 
-		fig = plt.figure(figsize=(9, 6))
+		fig = plt.figure(figsize=(9.5, 5))
 		ax = fig.add_subplot(111)
 
 		i = 0
@@ -404,7 +404,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			for j, t_scores in enumerate(log_t_scores):
 				parts = ax.violinplot(
-					t_scores, positions=[i + j],
+					t_scores, positions=[i + j], widths=0.75,
 					showextrema=False, vert=False)
 
 				for pc in parts['bodies']:
