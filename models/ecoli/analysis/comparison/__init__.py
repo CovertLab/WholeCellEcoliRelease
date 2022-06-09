@@ -7,10 +7,10 @@ ACTIVE = [
 	"doubling_time_histogram.py",
 	"excess_protein_monomers.py",
 	"growth_histograms.py",
-	"mRNA_copy_numbers.py",
 	"massFractionComparison.py",
 	"mRNA_copy_numbers.py",
 	"mRNA_copy_numbers_growth_genes.py",
+	"mRNA_counts_histogram.py",
 	"mRNA_length_histogram.py",
 	"polycistronic_transcription.py",
 ]
