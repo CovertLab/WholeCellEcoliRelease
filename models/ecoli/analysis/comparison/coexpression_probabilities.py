@@ -20,7 +20,7 @@ from wholecell.io.tablereader import TableReader, TableReaderError
 
 
 FIGSIZE = (14.85, 4)
-LOW_EXP_THRESHOLD = 100
+LOW_EXP_THRESHOLD = 50
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
@@ -114,13 +114,15 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		def draw_plot(p1, p2, grid_i, grid_j, y_max):
 			scatter_ax = fig.add_subplot(gs[grid_i, grid_j])
-			scatter_ax.plot([0, 1], [0, 1], ls='--', lw=2, c='k', alpha=0.1)
+			scatter_ax.plot([0, 1], [0, 1], ls='--', lw=1, c='k', alpha=0.1)
 			scatter_ax.scatter(
 				p1, p2,
-				alpha=0.5, s=5, c='k', clip_on=False, edgecolors='none')
+				alpha=0.4, s=10, c='#555555', clip_on=False, edgecolors='none')
 
 			scatter_ax.set_xlim([0, 1])
 			scatter_ax.set_ylim([0, 1])
+			scatter_ax.set_xticks([0, 0.5, 1])
+			scatter_ax.set_yticks([0, 0.5, 1])
 			scatter_ax.set_xlabel('Reference')
 			scatter_ax.set_ylabel('Input')
 
@@ -135,6 +137,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			hist1_ax = fig.add_subplot(gs[grid_i - 1, grid_j], sharex=scatter_ax)
 			hist1_ax.fill_between(x, kde1(x), alpha=0.5)
+			hist1_ax.axvline(p1.mean(), lw=2, ls='--', c='#555555')
 			hist1_ax.set_xlim([0, 1])
 			hist1_ax.set_ylim([0, y_max])
 			hist1_ax.set_yticks([])
@@ -146,6 +149,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			hist2_ax = fig.add_subplot(gs[grid_i, grid_j + 1], sharey=scatter_ax)
 			hist2_ax.fill_betweenx(x, kde2(x), fc='C1', alpha=0.5)
+			hist2_ax.axhline(p2.mean(), lw=2, ls='--', c='#555555')
 			hist2_ax.set_ylim([0, 1])
 			hist2_ax.set_xlim([0, y_max])
 			hist2_ax.set_xticks([])

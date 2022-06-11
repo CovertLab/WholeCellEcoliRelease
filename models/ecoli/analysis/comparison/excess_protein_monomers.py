@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 # noinspection PyUnresolvedReferences
 import numpy as np
+from scipy import stats
 
 from models.ecoli.analysis import comparisonAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -24,7 +25,6 @@ from wholecell.analysis.analysis_tools import (exportFigure,
 from wholecell.io.tablereader import TableReader
 
 
-SEED = 0
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 	def do_plot(self, reference_sim_dir, plotOutDir, plotOutFileName, input_sim_dir, unused, metadata):
@@ -35,8 +35,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ap1, sim_data1, _ = self.setup(reference_sim_dir)
 		ap2, sim_data2, _ = self.setup(input_sim_dir)
 
-		np.random.seed(SEED)
-
 		# Load from sim_data
 		all_subunit_ids = sim_data1.process.complexation.molecule_names
 		all_complex_ids = sim_data1.process.complexation.ids_complexes
@@ -45,7 +43,12 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			monomer['id']: monomer['cistron_id']
 			for monomer in sim_data1.process.translation.monomer_data
 			}
-		cistron_id_to_rna_indexes = sim_data2.process.transcription.cistron_id_to_rna_indexes
+		operons = sim_data2.process.transcription.operons
+		cistron_id_to_cistron_index = {
+			cistron['id']: i
+			for (i, cistron) in enumerate(sim_data2.process.transcription.cistron_data)
+			}
+		subunit_is_shared = ((stoich_matrix_monomers < 0).sum(axis=1) > 1)
 
 		# Get ordering of monomers in MonomerCounts table
 		monomer_counts_reader = TableReader(
@@ -54,31 +57,31 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		monomer_id_to_index = {
 			monomer_id: i for (i, monomer_id) in enumerate(monomer_ids)}
 
-		def is_cotranscribed(subunit_ids):
+		def is_in_same_operon(subunit_ids):
 			"""
 			Returns True if the cistrons that each encode for the list of
-			protein monomer subunits are ever found on the same transcription
-			unit.
+			protein monomer subunits are in the same operon.
 			"""
-			# Get IDs of cistrons that encode for each monomer
+			# Get indexes of cistrons that encode for each monomer
 			try:
-				cistron_ids = [
-					monomer_id_to_cistron_id[monomer_id]
+				cistron_indexes = [
+					cistron_id_to_cistron_index[monomer_id_to_cistron_id[monomer_id]]
 					for monomer_id in subunit_ids]
 			except KeyError:
 				return False
 
-			# Get indexes of transcription units that contain each cistron
-			rna_indexes = [
-				cistron_id_to_rna_indexes(cistron_id)
-				for cistron_id in cistron_ids]
+			# Get list of operons that these cistrons belong to
+			subunit_operons = [
+				operon for operon in operons
+				if np.any(np.isin(cistron_indexes, operon[0]))]
 
-			# Find any overlapping transcription unit indexes
-			return len(reduce(np.intersect1d, rna_indexes)) > 0
+			# Return true if only one operon was found
+			return len(subunit_operons) == 1
 
 		complex_id_to_subunit_ids = {}
 		complex_id_to_subunit_stoichs = {}
-		complex_id_to_is_cotranscribed = {}
+		complex_id_to_is_in_same_operon = {}
+		complex_id_to_has_shared_subunits = {}
 
 		# Get IDs and stoichiometries of subunits that compose each complex,
 		# and whether those subunits are cotranscribed as part of a same operon
@@ -88,8 +91,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			complex_id_to_subunit_stoichs[complex_id] = -stoich_matrix_monomers[:, i][subunit_mask]
 			subunit_ids = [all_subunit_ids[i] for i in subunit_indexes]
 			complex_id_to_subunit_ids[complex_id] = subunit_ids
-			complex_id_to_is_cotranscribed[complex_id] = is_cotranscribed(
+			complex_id_to_is_in_same_operon[complex_id] = is_in_same_operon(
 				subunit_ids)
+			complex_id_to_has_shared_subunits[complex_id] = np.any(
+				subunit_is_shared[subunit_indexes])
 
 		# Get whether the stoichiometries of each complexes are unknown
 		complex_id_to_stoich_unknown = {
@@ -102,7 +107,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
 
 			all_monomer_counts = read_stacked_columns(
-				cell_paths, 'MonomerCounts', 'monomerCounts', ignore_exception=True)
+				cell_paths, 'MonomerCounts', 'monomerCounts',
+				ignore_exception=True)
 			(all_complex_counts, ) = read_stacked_bulk_molecules(
 				cell_paths, (all_complex_ids, ), ignore_exception=True)
 
@@ -111,6 +117,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			all_complex_counts_mean = all_complex_counts.mean(axis=0)
 
 			complex_id_to_gini_coeff = {}
+			excess_monomer_counts = np.zeros_like(all_complex_counts_mean)
 
 			# Loop through each protein complex
 			for i, complex_id in enumerate(all_complex_ids):
@@ -137,28 +144,33 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				rescaled_monomer_counts = monomer_counts / subunit_stoichs
 
 				# Skip complexes with zero counts
-				if np.all(rescaled_monomer_counts == 0):
+				if all_complex_counts_mean[i] == 0:
 					continue
 
 				# Calculate Gini coefficient
 				complex_id_to_gini_coeff[complex_id] = (
 					np.sum(np.abs(np.expand_dims(rescaled_monomer_counts, 0)
 					    - np.expand_dims(rescaled_monomer_counts, 1)))
-					/ (2 * len(rescaled_monomer_counts) * rescaled_monomer_counts.sum())
+					/ (2 * len(rescaled_monomer_counts)**2 * rescaled_monomer_counts.sum())
 				)
 
-			return complex_id_to_gini_coeff, all_monomer_counts_mean, all_complex_counts_mean
+				# Calculate excess monomer counts for this complex
+				excess_monomer_counts[i] = monomer_counts.sum() - all_complex_counts_mean[i]*subunit_stoichs.sum()
 
-		gini_coeff1, m1, c1 = read_sims(ap1)
-		gini_coeff2, m2, c2 = read_sims(ap2)
+			return complex_id_to_gini_coeff, all_monomer_counts_mean, all_complex_counts_mean, excess_monomer_counts
+
+		gini_coeff1, m1, c1, em1 = read_sims(ap1)
+		gini_coeff2, m2, c2, em2 = read_sims(ap2)
 
 		# Select complexes that have Gini coefficients calculated for both sims
-		# and has cotranscribed subunits and known stoichiometries
+		# and has cotranscribed subunits, known stoichiometries, and no shared
+		# subunits with other complexes
 		complexes_to_plot = [
 			complex_id for complex_id in gini_coeff1.keys()
 			if complex_id in gini_coeff2
-			   and complex_id_to_is_cotranscribed[complex_id]
-			   and not complex_id_to_stoich_unknown[complex_id]
+				and complex_id_to_is_in_same_operon[complex_id]
+				and not complex_id_to_stoich_unknown[complex_id]
+				and not complex_id_to_has_shared_subunits[complex_id]
 			]
 
 		# Calculate total counts of relevant complexes and monomers
@@ -177,56 +189,94 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		m_total2 = m2[monomer_indexes].sum()
 		c_total1 = c1[complex_indexes].sum()
 		c_total2 = c2[complex_indexes].sum()
+		em_total1 = em1[complex_indexes].sum()
+		em_total2 = em2[complex_indexes].sum()
 
 		# Plot comparison of Gini coefficient distributions
-		plt.figure(figsize=(6, 4))
-		gs = gridspec.GridSpec(1, 2)
+		fig = plt.figure(figsize=(9.05, 4))
+		gs = gridspec.GridSpec(
+			2, 4, width_ratios=(4, 1, 4, 1.9), height_ratios=(1, 4))
 
-		ax_gini = plt.subplot(gs[0, 0])
+		def draw_plot(p1, p2, grid_i, grid_j, y_max):
+			scatter_ax = fig.add_subplot(gs[grid_i, grid_j])
+			scatter_ax.plot([0, 1], [0, 1], ls='--', lw=1, c='k', alpha=0.1)
+			scatter_ax.scatter(
+				p1, p2,
+				alpha=0.4, s=10, c='#555555', clip_on=False, edgecolors='none')
+
+			scatter_ax.set_xlim([0, 0.25])
+			scatter_ax.set_ylim([0, 0.25])
+			scatter_ax.set_xticks([0, 0.25])
+			scatter_ax.set_yticks([0, 0.25])
+			scatter_ax.set_xlabel('Reference')
+			scatter_ax.set_ylabel('Input')
+
+			scatter_ax.spines["top"].set_visible(False)
+			scatter_ax.spines["right"].set_visible(False)
+			scatter_ax.spines["bottom"].set_position(("outward", 20))
+			scatter_ax.spines["left"].set_position(("outward", 20))
+
+			x = np.linspace(0, 0.25, 1000)
+			kde1 = stats.gaussian_kde(p1)
+			kde2 = stats.gaussian_kde(p2)
+
+			hist1_ax = fig.add_subplot(gs[grid_i - 1, grid_j], sharex=scatter_ax)
+			hist1_ax.fill_between(x, kde1(x), alpha=0.5)
+			hist1_ax.axvline(p1.mean(), lw=2, ls='--', c='#555555')
+			hist1_ax.set_xlim([0, 0.25])
+			hist1_ax.set_ylim([0, y_max])
+			hist1_ax.set_yticks([])
+			hist1_ax.spines["top"].set_visible(False)
+			hist1_ax.spines["right"].set_visible(False)
+			hist1_ax.spines["left"].set_visible(False)
+			hist1_ax.spines["bottom"].set_visible(False)
+			plt.setp(hist1_ax.get_xaxis(), visible=False)
+
+			hist2_ax = fig.add_subplot(gs[grid_i, grid_j + 1], sharey=scatter_ax)
+			hist2_ax.fill_betweenx(x, kde2(x), fc='C1', alpha=0.5)
+			hist2_ax.axhline(p2.mean(), lw=2, ls='--', c='#555555')
+			hist2_ax.set_ylim([0, 0.25])
+			hist2_ax.set_xlim([0, y_max])
+			hist2_ax.set_xticks([])
+			hist2_ax.spines["top"].set_visible(False)
+			hist2_ax.spines["right"].set_visible(False)
+			hist2_ax.spines["left"].set_visible(False)
+			hist2_ax.spines["bottom"].set_visible(False)
+			plt.setp(hist2_ax.get_yaxis(), visible=False)
+
 		y1 = np.array([
 			gini_coeff1[complex_id] for complex_id in complexes_to_plot])
 		y2 = np.array([
 			gini_coeff2[complex_id] for complex_id in complexes_to_plot])
-
-		x_jitter1 = np.random.normal(0, 0.02, len(complexes_to_plot))
-		x_jitter2 = np.random.normal(0.8, 0.02, len(complexes_to_plot))
-
-		ax_gini.scatter(x_jitter1, y1, s=5)
-		ax_gini.scatter(x_jitter2, y2, s=5)
-
-		ax_gini.violinplot(y1, positions=[0], showextrema=False)
-		ax_gini.violinplot(y2, positions=[0.8], showextrema=False)
-
-		ax_gini.set_xticks([0, 0.8])
-		ax_gini.set_xticklabels(['reference', 'input'])
-		ax_gini.set_yticks([0, 1])
-		ax_gini.set_xlim([-0.5, 1.3])
-		ax_gini.set_ylim([0, 1.1])
-		ax_gini.set_ylabel('Gini coefficient')
-
-		ax_gini.spines['top'].set_visible(False)
-		ax_gini.spines['right'].set_visible(False)
+		draw_plot(y1, y2, 1, 0, 15)
 
 		# Plot comparisons of total monomer and complex counts
-		ax_monomer = plt.subplot(gs[0, 1])
-		ax_monomer.bar(-0.15, m_total1, width=0.3)
-		ax_monomer.bar(0.15, m_total2, width=0.3)
+		ax_monomer = fig.add_subplot(gs[0:2, 2])
+		ax_monomer.bar(-0.15, m_total1, width=0.3, alpha=0.5, label='reference')
+		ax_monomer.bar(0.15, m_total2, width=0.3, alpha=0.5, label='input')
+		ax_monomer.bar(0.85, em_total1, width=0.3, alpha=0.5, color='C0')
+		ax_monomer.bar(1.15, em_total2, width=0.3, alpha=0.5, color='C1')
 		ax_monomer.set_xticks([0, 1])
-		ax_monomer.set_xticklabels(['subunits', 'complexes'])
+		ax_monomer.set_xticklabels(['all\nsubunits', 'excess\nsubunits'])
 		ax_monomer.set_xlim([-0.5, 1.5])
-		ax_monomer.set_ylabel('Total subunit counts')
-		ax_monomer.set_ylim([0, 600000])
+		ax_monomer.set_ylabel('Average total counts')
+		ax_monomer.set_ylim([0, 250000])
 		ax_monomer.spines['top'].set_visible(False)
+		ax_monomer.spines['right'].set_visible(False)
 		plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 
-		ax_complex = ax_monomer.twinx()
-		ax_complex.bar(0.85, c_total1, width=0.3, label='reference')
-		ax_complex.bar(1.15, c_total2, width=0.3, label='input')
-		ax_complex.set_ylabel('Total complex counts')
-		ax_complex.set_ylim([0, 50000])
+		ax_complex = fig.add_subplot(gs[0:2, 3])
+		ax_complex.bar(-0.15, c_total1, width=0.3, alpha=0.5, label='reference')
+		ax_complex.bar(0.15, c_total2, width=0.3, alpha=0.5, label='input')
+		ax_complex.set_xticks([0])
+		ax_complex.set_xticklabels(['complexes'])
+		ax_complex.set_xlim([-0.5, 0.5])
+		ax_complex.set_ylabel('Average counts')
+		ax_complex.set_ylim([0, 20000])
+		ax_complex.set_yticks([0, 10000, 20000])
 		ax_complex.spines['top'].set_visible(False)
+		ax_complex.spines['right'].set_visible(False)
 		plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-		ax_complex.legend(loc=1, prop={'size': 8})
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
