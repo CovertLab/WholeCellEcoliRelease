@@ -1,6 +1,6 @@
 # Whole Cell Model - *Escherichia coli*
 
-This repository contains work to date on the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli), as well as some effort to create a framework for building whole cell models in general.
+**Notice:** This repository contains a **release snapshot** of the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli). In contrast, our working repository is under continuous development so please contact us before embarking on any changes that you want to contribute. We do **not** plan to merge Pull Requests into this repository except documentation and installation fixes.
 
 You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com).
 
@@ -13,7 +13,26 @@ In short, there are two alternative ways to set up to run the model: in a Docker
 Docker containers are easier to build and isolated from your development computer, but they run slower. (PyCharm should
 support debugging into a Docker container but we haven't tested that.) `pyenv` virtual environments take more steps to build
 and depend on your computer's OS, but are lighter weight and easier for debugging.
-
+With Docker, you can start running a simulation with these steps:
+1. Create a [github personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with at least the `read:packages` permission selected.
+1. Place the token in `github_personal_access_token.txt`.
+1. Log in to `docker.pkg.github.com`:
+    ```bash
+    cat github_personal_access_token.txt | docker login https://docker.pkg.github.com -u USERNAME --password-stdin
+    ```
+    You should see an output message like `Login Succeeded`
+1.  Pull the Docker image:
+    ```shell script
+    docker pull docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full:latest
+    ```
+1. Run the Docker container:
+    ```shell script
+    docker run --name=wcm -it --rm docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full
+    ```
+1. Inside the container, run the model:
+    ```shell script
+    python runscripts/manual/runSim.py
+    ```
 
 ## Quick start
 
@@ -146,10 +165,6 @@ There's another way run an individual analysis plot:
 ```bash
 python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
 ```
-
-## Causality
-
-After running a simulation, you can explore the Causality visualization tool (see [CovertLab/causality](https://github.com/CovertLab/causality)) to examine the model's causal links and simulation output correlations.
 
 
 ## Running a Fireworks workflow
