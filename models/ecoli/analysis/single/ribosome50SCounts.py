@@ -1,117 +1,99 @@
 """
 Plots counts of 50S rRNA, associated proteins, and complexes
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/8/2014
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 FONT = {
-		'size'	:	8
-		}
+	'size':	8
+	}
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		proteinIds = sim_data.moleculeGroups.s50_proteins
-		rnaIds = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
-		rRnaIds = sim_data.moleculeGroups.s50_23sRRNA
-		rRnaIds.extend(sim_data.moleculeGroups.s50_5sRRNA)
-		complexIds = sim_data.moleculeGroups.s50_proteinComplexes
-		complexIds.append(sim_data.moleculeIds.s50_fullComplex)
+		proteinIds = sim_data.molecule_groups.s50_proteins
+		cistron_ids = [sim_data.process.translation.monomer_data['cistron_id'][np.where(sim_data.process.translation.monomer_data['id'] == pid)[0][0]] for pid in proteinIds]
+		rRnaIds = sim_data.molecule_groups.s50_23s_rRNA
+		rRnaIds.extend(sim_data.molecule_groups.s50_5s_rRNA)
+		complexIds = sim_data.molecule_groups.s50_protein_complexes
+		complexIds.append(sim_data.molecule_ids.s50_full_complex)
 
-		# Load count data for s30 proteins, rRNA, and final 30S complex
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
-
-		# Get indexes
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
-		rnaIndexes = np.array([moleculeIds.index(rna) for rna in rnaIds], np.int)
-		rRnaIndexes = np.array([moleculeIds.index(rRna) for rRna in rRnaIds], np.int)
-		complexIndexes = np.array([moleculeIds.index(comp) for comp in complexIds], np.int)
+		# Load count data for mRNAs
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		all_mRNA_cistron_indexes = {rna: i for i, rna in
+			enumerate(mRNA_counts_reader.readAttribute('mRNA_cistron_ids'))}
+		rna_indexes = np.array([all_mRNA_cistron_indexes[rna] for rna in cistron_ids], int)
+		rna_cistron_counts = mRNA_cistron_counts[:, rna_indexes]
+		(freeProteinCounts, freeRRnaCounts, complexCounts) = read_bulk_molecule_counts(
+			simOutDir, (proteinIds, rRnaIds, complexIds))
 
 		# Load data
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		freeProteinCounts = bulkMoleculeCounts[:, proteinIndexes]
-		rnaCounts = bulkMoleculeCounts[:, rnaIndexes]
-		freeRRnaCounts = bulkMoleculeCounts[:, rRnaIndexes]
-		complexCounts = bulkMoleculeCounts[:, complexIndexes]
-
-		bulkMolecules.close()
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 		activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
-		uniqueMoleculeCounts.close()
-
-		plt.figure(figsize = (8.5, 11))
+		plt.figure(figsize = (8.5, 21))
 		plt.rc('font', **FONT)
 
-		for idx in xrange(len(proteinIds)):
-			rna_axis = plt.subplot(17, 3, idx + 1)
+		for idx in range(len(proteinIds)):
+			rna_axis = plt.subplot(16, 3, idx + 1)
 
-			sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', '-', 'b')
-			setAxisMaxMinY(rna_axis, rnaCounts[:, idx])
+			sparklineAxis(rna_axis, time / 60., rna_cistron_counts[:, idx], 'left', '-', 'b')
+			setAxisMaxMinY(rna_axis, rna_cistron_counts[:, idx])
 
 			protein_axis = rna_axis.twinx()
 			sparklineAxis(protein_axis, time / 60., freeProteinCounts[:, idx], 'right', '-', 'r')
 			setAxisMaxMinY(protein_axis, freeProteinCounts[:, idx])
 
 			# Component label
-			rna_axis.set_xlabel(proteinIds[idx][:-3])
+			rna_axis.set_title(proteinIds[idx][:-3], fontsize=8)
 
-		for idx in xrange(len(rRnaIds)):
-			rna_axis = plt.subplot(17, 3, idx + len(proteinIds) + 1)
+		for idx in range(len(rRnaIds)):
+			rna_axis = plt.subplot(16, 3, idx + len(proteinIds) + 1)
 
 			sparklineAxis(rna_axis, time / 60., freeRRnaCounts[:, idx], 'left', '-', 'b')
 
 			setAxisMaxMinY(rna_axis, freeRRnaCounts[:, idx])
 
 			# Component label
-			rna_axis.set_xlabel(rRnaIds[idx][:-3])
+			rna_axis.set_title(rRnaIds[idx][:-3], fontsize=8)
 
-		for idx in xrange(len(complexIds)):
-			complex_axis = plt.subplot(17, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
+		for idx in range(len(complexIds)):
+			complex_axis = plt.subplot(16, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
 
 			sparklineAxis(complex_axis, time / 60., complexCounts[:, idx], 'left', '-', 'r')
 			setAxisMaxMinY(complex_axis, complexCounts[:, idx])
 
 			# Component label
-			complex_axis.set_xlabel(complexIds[idx][:-3])
+			complex_axis.set_title(complexIds[idx][:-3], fontsize=8)
 
 		# Plot number of ribosomes
-		ribosome_axis = plt.subplot(17, 3, 1 + len(proteinIds) + len(rRnaIds) + len(complexIds) + 1)
+		ribosome_axis = plt.subplot(16, 3, len(proteinIds) + len(rRnaIds) + len(complexIds) + 1)
 		sparklineAxis(ribosome_axis, time / 60., activeRibosome, 'left', '-', 'r')
 		setAxisMaxMinY(ribosome_axis, activeRibosome)
-		ribosome_axis.set_xlabel('Active ribosome')
+		ribosome_axis.set_title('Active ribosome', fontsize=8)
 
 		# Save
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
+		plt.tight_layout()
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")

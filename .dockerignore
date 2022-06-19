@@ -3,11 +3,14 @@
 /.idea
 /docs
 /user
+/stubs
+/.mypy_cache
+/.benchmarks
 
 # Compiled source #
 ###################
 *.pyc
-__pycache__
+**/__pycache__/
 
 # OS generated files #
 ######################
@@ -29,6 +32,7 @@ coverage.xml
 nosetests.xml
 nosetests.*.xml
 .pytest_cache
+/unittests.xml
 
 # IPython notebook files #
 ##########################
@@ -37,6 +41,8 @@ nosetests.*.xml
 # Output files #
 ################
 /out
+/colony/out
+reconstruction/ecoli/scripts/nca/out/
 
 # Cached sim data #
 ###################
@@ -106,6 +112,9 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 *.hdf
 *.tar.gz
 /build/
+/.mypy_cache/
+secrets.*
+reconstruction/ecoli/scripts/nca/data/regulon-db/*.tsv
 
 # LaTeX compilation files #
 ###########################

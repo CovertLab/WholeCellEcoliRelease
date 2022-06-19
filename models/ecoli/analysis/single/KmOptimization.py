@@ -1,82 +1,38 @@
-"""
-@author: Javier Carrera
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/27/2016
-"""
+from __future__ import absolute_import, division, print_function
 
-from __future__ import absolute_import, division
-
-import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
-
-THRESHOLD = 1e-13 # roughly, the mass of an electron
-
-FG_PER_DALTON = 1.6605402e-9
-
-# TODO: get these from the KB
-REPRESENTATIVE_MASSES = {
-	"proton":1.007 * FG_PER_DALTON,
-	"amino acid":109 * FG_PER_DALTON,
-	"ATP":551 * FG_PER_DALTON,
-	"protein":40e3 * FG_PER_DALTON,
-	"ribosome":2700e3 * FG_PER_DALTON
-	}
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		if sim_data.constants.EndoRNaseCooperation:
-
-			mass = TableReader(os.path.join(simOutDir, "Mass"))
-
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
-			processMassDifferences = mass.readColumn("processMassDifferences")
-
-			processNames = mass.readAttribute("processNames")
-
-			mass.close()
-
-			avgProcessMassDifferences = np.abs(processMassDifferences).sum(axis = 0) / len(time)
-
-			index = np.arange(len(processNames))
-
+		if sim_data.constants.endoRNase_cooperation:
 			width = 1
 
-			sim_data = cPickle.load(open(simDataFile, "rb"))
-
-			LossKm = sim_data.process.rna_decay.StatsFit['LossKm']
-			LossKmOpt = sim_data.process.rna_decay.StatsFit['LossKmOpt']
-			RnegKmOpt = sim_data.process.rna_decay.StatsFit['RnegKmOpt']
-			ResKm = sim_data.process.rna_decay.StatsFit['ResKm']
-			ResKmOpt = sim_data.process.rna_decay.StatsFit['ResKmOpt']
-			ResEndoRNKm = sim_data.process.rna_decay.StatsFit['ResEndoRNKm']
-			ResEndoRNKmOpt = sim_data.process.rna_decay.StatsFit['ResEndoRNKmOpt']
-			ResScaledKm = sim_data.process.rna_decay.StatsFit['ResScaledKm']
-			ResScaledKmOpt = sim_data.process.rna_decay.StatsFit['ResScaledKmOpt']
+			LossKm = sim_data.process.rna_decay.stats_fit['LossKm']
+			LossKmOpt = sim_data.process.rna_decay.stats_fit['LossKmOpt']
+			RnegKmOpt = sim_data.process.rna_decay.stats_fit['RnegKmOpt']
+			ResKm = sim_data.process.rna_decay.stats_fit['ResKm']
+			ResKmOpt = sim_data.process.rna_decay.stats_fit['ResKmOpt']
+			ResEndoRNKm = sim_data.process.rna_decay.stats_fit['ResEndoRNKm']
+			ResEndoRNKmOpt = sim_data.process.rna_decay.stats_fit['ResEndoRNKmOpt']
+			ResScaledKm = sim_data.process.rna_decay.stats_fit['ResScaledKm']
+			ResScaledKmOpt = sim_data.process.rna_decay.stats_fit['ResScaledKmOpt']
 
 			StatsFit = []
 			ScoreNames = []
 
 			# Sensitivity analysis alpha
-			Residuals = sim_data.process.rna_decay.SensitivityAnalysisAlphaResidual
+			Residuals = sim_data.process.rna_decay.sensitivity_analysis_alpha_residual
 
 			for alpha in sorted(Residuals):
 				ScoreNames.append('Residuals rescaled, alpha = ' + str(alpha))
@@ -105,23 +61,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			r1 = axes.barh(index, StatsFit, width, log = True, color = (0.2, 0.2, 0.9))
 
 			axes.set_yticks(index+width/2)
-			axes.set_yticklabels(ScoreNames) #, rotation = -45)
+			axes.set_yticklabels(ScoreNames)
 
-			# If a THRESHOLD is defined:
-			# axes.plot([THRESHOLD, THRESHOLD], [index[0], index[-1]+width], 'k--', linewidth=3)
-			# plt.text(THRESHOLD, index[-1], "electron", rotation = "vertical", va = "center", ha = "right")
+			rnaDegRates = sim_data.process.transcription.rna_data['deg_rate']
 
-			rnaDegRates = sim_data.process.transcription.rnaData['degRate']
+			cellDensity = sim_data.constants.cell_density
+			cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
+			countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
-			cellDensity = sim_data.constants.cellDensity
-			cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
-			countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
-
-			rnaIds = sim_data.process.transcription.rnaData["id"]
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-			rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+			rnaIds = sim_data.process.transcription.rna_data["id"]
+			(rnaCountsBulk,) = read_bulk_molecule_counts(simOutDir, rnaIds)
 			rnaCountsInitial = rnaCountsBulk[-1, :]
 			rnaConcInitial = countsToMolar * rnaCountsInitial
 			rnaDecay = rnaConcInitial * rnaDegRates

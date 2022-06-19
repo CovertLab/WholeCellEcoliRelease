@@ -1,18 +1,11 @@
-"""
-@author: Morgan Paull
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/29/2016
-"""
-
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux
@@ -25,28 +18,23 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		plt.figure(figsize = (8.5, 11))
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		seed_color = {}
 		line_instances = {}
-		for seed_num in xrange(ap.n_seed):
+		for seed_num in range(self.ap.n_seed):
 			# Get all cells in this seed
-			seedDir = ap.get_cells(seed=[seed_num])
+			seedDir = self.ap.get_cells(seed=[seed_num])
 
 			for simDir in seedDir:
 				simOutDir = os.path.join(simDir, "simOut")
@@ -91,7 +79,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				plt.xlabel("Time (min)")
 				plt.ylabel("Pearson R")
 
-		plt.legend(line_instances.values(), ["Seed {}".format(x) for x in line_instances.keys()], loc="best")
+		plt.legend(list(line_instances.values()), ["Seed {}".format(x) for x in line_instances.keys()], loc="best")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)

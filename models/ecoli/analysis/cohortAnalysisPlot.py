@@ -2,13 +2,13 @@
 Common code for Cohort analysis plots.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from models.ecoli.analysis import analysisPlot
 from runscripts.manual import analysisCohort
 
 
+# noinspection PyAbstractClass
 class CohortAnalysisPlot(analysisPlot.AnalysisPlot):
 	"""Abstract base class for Cohort analysis plots."""
 

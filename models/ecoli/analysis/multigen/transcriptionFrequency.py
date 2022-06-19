@@ -1,48 +1,37 @@
 """
 Plots frequency of observing at least 1 transcript during a cell's life.
-
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/10/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
-import numpy as np
-import matplotlib.pyplot as plt
-from bokeh.plotting import figure, ColumnDataSource
-from bokeh.models import HoverTool
 import bokeh.io
+import bokeh.io.state
+from bokeh.models import HoverTool
+from bokeh.plotting import figure, ColumnDataSource
+import matplotlib.pyplot as plt
+import numpy as np
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from models.ecoli.analysis import multigenAnalysisPlot
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
-from models.ecoli.analysis import multigenAnalysisPlot
+from wholecell.utils import filepath
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		# Get mRNA data
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
 		mRnaIds = np.where(isMRna)[0]
-
-		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIds])
 		mRnaNames = np.array([rnaIds[x] for x in mRnaIds])
 
 		# Get whether or not mRNAs were transcribed
@@ -56,16 +45,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rnaSynthProb.close()
 			simulatedSynthProbs.append(simulatedSynthProb)
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			mRnaIndexes = np.array([moleculeIds.index(x) for x in mRnaNames])
-			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes]
-			bulkMolecules.close()
-
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
-
-			mRnasTranscribedNames = [mRnaNames[x] for x in np.arange(mRnaNames.shape[0]) if mRnasTranscribed[x]]
 			transcribedBool.append(mRnasTranscribed)
 
 		transcribedBool = np.array(transcribedBool)
@@ -92,16 +76,26 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName + "__histogram", metadata)
 		plt.close("all")
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
 		hover = HoverTool(tooltips = [("ID", "@ID")])
-		plot = figure(x_axis_label = "log10 (transcript synthesis probability)", y_axis_label = "Frequency of observing at least 1 transcript", width = 800, height = 800, tools = [hover, "box_zoom", "pan", "wheel_zoom", "resize", "tap", "save", "reset"])
-		source = ColumnDataSource(data = dict(x = np.log10(np.mean(simulatedSynthProbs, axis = 0)), y = np.mean(transcribedBool, axis = 0), ID = mRnaNames))
+		tools = [hover, "box_zoom", "pan", "wheel_zoom", "tap", "save", "reset"]
+		plot = figure(
+			x_axis_label="log10 (transcript synthesis probability)",
+			y_axis_label="Frequency of observing at least 1 transcript",
+			width=800,
+			height=800,
+			tools=tools,
+			)
+		source = ColumnDataSource(data=dict(
+			x=np.log10(np.mean(simulatedSynthProbs, axis=0)),
+			y=np.mean(transcribedBool, axis=0),
+			ID=mRnaNames,
+			))
 		plot.scatter("x", "y", source = source)
 
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
+		html_dir = filepath.makedirs(plotOutDir, "html_plots")
+		bokeh.io.output_file(os.path.join(html_dir, plotOutFileName + ".html"), title=plotOutFileName)
 		bokeh.io.save(plot)
-		bokeh.io.curstate().reset()
+		bokeh.io.state.curstate().reset()
 
 
 if __name__ == "__main__":

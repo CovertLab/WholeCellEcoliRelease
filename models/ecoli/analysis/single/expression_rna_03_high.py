@@ -1,23 +1,19 @@
 """
 Plot dynamic traces of genes with high expression (> 20 counts of mRNA)
 
-EG10367_RNA[c]	24.8	gapA	Glyceraldehyde 3-phosphate dehydrogenase
-EG11036_RNA[c]	25.2	tufA	Elongation factor Tu
-EG50002_RNA[c]	26.2	rpmA	50S Ribosomal subunit protein L27
-EG10671_RNA[c]	30.1	ompF	Outer membrane protein F
-EG50003_RNA[c]	38.7	acpP	Apo-[acyl carrier protein]
-EG10669_RNA[c]	41.1	ompA	Outer membrane protein A
-EG10873_RNA[c]	44.7	rplL	50S Ribosomal subunit protein L7/L12 dimer
-EG12179_RNA[c]	46.2	cspE	Transcription antiterminator and regulator of RNA stability
-EG10321_RNA[c]	53.2	fliC	Flagellin
-EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/29/2015
+EG10367_RNA	24.8	gapA	Glyceraldehyde 3-phosphate dehydrogenase
+EG11036_RNA	25.2	tufA	Elongation factor Tu
+EG50002_RNA	26.2	rpmA	50S Ribosomal subunit protein L27
+EG10671_RNA	30.1	ompF	Outer membrane protein F
+EG50003_RNA	38.7	acpP	Apo-[acyl carrier protein]
+EG10669_RNA	41.1	ompA	Outer membrane protein A
+EG10873_RNA	44.7	rplL	50S Ribosomal subunit protein L7/L12 dimer
+EG12179_RNA	46.2	cspE	Transcription antiterminator and regulator of RNA stability
+EG10321_RNA	53.2	fliC	Flagellin
+EG10544_RNA	97.5	lpp		Murein lipoprotein
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -27,21 +23,18 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import range
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		all_mRNA_cistron_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_cistron_ids'))}
 
 		rnaIds = [
-			"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
-			"EG10669_RNA[c]", "EG10873_RNA[c]", "EG12179_RNA[c]", "EG10321_RNA[c]", "EG10544_RNA[c]",
+			"EG10367_RNA", "EG11036_RNA", "EG50002_RNA", "EG10671_RNA", "EG50003_RNA",
+			"EG10669_RNA", "EG10873_RNA", "EG12179_RNA", "EG10321_RNA", "EG10544_RNA",
 			]
 		names = [
 			"gapA - Glyceraldehyde 3-phosphate dehydrogenase",
@@ -56,22 +49,20 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"lpp - Murein lipoprotein",
 		]
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnaIndexes = np.array([moleculeIds.index(x) for x in rnaIds], np.int)
-		rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+		cistron_indexes = np.array([all_mRNA_cistron_idx[x] for x in rnaIds], int)
+		cistron_counts = mRNA_cistron_counts[:, cistron_indexes]
 
-		bulkMolecules.close()
-
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		plt.figure(figsize = (8.5, 11))
 
-		for subplotIdx in xrange(1, 10):
+		for subplotIdx in range(1, 10):
 
 			plt.subplot(3, 3, subplotIdx)
 
-			plt.plot(time / 60., rnaCounts[:, subplotIdx])
+			plt.plot(time / 60., cistron_counts[:, subplotIdx])
 			plt.xlabel("Time (min)")
 			plt.ylabel("mRNA counts")
 			plt.title(names[subplotIdx].split(" - ")[0])

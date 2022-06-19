@@ -1,0 +1,160 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+\usepackage{amsmath}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Metabolism}
+\label{sec:met}
+
+\subparagraph{Model implementation.}
+Our challenge in modeling metabolism at the large scale is best reflected in the two major approaches to modeling metabolic networks.  Both approaches begin by writing a number of ordinary differential equations to reflect conservation of mass for each of the metabolites in the system.  In a kinetics-based approach, the terms of the ODEs are represented in terms of enzyme and small molecule concentrations.  The difficulty in implementing this approach at a large scale is that (1) a majority of the parameters are not known, and (2) the link between the parameter values - each measured with their own error - is rigid in this approach, such that it is generally impossible to build a model even at a smaller scale without abandoning most of the experimental data and performing extensive model fitting.
+
+The second approach is called flux balance analysis (FBA), and is a common way to model large-scale metabolic network behavior with a low parameter requirement. However, traditional implementations of FBA are inappropriate for whole-cell modeling due to the dynamic nature of whole-cell simulation and fixed nature of the classic FBA objective function.  Moreover, in cases such as \emph{E. coli}, where many parameter values have been measured, it would be unfortunate not to use these measurements.
+
+The method we describe here incorporates the best parts of both kinetics- and flux-balance-based modeling.  This enables the model to run stably at a large scale, incorporating known parameter values without additional fitting, and in a manner that is readily integrable with the rest of a whole-cell modeling approach. This is done by using an alternative objective function that involves a multi-objective minimization for homeostatic metabolite composition and reaction kinetics that extends previous work by Birch \emph{et al.}\cite{Birch:2014ej}. The effect of this multi-objective function is twofold: (1) to maintain cellular concentrations of small molecule metabolites and (2) to enforce constraints on metabolic fluxes calculated from Michaelis-Menten kinetics based on metabolite concentrations and curated kinetic parameters. A weighting factor is used to balance the contribution from the two objectives.
+
+We used the metabolic network reconstruction from Weaver \emph{et al.} \cite{weaver2014genome} because it was well-connected to the rest of EcoCyc's resources and data which we relied on.  This network reconstruction was based on the Orth model \cite{orth2011comprehensive}. Different nutrient conditions (minimal M9, +amino acids, -oxygen, etc.) can be specified by changing bounds on metabolite import reactions, and shifts between these nutrient conditions can be programmatically varied.
+
+\subparagraph{Homeostatic objective.}
+The homeostatic objective attempts to maintain small molecule metabolite concentrations at a constant value. For example, if during a time-step the net effect of other \texttt{Process} execution transforms ATP to ADP, the concentration of ATP will be lower and ADP higher. The homeostatic objective ensures that the metabolic network will attempt to increase the ATP concentration and decrease the ADP concentration using chemical transformations available in the network.
+
+A total of 140 metabolite set-point concentrations are specified in the objective ($C_{o,i}$ in Equation \ref{obj_met_eqn}). A list of those metabolites with concentrations in the model is given in Table S7. The homeostatic objective minimizes the deviation from these measured concentrations and can be specified as:
+
+\begin{equation}
+\label{obj_met_eqn}
+\mathrm{minimize } \, \sum_i \left| 1-\frac{C_i}{C_{o,i}} \right|\
+\end{equation}
+\\
+where $C_i$ is the concentration of metabolite $i$ and $C_{o,i}$ is the measured set-point concentration for metabolite $i$. Cytoplasmic concentrations were chosen based on data from Bennett \emph{et al.}  \cite{bennett2009absolute}, and other components of biomass have set-point concentrations specified based on the overall composition of the cell (lipids, metal ions, etc.) \cite{Weaver:2014go} and can be dependent on the media environment of the simulation.
+
+This approach is an improvement over the \textit{M. genitalium} simulations, where metabolites were produced in a fixed ratio at every time step regardless of the behavior of the rest of the simulated cell---this could lead to pooling or depletion of metabolites.  Furthermore, if one metabolite could not be produced, none of the metabolites could be produced.  Our homeostatic objective fixes both of these shortcomings.
+
+\subparagraph{Kinetics objective.}
+The \emph{E. coli} model simulates both metabolic enzyme expression via transcription and translation and dynamically maintains 140 metabolite concentrations. This enables the use of Michaelis-Menten kinetic equality constraints on metabolic fluxes using Equation \ref{mm_equation}:
+\begin{equation}
+\label{mm_equation}
+v_{o,j} = k_{cat} \cdot E \cdot \bigg ( \frac{C_1}{C_1 + K_{m,1}} \bigg ) \cdot \bigg ( \frac{C_2}{C_2 + K_{m,2}} \bigg ) \hdots \bigg ( \frac{C_n}{C_n + K_{m,n}} \bigg )
+\end{equation}
+where $v_{o,j}$ is the kinetic target for the flux through reaction $j$ that has $n$ substrates, $k_{cat}$ is the catalytic turnover rate for enzyme $E$, $K_{m,n}$ is the saturation constant for substrate $n$, $E$ is the concentration of metabolic enzyme, and $C_n$ is the concentration of substrate $n$ in reaction $j$.
+
+Kinetics data was reviewed from over 12,000 papers identified from BRENDA \cite{Schomburg:2013gp}.  We filtered out papers that did not have a $k_{cat}$ and which did not use a lab strain, or which concerned non-metabolic enzymes.  The result was roughly 1200 papers which we manually curated due to our and others' observation that about 20\% of the values in the BRENDA database are copied incorrectly from their primary source papers \cite{Bar2011}.  From this set, we further removed enzymes that were not included in our metabolic model and consolidated the results of multiple studies (usually preferring experiments conducted at 37\(^\circ\)C and/or the report with the highest $k_{cat}$ value).  In all, 179 constraints with a $K_M$ and $k_{cat}$ and 216 constraints with only a $k_{cat}$ are used to constrain a total of 380 reactions (with some reactions having multiple constraints).  Although some additional constraints were identified, they are not currently being used in the model.  In particular, constraints were found for tRNA charging (18 reactions) but not used since tRNA charging is not explicitly included in the model.  Additionally, as discussed in the main text, constraints for four reactions (succinate dehydrogenase, NADH dehydrogenase, inorganic pyrophosphatase, and glutathione reductase) were identified that, when included, caused a much higher glucose uptake rate than observed without kinetic constraints and higher than what has been experimentally measured. In related analysis also outlined in the main text, two more reactions (isocitrate dehydrogenase and glyoxylate reductase) were found to be under additional control that is not modeled so their constraints were excluded.  Based on this, constraints related to these 24 reactions were excluded from the model. A complete list of the 431 reactions with curated kinetic parameters, including those mentioned above that were excluded from the model, is found in Table S8.
+
+In cases where the enzyme parameters were recorded at non-physiological temperatures, we used the following scaling relationship to adjust the $k_{cat}$:
+\begin{equation}
+k_{cat,adj} = 2^{\frac{37 - T}{10}}\cdot k_{cat}
+\end{equation}
+where \(T\) is the reported temperature (in \(^\circ\)C) for the experimental conditions---this increases the kinetic rate by a factor of 2 for every 10 \(^\circ\)C below 37 \(^\circ\)C.  The factor 2 comes from an approximation of the change in rates determined by the Arrhenius equation:
+\begin{equation}
+k = A\cdot e^{-\frac{E_a}{R\cdot T}}
+\end{equation}
+\noindent where $k$ is the calculated rate, $A$ is a constant for a given reaction, $E_a$ is the activation energy for a given reaction, $R$ is the universal gas constant and $T$ is the temperature.  Assuming $E_a \approx$ 50,000 $\frac{J}{mol}$ and the temperature increases 10 $^\circ$C near 25 $^\circ$C ($T_1 = 293$ K to $T_2 = 303$ K), we get an approximate doubling in the rate for the 10 $^\circ$C increase:
+\begin{equation}
+\frac{k_2}{k_1} = \frac{A\cdot e^{-\frac{E_a}{R\cdot T_2}}}{A\cdot e^{-\frac{E_a}{R\cdot T_1}}} = \frac{e^{-\frac{50000}{8.314\cdot 303}}}{e^{-\frac{50000}{8.314\cdot 293}}} \approx 2.0
+\end{equation}
+
+Similar to the homeostatic objective, the kinetics objective minimizes deviation from the fluxes determined by the kinetic equations that are calculated at each time step based on the enzyme and metabolite concentrations.  Formally:
+\begin{equation}
+\mathrm{minimize } \, \sum_{j} \left| 1-\frac{v_j}{v_{o,j}} \right|
+\end{equation}
+where $v_j$ is the flux through reaction $j$ and $v_{o,j}$ is the target flux for reaction \(j\) calculated from Equation \ref{mm_equation}.  This represents a soft kinetic constraint on reactions for which we have kinetic parameters and depends on concentrations of enzymes and metabolites in the model.
+
+\subparagraph{Combined objective.}
+The two objectives above are linked in the combined objective by a factor $\lambda$, which is chosen to be $\ll$1 to prioritize the homeostatic concentration objective function's ability to produce growth at known doubling times, over fit the kinetic data.  $\lambda$ is not a biological parameter such as those found in Table S1 (it is  better thought of as a ``hyperparameter''), and thus it is not included in that table.
+
+Finally, a hard kinetic constraint of no flux through a reaction is implemented for reactions that have no enzyme present by setting $v_{max} = 0$.
+
+This results in the following linear optimization problem that is solved at each time step with GLPK to determine fluxes for each reaction which are used to update the counts of metabolites through exchange reaction fluxes included in the problem: \\
+\begin{align*}
+\text{minimize} & \hspace{1cm} (1-\lambda)\sum\limits_i \left| 1-\frac{C_i}{C_{o,i}} \right| + \lambda \sum\limits_j \left| 1-\frac{v_j}{v_{o,j}} \right| \\
+\text{subject to} & \hspace{1cm} S \cdot v = 0 \\
+& \hspace{1cm} v_j \geq v_{min,j} \\
+& \hspace{1cm} v_j \leq v_{max,j} \\
+\end{align*}
+
+
+\newpage
+ \begin{algorithm}[H]
+\caption{Metabolism}
+\label{metabolism_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\Input{$C_i$ concentration for metabolite $i$}
+\Input{$C_{o,i}$ concentration target for metabolite $i$}
+\Input{$k_{cat,j}$ turnover number for enzyme $j$}
+\Input{$K_{m,i,j}$ Michaelis constant for metabolite $i$ for enzyme $j$}
+\Input{$E_j$ concentration for enzyme $j$}
+\Input{$S$ stoichiometric matrix for all reactions}
+\textbf{1.} Set physical constraints on reaction fluxes\\
+\-\hspace{1 cm}For all reactions: $v_{min,j} = -\inf, v_{max,j} = +\inf$\\
+\-\hspace{1 cm}For thermodynamically irreversible reactions: $v_{min,j} = 0$\\
+\-\hspace{1 cm}If required enzyme not present: $v_{min,j} = v_{max,j} = 0$\\
+\textbf{2.} Calculate kinetic target ($v_{o,j}$) for each reaction $j$ based on the enzymes $j$ and metabolites $i$ associated with each reaction for a soft flux constraint\\
+\-\hspace{1 cm} $v_{o,j}=k_{cat,j} \cdot E_j \cdot \prod\limits_i ( \frac{C_i}{K_{m,i,j} + C_i} )$\\
+\textbf{3.} Solve linear optimization problem\\
+\-\hspace{1 cm} $\mathrm{minimize} \hspace{0.5 cm} (1-\lambda)\sum\limits_i \left| 1-\frac{C_i}{C_{o,i}} \right| + \lambda \sum\limits_j \left| 1-\frac{v_j}{v_{o,j}} \right|$\\
+\-\hspace{1 cm} subject to \hspace{0.5 cm}$S\cdot v = 0$\\
+\-\hspace{3.2 cm} $v_j \geq v_{min,j}$\\
+\-\hspace{3.2 cm} $v_j \leq v_{max,j}$\\
+\textbf{4.} Update concentrations of metabolites based on the solution to the linear optimization problem\\
+\Result{Metabolites are taken up from the environment and converted into other metabolites for use in other processes}
+ \end{algorithm}
+
+\vspace{12pt}
+\textbf{Associated data}
+
+ \begin{table}[h!]
+ \centering
+ \begin{tabular}{c c c c c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+ Metabolic network & $S$ & - & Stoichiometric coefficients & \cite{karp2014ecocyc} \\
+ Metabolic target fluxes & $v_{o}$ & $\mu M/s$ & [0, 87000] & See GitHub \\
+ Metabolic fluxes (validation) & $v_v$ & $\mu M/s$ & [82, 1500] & \cite{toya201013c} \\
+ Enzyme turnover number & $k_{cat}$ & $1/s$ & [0.00063, 38000] & See GitHub \\
+ Enzyme Michaelis constant & $K_{m}$ & $\mu M$ & [0.035, 550000] & See GitHub \\
+ Metabolite target concentration & $C_{o}$ & $\mu M$ & [0.063, 97000] & \cite{bennett2009absolute} \\
+ Kinetic objective weight & $\lambda$ & - & 1e-6 & See GitHub \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for metabolism]{Table of parameters for metabolism process.}
+\end{table}
+
+\newpage
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{metabolism.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{metabolism.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{biomass.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{enzymeKinetics.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{metaboliteConcentrations.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{reactions.tsv} & raw data \\
+\texttt{wcEcoli/validation/ecoli/flat} & \texttt{toya\_2010\_central\_carbon\_fluxes.tsv} & validation data \\
+ \hline
+\end{tabular}
+\caption[Table of files for metabolism]{Table of files for metabolism.}
+\label{files_metabolism}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

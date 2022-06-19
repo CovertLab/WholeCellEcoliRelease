@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Cell division}
+
+\subparagraph{Model implementation.}
+Cell division is modeled by the generalized \texttt{divide\_cell} function and the \emph{E. coli}-specific \texttt{ChromosomeReplication} process and \texttt{CellDivision} listener in the model. A Helmstetter-Cooper type model of chromosome replication initiation is coupled to cell division, inspired by work from Wallden \emph{et al.}  \cite{Wallden2016}. Chromosome replication initiation occurs at a fixed mass per origin of replication. Each initiation event is coupled to a cell division event after a constant period of time consisting of one round of chromosome replication (C period) and cytokinesis (D period). When a round of chromosome replication is completed, the \texttt{ChromosomeReplication} process adds the length of the D period to the current time and pushes this time to a queue. The \texttt{CellDivision} listener checks this queue and the current time at every timestep, and triggers cell division when the current time passes the earliest time in this queue.
+
+Cell division itself done by the \texttt{divide\_cell} function and is modeled as a binomial process where each daughter cell has an equal probability of inheriting the contents of the mother cell. The exception to this is if two chromosomes are present before cell division---each daughter is guaranteed to get one. Because the \textit{E. coli} model is not yet gene complete, certain mechanistic details of cell division (eg. cytokinesis, septation, and chromosome segregation) are not yet modeled explicitly.
+
+Due to the coupled nature of chromosome replication and this division model as mentioned above, Algorithm \ref{dna_replication_termination_algorithm} (previous section) is used to create the doubled ended queue referenced in the cell division implementation provided in Algorithm \ref{cell_division_algorithm} below.\\
+
+\begin{algorithm}[H]
+\caption{Cell division}
+\label{cell_division_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{peek}{peek}
+\SetKwFunction{pop}{pop}
+\SetKwFunction{rand}{rand}
+\SetKwFunction{mod}{mod}
+\SetKwFunction{floor}{floor}
+\SetKwFunction{randint}{randint}
+
+  \Input{$d_{queue}$ a double ended queue data structure that stores the time(s) cell division should be triggered}
+     \Input{$c_i$ counts of all molecules in simulation at cell division where $i = 1$ \KwTo $n_{species}$}
+     \Input{$p$ binomial partition coefficient}
+     \Input{$n_{chrom}$ number of chromosome molecules}
+     \Input{\rand{} returns a random number from a uniform distribution between 0 and 1}
+     \Input{\randint{} returns a random integer either 0 or 1}
+
+  \If{$t > d_{queue}$.\peek{}}{
+      \textbf{1.} Trigger division and remove division time.\\
+        \-\hspace{1cm} $d_{queue}$.\pop{}\\
+      \textbf{2.} Divide bulk contents of cell binomially. Number partitioned into daughter one is stored in $n_{daughter,1}$ and to daughter two in $n_{daughter,2}.$\\
+          \For{$i = 1$ \KwTo $n_{species}$}{
+              $n_{daughter,1} = 0$\\
+              \For{$j = 1$ \KwTo $c_i$}{
+                  \If{\rand{} $> p$}{
+                      $n_{daughter,1} = n_{daughter,1} + 1$
+                  }
+              }
+              $n_{daughter,2} = c_i - n_{daughter,1}$
+          }
+        \textbf{3.} Divide chromosome in binary manner. All replication forks and origins of replication associated with a chromosome molecule are partitioned as well. Number of chromosome molecules partitioned into daughter one is stored in $n_{chrom,daughter,1}$ and to daughter two in $n_{chrom,daughter,2}.$\\
+          \eIf{\mod{$n_{chrom}$,2}}{
+              $n_{chrom,daughter,1} = \frac{n_{chrom}}{2}$\\
+            }
+            {
+              $n_{chrom,daughter,1} = $\floor{$\frac{n_{chrom}}{2}$} + \randint{}\\
+            }
+            $n_{chrom,daughter,2} = n_{chrom} - n_{chrom,daughter,1}$
+
+    }
+
+\Result{Cell division is triggered at C+D time after DNA replication initiation. Contents of mother cell is divided between two daughter cells conserving mass.}
+\end{algorithm}
+
+\newpage
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{chromosome\_replication.py} & process \\
+\texttt{wcEcoli/wholecell/sim} & \texttt{divide\_cell.py} & function \\
+\texttt{wcEcoli/models/ecoli/listeners} & \texttt{cell\_division.py} & listener \\
+ \hline
+\end{tabular}
+\caption[Table of files for cell division]{Table of files for transcription regulation.}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

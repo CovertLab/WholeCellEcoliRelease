@@ -1,74 +1,61 @@
 """
 Plots the histograms of the copy number of each RNA at each generation for
 multiple-seed simulations.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/21/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from itertools import izip, cycle
+from itertools import cycle
+from six.moves import cPickle, range, zip
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils.filepath import makedirs
 from models.ecoli.analysis import cohortAnalysisPlot
 
 # Number of RNAs sampled for Plot 1
-RNA_SAMPLE_COUNT = 50
+RNA_SAMPLE_COUNT = 10
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		# Check if the given variant directory exists
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory."
-
-		# Make plotOut directory if none exists
-		makedirs(plotOutDir)
-
 		# Get paths for all cell simulations in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		n_seed = ap.n_seed
-		n_generation = ap.n_generation
+		n_seed = self.ap.n_seed
+		n_generation = self.ap.n_generation
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
-			print "Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds."
+			print("Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds.")
 			return
 
 		# Group simulations by generation
 		sim_dirs_grouped_by_gen = []
 		for gen_idx in range(n_generation):
-			sim_dirs_grouped_by_gen.append(ap.get_cells(generation = [gen_idx]))
+			sim_dirs_grouped_by_gen.append(self.ap.get_cells(generation = [gen_idx]))
 
 		# Load simDataFile
-		simData = cPickle.load(open(simDataFile))
+		simData = cPickle.load(open(simDataFile, 'rb'))
 
 		# Get IDs for RNA from simData
-		ids_rna = simData.process.transcription.rnaData["id"]
+		ids_rna = simData.process.transcription.rna_data["id"]
+		mRNA_indexes = np.where(simData.process.transcription.rna_data['is_mRNA'])[0]
 		n_rnas = len(ids_rna)
 
 		# Get cell density constant
-		cell_density = simData.constants.cellDensity
+		cell_density = simData.constants.cell_density
 
 		# Load simData from first simulation to extract indices
 		simOutDir = os.path.join(sim_dirs_grouped_by_gen[0][0], "simOut")
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		# Get indices for RNA in bulkMolecules
-		molecule_ids = bulkMolecules.readAttribute("objectNames")
-		idx_rna = [molecule_ids.index(x) for x in ids_rna]
+		# Get indices for RNAs in bulkMolecules
+		bulk_molecule_ids = bulkMolecules.readAttribute("objectNames")
+		idx_rna_bulk_molecules = [bulk_molecule_ids.index(x) for x in ids_rna]
 
 		# Get mass data and calculate initial cell volume (used as standard volume
 		# when normalizing RNA counts)
@@ -80,7 +67,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		np.random.seed(21)
 
 		# Extract RNA counts from all simData
-		rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=np.int)
+		all_rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=int)
 
 		# For each generation and seed
 		for gen_idx, simDirs in enumerate(sim_dirs_grouped_by_gen):
@@ -89,8 +76,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				# Read simData
 				simOutDir = os.path.join(simDir, "simOut")
 
-				# Get BulkMolecule and time data
+				# Get required tables
 				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+				mRNA_counts_reader = TableReader(os.path.join(simOutDir, "mRNACounts"))
 				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 				# Pick out random timepoint
@@ -103,18 +91,21 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				# Calculate cell volume
 				cell_volume = cellMass[idx_timepoint]/cell_density
 
-				# Read counts of all bulk molecules
+				# Read counts of all bulk molecules and mRNAs
 				bulkCounts = bulkMolecules.readColumn("counts")
+				mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
 
-				# Read bulkCounts at selected timepoint, and normalize
-				bulkCounts_normalized = bulkCounts[idx_timepoint, :]*(expected_initial_volume/cell_volume)
+				# Sum up counts from both readers to get total counts
+				rna_counts = bulkCounts[idx_timepoint, idx_rna_bulk_molecules]
+				rna_counts[mRNA_indexes] += mRNA_counts[idx_timepoint]
 
-				# Get RNA counts
-				rna_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[idx_rna]
+				# Normalize counts and add to array
+				rna_counts = rna_counts*(expected_initial_volume/cell_volume)
+				all_rna_counts[gen_idx, seed_idx, :] = rna_counts
 
 		# Calculate statistics
-		rna_counts_mean_over_seed = rna_counts.mean(axis=1)
-		rna_counts_var_over_seed = rna_counts.var(axis=1)
+		rna_counts_mean_over_seed = all_rna_counts.mean(axis=1)
+		rna_counts_var_over_seed = all_rna_counts.var(axis=1)
 		rna_counts_std_over_seed = np.sqrt(rna_counts_var_over_seed)
 		rna_counts_mean_over_seed_gen = rna_counts_mean_over_seed.mean(axis=0)
 		rna_counts_noise_over_seed = rna_counts_var_over_seed/(rna_counts_mean_over_seed**2)
@@ -123,13 +114,13 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Plot 1: Histograms of average RNA counts and individual RNA
 		# counts for each generation
 		fig = plt.figure()
-		fig.set_size_inches(5*n_generation, 5*(RNA_SAMPLE_COUNT + 1))
+		fig.set_size_inches(4*n_generation, 4*(RNA_SAMPLE_COUNT + 1))
 		gs = gridspec.GridSpec(RNA_SAMPLE_COUNT + 1, n_generation)
 		tick_params_plot1 = {"which": "both", "direction": "out", "top": False, "right": False}
 
 		# 1-1: Plot histogram of average RNA counts for each generation
 		for gen_idx in range(n_generation):
-			ax = plt.subplot(gs[0, gen_idx])
+			ax = self.subplot(gs[0, gen_idx])
 			mean_counts = rna_counts_mean_over_seed[gen_idx, :]
 			ax.hist(mean_counts, bins=np.logspace(-3, 6, 19))
 			ax.set_title("Generation %d"%(gen_idx,))
@@ -149,7 +140,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			idx_rna_sampled = mean_count_rank[rank]
 
 			# Determine histogram range based on maximum count of the specific RNA
-			max_count = rna_counts[:, :, idx_rna_sampled].max()
+			max_count = all_rna_counts[:, :, idx_rna_sampled].max()
 			if max_count < 10:
 				bins = 10
 				hist_range = (0, 10)
@@ -166,8 +157,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Plot histogram for each generation
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
-				seed_counts = rna_counts[gen_idx, :, idx_rna_sampled]
+				ax = self.subplot(gs[i + 1, gen_idx])
+				seed_counts = all_rna_counts[gen_idx, :, idx_rna_sampled]
 
 				# The weights rescale histogram such that all columns sum to one
 				weights = np.ones_like(seed_counts)/float(len(seed_counts))
@@ -191,7 +182,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Go back and reset y axis upper limit
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				ax.set_ylim([0, 1.1*max_bin_prob])
 
 		fig.tight_layout()
@@ -242,7 +233,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ylim_plot3 = [1e-3, 1e4]
 
 		# Plot for each generation
-		for (gen_idx, color) in izip(range(n_generation), cycle('bmyk')):
+		for (gen_idx, color) in zip(range(n_generation), cycle('bmyk')):
 			ax = plt.subplot(gs[gen_idx, 0])
 			ax.scatter(rna_counts_mean_over_seed[gen_idx, :], rna_counts_noise_over_seed[gen_idx, :], s=10, color=color, marker='o', lw=0)
 			ax.set_xlabel(r"Mean RNA count ($\mu$)")
@@ -256,7 +247,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Compare plots between first and last generations
 		ax = plt.subplot(gs[-1, 0])
-		for (gen_idx, color) in izip([0, n_generation - 1], ['b', 'k']):
+		for (gen_idx, color) in zip([0, n_generation - 1], ['b', 'k']):
 			ax.scatter(rna_counts_mean_over_seed[gen_idx, :], rna_counts_noise_over_seed[gen_idx, :],
 				s=10, alpha=0.3, color=color, marker='o', label="Generation %d" % (gen_idx,), lw=0)
 

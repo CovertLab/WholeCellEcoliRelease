@@ -1,22 +1,14 @@
-#!/usr/bin/env python
-
 """
 ReplicationData
 
-Replication fork position listener. Represents position of replication forks over time.
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/13/2014
+Replication listener. Records dynamics related to replication.
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 import wholecell.listeners.listener
-
-PLACE_HOLDER = -1
 
 class ReplicationData(wholecell.listeners.listener.Listener):
 	""" ReplicationData """
@@ -38,43 +30,49 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.sequenceIdx = np.zeros(75, np.int64)
-		self.sequenceIdx.fill(PLACE_HOLDER)
-		self.sequenceLength = np.zeros(75, np.float64)
-		self.sequenceLength.fill(PLACE_HOLDER)
+		self.fork_coordinates = np.array([], np.int64)
+		self.fork_domains = np.array([], np.int32)
+		self.fork_unique_index = np.array([], np.int64)
 
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
 		self.criticalInitiationMass = 0.
 
+		self.total_DnaA_boxes = 0
+		self.free_DnaA_boxes = 0
+
 
 	def update(self):
-		dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('dnaPolymerase')
-		oriCs = self.uniqueMolecules.container.objectsInCollection('originOfReplication')
+		active_replisomes = self.uniqueMolecules.container.objectsInCollection('active_replisome')
+		oriCs = self.uniqueMolecules.container.objectsInCollection('oriC')
 
 		self.numberOfOric = len(oriCs)
 
-		if len(dnaPolymerases) > 0:
-			sequenceIdx, sequenceLength = dnaPolymerases.attrs(
-				"sequenceIdx", "sequenceLength"
-				)
-			self.sequenceIdx[:] = PLACE_HOLDER
-			self.sequenceIdx[:sequenceIdx.size] = sequenceIdx
-			self.sequenceLength[:] = np.NAN
-			self.sequenceLength[:sequenceLength.size] = sequenceLength
-		elif len(dnaPolymerases) == 0:
-			self.sequenceIdx[:] = PLACE_HOLDER
-			self.sequenceLength[:] = PLACE_HOLDER
+		self.fork_coordinates, self.fork_domains, self.fork_unique_index = active_replisomes.attrs(
+			"coordinates", "domain_index", "unique_index")
+
+		DnaA_boxes = self.uniqueMolecules.container.objectsInCollection('DnaA_box')
+		DnaA_box_bound = DnaA_boxes.attrs('DnaA_bound')
+
+		self.total_DnaA_boxes = len(DnaA_boxes)
+		self.free_DnaA_boxes = np.count_nonzero(np.logical_not(DnaA_box_bound))
+
 
 	def tableCreate(self, tableWriter):
-		pass
-
+		tableWriter.set_variable_length_columns(
+			'fork_coordinates',
+			'fork_domains',
+			'fork_unique_index',
+			)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			sequenceIdx = self.sequenceIdx,
-			sequenceLength = self.sequenceLength,
+			fork_coordinates = self.fork_coordinates,
+			fork_domains = self.fork_domains,
+			fork_unique_index = self.fork_unique_index,
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
 			criticalInitiationMass = self.criticalInitiationMass,
+			free_DnaA_boxes = self.free_DnaA_boxes,
+			total_DnaA_boxes = self.total_DnaA_boxes,
 			)

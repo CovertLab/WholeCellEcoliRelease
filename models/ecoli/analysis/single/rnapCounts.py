@@ -1,12 +1,8 @@
 """
 Plot RNA polymerase counts and counts of mRNA precursors
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/8/2014
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -14,37 +10,35 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import range
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+		rnapId = ["APORNAP-CPLX[c]"]
+		(rnapCountsBulk,) = read_bulk_molecule_counts(simOutDir, (rnapId,))
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+		mRNA_cistron_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_cistron_ids'))}
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+		RNAP_cistron_IDS = [
+			"EG10893_RNA", "EG10894_RNA",
+			"EG10895_RNA", "EG10896_RNA"]
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnapId = "APORNAP-CPLX[c]"
-		rnapIndex = moleculeIds.index(rnapId)
-		rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
-
-		RNAP_RNA_IDS = ["EG10893_RNA[c]", "EG10894_RNA[c]", "EG10895_RNA[c]", "EG10896_RNA[c]"]
-		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-		rnapRnaCounts = bulkMoleculeCounts[:, rnapRnaIndexes]
-
-		bulkMolecules.close()
+		rnap_cistron_indexes = np.array([mRNA_cistron_idx[rnapRnaId] for rnapRnaId in RNAP_cistron_IDS], int)
+		rnap_cistron_counts = mRNA_cistron_counts[:, rnap_cistron_indexes]
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_RNAP')
+
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
+
 		nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 
 		uniqueMoleculeCounts.close()
@@ -58,15 +52,15 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.ylabel("Protein Counts")
 		plt.title("RNA Polymerase")
 
-		for subplotIdx in xrange(2, 6):
+		for subplotIdx in range(2, 6):
 			rnapRnaCountsIdx = subplotIdx - 2
 
 			plt.subplot(5, 1, subplotIdx)
 
-			plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])
+			plt.plot(time / 60., rnap_cistron_counts[:, rnapRnaCountsIdx])
 			plt.xlabel("Time (min)")
 			plt.ylabel("mRNA counts")
-			plt.title(RNAP_RNA_IDS[rnapRnaCountsIdx])
+			plt.title(RNAP_cistron_IDS[rnapRnaCountsIdx])
 
 		plt.subplots_adjust(hspace = 0.5, top = 0.95, bottom = 0.05)
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

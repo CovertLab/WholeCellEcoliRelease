@@ -1,25 +1,27 @@
-import os
+from __future__ import absolute_import, division, print_function
 
 from wholecell.sim.simulation import Simulation
 
 # States
 from wholecell.states.bulk_molecules import BulkMolecules
 from wholecell.states.unique_molecules import UniqueMolecules
-from wholecell.states.environment import Environment
+from wholecell.states.local_environment import LocalEnvironment
 
 # Processes
 from models.ecoli.processes.complexation import Complexation
 from models.ecoli.processes.metabolism import Metabolism
 from models.ecoli.processes.rna_degradation import RnaDegradation
+from models.ecoli.processes.cell_division import CellDivision
 from models.ecoli.processes.chromosome_replication import ChromosomeReplication
+from models.ecoli.processes.chromosome_structure import ChromosomeStructure
 from models.ecoli.processes.polypeptide_initiation import PolypeptideInitiation
 from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
 from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
-from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 from models.ecoli.processes.equilibrium import Equilibrium
 from models.ecoli.processes.tf_binding import TfBinding
+from models.ecoli.processes.tf_unbinding import TfUnbinding
 from models.ecoli.processes.two_component_system import TwoComponentSystem
 
 # Listeners
@@ -33,17 +35,17 @@ from models.ecoli.listeners.transcript_elongation_listener import TranscriptElon
 from models.ecoli.listeners.rnap_data import RnapData
 from models.ecoli.listeners.enzyme_kinetics import EnzymeKinetics
 from models.ecoli.listeners.growth_limits import GrowthLimits
-from models.ecoli.listeners.cell_division import CellDivision
 from models.ecoli.listeners.rna_synth_prob import RnaSynthProb
-
-
-# Analysis
-import models.ecoli.analysis.single
-import models.ecoli.analysis.cohort
+from models.ecoli.listeners.monomer_counts import MonomerCounts
+from models.ecoli.listeners.mRNA_counts import mRNACounts
+from models.ecoli.listeners.complexation_listener import ComplexationListener
+from models.ecoli.listeners.equilibrium_listener import EquilibriumListener
+from models.ecoli.listeners.dna_supercoiling import DnaSupercoiling
 
 from models.ecoli.sim.initial_conditions import calcInitialConditions
 from wholecell.sim.divide_cell import divide_cell
 from models.ecoli.sim.initial_conditions import setDaughterInitialConditions
+
 
 class EcoliSimulation(Simulation):
 	_internalStateClasses = (
@@ -52,24 +54,42 @@ class EcoliSimulation(Simulation):
 		)
 
 	_externalStateClasses = (
-		Environment,
+		LocalEnvironment,
 		)
 
 	_processClasses = (
-		Metabolism,
-		RnaDegradation,
-		TranscriptInitiation,
-		TranscriptElongation,
-		PolypeptideInitiation,
-		PolypeptideElongation,
-		ChromosomeReplication,
-		ProteinDegradation,
-		Complexation,
-		ChromosomeFormation,
-		Equilibrium,
-		TfBinding,
-		TwoComponentSystem,
-		)
+		(
+			TfUnbinding,
+		),
+		# Must run after TfUnbinding and before TfBinding
+		(
+			Equilibrium,
+			TwoComponentSystem,
+		),
+		# Must run before TranscriptInitiation
+		(
+			TfBinding,
+		),
+		(
+			RnaDegradation,
+			TranscriptInitiation,
+			TranscriptElongation,
+			PolypeptideInitiation,
+			PolypeptideElongation,
+			ChromosomeReplication,
+			ProteinDegradation,
+			Complexation,
+		),
+		(
+			ChromosomeStructure,
+		),
+		(
+			Metabolism,
+		),
+		(
+			CellDivision,
+		),
+	)
 
 	_listenerClasses = (
 		Mass,
@@ -82,8 +102,12 @@ class EcoliSimulation(Simulation):
 		RnapData,
 		EnzymeKinetics,
 		GrowthLimits,
-		CellDivision,
 		RnaSynthProb,
+		MonomerCounts,
+		mRNACounts,
+		ComplexationListener,
+		EquilibriumListener,
+		DnaSupercoiling,
 		)
 
 	_hookClasses = ()
@@ -93,7 +117,7 @@ class EcoliSimulation(Simulation):
 	_divideCellFunction = divide_cell
 
 	_logToShell = True
-	_shellColumnHeaders = [
+	_shellColumnHeaders = (
 		"Time (s)",
 		"Dry mass (fg)",
 		"Dry mass fold change",
@@ -101,9 +125,18 @@ class EcoliSimulation(Simulation):
 		"RNA fold change",
 		"Small mol fold change",
 		"Expected fold change"
-		]
+		)
 
 	_logToDisk = False
 
 class EcoliDaughterSimulation(EcoliSimulation):
 	_initialConditionsFunction = setDaughterInitialConditions
+
+
+def ecoli_simulation(**options):
+	"""Instantiate an initial EcoliSimulation or a daughter
+	EcoliDaughterSimulation with the given options, depending on whether
+	there's a non-None `inheritedStatePath` option.
+	"""
+	is_daughter = options.get('inheritedStatePath', None) is not None
+	return EcoliDaughterSimulation(**options) if is_daughter else EcoliSimulation(**options)

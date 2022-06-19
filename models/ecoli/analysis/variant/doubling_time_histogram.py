@@ -1,91 +1,66 @@
-from __future__ import absolute_import
-
-
-import os
-
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
-
-from wholecell.utils.sparkline import whitePadSparklineAxis
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure, read_stacked_columns
+from wholecell.analysis.plotting_tools import COLORS_COLORBLIND as COLORS
+
 
 FONT_SIZE=9
+MAX_CELL_LENGTH = 180  # filter sims that reach the max time of 180 min
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
+	def hist(self, ax, data, xlabel, bin_width=1., xlim=None, sf=1):
+		for variant, variant_data in data.items():
+			color = COLORS[variant % len(COLORS)]
+			bins = max(1, int(np.ceil((variant_data.max() - variant_data.min()) / bin_width)))
+			mean = variant_data.mean()
+			std = variant_data.std()
+			ax.hist(variant_data, bins, color=color, alpha=0.5,
+				label=f'Var {variant}: {mean:.{sf}f} +/- {std:.{sf+1}f}')
+			ax.axvline(mean, color=color, linestyle='--', linewidth=1)
+
+		if xlim:
+			ax.set_xlim(xlim)
+		self.remove_border(ax)
+		ax.set_xlabel(xlabel, fontsize=FONT_SIZE)
+		ax.tick_params(labelsize=FONT_SIZE)
+		ax.legend()
+
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, "variantDir does not currently exist as a directory"
+		doubling_times = {}
+		growth_rates = {}
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		def downsample(x):
+			"""Average every n_downsample points to one value to smooth and downsample"""
+			n_downsample = 100
+			if (extra_points := x.shape[0] % n_downsample) != 0:
+				x = x[:-extra_points]
+			return x.reshape(-1, n_downsample).mean(1).reshape(-1, 1)
 
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-
-		if ap.n_generation == 1:
-			print "Need more data to create plot"
-			return
-
-		fig = plt.figure()
-		fig.set_figwidth(15)
-		fig.set_figheight(5)
-
-		doublingTimeVariants = [44, 100, 25]
-
-		for varIdx in range(ap.n_variant):
-
-			if varIdx == 0:
-				plotIdx = 1
-				gen = [2,3]
-			elif varIdx == 1:
-				plotIdx = 0
-				gen = [2,3]
-			elif varIdx == 2:
-				plotIdx = 2
-				gen = [6,7]
-			else:
-				continue
-
-			initial_masses = np.zeros(0)
-			final_masses = np.zeros(0)
-
-			all_cells = ap.get_cells(generation=[2,3], variant=[varIdx])
+		for variant in self.ap.get_variants():
+			all_cells = self.ap.get_cells(variant=[variant], only_successful=True)
 			if len(all_cells) == 0:
 				continue
 
-			doublingTimes = np.zeros(len(all_cells))
-			for idx, simDir in enumerate(all_cells):
-				try:
-					simOutDir = os.path.join(simDir, "simOut")
-					time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-				except Exception as e:
-					print 'Error reading data for %s; %s' % (simDir, e)
+			dt = read_stacked_columns(all_cells, 'Main', 'time',
+				fun=lambda x: (x[-1] - x[0]) / 60.).squeeze()
+			doubling_times[variant] = dt[dt < MAX_CELL_LENGTH]
+			growth_rates[variant] = read_stacked_columns(all_cells[dt < MAX_CELL_LENGTH], 'Mass', 'instantaneous_growth_rate',
+				remove_first=True, fun=downsample).squeeze() * 3600.
 
-				doublingTimes[idx] = (time[-1] - time[0]) / 60.
+		_, axes = plt.subplots(2, 1, figsize=(10, 10))
 
-			bins = 16
-			ax = plt.subplot2grid((1, 3), (0, plotIdx))
-			ax.hist(doublingTimes, bins)
-			ax.axvline(x = doublingTimeVariants[varIdx], color = "r", linestyle = "--")
+		self.hist(axes[0], doubling_times, 'Doubling Time (min)')
+		self.hist(axes[1], growth_rates, 'Growth rates (1/hr)', bin_width=0.05, sf=2)
 
-			ax.set_title("%i min" % (doublingTimeVariants[varIdx]), fontsize = FONT_SIZE)
-
-			ax.set_xlabel("Doubling Time (min)", fontsize = FONT_SIZE)
-
-			plt.subplots_adjust(bottom = 0.2)
-
-			whitePadSparklineAxis(ax)
-
-			for tick in ax.yaxis.get_major_ticks():
-				tick.label.set_fontsize(FONT_SIZE)
-			for tick in ax.xaxis.get_major_ticks():
-				tick.label.set_fontsize(FONT_SIZE)
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+		axes[0].set_xlim([15, 90])
+		axes[1].set_xlim([0, 2.5])
+		exportFigure(plt, plotOutDir, plotOutFileName + '_trimmed', metadata)
 
 
 if __name__ == "__main__":

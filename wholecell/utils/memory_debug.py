@@ -14,12 +14,13 @@ flags when done. It should work fine to nest `with detect_leaks(False)` for a
 block of code inside `with detect_leaks(True)`.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from contextlib import contextmanager
 import gc
 import os
+import sys
+import traceback
 
 
 # See https://pymotw.com/2/gc/ for more info on using the gc interface.
@@ -27,7 +28,12 @@ import os
 # collect. You need to combine it with DEBUG_OBJECTS to print info about
 # objects and DEBUG_INSTANCES to print info about instances of old-style
 # classes (not derived from object).
-TRACE_UNCOLLECTABLES = gc.DEBUG_UNCOLLECTABLE | gc.DEBUG_OBJECTS | gc.DEBUG_INSTANCES
+#
+# See https://docs.python.org/3/library/gc.html for Python 3.4+. Following
+# PEP 442, objects with a __del__() method don't end up in gc.garbage anymore.
+DEBUG_OBJECTS = getattr(gc, 'DEBUG_OBJECTS', 0)  # defined in python 2
+DEBUG_INSTANCES = getattr(gc, 'DEBUG_INSTANCES', 0)  # defined in python 2
+TRACE_UNCOLLECTABLES = gc.DEBUG_UNCOLLECTABLE | DEBUG_OBJECTS | DEBUG_INSTANCES
 TRACE_NONE = 0
 
 
@@ -59,7 +65,10 @@ def detect_leaks(enabled=None):
 	yield  # yield to the `with` statement body
 
 	if enabled:
-		gc.collect()  # prints lines like "gc: uncollectable <CleanupGraph 0x10045f810>"
-		# Examine the gc.garbage list here?
+		if gc.collect():  # prints lines like "gc: uncollectable <CleanupGraph 0x10045f810>"
+			# Print some stack trace to show where the uncollectables were found
+			print('gc uncollectables detected in:', file=sys.stderr)
+			traceback.print_stack(limit=3)
+			# Examine the gc.garbage list here?
 
 	gc.set_debug(saved_debug_flags)

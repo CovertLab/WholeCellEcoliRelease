@@ -1,41 +1,25 @@
 """
 Plot the protein and RNA levels, as well as synthesis probabilities,
 for regulated genes that are involved in AA biosynthesis
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/2016
 """
-
-from __future__ import absolute_import
-from __future__ import division
-
+import pickle
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
 
 from wholecell.io.tablereader import TableReader
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
+		with open(simDataFile, 'rb') as f:
+			sim_data = pickle.load(f)
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-
-		allDirs = ap.get_cells()
-
-		# Load data from KB
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+		allDirs = self.ap.get_cells()
 
 		tfs = [
 			"putA", "aldA", "gdhA", "carA", "carB", "argD",
@@ -43,24 +27,24 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			"trpB", "trpC", "trpD", "trpE", "aroH"
 			]
 
-		tfToRNAId = {
-			"putA":	"EG10801_RNA[c]",
-			"aldA":	"EG10035_RNA[c]",
-			"gdhA":	"EG10372_RNA[c]",
-			"carA":	"EG10134_RNA[c]",
-			"carB":	"EG10135_RNA[c]",
-			"argD":	"EG10066_RNA[c]",
-			"argE":	"EG11286_RNA[c]",
-			"aroG":	"EG10079_RNA[c]",
-			"aroF":	"EG10078_RNA[c]",
-			"tyrA":	"EG11039_RNA[c]",
-			"tyrB":	"EG11040_RNA[c]",
-			"trpA":	"EG11024_RNA[c]",
-			"trpB":	"EG11025_RNA[c]",
-			"trpC":	"EG11026_RNA[c]",
-			"trpD":	"EG11027_RNA[c]",
-			"trpE":	"EG11028_RNA[c]",
-			"aroH":	"EG10080_RNA[c]",
+		tf_to_cistron_id = {
+			"putA":	"EG10801_RNA",
+			"aldA":	"EG10035_RNA",
+			"gdhA":	"EG10372_RNA",
+			"carA":	"EG10134_RNA",
+			"carB":	"EG10135_RNA",
+			"argD":	"EG10066_RNA",
+			"argE":	"EG11286_RNA",
+			"aroG":	"EG10079_RNA",
+			"aroF":	"EG10078_RNA",
+			"tyrA":	"EG11039_RNA",
+			"tyrB":	"EG11040_RNA",
+			"trpA":	"EG11024_RNA",
+			"trpB":	"EG11025_RNA",
+			"trpC":	"EG11026_RNA",
+			"trpD":	"EG11027_RNA",
+			"trpE":	"EG11028_RNA",
+			"aroH":	"EG10080_RNA",
 		}
 
 		tfToMonomerId = {
@@ -122,7 +106,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		}
 
 		nTfs = len(tfs)
-
+		cistron_tu_mapping_matrix = sim_data.process.transcription.cistron_tu_mapping_matrix
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -135,13 +119,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
-			bulkMoleculesReader.close()
+
+			# Load data from mRNA counts listener
+			mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+			all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
 
 			# Get the synthesis probability for all regulated genes
 			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-			rnaSynthProbIds = rnaSynthProbReader.readAttribute("rnaIds")
 			synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")
-			rnaSynthProbReader.close()
+			cistron_ids = sim_data.process.transcription.cistron_data['id']
+			cistron_synth_probs = cistron_tu_mapping_matrix.dot(synthProbs.T).T
 
 			for tfIdx, tf in enumerate(tfs):
 				monomerId = tfToMonomerId[tf]
@@ -154,20 +142,20 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 					monomerCounts += (tfToComplexStoich[tf] * complexCounts)
 
-				rnaId = tfToRNAId[tf]
-				rnaIdx = bulkMoleculeIds.index(rnaId)
-				rnaCounts = bulkMoleculeCounts[:, rnaIdx].copy()
+				cistron_id = tf_to_cistron_id[tf]
+				cistron_idx = all_mRNA_cistron_ids.index(cistron_id)
+				cistron_counts = mRNA_cistron_counts[:, cistron_idx].copy()
 
-				synthProbIdx = rnaSynthProbIds.index(rnaId)
-				synthProb = synthProbs[:, synthProbIdx].copy()
+				synth_prob_idx = np.where(cistron_ids == cistron_id)[0][0]
+				cistron_synth_prob = cistron_synth_probs[:, synth_prob_idx].copy()
 
 				# Compute moving averages
 				width = 100
 
-				synthProbMA = np.convolve(synthProb, np.ones(width) / width, mode = "same")
+				synthProbMA = np.convolve(cistron_synth_prob, np.ones(width) / width, mode = "same")
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 1)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 1)
 				ax.plot(time, monomerCounts, color = "b")
 				plt.title("%s counts" % monomerId, fontsize = 8)
 
@@ -182,9 +170,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				##############################################################
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 2)
-				ax.plot(time, rnaCounts, color = "b")
-				plt.title("%s counts" % rnaId, fontsize = 8)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 2)
+				ax.plot(time, cistron_counts, color = "b")
+				plt.title("%s counts" % cistron_id, fontsize = 8)
 
 				ymin, ymax = ax.get_ylim()
 				ax.set_yticks([ymin, ymax])
@@ -197,10 +185,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				##############################################################
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 3)
-				ax.plot(time, synthProb, color = "b")
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 3)
+				ax.plot(time, cistron_synth_prob, color = "b")
 				ax.plot(time, synthProbMA, color = "k")
-				plt.title("%s synth prob" % rnaId, fontsize = 8)
+				plt.title("%s synth prob" % cistron_id, fontsize = 8)
 
 				ymin, ymax = ax.get_ylim()
 				ax.set_yticks([ymin, ymax])

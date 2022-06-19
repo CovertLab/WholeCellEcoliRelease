@@ -27,8 +27,7 @@ function simulation {
 export -f simulation
 
 # Create sim_data
-python runscripts/manual/runFitter.py --disable-ribosome-fitting --disable-rnapoly-fitting \
---no-expression-adjustment --disable-measured-protein-deg $out_dir
+python runscripts/manual/runParca.py $out_dir
 
 # Create log directory
 log_dir=out/$out_dir/log

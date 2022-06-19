@@ -1,18 +1,11 @@
-"""
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/19/2017
-"""
-
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -22,26 +15,21 @@ NUM_SKIP_TIMESTEPS_AT_GEN_CHANGE = 1
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		T_ADD_AA = None
 		T_CUT_AA = None
-		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
-		if "aa" in nutrients_time_series_label:
-			if "add" in nutrients_time_series_label and "cut" in nutrients_time_series_label:
-				T_ADD_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][1][0]
-				T_CUT_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][2][0]
+		current_timeline_id = sim_data.external_state.current_timeline_id
+
+		if current_timeline_id and "aa" in current_timeline_id:
+			if "add" in current_timeline_id and "cut" in current_timeline_id:
+				T_ADD_AA = sim_data.external_state.saved_timelines[current_timeline_id][1][0]
+				T_CUT_AA = sim_data.external_state.saved_timelines[current_timeline_id][2][0]
 
 		# Get all cells
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 		nCells = allDir.shape[0]
-		nGens = ap.n_generation
+		nGens = self.ap.n_generation
 
 		massNames = ["dryMass", "proteinMass", "rnaMass", "dnaMass",]
 		cleanNames = ["Dry mass", "Protein mass", "RNA Mass", "DNA mass",]

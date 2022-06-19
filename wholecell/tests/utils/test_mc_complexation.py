@@ -1,26 +1,19 @@
 """
 Test polymerize_new.py
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Chemical Engineering, Stanford University
-@date: Created 6/23/2014
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 import numpy as np
 import numpy.testing as npt
 
-import nose.plugins.attrib as noseAttrib
 import unittest
+
 
 class Test_mc_complexation(unittest.TestCase):
 
-	@noseAttrib.attr('complexationTest')
-	@noseAttrib.attr('smalltest')
 	def test_mccBuildMatrices(self):
 		stoichMatrix = np.array([[-2, -1,  0,  0],
 								 [ 1,  0, -1,  0],
@@ -43,9 +36,6 @@ class Test_mc_complexation(unittest.TestCase):
 					  [ 0,  1,  2],
 					  [ 3, -1, -1]]))
 
-
-	@noseAttrib.attr('complexationTest')
-	@noseAttrib.attr('smalltest')
 	def test_mccFormComplexesWithPrebuiltMatrices(self):
 		stoichMatrix = np.array([[-2, -1,  0,  0],
 								 [ 1,  0, -1,  0],
@@ -65,7 +55,7 @@ class Test_mc_complexation(unittest.TestCase):
 		for i,test_moleculeCount in enumerate(test_moleculeCounts):
 			prebuiltMatrices = mccBuildMatrices(stoichMatrix)
 
-			updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 				test_moleculeCount,
 				seed,
 				stoichMatrix,

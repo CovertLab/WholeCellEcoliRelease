@@ -1,22 +1,14 @@
-#!/usr/bin/env python
-
 """
 Test_BulkMolecules_partition.py
-
-@author: Nick Ruggero, John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/17/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
-import nose.plugins.attrib as noseAttrib
-import cPickle
-import os
 
 import numpy as np
 import wholecell.states.bulk_molecules as wcBulkMolecules
+
 
 class Test_BulkMolecules_partition(unittest.TestCase):
 
@@ -37,12 +29,9 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		self.countsBulk = np.array([10.,2.,5.,7.,20.,3.,7.])
 		self.countsBulkPartitioned = np.zeros((7, 3), dtype = float)
 
-		self.countsBulkPartitioned = np.zeros((7, 3), dtype = float)
-
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('smalltest')
 	def test_relativeAllocation(self):
 		'''
 		Tests that relative allocation works. All partitions are of lower priority.
@@ -52,54 +41,79 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		# countsBulk = # speces x # compartments
 		# countsBulkPartitioned = # species x # compartments x # partitions
 
+		random_state = np.random.RandomState(0)
 		processPriorities = np.array([0, 0, 0])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
-		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([1., 0., 0., 0., 0., 0., 0.]).T
-		countsBulkPartitioned_test[...,1] = np.array([1., 1., 2., 2., 0., 0., 0.]).T
-		countsBulkPartitioned_test[...,2] = np.array([7., 0., 3., 1., 2., 0., 2.]).T
+		countsBulkPartitioned_test[...,1] = np.array([2., 1., 2., 2., 0., 0., 0.]).T
+		countsBulkPartitioned_test[...,2] = np.array([7., 1., 3., 1., 2., 0., 2.]).T
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-	@noseAttrib.attr('smalltest')
 	def test_absoluteAllocation(self):
 		'''
 		Tests that relative allocation works with one higher priority partition.
 		'''
+		random_state = np.random.RandomState(0)
 		processPriorities = np.array([0, 10, 0])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
-		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
-		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.]).T
+		countsBulkPartitioned_test[...,0] = np.array([1., 0., 0., 0., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,1] = np.array([5., 2., 2., 2., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,2] = np.array([4., 0., 3., 1., 2., 0., 2.]).T
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-	@noseAttrib.attr('smalltest')
 	def test_absoluteAllocation_withConflict(self):
 		'''
 		Tests that if two partitions are of higher priority and conflict that partitioning still works.
 		'''
+		random_state = np.random.RandomState(0)
 		processPriorities = np.array([0, 10, 10])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
-		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,1] = np.array([2., 1., 2., 2., 0., 0., 0.]).T
-		countsBulkPartitioned_test[...,2] = np.array([8., 0., 3., 1., 2., 0., 2.]).T
+		countsBulkPartitioned_test[...,2] = np.array([8., 1., 3., 1., 2., 0., 2.]).T
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
+
+	def test_high_counts(self):
+		"""
+		Tests specific counts case where rounding caused a ValueError in previous versions.
+		"""
+		random_state = np.random.RandomState(0)
+		processPriorities = np.array([0, 0, 0, 0, 0, 0, 0])
+		countsBulkRequested = np.array([[0, 14768, 0, 609520, 0, 0, 0]])
+		countsBulk = np.array([604314])
+
+		wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
+
+	def test_excess_remainder(self):
+		"""
+		Tests that a remainder greater than 1 will be handled without an error.
+		"""
+		random_state = np.random.RandomState(0)
+		processPriorities = np.array([0, 0, 0])
+		countsBulkRequested = np.array([[7, 2, 1]])
+		countsBulk = np.array([4])
+
+		wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)

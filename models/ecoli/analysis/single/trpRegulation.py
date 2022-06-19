@@ -1,42 +1,32 @@
 """
 Plot trp regulation
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
-		cellDensity = sim_data.constants.cellDensity
+		nAvogadro = sim_data.constants.n_avogadro
+		cellDensity = sim_data.constants.cell_density
 
 		# Load time
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		# Load mass data
 		# Total cell mass is needed to compute concentrations (since we have cell density)
@@ -46,79 +36,59 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		cellMass = units.fg * massReader.readColumn("cellMass")
 		proteinMass = units.fg * massReader.readColumn("proteinMass")
 
+		# Load data from RnaSynthProb listener
+		rna_synth_prob_reader = TableReader(
+			os.path.join(simOutDir, "RnaSynthProb"))
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		rna_idx = {rna: i for i, rna in enumerate(rna_synth_prob_reader.readAttribute("rnaIds"))}
+		n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+			"n_bound_TF_per_TU").reshape(
+			(-1, len(rna_idx), len(tf_ids)))
 
-		massReader.close()
+		# Get indexes of trpR and its target RNAs
+		trpRIndex = tf_ids.index("CPLX-125")
+		target_ids = sim_data.relation.tf_id_to_target_RNAs["CPLX-125"]
+		target_idx = np.array(
+			[rna_idx[target_id] for target_id in target_ids])
 
-		# Load data from bulk molecules
-		bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
-		bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+		trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
+		bulk_ids = (
+			["TRP[c]"],  # intracellular trp
+			["CPLX-125[c]"],  # active trpR (that isn't promoter bound)
+			["PC00007[c]"],  # inactive trpR
+			["PD00423[c]"],  # monomeric trpR
+			trpAProteinId,  # monomeric trpA
+			["TRYPSYN[c]"],  # complexed trpA
+			)
+		(trpCounts, trpRActiveCounts, trpRInactiveCounts, trpRMonomerCounts,
+			trpAProteinCounts, trpABComplexCounts
+			) = read_bulk_molecule_counts(simOutDir, bulk_ids)
 
-		# Get the concentration of intracellular trp
-		trpId = ["TRP[c]"]
-		trpIndex = np.array([bulkMoleculeIds.index(x) for x in trpId])
-		trpCounts = bulkMoleculeCounts[:, trpIndex].reshape(-1)
 		trpMols = 1. / nAvogadro * trpCounts
 		volume = cellMass / cellDensity
 		trpConcentration = trpMols * 1. / volume
 
-		# Get the amount of active trpR (that isn't promoter bound)
-		trpRActiveId = ["CPLX-125[c]"]
-		trpRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRActiveId])
-		trpRActiveCounts = bulkMoleculeCounts[:, trpRActiveIndex].reshape(-1)
-
-		# Get the amount of inactive trpR
-		trpRInactiveId = ["PC00007[c]"]
-		trpRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRInactiveId])
-		trpRInactiveCounts = bulkMoleculeCounts[:, trpRInactiveIndex].reshape(-1)
-
-		# Get the amount of monomeric trpR
-		trpRMonomerId = ["PD00423[c]"]
-		trpRMonomerIndex = np.array([bulkMoleculeIds.index(x) for x in trpRMonomerId])
-		trpRMonomerCounts = bulkMoleculeCounts[:, trpRMonomerIndex].reshape(-1)
-
 		# Get the promoter-bound status for all regulated genes
-		tfBoundIds = [target + "__CPLX-125" for target in sim_data.tfToFC["CPLX-125"].keys()]
-		tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
-		tfBoundCounts = bulkMoleculeCounts[:, tfBoundIndex]
-
-		# Get the amount of monomeric trpA
-		trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
-		trpAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in trpAProteinId])
-		trpAProteinCounts = bulkMoleculeCounts[:, trpAProteinIndex].reshape(-1)
-
-		# Get the amount of complexed trpA
-		trpABComplexId = ["TRYPSYN[c]"]
-		trpABComplexIndex = np.array([bulkMoleculeIds.index(x) for x in trpABComplexId])
-		trpABComplexCounts = bulkMoleculeCounts[:, trpABComplexIndex].reshape(-1)
-
-		bulkMoleculesReader.close()
+		tfBoundCounts = n_bound_TF_per_TU[:, target_idx, trpRIndex]
 
 		# Compute total counts of trpA in monomeric and complexed form
 		# (we know the stoichiometry)
 		trpAProteinTotalCounts = trpAProteinCounts + 2 * trpABComplexCounts
 
 		# Compute the trpA mass in the cell
-		trpAMw = sim_data.getter.getMass(trpAProteinId)
+		trpAMw = sim_data.getter.get_masses(trpAProteinId)
 		trpAMass = 1. / nAvogadro * trpAProteinTotalCounts * trpAMw
 
 		# Compute the proteome mass fraction
 		proteomeMassFraction = trpAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 		# Get the synthesis probability for all regulated genes
-		rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		synthProbIndex = np.array([rna_idx[x] for x in target_ids])
+		synthProbs = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, synthProbIndex]
 
-		rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
-		synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX-125"].keys()]
-		synthProbIndex = np.array([rnaIds.index(x) for x in synthProbIds])
-		synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
-
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
-		trpRBound = rnaSynthProbReader.readColumn("nActualBound")[:,trpRIndex]
-
-		rnaSynthProbReader.close()
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		trpRIndex = [i for i, tf in enumerate(tf_ids) if tf == "CPLX-125"][0]
+		trpRBound = rna_synth_prob_reader.readColumn("nActualBound")[:,trpRIndex]
 
 		# Calculate total trpR - active, inactive, bound and monomeric
 		trpRTotalCounts = 2 * (trpRActiveCounts + trpRInactiveCounts + trpRBound) + trpRMonomerCounts

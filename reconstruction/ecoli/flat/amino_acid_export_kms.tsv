@@ -1,0 +1,10 @@
+# KMs are assumed to be similar to the steady-state concentration in the papers listed under _source
+"Amino Acid"	"KM (units.mmol/units.L)"	"_source"
+"L-ALPHA-ALANINE[c]"	{"G7399-MONOMER": 40}	"https://journals.asm.org/doi/10.1128/AEM.00003-11#F2"
+"ILE[c]"	{"B4141-MONOMER": 120, "CPLX0-7684": 21}	"https://journals.asm.org/doi/10.1128/AEM.02242-15; https://journals.asm.org/doi/10.1128/JB.184.14.3947-3956.2002#R8"
+"LEU[c]"	{"B4141-MONOMER": 60, "G6984-MONOMER": 21}	"https://journals.asm.org/doi/10.1128/AEM.02242-15; https://journals.asm.org/doi/10.1128/JB.184.14.3947-3956.2002#R8"
+"LYS[c]"	{"G6458-MONOMER": 20}	"https://link.springer.com/article/10.1007%2Fs00203-003-0581-0"
+"MET[c]"	{"B4141-MONOMER": 70, "G6458-MONOMER": 10}	"https://journals.asm.org/doi/10.1128/AEM.02242-15"
+"PHE[c]"	{"YDDG-MONOMER": 7}	"https://academic.oup.com/femsle/article/275/2/312/600271"
+"THR[c]"	{"CPLX0-7684": 35, "B4141-MONOMER": 150}	"https://link.springer.com/article/10.1007%2Fs00203-003-0581-0"
+"VAL[c]"	{"EG12134-MONOMER": 170, "RHTB-MONOMER": 120, "RHTC-MONOMER": 33}	"https://journals.asm.org/doi/10.1128/JB.184.14.3947-3956.2002#R8"

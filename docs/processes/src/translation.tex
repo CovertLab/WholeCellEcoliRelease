@@ -1,0 +1,277 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{float}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Translation}
+
+\subparagraph{Model implementation.}
+Translation is the process by which the coding sequences of mRNA transcripts are translated by 70S ribosomes into polypeptides that then fold into proteins. This process accounts for more than two thirds of an \emph{E. coli} cell's ATP consumption during rapid growth \cite{Russell:1995vc} and the majority of macromolecular mass accumulation. In the \emph{E. coli} model  translation occurs through the action of two processes in the model: \texttt{PolypeptideInitiation} and \texttt{PolypeptideElongation}.
+
+\subparagraph{Initiation.}
+\texttt{PolypeptideInitiation} models the complementation of 30S and 50S ribosomal subunits into 70S ribosomes on mRNA transcripts. This process is in many ways analogous to the \texttt{TranscriptInitiation} process - the number of initiation events per transcript is determined in a probabilistic manner and dependent on the number of free ribosomal subunits, each mRNA transcript's translation efficiency, and the counts of each type of transcript. The total number of ribosomes to activate in each time step is determined such that the average fraction of actively translating ribosomes matches experimental values. This is done by assuming a steady state concentration of active ribosomes (and therefore a constant active fraction), similar to what was done for RNA polymerases in \texttt{TranscriptInitiation}:
+\begin{gather}
+    \frac{dR_{70S}}{dt} = p_{act}\cdot \min(R_{30S}, R_{50S}) - r \cdot R_{70S} = 0 \\
+    p_{act} = \frac{r \cdot R_{70S}}{\min(R_{30S}, R_{50S})}
+\end{gather}
+\noindent where $R_{70S}$ is the concentration of active 70S ribosomes, $R_{50S}$ and $R_{30S}$ are the concentrations of free 50S and 30S ribosomal subunits, respectively, $p_{act}$ is the activation probability and $r$ is the expected termination rate for active 70S ribosomes. Defining the active fraction as $f_{act} = \frac{R_{70S}}{R_{70S} + \min(R_{30S}, R_{50S})}$, $p_{act}$ can be defined in terms of the desired active fraction:
+\begin{equation}
+    p_{act} = \frac{r\cdot f_{act}}{1 - f_{act}}
+\end{equation}
+This activation probability is then used to determine how many 70S ribosomes will be formed and initiated. These newly initiated 70S ribosomes are distributed to mRNA transcripts based on their translation probabilities, which is computed by normalizing the product of the translational efficiency of each transcript and the counts of each transcript.
+\begin{equation}
+p_i = \frac{c_{mRNA,i} \cdot t_i}{\sum\limits^{n_{gene}}_{j=1} c_{mRNA,j} \cdot t_j}
+\end{equation}
+Here, $p_i$ is the translation probability of the transcript of gene $i$, $c_{mRNA,i}$ is the count of the transcript of gene $i$, and $t_i$ is the translation efficiency of the transcript of gene $i$.  The translational efficiencies of each transcript were calculated from ribosomal profiling data \cite{li2014quantifying}. For transcripts whose translation efficiencies were not given in this dataset, the average of the existing efficiency values was used as the translation efficiency. Full 70S ribosomes are formed on mRNA transcripts by sampling a multinomial distribution with the $p_i$'s calculated above as the probabilistic weights (See Algorithm \ref{polypeptide_initiation_algorithm}).
+
+This process is implemented similarly in the \emph{M. genitalium} model with a few key differences. Unlike the \emph{M. genitalium} model, the \emph{E. coli} model is not yet gene complete, and hence does not check for initiation factors. A major advancement over the \emph{M. genitalium} model is that the probability of ribosome initiation on a transcript is now proportional to the product of the mRNA count and its translational efficiency. In the \emph{M. genitalium} model translational efficiencies were not taken into account.
+
+\subparagraph{Elongation.}
+\texttt{PolypeptideElongation} models the polymerization of amino acids into polypeptides by ribosomes using an mRNA transcript as a template, and the termination of elongation once a ribosome has reached the end of an mRNA transcript. This process is implemented assuming that ternary complex formation (GTP : EF-Tu : charged-tRNA) and ternary complex diffusion to elongating ribosomes are not rate limiting for polypeptide polymerization (tRNA charging by synthetases is not limiting only if a flag is set to use disable tRNA charging - more details below). This process polymerizes amino acids based on the codon sequence of the mRNA transcript. Polymerization occurs across all ribosomes simultaneously and resources are allocated to maximize the progress of all ribosomes within the limits of the maximum ribosome elongation rate, available amino acids and GTP, and the length of the transcript (see Algorithm \ref{polypeptide_elongation_algorithm}).
+
+Under our simulation conditions, we empirically observe that the rate of translation elongation is always limited by a balance of the supply of amino acids and charging of tRNA, not by the elongation rates of ribosomes or the supply of GTP. Thus, the rate at which amino acids are supplied to translation largely determines the synthesis rates of proteins, which in turn is highly correlated with the growth rate of the cell. We have therefore added an option to add Gaussian noise to this supply rate of amino acids to translation, in cases where heterogeneity in growth rates between individual simulations would be a desired outcome.
+
+Unlike the \emph{M. genitalium} model, this process in the \emph{E. coli} model does not account for elongation factors. Additionally, tRNAs and their synthetases are not accounted for explicitly (unless a flag is set to use tRNA charging). Instead, the model directly polymerizes amino acids into elongating polypeptides. This avoids computational issues with the simulation time step, tRNA pool size, and tRNA overexpression that were present in the \emph{M. genitalium} model. There is no implementation of ribosome stalling or tmRNAs at this point. The polymerization resource allocation algorithm is the same as in \emph{M. genitalium}.\\
+
+\subparagraph{tRNA charging.}
+tRNA charging is used in \texttt{PolypeptideElongation} to capture a more mechanistic view of translation but can be optionally disabled with a simulation option (\texttt{--no-trna-charging}).  The rate of amino acid incorporation becomes a function of the state of the cell including the codon sequence of mRNAs being translated as well as amino acid, tRNA, synthetase and ribosome concentrations.  With the assumption that charging happens sufficiently fast ($k_{cat} \approx 100$ $s^{-1}$ vs $\sim$1 s time step) and the state of the cell does not significantly change between time steps, the ratio of uncharged to charged tRNA can be adjusted until rates of tRNA charging ($v_{charging}$) and ribosome elongation ($v_{elongation}$) reach a steady state during each time step.  This is shown with ODEs for each tRNA species, $i$, shown below:
+\begin{gather}
+\frac{d[tRNA_{charged,i}]}{dt} = v_{charging,i} - v_{elongation,i} \\
+\frac{d[tRNA_{uncharged,i}]}{dt} = -\frac{d[tRNA_{charged,i}]}{dt}
+\end{gather}
+Currently, the rates of charging and elongation are defined as below with the same constants for all species but could be altered to capture specific parameters for each species and additional concentrations (eg ATP).
+\begin{gather}
+v_{charging,i} = k_{S}\cdot[synthetase_i]\cdot\frac{\frac{[tRNA_{uncharged,i}]}{K_{M,tRNA_u}}\cdot\frac{[AA_i]}{\cdot K_{M,aa}}}{1 + \frac{[tRNA_{uncharged,i}]}{K_{M,tRNA_u}} + \frac{[AA_i]}{K_{M,aa}} + \frac{[tRNA_{uncharged,i}]}{K_{M,tRNA_u}}\cdot\frac{[AA_i]}{\cdot K_{M,aa}}} \\
+v_{elongation,i} = f_i\cdot\frac{k_{rib}\cdot[ribosome]}{1 + \sum\limits_i(f_i\cdot(\frac{K_{D, tRNA_c}}{[tRNA_{charged,i}]} + \frac{K_{D, tRNA_u}}{[tRNA_{uncharged,i}]} + \frac{[tRNA_{uncharged,i}]}{[tRNA_{charged,i}]}\cdot\frac{K_{D, tRNA_c}}{K_{D, tRNA_u}}))}
+\label{eq:v-rib}
+\end{gather}
+Where $k_S$ is the synthetase charging rate, $K_{M,tRNA_u}$ is the Michaelis constant for free tRNA binding synthetases, $K_{M,aa}$ is the Michaelis constant for amino acids binding synthetases, $f_i$ is the fraction of codon $i$ to total codons to be elongated, $k_{rib}$ is the max ribosome elongation rate, $K_{D, tRNA_c}$ is the dissociation constant of charged tRNA to ribosomes and $K_{D, tRNA_u}$ is the dissociation constant of uncharged tRNA to ribosomes.
+
+With tRNA charging, translation will be limited by the calculated elongation rate ($v_{elongation}$) instead of the supply of amino acids to \texttt{PolypeptideElongation}.  With a variable amount of amino acids being produced and used at each time step, the concentration of each amino acid species, $i$, in the cell can vary as shown below, which will update the homeostatic target in \texttt{Metabolism}:
+\begin{equation}
+\frac{d[AA_i]}{dt} = f_{supply,i}\cdot v_{supply,i} - v_{charging,i}
+\end{equation}
+where $f_{supply,i}$ is a function dependent on internal amino acid concentration and the presence of external amino acids, $v_{supply,i}$ is the rate of supply of amino acids, which includes both synthesis and uptake and is calculated for each condition based on the expected doubling time, and $v_{charging,i}$ is the rate of charging as determined above.  $f_{supply,i}$ is defined as:
+\begin{equation}
+f_{supply,i} = f_{base\_synthesis,i} + f_{inhibited\_synthesis,i} + f_{import,i} - f_{export,i}
+\end{equation}
+
+where
+\begin{align}
+    f_{base\_synthesis,i} &= c_{1,i} \\
+    f_{inhibited\_synthesis,i} &= \frac{1}{1 + \frac{[AA_i]}{K_{I,i}}} \\
+    f_{import,i} &=
+    \begin{cases}
+        c_{2,i} & \text{if $AA_i$ in environment} \\
+        0 & \text{otherwise}
+    \end{cases} \\
+    f_{export,i} &= \frac{[AA_i]}{K_{M,i} + [AA_i]}
+\end{align}
+
+$c_{1,i}$, $c_{2,i}$, $K_{I,i}$, and $K_{M,i}$ can be determined by defining parameters $f_I$ and $f_M$ and constraints below that represent the fraction of contributions to the supply rate at the expected amino acid concentrations when the cell is in the presence of amino acids in the environment and when amino acids are not present:
+
+\begin{align}
+    \text{when $[AA_i] = [AA_{i,basal}]$}: \hspace{10pt} & f_{inhibited\_synthesis,i} = f_I \\
+    & f_{supply,i,basal} = 1 \\
+    \text{when $[AA_i] = [AA_{i,amino\_acid}]$}:\hspace{10pt} & f_{export,i} = f_M \\
+    & f_{supply,i,amino\_acid} = 1
+\end{align}
+
+Solving shows that the parameters are defined as:
+\begin{align}
+    K_{I,i} &= \frac{f_I\cdot [AA_{i,basal}]}{1 - f_I} \\
+    K_{M,i} &= \left(\frac{1}{f_M} - 1\right)\cdot [AA_{i,amino\_acid}] \\
+    c_{1,i} &= 1 - \left(f_I - \frac{[AA_{i,basal}]}{K_{M,i} + [AA_{i,basal}]}\right) \\
+    c_{2,i} &= 1 - \left(c_{1,i} + \frac{1}{1 + \frac{[AA_{i,amino\_acid}]}{K_{I,i}}} - f_M\right)
+\end{align}
+
+\subparagraph{Optional feature: ppGpp synthesis.}
+Through RelA, ppGpp synthesis occurs in coordination with translation at the ribosome so reactions are modeled together within the \texttt{PolypeptideElongation} process.  Reactions are only modeled with two simulation options enabled (\texttt{--trna-charging} and \texttt{--ppgpp-regulation}).  In addition to RelA, SpoT is also responsible for producing ppGpp as well as hydrolyzing ppGpp so the total change in ppGpp concentration can be written as:
+\begin{equation}
+\frac{dppGpp}{dt} = v_{RelA} + v_{SpoT, syn} - v_{SpoT, deg}
+\end{equation}
+where $v_{RelA}$ is the rate of ppGpp production by RelA, $v_{SpoT, syn}$ is the rate of ppGpp production by SpoT and $v_{SpoT, deg}$ is the rate of degradation of ppGpp by SpoT.  The equations that govern these rates are shown below:
+\begin{align}
+v_{RelA} &= k_{RelA} \cdot C_{RelA} \cdot \frac{\frac{C_{rib:tRNA_u}}{K_{D, RelA}}}{1 + \frac{C_{rib:tRNA_u}}{K_{D, RelA}}} \\
+v_{SpoT, syn} &= k_{SpoT, syn} \cdot C_{SpoT} \\
+v_{SpoT, deg} &= k_{SpoT, deg} \cdot C_{SpoT} \cdot C_{ppGpp} \cdot \frac{1}{1 + \frac{C_{tRNA_u}}{K_{I, SpoT}}}
+\end{align}
+where $k_{RelA}$, $k_{SpoT, syn}$ and $k_{SpoT, deg}$ are rate constants for ppGpp production by RelA, ppGpp production by SpoT and ppGpp degradation by SpoT, respectively, $C_{RelA}$, $C_{rib:tRNA_u}$, $C_{SpoT}$, $C_{ppGpp}$ and $C_{tRNA_u}$ are concentrations for RelA, ribosomes bound to uncharged tRNA, SpoT, ppGpp and uncharged tRNA, respectively, $K_{D, RelA}$ is a dissociation constant for RelA binding ribosomes with uncharged tRNA at the A-site and $K_{I, SpoT}$ is an inhibition constant for the effect of uncharged tRNA on SpoT mediated degradation of ppGpp.  Concentrations for all species except $C_{rib:tRNA_u}$ are directly tracked by the model.  With Eq. \ref{eq:v-rib}, the concentration of ribosomes bound to uncharged tRNA can be calculated for each species, $i$ as follows:
+\begin{equation}
+C_{rib:tRNA_u} = \sum\limits_i C_{rib, i} \frac{\frac{C_{tRNA_u, i}}{K_{D, tRNA_u}}}{1 + \frac{C_{tRNA_u, i}}{K_{D, tRNA_u}} + \frac{C_{tRNA_c, i}}{K_{D, tRNA_c}}}
+\end{equation}
+where $C_{rib,i}$ is the concentration of ribosomes with species $i$ at the A-site and defined as:
+\begin{equation}
+C_{rib,i} = \frac{v_{elongation, i}}{\sigma_i \cdot k_{rib}}
+\end{equation}
+where $v_{elongation, i}$ is defined in Eq. \ref{eq:v-rib}, $k_{rib}$ is the max ribosome elongation rate and $\sigma_i$ is A-site fraction saturated with charged tRNA defined as:
+\begin{equation}
+\sigma_i = \frac{\frac{C_{tRNA_c, i}}{K_{D, tRNA_c}}}{1 + \frac{C_{tRNA_u, i}}{K_{D, tRNA_u}} + \frac{C_{tRNA_c, i}}{K_{D, tRNA_c}}}
+\end{equation}
+
+SpoT degradation inhibition by uncharged tRNA is based on work by Murray and Bremer \cite{murray1996control}.  Parameters for SpoT are also calculated with data from that work with the assumption that SpoT is at a concentration of 0.1 $\mu$M.  With a ppGpp half life of 30 seconds with no ppGpp synthesis and inhibited translation (assume fully charged tRNA and no uncharged tRNA to inhibit ppGpp degradation), $k_{SpoT, deg}$ can be determined by integrating the following ODE:
+\begin{equation}
+\frac{dC_{ppGpp}}{dt} = -k_{SpoT, deg} \cdot C_{SpoT} \cdot C_{ppGpp}
+\end{equation}
+which gives the following solution with the measured half life:
+\begin{equation}
+k_{SpoT, deg} = \frac{\ln(2)}{t_{1/2}}\cdot\frac{1}{C_{SpoT}} = \frac{\ln(2)}{30}\cdot\frac{1}{0.1} = 0.231 \hspace{4pt} \frac{1}{\mu M \cdot s}
+\end{equation}
+This value can then be used to solve for the synthesis rate constant by using the measured ppGpp concentration (6 pmol/OD from Murray and Bremer or 11.4 $\mu$M with OD to volume conversion for an average cell) and assuming a steady state concentration of ppGpp in a RelA knockout with no degradation inhibition:
+\begin{equation}
+\frac{dC_{ppGpp}}{dt} = k_{SpoT, syn} \cdot C_{SpoT} - k_{SpoT, deg} \cdot C_{SpoT} \cdot C_{ppGpp} = 0
+\cdot C_{ppGpp, SS} = \frac{k_{SpoT, syn}}{k_{SpoT, deg}}
+\end{equation}
+Solving for $k_{SpoT, syn}$:
+\begin{equation}
+k_{SpoT, syn} = \cdot C_{ppGpp, SS} \cdot k_{SpoT, deg} = 11.4 \cdot 0.231 = 2.63 \hspace{4pt} s^{-1}
+\end{equation}
+
+\pagebreak
+\textbf{Algorithms}
+
+\begin{algorithm}[H]
+\caption{Ribosome initiation on mRNA transcripts}
+\label{polypeptide_initiation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{multinomial}{multinomial}
+
+    \Input{$f_{act}$ fraction of ribosomes that are active}
+    \Input{$r$ expected termination rate for active ribosomes}
+    \Input{$t_i$ translational efficiency of each mRNA transcript where $i = 1$ \KwTo $n_{gene}$}
+  \Input{$c_{mRNA,i}$ count of each mRNA transcript where $i = 1$ \KwTo $n_{gene}$}
+    \Input{$c_{30S}$ count of free 30S ribosomal subunit}
+    \Input{$c_{50S}$ count of free 50S ribosome subunit}
+    \Input{\multinomial{} function that draws samples from a multinomial distribution}
+
+  \textbf{1.} Calculate probability ($p_{act}$) of free ribosomal subunits binding to a transcript.\\
+    \-\hspace{1cm} $p_{act} = \frac{r \cdot f_{act}}{1 - f_{act}}$\\
+  \textbf{2.} Calculate the number of 70S ribosomes that will be formed and initiated ($c_{70S, b}$).\\
+    \-\hspace{1cm} $c_{70S, b} = p_{act} \cdot \min(c_{30S}, c_{50S})$\\
+  \textbf{3.} Calculate probability ($p_i$) of forming a ribosome on each mRNA transcript weighted by the count and translational efficiency of the transcript.\\
+    \-\hspace{1cm} $p_i = \frac{c_{mRNA,i} \cdot t_i}{\sum\limits^{n_{gene}}_{j=1} c_{mRNA,j} \cdot t_j}$\\
+  \textbf{4.} Sample multinomial distribution $c_{70S, b}$ times weighted by $p_i$ to determine which transcripts receive a ribosome and initiate ($n_{init,i}$).\\
+    \-\hspace{1cm} $n_{init,i} =$ \multinomial{$c_{70S, b}, p_i$}\\
+  \textbf{5.} Assign $n_{init,i}$ ribosomes to mRNA transcript $i$. Decrement 30S and 50S counts.\\
+    \-\hspace{1cm} $c_{30S} = c_{30S} - \sum\limits^{n_{gene}}_{i=1} n_{init,i}$\\
+    \-\hspace{1cm} $c_{50S} = c_{50S} - \sum\limits^{n_{gene}}_{i=1} n_{init,i}$\\
+
+    \Result{70S ribosomes are formed from free 30S and 50S subunits on mRNA transcripts scaled by the count of the mRNA transcript and the transcript's translational efficiency.}
+\end{algorithm}
+\newpage
+\begin{algorithm}[H]
+\caption{Peptide chain elongation and termination}
+\label{polypeptide_elongation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{all}{all}
+
+  \Input{$e_{expected}$ expected elongation rate of ribosome ($e_{expected} < e_{max}$)}
+    \Input{$p_i$ position of ribosome on mRNA transcript $i = 1$ \KwTo $n_{ribosome}$}
+  \Input{$\Delta t$ length of current time step}
+    \Input{$c_{GTP}$ counts of GTP molecules}
+  \Input{$L_j$ length of each mRNA $j = 1$ \KwTo $n_{gene}$ for each coding gene.}
+
+    \SetNoFillComment
+    \tcc{Elongate polypeptides up to limits of sequence, amino acids, or energy}
+    \For{each ribosome $i$ on mRNA transcript $j$}{
+      \textbf{1.} Based on ribosome position $p_i$ on mRNA transcript and expected elongation rate $e_{expected}$ determine ``stop condition'' position ($t_i$) for ribosome assuming no amino acid limitation. Stop condition is either maximal elongation rate scaled by the time step or the full length of sequence (i.e. the ribosome will terminate in this time step).\\
+      \-\hspace{1cm} $t_i = $ \min{$p_i + e_{expected} \cdot \Delta t$, $L_j$}\\
+
+      \textbf{2.} Derive sequence between ribosome position ($p_i$) and stop condition ($t_i$).
+
+  \textbf{3.} Based on derived sequence calculate the number of amino acids required to polymerize sequence $c^{req}_{aa,i}$ and number of GTP molecules required $c^{req}_{GTP}$.\\
+
+    \textbf{4.} Elongate up to limits:\\
+    \eIf{\all{$c^{req}_{aa,k} < c_{aa,k}$} \textbf{and} $c^{req}_{GTP} < c_{GTP}$}{
+      Update the position of each ribosome to stop position\\
+      \-\hspace{1cm} $p_i = t_i$
+    }
+    {
+      Update position of each ribosome to maximal position given the limitation of $c_{aa,k}$ and $c_{GTP}$.
+    }
+
+    \textbf{5.} Update counts of $c_{aa,k}$ and $c_{GTP}$ to reflect polymerization usage.
+    }
+    \tcc{Terminate ribosomes that have reached the end of their mRNA transcript}
+    \For{each ribosome $i$ on transcript $j$}{
+      \If{$p_i$ == $L_j$}{
+          \textbf{1.} Increment count of protein that corresponds to elongating polypeptide that has terminated.\\
+
+            \textbf{2.} Dissociate ribosome and increment 30S and 50S counts.
+
+        }
+    }
+
+    \Result{Each ribosome is elongated up to the limit of available mRNA sequence, expected elongation rate, amino acid, or GTP limitation. Ribosomes that reach the end of their transcripts are terminated and released.}
+\end{algorithm}
+
+
+\newpage
+
+\begin{table}[H]
+\hspace{16pt} \textbf{Associated data} \\\\
+ \begin{tabular}{p{2.5in} c c c p{0.8in}}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+ Active fraction of ribosomes & $f_{act}$ & - & 0.8 & \cite{bremer2008modulation} \\
+Translational efficiency$^{(1)}$ & $t_i$ & ribosomes/mRNA & [0, 5.11] & \cite{li2014quantifying}  \\
+Ribosome elongation rate & $e$ & aa/s & [0, $k_{rib}$] & \cite{bremer2008modulation} \\
+Protein counts (validation data) & $c_{protein}$ & protein counts & [0, 250000] & \cite{schmidt2016quantitative}  \\
+Max ribosome elongation rate & $k_{rib}$ & aa/s & 22 & \cite{bremer2008modulation} \\
+Michaelis constant for tRNA synthetase and amino acids & $K_{M, aa}$ & $\mu$M & 100 & \cite{bosdriesz2015fast} \\
+Michaelis constant for tRNA synthetase and uncharged tRNA & $K_{M,tRNA_u}$ & $\mu$M & 1 & \cite{bosdriesz2015fast} \\
+Dissociation constant for uncharged tRNA and ribosomes & $K_{D, tRNA_u}$ & $\mu$M & 500 & \cite{bosdriesz2015fast} \\
+Dissociation constant for charged tRNA and ribosomes & $K_{D, tRNA_c}$ & $\mu$M & 1 & \cite{bosdriesz2015fast} \\
+ppGpp synthesis rate from RelA & $k_{RelA}$ & $s^{-1}$ & 75 & \cite{bosdriesz2015fast} \\
+ppGpp synthesis rate from SpoT & $k_{SpoT, syn}$ & $s^{-1}$ & 2.6 & \cite{murray1996control} \\
+ppGpp degradation rate from SpoT & $k_{Spot, deg}$ & $\mu M^{-1} s^{-1}$ & 0.23 & \cite{murray1996control} \\
+Inhibition constant for uncharged tRNA on SpoT degradation & $K_{I, SpoT}$ & $\mu$M & 20 & Empirically determined\\
+Dissociation constant for uncharged tRNA:ribsome binding RelA & $K_{D, RelA}$ & $\mu$M & 0.26 & \cite{bosdriesz2015fast} \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for translation]{Table of parameters for translation process.\\
+$^{(1)}$Non-measured translational efficiencies were estimated to be equal to the average translational efficiency (1.11 ribosomes/mRNA).
+}
+\end{table}
+
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{polypeptide\_initiation.py} & process \\
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{polypeptide\_elongation.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{translation.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{proteins.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{translationEfficiency.tsv} & raw data \\
+\texttt{wcEcoli/validation/ecoli/flat} & \texttt{schmidt2015\_javier\_table.tsv} & validation data \\
+ \hline
+\end{tabular}
+\caption[Table of files for translation]{Table of files for translation.}
+\end{table}
+
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

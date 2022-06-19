@@ -5,17 +5,14 @@ EnzymeKinetics
 
 Takes in enzyme kinetics data on initialization, and returns dicts of rate estimates when passed
 metabolite and enzyme concentrations at runtime.
-
-@author: Morgan Paull
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/8/2016
 """
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 from wholecell.utils import units
-import re
 from Equation import Expression
+import six
 
 class enzymeKineticsError(Exception):
 	pass
@@ -43,7 +40,7 @@ class EnzymeKinetics(object):
 		# Exclude any rows with more than a kcat
 		if kcatsOnly:
 			reactionRateInfoNew = {}
-			for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+			for constraintID, reactionInfo in six.viewitems(self.reactionRateInfo):
 				# Kcat-only reactions will have no kMs, kIs, or custom equations
 				if len(reactionInfo["kM"]) or len(reactionInfo["kI"]) or reactionInfo["customRateEquation"]:
 					continue
@@ -53,20 +50,20 @@ class EnzymeKinetics(object):
 		# Exclude any custom equation rows
 		if not useCustoms:
 			reactionRateInfoNew = {}
-			for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
-				if reactionInfo["customRateEquation"] == None:
+			for constraintID, reactionInfo in six.viewitems(self.reactionRateInfo):
+				if reactionInfo["customRateEquation"] is None:
 					reactionRateInfoNew[constraintID] = reactionInfo
 			self.reactionRateInfo = reactionRateInfoNew
 
 		# Throw out any kcat-only reactions
 		if moreThanKcat:
 			reactionRateInfoNew = {}
-			for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+			for constraintID, reactionInfo in six.viewitems(self.reactionRateInfo):
 				if len(reactionInfo["kM"]) or len(reactionInfo["kI"]) or reactionInfo["customRateEquation"]:
 					reactionRateInfoNew[constraintID] = reactionInfo
 			self.reactionRateInfo = reactionRateInfoNew
 
-		self.allConstraintIDs = self.reactionRateInfo.keys()
+		self.allConstraintIDs = list(self.reactionRateInfo.keys())
 
 		self.allReactionIDs = [x["reactionID"] for x in self.reactionRateInfo.values()]
 
@@ -80,7 +77,7 @@ class EnzymeKinetics(object):
 		unknownCustomVars = set()
 
 
-		for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+		for constraintID, reactionInfo in six.viewitems(self.reactionRateInfo):
 			keepReaction = True
 			reactionType = reactionInfo["rateEquationType"]
 			if reactionType == "standard":
@@ -122,7 +119,7 @@ class EnzymeKinetics(object):
 						keepReaction = False
 			else:
 				# Reaction type is unknown
-				raise Exception("Reaction type '%s' is unknown. Must be either 'standard' or 'custom'." % (reactionType))
+				raise Exception("Reaction type '%s' is unknown. Must be either 'standard' or 'custom'." % (reactionType,))
 
 			# Keep the reaction only if both substrates and enzymes are known
 			if keepReaction:
@@ -198,7 +195,7 @@ class EnzymeKinetics(object):
 
 	def allConstraintsDict(self, metaboliteConcentrationsDict, enzymeConcentrationsDict):
 		constraintsDict = {}
-		for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+		for constraintID, reactionInfo in six.viewitems(self.reactionRateInfo):
 			constraintsDict[constraintID] = self.reactionRate(reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict)
 
 		return constraintsDict
@@ -208,7 +205,7 @@ class EnzymeKinetics(object):
 		Create a dict of dicts from reactionID to constraintIDs for that reaction, to rates for each constraintID.
 		"""
 		reactionsDict = {}
-		for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+		for constraintID, reactionInfo in six.viewitems(self.reactionRateInfo):
 			reactionID = reactionInfo["reactionID"]
 			if reactionID not in reactionsDict:
 				reactionsDict[reactionID] = {}
@@ -256,9 +253,9 @@ class EnzymeKinetics(object):
 		"""
 		# Check if all needed metabolite and enzyme concentrations are given
 		if not self.inputsChecked:
-			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False)
+			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, enzymeNames={}, removeUnknowns=False)
 			if len(unusableConstraints) > 0:
-				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(unusableConstraints.keys(), unknownVals))
+				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(list(unusableConstraints.keys()), unknownVals))
 
 		unknownConstraints = set()
 
@@ -284,9 +281,9 @@ class EnzymeKinetics(object):
 		"""
 		# Check if all needed metabolite and enzyme concentrations are given
 		if not self.inputsChecked:
-			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False)
+			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, enzymeNames={}, removeUnknowns=False)
 			if len(unusableConstraints) > 0:
-				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(unusableConstraints.keys(), unknownVals))
+				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(list(unusableConstraints.keys()), unknownVals))
 
 		unknownReactions = set()
 

@@ -1,0 +1,20 @@
+{
+    "steps": [
+    {
+        "name": "gcr.io/cloud-builders/docker",
+        "args": [
+            "build",
+            "--build-arg", "from=gcr.io/${PROJECT_ID}/${_WCM_RUNTIME}",
+            "--build-arg", "git_hash=${_GIT_HASH}",
+            "--build-arg", "git_branch=${_GIT_BRANCH}",
+            "--build-arg", "timestamp=${_TIMESTAMP}",
+            "-t", "gcr.io/${PROJECT_ID}/${_WCM_CODE}",
+            "-f", "cloud/docker/wholecell/Dockerfile",
+            "."
+        ]
+    }
+    ],
+    "images": [
+        "gcr.io/${PROJECT_ID}/${_WCM_CODE}"
+    ]
+}

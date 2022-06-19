@@ -1,21 +1,16 @@
 """
 Plots transcript frequency (ie. frequency of observing at least 
 one copy of transcript) at the 4th generation across 32 seeds.
-
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/27/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
@@ -28,27 +23,20 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
 
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		allDir = ap.get_cells(generation = [3])
+		allDir = self.ap.get_cells(generation = [3])
 
 		if len(allDir) <= 1:
-			print "Skipping -- transcriptFrequency only runs for multiple seeds"
+			print("Skipping -- transcriptFrequency only runs for multiple seeds")
 			return
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		# Get mRNA data
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
 		mRnaIndexes = np.where(isMRna)[0]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
+		synthProb = sim_data.process.transcription.rna_synth_prob["basal"]
 
 		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
@@ -58,7 +46,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		mRnaIndexes_bulk = [moleculeIds.index(x) for x in mRnaIds]
-		bulkMolecules.close()
 
 		# Get frequency data
 		hadTranscribed = None
@@ -68,13 +55,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-			bulkMolecules.close()
 			moleculeCounts_sumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCounts_sumOverTime])
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb_ = rnaSynthProb.readColumn("rnaSynthProb")
-			rnaSynthProb.close()
 
 			if hadTranscribed is None:
 				hadTranscribed = mRnasTranscribed
@@ -105,7 +90,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		whitePadSparklineAxis(scatterAxis)
 
 		N, bins, patches = histAxis.hist(hadTranscribedFrequency, bins = N_SEEDS + 1, orientation = 'horizontal')
-		for i in xrange(1, len(patches) - 1):
+		for i in range(1, len(patches) - 1):
 			plt.setp(patches[i], facecolor = "none", edgecolor = "g")
 		plt.setp(patches[0], facecolor = "none", edgecolor = "r")
 		plt.setp(patches[-1], facecolor = "none", edgecolor = "b")

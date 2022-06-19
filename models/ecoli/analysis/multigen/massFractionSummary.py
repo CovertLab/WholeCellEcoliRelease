@@ -1,10 +1,9 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -12,16 +11,9 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get all cells
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		massNames = [
 					"dryMass",
@@ -41,6 +33,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					"DNA\nmass"
 					]
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 		for simDir in allDir:
@@ -62,6 +55,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+		fig.tight_layout()
+
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 		plt.close("all")
 

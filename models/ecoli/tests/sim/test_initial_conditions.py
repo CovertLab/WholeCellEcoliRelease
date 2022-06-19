@@ -1,25 +1,31 @@
+#!/usr/bin/env python
 """
 Test_InitialConditions.py
 Tests the initial conditions code of the model.
-
-@author: Morgan Paull
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 7/23/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
-import warnings
-import nose.plugins.attrib as noseAttrib
 
 import numpy as np
-import cPickle
-import os
+import six
 
 from wholecell.utils import units
 
-from  models.ecoli.sim.initial_conditions import determineChromosomeState, determineOriCState
+from reconstruction.ecoli.initialization import determine_chromosome_state
+
+
+N_MAX_REPLISOMES = 1000  # Chosen to be big enough to have no effect
+REPLICATION_RATE = 967
+
+
+def cell_mass_from_tau(tau):
+	"""Approximate initial cell mass based on fit from data calculated in
+	growth_rate_dependent_parameters.py"""
+	return 2.5 / (7e-5 * tau.asNumber(units.min) - 6e-4) * units.fg
+
+CRITICAL_MASS = cell_mass_from_tau(60 * units.min)
 
 
 class Test_InitialConditions(unittest.TestCase):
@@ -38,367 +44,216 @@ class Test_InitialConditions(unittest.TestCase):
 		pass
 
 
-	@noseAttrib.attr('replicationTest')
-	def test_num_DNA_polys(self):
+	def test_num_forks(self):
 
-		# When (C + D) / tau is less than one, no replication will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 90 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		# When cell mass / critical mass is less than one, no replication will have started
+		tau = 90. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 0)
+		expected_num_forks = 0
 
-		# When (C + D) / tau is between one and two, one replication generation will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 60 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		self.assertEqual(expected_num_forks, len(replisome_state["coordinates"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["right_replichore"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["domain_index"]))
 
-		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 4)
+		# When cell mass / critical mass is between one and two, one replication generation will have started
+		tau = 50. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		# When (C + D) / tau is between two and three, two replication generations will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 30 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		expected_num_forks = 2
+
+		self.assertEqual(expected_num_forks, len(replisome_state["coordinates"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["right_replichore"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["domain_index"]))
+
+		# When cell mass / critical mass is between two and four, two replication generations will have started
+		tau = 30. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 		# Two generations means one event from first generation and two events
-		# from the second - total of 3 events, 4 DNA polys per event = 12 DNA polys
-		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 12)
+		# from the second - total of 3 events, 2 forks per event = 6 replisomes
+		expected_num_forks = 6
 
-		# When (C + D) / tau is between three and four, three replication generations will have started
-		C = 50 * units.min
-		D = 19 * units.min
-		tau = 20 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		self.assertEqual(expected_num_forks, len(replisome_state["coordinates"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["right_replichore"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["domain_index"]))
+
+		# When cell mass / critical mass is between four and eight, three replication generations will have started
+		tau = 20. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 		# Three generations means one event from first generation, two from the
-		# second, and 4 from the third - total of 7 events, 4 DNA polys per event = 28 DNA polys
-		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 28)
+		# second, and 4 from the third - total of 7 events,
+		# 2 forks per event = 14 replisomes
+		expected_num_forks = 14
 
-		# When (C + D) / tau is between four and five, four replication generations will have started
-		C = 70 * units.min
-		D = 20 * units.min
-		tau = 21 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		self.assertEqual(expected_num_forks, len(replisome_state["coordinates"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["right_replichore"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["domain_index"]))
+
+		# When cell mass / critical mass is between eight and 16, four replication
+		# generations will have started
+		tau = 12. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 		# Four generations means one event from first generation, two from the
-		# second, 4 from the third, and 8 from the fourth - total of 15 events, 4 DNA polys per event = 60 DNA polys
-		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 60)
+		# second, 4 from the third, and 8 from the fourth - total of 15 events,
+		# 2 forks per event = 30 replisomes
+		expected_num_forks = 30
+
+		self.assertEqual(expected_num_forks, len(replisome_state["coordinates"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["right_replichore"]))
+		self.assertEqual(expected_num_forks, len(replisome_state["domain_index"]))
 
 
+	def test_fork_coordinates(self):
 
+		tau = 30. * units.min
+		replichore_length = 2319838 * units.nt
 
-
-	@noseAttrib.attr('replicationTest')
-	def test_DNA_polys_replicated_lengths(self):
-
-		C = 70 * units.min
-		D = 25 * units.min
-		tau = 30 * units.min
-		replication_length = 2319838 * units.nt
-
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-
-		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
-		n = 1;
-		while n <= limit:
-			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
-			assert ( sequenceLength[4*(n-1)] == sequenceLength[4*(n-1)+1] == sequenceLength[4*(n-1)+2] == sequenceLength[4*(n-1)+3] == np.floor(ratio*(replication_length.asNumber())) )
-			n += 1
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
+		fork_coordinates = replisome_state["coordinates"]
+		expected_coordinates = np.array([2198437, -2198437, 457837, -457837, 457837, -457837])
+		np.testing.assert_array_equal(fork_coordinates, expected_coordinates)
 
 		# Length of DNA to be replicated is 1
-		C = 70 * units.min
-		D = 25 * units.min
-		tau = 30 * units.min
-		replication_length = 1 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-	
-		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
-		n = 1;
-		while n <= limit:
-			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
-			assert ( sequenceLength[4*(n-1)] == sequenceLength[4*(n-1)+1] == sequenceLength[4*(n-1)+2] == sequenceLength[4*(n-1)+3] == np.floor(ratio*(replication_length.asNumber())) )
-			n += 1
-
-		# Length of DNA to be replicated is 0
-		C = 70 * units.min
-		D = 25 * units.min
-		tau = 30 * units.min
-		replication_length = 0 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-	
-		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
-		n = 1;
-		while n <= limit:
-			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
-			assert ( sequenceLength[4*(n-1)] == sequenceLength[4*(n-1)+1] == sequenceLength[4*(n-1)+2] == sequenceLength[4*(n-1)+3] == np.floor(ratio*(replication_length.asNumber())) )
-			n += 1
-
-		# Length of DNA to be replicated is infinite
-		C = 70 * units.min
-		D = 25 * units.min
-		tau = 30 * units.min
-		replication_length = np.inf * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-
-		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
-		n = 1;
-		while n <= limit:
-			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
-			assert ( sequenceLength[4*(n-1)] == sequenceLength[4*(n-1)+1] == sequenceLength[4*(n-1)+2] == sequenceLength[4*(n-1)+3] == np.floor(ratio*(replication_length.asNumber())) )
-			n += 1
+		tau = 30. * units.min
+		replichore_length = 1 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
+		fork_coordinates = replisome_state["coordinates"]
+		expected_coordinates = np.array([0, 0, 0, 0, 0, 0])
+		np.testing.assert_array_equal(fork_coordinates, expected_coordinates)
 
 		# Length of DNA to be replicated is not a whole number
-		C = 70 * units.min
-		D = 25 * units.min
-		tau = 30 * units.min
-		replication_length = 2319838.3 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-
-		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
-		n = 1;
-		while n <= limit:
-			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
-			assert ( sequenceLength[4*(n-1)] == sequenceLength[4*(n-1)+1] == sequenceLength[4*(n-1)+2] == sequenceLength[4*(n-1)+3] == np.floor(ratio*(replication_length.asNumber())) )
-			n += 1
+		tau = 30. * units.min
+		replichore_length = 2319838.3 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
+		fork_coordinates = replisome_state["coordinates"]
+		expected_coordinates = np.array([2198437, -2198437, 457837, -457837, 457837, -457837])
+		np.testing.assert_array_equal(fork_coordinates, expected_coordinates)
 
 
+	def test_maximum_domain_index(self):
 
-	@noseAttrib.attr('replicationTest')
-	def test_DNA_polys_division_characteristics(self):
+		# When cell mass / critical mass is less than one, no replication will have started
+		tau = 90. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		# When (C + D) / tau is less than one, no replication will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 90 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		
-		# Array should be of length zero if no replication events have started
-		assert( sum(chromosomeIndex) == len(chromosomeIndex) == 0)
+		self.assertEqual(0, domain_state["domain_index"].max())
 
 
-		# When (C + D) / tau is between one and two, one replication generation will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 60 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		# When cell mass / critical mass is between one and two, one replication generation will have started
+		tau = 50. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
+		self.assertEqual(2, domain_state["domain_index"].max())
 
 
-		# When (C + D) / tau is between two and three, two replication generations will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 30 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		# When cell mass / critical mass is between two and four, two replication generations will have started
+		tau = 30. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
-		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
-
-		
-		# When (C + D) / tau is between three and four, three replication generations will have started
-		C = 50 * units.min
-		D = 19 * units.min
-		tau = 20 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-
-		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
-		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
+		self.assertEqual(6, domain_state["domain_index"].max())
 
 
-		# When (C + D) / tau is between four and five, four replication generations will have started
-		C = 70 * units.min
-		D = 20 * units.min
-		tau = 21 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		# When cell mass / critical mass is between four and eight, three replication generations will have started
+		tau = 20. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
-		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
+		self.assertEqual(14, domain_state["domain_index"].max())
 
 
-	@noseAttrib.attr('replicationTest')
-	def test_determineChromosomeState_inputs(self):
+		# When cell mass / critical mass is between eight and 16, four replication generations will have started
+		tau = 12. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		# The D period must be shorter than tau
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 20  * units.min
-			tau = 19 * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "The D period must be shorter than the doubling time tau.")
+		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
+		self.assertEqual(30, domain_state["domain_index"].max())
 
 
-		# No inputs can have negative values
-		with self.assertRaises(AssertionError) as context:
-			C = -50 * units.min
-			D = 20  * units.min
-			tau = 60 * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "C value can't be negative.")
+	def test_determine_chromosome_state_inputs(self):
 
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = -20  * units.min
-			tau = 60 * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "D value can't be negative.")
+		with six.assertRaisesRegex(self,
+			AssertionError,
+			"^tau value can't be negative.$"
+		):
+			tau = -60. * units.min
+			replichore_length = 2319838 * units.nt
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 20  * units.min
-			tau = -60 * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "tau value can't be negative.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 20  * units.min
-			tau = 60 * units.min
-			replication_length = -2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "replication_length value can't be negative.")
+		with six.assertRaisesRegex(self,
+			AssertionError,
+			"^replichore_length must be positive.$"
+		):
+			tau = 60. * units.min
+			replichore_length = -2319838 * units.nt
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 
-	@noseAttrib.attr('replicationTest')
-	def test_determineChromosomeState_input_units(self):
-
-		# Inputs with units (should not throw an error)
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 90 * units.min
-		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-
-
-		# Inputs with no units (expect an error)
-		with self.assertRaises(AssertionError) as context:
-			C = 50
-			D = 27  * units.min
-			tau = 90  * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "C must have units")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27
-			tau = 90  * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "D must have units")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27  * units.min
-			tau = 90
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "tau must have units")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27  * units.min
-			tau = 90  * units.min
-			replication_length = 2319838
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "replication_length must have units of units.nt.")
-
-
-		# Inputs with incorrect units (expect an error)
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27  * units.min
-			tau = 90  * units.min
-			replication_length = 2319838  * units.min
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "replication_length must have units of units.nt.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27  * units.min
-			tau = 90  * units.min
-			replication_length = 2319838  * units.s
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "replication_length must have units of units.nt.")
-
-
-	@noseAttrib.attr('replicationTest')
 	def test_num_oriCs(self):
 
-		# When (C + D) / tau is less than one, no replication will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 100 * units.min
-		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
+		# When cell mass / critical mass is less than one, no replication will have started
+		tau = 100. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		assert(n_oric == 1)
+		self.assertEqual(1, len(oric_state["domain_index"]))
 
-		# When (C + D) / tau is less than one, no replication will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 90 * units.min
-		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
+		# When cell mass / critical mass is less than one, no replication will have started
+		tau = 90. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		assert(n_oric == 1)
+		self.assertEqual(1, len(oric_state["domain_index"]))
 
-		# When (C + D) / tau is between one and two, one replication generation will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 60 * units.min
-		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
+		# When cell mass / critical mass is between one and two, one replication generation will have started
+		tau = 50. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
-		assert(n_oric == 2)
+		self.assertEqual(2, len(oric_state["domain_index"]))
 
-		# When (C + D) / tau is between two and three, two replication generations will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 30 * units.min
-		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
+		# When cell mass / critical mass is between two and four, two replication generations will have started
+		tau = 30. * units.min
+		replichore_length = 2319838 * units.nt
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			tau, replichore_length, N_MAX_REPLISOMES, -1, cell_mass_from_tau(tau), CRITICAL_MASS, REPLICATION_RATE)
 
 		# Two generations means one event from first generation and two events
 		# from the second - total of 3 events, plus one oriC for the original
 		# chromosome = 4 total oriC
-		assert(n_oric == 4)
+		self.assertEqual(4, len(oric_state["domain_index"]))
 
-		# When (C + D) / tau is between three and four, three replication generations will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 20 * units.min
-		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
-		# Three generations means one event from first generation, two from the
-		# second, and 4 from the third - total of 7 events, plus one oriC for 
-		# the original chromosome = 8 total oriC
-		assert(n_oric == 8)
-
-		# When (C + D) / tau is between four and five, four replication generations will have started
-		C = 50 * units.min
-		D = 27 * units.min
-		tau = 17 * units.min
-		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
-
-		# Four generations means one event from first generation, two from the
-		# second, 4 from the third, and 8 from the fourth - total of 15 events,
-		# plus one oriC for the original chromosome = 16 total oriC
-		assert(n_oric == 16)
+if __name__ == '__main__':
+	unittest.main()

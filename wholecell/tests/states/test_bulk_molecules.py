@@ -1,19 +1,15 @@
 """
 test_bulk_molecules.py
 
-@author: Jerry Morrison
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 @data: Created 4/23/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
 
 import numpy as np
 import numpy.testing as npt
-import nose.plugins.attrib as noseAttrib
 
 from wholecell.states.internal_state import InternalState
 from wholecell.processes.process import Process
@@ -42,7 +38,6 @@ class Test_BulkMolecules(unittest.TestCase):
 		self.moleculeView = BulkMoleculeView(self.state, self.process,
 			OBJECT_NAMES[0])
 
-	@noseAttrib.attr('smalltest', 'bulkMolecules')
 	def test_counts(self):
 		moleculesView = self.moleculesView
 		npt.assert_equal(moleculesView.counts(), [[OBJECT_COUNTS]] * 3)

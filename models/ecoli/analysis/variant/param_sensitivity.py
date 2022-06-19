@@ -3,18 +3,12 @@ Analyzes parameters sensitivity from running variant param_sensitivity.
 Outputs two plots showing sorted z score for each parameter's effect
 on each output measure and individual parameter values for the most
 significant parameters for each output difference measure.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/17/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from future_builtins import zip
+from __future__ import absolute_import, division, print_function
 
-import cPickle
-import csv
-from multiprocessing import Pool
+from functools import reduce
+import io
 import operator
 import os
 import re
@@ -23,20 +17,30 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from scipy import special, stats
+from six.moves import cPickle, range, zip
+from typing import List, Optional, Tuple
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, TIME_UNITS, VOLUME_UNITS
 from models.ecoli.sim.variants.param_sensitivity import number_params, split_indices
+from reconstruction.ecoli.simulation_data import SimulationDataEcoli
+from validation.ecoli.validation_data import ValidationDataEcoli
+from wholecell.io import tsv
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import constants, filepath, parallelization, sparkline, units
+from wholecell.utils import parallelization, sparkline, units
 
 
 CONTROL_VARIANT = 0  # variant number for control simulation
 
+ap = None  # type: Optional[AnalysisPaths]
+sim_data = None  # type: Optional[SimulationDataEcoli]
+validation_data = None  # type: Optional[ValidationDataEcoli]
 
-def analyze_variant((variant, total_params)):
+
+def analyze_variant(args):
+	# type: (Tuple[int, int]) -> np.ndarray
 	'''
 	Method to map each variant to for parallel analysis.
 
@@ -46,19 +50,23 @@ def analyze_variant((variant, total_params)):
 		ap (AnalysisPaths object)
 
 	Args:
-		variant (int): variant index
-		total_params (int): total number of parameters that are changed
+		(variant, total_params): variant index;
+			total number of parameters that are changed
 
 	Returns:
 		ndarray[float]: 2D array of results with each row corresponding to value below:
 			number of times each parameter was increased
 			number of times each parameter was decreased
-			average growth rate for each parameter when increaed
+			average growth rate for each parameter when increased
 			average growth rate for each parameter when decreased
-			average flux correlation for each parameter when increaed
+			average flux correlation for each parameter when increased
 			average flux correlation for each parameter when decreased
 	'''
+	assert ap is not None
+	assert sim_data is not None
+	assert validation_data is not None
 
+	variant, total_params = args
 	if variant == 0:
 		increase_indices = None
 		decrease_indices = None
@@ -72,7 +80,7 @@ def analyze_variant((variant, total_params)):
 	increase_params_flux_correlation = np.zeros(total_params)
 	decrease_params_flux_correlation = np.zeros(total_params)
 
-	cell_density = sim_data.constants.cellDensity
+	cell_density = sim_data.constants.cell_density
 	flux_units = units.mmol / units.g / units.h
 
 	# Validation data
@@ -89,7 +97,7 @@ def analyze_variant((variant, total_params)):
 
 			# Load data
 			## Growth rate
-			growth_rate = np.nanmean(mass_reader.readColumn('instantaniousGrowthRate')[-5:]) * 3600  # 1/hr
+			growth_rate = np.nanmean(mass_reader.readColumn('instantaneous_growth_rate')[-5:]) * 3600  # 1/hr
 
 			## Central carbon flux
 			dry_mass = mass_reader.readColumn('dryMass')[-5:]
@@ -106,7 +114,7 @@ def analyze_variant((variant, total_params)):
 		# Extract fluxes in Toya data set from simulation output
 		model_fluxes = np.zeros_like(toya_fluxes)
 		for i, toya_reaction in enumerate(toya_reactions):
-			flux_time_course = []
+			flux_time_course = []  # type: List[np.ndarray]
 
 			for rxn in reaction_ids:
 				if re.findall(toya_reaction, rxn):
@@ -154,17 +162,12 @@ def headers(labels, name):
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if metadata.get('variant', '') != 'param_sensitivity':
-			print 'This plot only runs for the param_sensitivity variant.'
+			print('This plot only runs for the param_sensitivity variant.')
 			return
 
-		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		global ap
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = np.array(ap.get_variants())
+		ap = self.ap
+		variants = np.array(self.ap.get_variants())
 
 		# Check to analyze control (variant 0) separately from other variants
 		use_control = False
@@ -176,28 +179,28 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Load one instance of sim_data to get number of parameters and ids
 		global sim_data
 		global validation_data
-		with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
+		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 		with open(validationDataFile, 'rb') as f:
 			validation_data = cPickle.load(f)
 
 		# sim_data information
-		total_params = np.sum(number_params(sim_data))
-		rna_to_gene = {gene['rnaId']: gene['symbol'] for gene in sim_data.process.replication.geneData}
-		monomer_to_gene = {gene['monomerId']: gene['symbol'] for gene in sim_data.process.replication.geneData}
-		rna_ids = sim_data.process.transcription.rnaData['id']
-		monomer_ids = sim_data.process.translation.monomerData['id']
+		total_params = sum(number_params(sim_data))
+		rna_to_gene = {gene['rna_ids'][0]: gene['symbol'] for gene in sim_data.process.replication.gene_data}
+		monomer_to_gene = {gene['monomer_id']: gene['symbol'] for gene in sim_data.process.replication.gene_data}
+		rna_ids = sim_data.process.transcription.rna_data['id']
+		monomer_ids = sim_data.process.translation.monomer_data['id']
 
 		# IDs must match order from param_indices() from param_sensitivity.py variant
 		param_ids = np.array(
-			['{} RNA deg Km'.format(rna_to_gene[rna[:-3]]) for rna in rna_ids]
+			['{} RNA deg rate'.format(rna_to_gene[rna[:-3]]) for rna in rna_ids]
 			+ ['{} protein deg rate'.format(monomer_to_gene[monomer[:-3]]) for monomer in monomer_ids]
 			+ ['{} translation eff'.format(monomer_to_gene[monomer[:-3]]) for monomer in monomer_ids]
 			+ ['{} synth prob'.format(rna_to_gene[rna[:-3]]) for rna in rna_ids])
 		if len(param_ids) != total_params:
 			raise ValueError('Number of adjusted parameters and list of ids do not match.')
 
-		pool = Pool(processes=parallelization.plotter_cpus())
+		pool = parallelization.pool()
 		args = zip(
 			variants,
 			[total_params] * n_variants,
@@ -256,19 +259,16 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# include 1 - 0.05 / total_params of the data (test each parameter for p<0.05).
 		n_stds = special.erfinv(2 * (1 - 0.05 / total_params) - 1) * np.sqrt(2)
 
-		# Plot histograms
-		plt.figure(figsize=(16, 4*n_outputs))
-		n_cols = 4
-		top_limit = 20  # limit of the number of highest/lowest parameters to plot
+		# Plot histogram
+		plt.figure(figsize=(10, 4*n_outputs))
+
 		for i, (z_diff, z_increase, z_decrease) in enumerate(zip(z_score_diff, z_score_increase, z_score_decrease)):
 			sorted_idx = np.argsort(z_diff)
-			above_idx = np.where(z_diff[sorted_idx] > n_stds)[0][-top_limit:]
-			below_idx = np.where(z_diff[sorted_idx] < -n_stds)[0][:top_limit]
 
-			## Plot z difference data
-			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 1)
+			## Plot data
+			ax = plt.subplot(n_outputs, 2, 2*i + 1)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.fill_between(range(total_params), z_diff[sorted_idx])
+			plt.bar(list(range(total_params)), z_diff[sorted_idx])
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -285,11 +285,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				plt.xlabel('Sorted Parameters')
 			plt.ylabel('Z score\nparameter effect on {}\n(log scale)'.format(labels[i]))
 
-			## Plot single direction z data
-			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 2)
+			## Plot data
+			ax = plt.subplot(n_outputs, 2, 2*i + 2)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.step(range(total_params), z_increase[sorted_idx], color='g', linewidth=1, alpha=0.5)
-			plt.step(range(total_params), z_decrease[sorted_idx], color='r', linewidth=1, alpha=0.5)
+			plt.bar(list(range(total_params)), z_increase[sorted_idx], color='g')
+			plt.bar(list(range(total_params)), z_decrease[sorted_idx], color='r')
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -303,42 +303,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				plt.title('Positive and Negative\nParameter Changes')
 			if i == n_outputs - 1:
 				plt.xlabel('Sorted Parameters')
-
-			## Plot highest parameters
-			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 3)
-			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(above_idx, z_diff[sorted_idx[above_idx]])
-			plt.axhline(n_stds, color='k', linestyle='--')
-
-			## Format axes
-			sparkline.whitePadSparklineAxis(ax)
-			ax.spines["bottom"].set_visible(False)
-			ax.tick_params(bottom=False)
-			plt.xticks(above_idx, param_ids[sorted_idx[above_idx]], rotation=90, fontsize=6)
-			plt.yticks([0, n_stds])
-			ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-			if i == 0:
-				plt.title('Highest Positive Effect Parameters')
-			if i == n_outputs - 1:
-				plt.xlabel('Parameter IDs')
-
-			## Plot lowest parameters
-			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 4)
-			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(below_idx, z_diff[sorted_idx[below_idx]])
-			plt.axhline(-n_stds, color='k', linestyle='--')
-
-			## Format axes
-			sparkline.whitePadSparklineAxis(ax)
-			ax.spines["bottom"].set_visible(False)
-			ax.tick_params(bottom=False)
-			plt.xticks(below_idx, param_ids[sorted_idx[below_idx]], rotation=90, fontsize=6)
-			plt.yticks([-n_stds, 0])
-			ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-			if i == 0:
-				plt.title('Highest Negative Effect Parameters')
-			if i == n_outputs - 1:
-				plt.xlabel('Parameter IDs')
 
 		## Save figure
 		plt.tight_layout()
@@ -382,12 +346,12 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		## Save figure
 		plt.tight_layout()
-		exportFigure(plt, plotOutDir, '{}_individual'.format(plotOutFileName, metadata))
+		exportFigure(plt, plotOutDir, '{}_individual'.format(plotOutFileName))
 		plt.close('all')
 
 		# Save z scores to tsv
-		with open(os.path.join(plotOutDir, '{}.tsv'.format(plotOutFileName)), 'w') as f:
-			writer = csv.writer(f, delimiter='\t')
+		with io.open(os.path.join(plotOutDir, '{}.tsv'.format(plotOutFileName)), 'wb') as f:
+			writer = tsv.writer(f)
 
 			writer.writerow(
 				['Parameter']

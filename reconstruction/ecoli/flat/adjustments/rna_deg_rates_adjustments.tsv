@@ -1,0 +1,5 @@
+# Adjustments to get protein expression for certain enzymes required for metabolism				
+"name"	"value"	"units"	"_source"	"_comments"
+"EG11493_RNA"	2		"fit_sim_data_1.py"	"pabC, aminodeoxychorismate lyase"
+"EG10709_RNA"	2		"fit_sim_data_1.py"	"pheS, phenylalanine synthetase subunit; for tRNA charging in anaerobic condition"
+"EG10710_RNA"	2		"fit_sim_data_1.py"	"pheT, phenylalanine synthetase subunit; for tRNA charging in anaerobic condition"

@@ -4,15 +4,13 @@ Runs all cohort analysis plots for a given variant of a given sim.
 Run with '-h' for command line help.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.analysisCohort import AnalysisCohortTask
 from wholecell.utils import constants
-from wholecell.utils import filepath
 
 
 class AnalysisCohort(AnalysisBase):
@@ -21,21 +19,18 @@ class AnalysisCohort(AnalysisBase):
 	def define_parameters(self, parser):
 		super(AnalysisCohort, self).define_parameters(parser)
 		self.define_parameter_variant_index(parser)
-
-	def parse_args(self):
-		args = super(AnalysisCohort, self).parse_args()
-		args.metadata['analysis_type'] = 'cohort'
-		return args
+		self.define_range_options(parser, 'variant')
+		self.define_path_selection(parser, 'seed', 'generation')
 
 	def run(self, args):
 		sim_path = args.sim_path
 		variant_dir_name = args.variant_dir_name
 
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
-		sim_data_modified = os.path.join(input_variant_directory, 'kb',
+		sim_data_modified = os.path.join(input_variant_directory,
+			constants.VKB_DIR,
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		# TODO(jerry): Load simData_Modified into metadata?
-		output_dir = filepath.makedirs(input_variant_directory, 'plotOut')
+		output_dir = os.path.join(input_variant_directory, constants.PLOTOUT_DIR)
 
 		task = AnalysisCohortTask(
 			input_variant_directory=input_variant_directory,
@@ -43,9 +38,12 @@ class AnalysisCohort(AnalysisBase):
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
 			metadata=args.metadata,
-			plots_to_run=args.plot,
 			output_filename_prefix=args.output_prefix,
-		)
+			seed_paths=args.seed_paths,
+			generation_paths=args.generation_paths,
+			only_successful=args.only_successful,
+			**self.select_analysis_keys(args)
+			)
 		task.run_task({})
 
 

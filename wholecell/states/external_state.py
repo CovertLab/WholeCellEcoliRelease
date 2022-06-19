@@ -1,26 +1,25 @@
-#!/usr/bin/env python
-
 """
 External State
 
 State variable base class. Defines the interface states expose to the simulation.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 
 class ExternalState(object):
 	""" External State """
 
-	_name = None
+	_name = 'ExternalState'
 
 	# Constructor
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		# Reference to sim
 		self._sim = None
+
+		# References to views
+		self._views = []
 
 		# Random number stream
 		self.randomState = None
@@ -29,7 +28,7 @@ class ExternalState(object):
 
 
 	# Construct state-process graph, calculate constants
-	def initialize(self, sim, sim_data):
+	def initialize(self, sim, sim_data, timeline):
 		self._sim = sim
 
 
@@ -38,17 +37,18 @@ class ExternalState(object):
 		pass
 
 
-	# Saving and loading
+	# Views
+	def viewAdd(self, view):
+		self._views.append(view)
+
+
+	# Saving
 
 	def tableCreate(self, tableWriter):
 		pass
 
 
 	def tableAppend(self, tableWriter):
-		pass
-
-
-	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 

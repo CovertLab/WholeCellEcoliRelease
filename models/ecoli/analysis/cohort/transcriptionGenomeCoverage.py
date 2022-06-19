@@ -1,20 +1,15 @@
 """
 Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all seeds.
-
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/29/2016
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
@@ -24,17 +19,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
 
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get IDs of mRNAs
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		basalExpression = sim_data.process.transcription.rnaExpression["basal"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
+		basalExpression = sim_data.process.transcription.rna_expression["basal"]
 		mRnaIds = np.where(isMRna)[0]
 
 		mRnaBasalExpression = np.array([basalExpression[x] for x in mRnaIds])
@@ -46,8 +35,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		mRnaNamesSorted = mRnaNames[descendingOrderIndexing]
 
 		# Get all cells in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		all_cells = ap.get_cells()
+		all_cells = self.ap.get_cells()
 
 		# Get number of mRNAs transcribed
 		transcribedFreq = []
@@ -82,7 +70,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
 		ax.set_xlim([0, numMRnas])
 		ax.set_ylim([-.05, 1.05])
-		ax.tick_params(which = "both", direction = "out", top = "off")
+		ax.tick_params(which="both", direction="out", top=False)
 		ax.spines["top"].set_visible(False)
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

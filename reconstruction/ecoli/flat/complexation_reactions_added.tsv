@@ -1,0 +1,3 @@
+"id"	"stoichiometry"	"common_name"	"_comments"
+"CPLX0-7796APO_RXN"	{"CPLX0-7796APO": 1, "PD04032": -2}	null	"Reaction required along with equilibrium reaction CPLX0-7796_EQUILIBRIUM_RXN to produce 1CS TF CPLX0-7796"
+"ARCB-CPLX_RXN"	{"ARCB-CPLX": 1, "ARCB-MONOMER": -2}	null	"Reaction required to produce 2CS TF ARCB-CPLX"

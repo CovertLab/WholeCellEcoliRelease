@@ -1,0 +1,6 @@
+"doublingTime (units.min)"	"fractionActiveRnap"	"stableRnaPerTotalRnaSynthesized"	"fractionActiveRnapSynthesizingStableRna"	"ratioRProteinToTotalProtein"	"distanceBetweenRibosomesOnMRna (units.nt)"	"ribosomeElongationRate (units.aa/units.s)"	"rnaPolymeraseElongationRate (units.nt/units.s)"	"fractionActiveRibosome"	"ppGpp_conc (units.pmol/units.ug)"	"RNAP_per_cell"
+100	0.17	0.41	0.24	0.090	79	12	39	0.80	0.316	1500
+60	0.20	0.52	0.36	0.114	85	16	45	0.80	0.219	2800
+40	0.21	0.68	0.56	0.148	65	18	50	0.80	0.127	5000
+30	0.24	0.78	0.68	0.175	52	20	52	0.80	0.0866	8000
+24	0.30	0.85	0.79	0.211	41	21	55	0.80	0.0578	11400

@@ -1,51 +1,33 @@
 """
 Plot NTP counts
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/8/2014
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
-import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+		sim_data = cPickle.load(open(simDataFile, 'rb'))
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		dntpIDs = sim_data.molecule_groups.dntps
+		(dntpCounts,) = read_bulk_molecule_counts(simOutDir, (dntpIDs,))
 
-		sim_data = cPickle.load(open(simDataFile))
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
-		dntpIDs = sim_data.moleculeGroups.dNtpIds
+		plt.figure(figsize = (8.5, 8.5))
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-
-		dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in dntpIDs], np.int)
-		dntpCounts = bulkMolecules.readColumn("counts")[:, dntpIndexes]
-
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
-		bulkMolecules.close()
-
-		plt.figure(figsize = (8.5, 11))
-
-		for idx in xrange(4):
+		for idx in range(4):
 
 			plt.subplot(2, 2, idx + 1)
 
@@ -54,8 +36,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			plt.ylabel("Counts")
 			plt.title(dntpIDs[idx])
 
-		plt.subplots_adjust(hspace = 0.5)
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 

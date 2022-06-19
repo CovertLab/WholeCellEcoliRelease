@@ -2,18 +2,13 @@
 Classes used to execute arbitrary code during critical parts of the simulation.
 These are primarily used to support simulations that require behavior that 
 cannot be modeled at this time.
-
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/8/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 
 class SimulationHook(object):
-	_name = None
+	_name = 'SimulationHook'
 
 	def __init__(self):
 		pass

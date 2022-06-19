@@ -1,22 +1,36 @@
-from __future__ import absolute_import, division, print_function
-
-import unum
-import numpy as np
-import re
-import types
-import numbers
-import functools
 import collections
+import functools
+import numbers
+import os
+from pprint import pformat
+import re
+import sys
+import types
+from typing import Dict
 
+import Bio.Seq
+import numpy as np
+import scipy.interpolate
+import six
+from six.moves import cPickle, range
 import sympy
 from sympy.matrices import dense
-import Bio.Seq
+import unum
 
+from wholecell.utils import constants
+from wholecell.utils.py3 import ANY_STRING
 import wholecell.utils.unit_struct_array
+
 
 NULP = 0  # float comparison tolerance, in Number of Units in the Last Place
 
-leaf_types = (
+# Objects with a list of attributes to compare
+SPECIAL_OBJECTS = {
+	scipy.interpolate._cubic.CubicSpline: ['x', 'c', 'axis'],
+	wholecell.utils.unit_struct_array.UnitStructArray: ['struct_array', 'units'],
+	}
+
+LEAF_TYPES = (
 	unum.Unum,
 	Bio.Seq.Seq,
 	sympy.Basic,
@@ -26,8 +40,8 @@ leaf_types = (
 	dense.MutableDenseMatrix,
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
-
 WHITESPACE = re.compile(r'\s+')
+
 
 class Repr(object):
 	'''A Repr has the given repr() string without quotes and != any other value.'''
@@ -54,19 +68,20 @@ def all_vars(obj):
 	instead to get its defining state.
 	"""
 	if hasattr(obj, '__getstate__'):
+		# noinspection PyCallingNonCallable
 		return obj.__getstate__()
 
 	attrs = getattr(obj, '__dict__', {})
 	attrs.update({key: getattr(obj, key) for key in getattr(obj, '__slots__', ())})
 	return attrs
 
-def is_leaf(value, leaves=leaf_types):
+def is_leaf(value, leaves=LEAF_TYPES):
 	"""
 	Predicate to determine if we have reached the end of how deep we want to traverse
 	through the object tree.
 	"""
 	if isinstance(value, (collections.Mapping, collections.Sequence)):
-		return isinstance(value, basestring)
+		return isinstance(value, ANY_STRING)
 	return (callable(value)                 # it's callable
 			or isinstance(value, leaves)    # it's an instance of a declared leaf type
 			or not has_python_vars(value))  # an object without Python instance variables
@@ -85,7 +100,7 @@ def object_tree(obj, path='', debug=None):
 	translation of a pickled object.
 
 	Args:
-		obj (object): The object to inspect. 
+		obj (object): The object to inspect.
 		path (optional str): The root path of this object tree. This will be built upon
 	        for each child of the current object found and reported in a value is
 	        provided for `debug`.
@@ -103,21 +118,125 @@ def object_tree(obj, path='', debug=None):
 		return obj
 	elif isinstance(obj, collections.Mapping):
 		return {key: object_tree(value, "{}['{}']".format(path, key), debug)
-			for (key, value) in obj.iteritems()}
+			for (key, value) in six.viewitems(obj)}
 	elif isinstance(obj, collections.Sequence):
 		return [object_tree(subobj, "{}[{}]".format(path, index), debug) for index, subobj in enumerate(obj)]
 	else:
 		attrs = all_vars(obj)
 		tree = {key: object_tree(value, "{}.{}".format(path, key), debug)
-				for (key, value) in attrs.iteritems()}
+				for (key, value) in six.viewitems(attrs)}
 		tree['!type'] = type(obj)
 
 		return tree
 
+def size_tree(o, cutoff=0.1):
+	"""
+	Find the size of attributes in an object tree. Sizes greater than the cutoff
+	(in MB) will be returned for displaying. Sizes include all values contained
+	within an attribute (eg. a Dict will be represented by the size of all keys
+	and values in addition to the Dict size itself).
+
+	TODO: double check total size vs disk size - might be missing some types
+	"""
+
+	def return_val(total, value):
+		if total > cutoff and value:
+			return total, value
+		else:
+			return total,
+
+	def get_size(o):
+		return sys.getsizeof(o) / 2**20  # convert to MB
+
+	size = get_size(o)
+
+	# special handling of leaf to get size of defining attributes
+	if isinstance(o, unum.Unum):
+		size += size_tree(o._unit)[0]
+		size += get_size(o._value)
+		return size,
+
+	# special handling of leaf to get size of str sequence
+	elif isinstance(o, Bio.Seq.Seq):
+		size += get_size(o._data)
+		return size,
+
+	# special handling of leaf, each entry is allocated the same amount of space
+	elif isinstance(o, wholecell.utils.unit_struct_array.UnitStructArray):
+		size += size_tree(o.units)[0]
+		n_entries = len(o.struct_array)
+		if n_entries:
+			size += get_size(o.struct_array[0]) * n_entries
+		return size,
+
+	# if a special object, check predefined attributes for equality
+	elif type(o) in SPECIAL_OBJECTS:
+		sizes = {}
+		attrs = SPECIAL_OBJECTS[type(o)]
+		for attr in attrs:
+			subsizes = size_tree(getattr(o, attr), cutoff)
+			size += subsizes[0]
+			if subsizes[0] > cutoff:
+				formatted = float('{:.2f}'.format(subsizes[0]))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes[attr] = val
+		return return_val(size, sizes)
+
+	# if it is a leaf, just return the size
+	# TODO: any special handling for types that are not already accounted for above
+	elif is_leaf(o):
+		return size,
+
+	# if it is a dictionary, then get the size of keys and values
+	elif isinstance(o, collections.Mapping):
+		sizes = {}
+		total_size = size
+		for key, value in o.items():
+			subsizes = size_tree(value, cutoff)
+			entry_size = subsizes[0] + get_size(key)
+			total_size += entry_size
+			if entry_size > cutoff:
+				formatted = float('{:.2f}'.format(entry_size))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes[key] = val
+		return return_val(total_size, sizes)
+
+	# if it is a sequence, then get the size of each element
+	elif isinstance(o, collections.Sequence):
+		sizes = []
+		total_size = size
+		for value in o:
+			subsizes = size_tree(value, cutoff)
+			total_size += subsizes[0]
+			if subsizes[0] > cutoff:
+				formatted = float('{:.2f}'.format(subsizes[0]))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes.append(val)
+		return return_val(total_size, sizes)
+
+	else:
+		return size,
+
+def _are_instances_of(a, b, a_type):
+	"""
+	Return True if `a` and `b` are both instances of the given type (or tuple
+	of types).
+	"""
+	return isinstance(a, a_type) and isinstance(b, a_type)
+
 def diff_trees(a, b):
 	"""
 	Find the differences between two trees or leaf nodes a and b. Return a
-	falsely value if the inputs match OR a truthy value that explains or
+	falsey value if the inputs match OR a truthy value that explains or
 	summarizes their differences, where each point in the tree where the inputs
 	differ will be a tuple (a's value, b's value, optional description).
 
@@ -128,9 +247,16 @@ def diff_trees(a, b):
 	This operation is symmetrical.
 	"""
 
+	# treat str and Python 2 unicode as the same leaf type
+	# ditto for int and Python 2 long
+	if (_are_instances_of(a, b, six.string_types)
+			or _are_instances_of(a, b, six.integer_types)):
+		if a != b:
+			return elide(a), elide(b)
+
 	# if they aren't they same type, they are clearly different. Also this lets us
 	# safely assume throughout the rest of the function that a and b are the same type
-	if type(a) != type(b):
+	elif type(a) != type(b):
 		return elide(a, max_len=400), elide(b, max_len=400)
 
 	# if they are floats, handle various kinds of values
@@ -145,6 +271,16 @@ def diff_trees(a, b):
 	elif isinstance(a, unum.Unum):
 		a0, b0 = a.matchUnits(b)
 		return diff_trees(a0.asNumber(), b0.asNumber())
+
+	# if a special object, check predefined attributes for equality
+	elif type(a) in SPECIAL_OBJECTS:
+		diff = {}
+		attrs = SPECIAL_OBJECTS[type(a)]
+		for attr in attrs:
+			subdiff = diff_trees(getattr(a, attr), getattr(b, attr))
+			if subdiff:
+				diff[attr] = subdiff
+		return diff
 
 	# if they are leafs (including strings) use python equality comparison
 	elif is_leaf(a):
@@ -170,7 +306,7 @@ def diff_trees(a, b):
 			a = list(a) + (len(b) - len(a)) * [Repr('--')]
 
 		diff = []
-		for index in xrange(len(a)):
+		for index in range(len(a)):
 			subdiff = diff_trees(a[index], b[index])
 			if subdiff:
 				diff.append(subdiff)
@@ -201,7 +337,7 @@ def compare_floats(f1, f2):
 		np.testing.assert_array_almost_equal_nulp(f1, f2, nulp=NULP)
 		return 0.0
 	except AssertionError:
-		# FWIW, the error.message tells the NULP difference.
+		# FWIW, the string error.args[0] tells the NULP difference.
 		return f1, f2
 
 def compare_ndarrays(array1, array2):
@@ -212,18 +348,122 @@ def compare_ndarrays(array1, array2):
 	TODO(jerry): Allow tolerance for float elements of structured arrays and
 	  handle NaN and Inf values.
 	'''
+
+	def summarize_array(ndarray):
+		return Repr(f"array({ndarray.shape} {ndarray.dtype})")
+
+	if array1.shape != array2.shape:
+		return summarize_array(array1), summarize_array(array2)
+
+	object_dtype = np.dtype(object)
 	if issubclass(array1.dtype.type, np.floating):
 		try:
 			# This handles float tolerance but not NaN and Inf.
-			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
+			with np.errstate(invalid='ignore'):
+				np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
+			return ()
+		except AssertionError as _:
+			# return elide(array1), elide(array2), simplify_error_message(e.args[0])
+			pass  # try again, below
+	# Handle ragged arrays created with an object dtype
+	elif array1.dtype == object_dtype and array2.dtype == object_dtype:
+		try:
+			assert array1.shape == array2.shape
+			for sub1, sub2 in zip(array1, array2):
+				np.testing.assert_equal(sub1, sub2)
 			return ()
 		except AssertionError as e:
-			# return elide(array1), elide(array2), simplify_error_message(e.message)
-			pass  # try again, below
+			return simplify_error_message(e.args[0])
 
 	try:
 		# This handles non-float dtypes, also NaN and Inf, but no tolerance.
 		np.testing.assert_array_equal(array1, array2)
 		return ()
 	except AssertionError as e:
-		return simplify_error_message(e.message)
+		return simplify_error_message(e.args[0])
+
+
+def load_tree(path):
+	"""Load a .cPickle file as an object_tree."""
+	with open(path, "rb") as f:
+		# Extra kwargs only in PY3+ for compatibility with PY2 pickle files.
+		kwargs = {} if six.PY2 else dict(fix_imports=True, encoding='latin1')
+		data = cPickle.load(f, **kwargs)
+	return object_tree(data)
+
+
+def load_fit_tree(out_subdir):
+	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
+	# For convenience, optionally add the prefix 'out/'.
+	if not os.path.isabs(out_subdir) and not os.path.isdir(out_subdir):
+		out_subdir = os.path.join('out', out_subdir)
+
+	path = os.path.join(
+		out_subdir,
+		constants.KB_DIR,
+		constants.SERIALIZED_SIM_DATA_FILENAME)
+
+	return load_tree(path)
+
+def pprint_diffs(diffs, *, width=160, print_diff_lines=True, print_count=True):
+	'''Pretty-print the diff info: optionally print the detailed diff lines,
+	optionally print the diff line count as a single figure of merit; then
+	return the line count.
+	'''
+	if diffs:
+		diff_lines = pformat(diffs, width=width)
+		if print_diff_lines:
+			print(diff_lines)
+		line_count = len(diff_lines.strip().splitlines())
+	else:
+		line_count = 0
+
+	if print_count:
+		print('==> lines of differences: {}'.format(line_count))
+	return line_count
+
+
+def diff_files(path1: str, path2: str, print_diff_lines: bool = True) -> int:
+	"""Diff the pair of named pickle files. Return the diff line count."""
+	tree1 = load_tree(path1)
+	tree2 = load_tree(path2)
+	diffs = diff_trees(tree1, tree2)
+	return pprint_diffs(diffs, print_diff_lines=print_diff_lines)
+
+
+def list_pickles(directory: str) -> Dict[str, str]:
+	"""Return a map of .cPickle file names to paths in the given directory
+	sorted by file modification time then by filename."""
+	entries = [(entry.stat().st_mtime, entry.name, entry.path)
+			   for entry in os.scandir(directory)
+		       if entry.is_file() and entry.name.endswith('.cPickle')]
+	files = {e[1]: e[2] for e in sorted(entries)}
+	return files
+
+
+def diff_dirs(dir1: str, dir2: str, print_diff_lines: bool = True) -> int:
+	"""Diff the pickle files in the pair of named directories. Return the total
+	diff line count."""
+	print(f'Comparing pickle files in "{dir1}" vs. "{dir2}".')
+	pickles1 = list_pickles(dir1)
+	pickles2 = list_pickles(dir2)
+	count = 0
+
+	for name, path1 in pickles1.items():
+		print(f'\n*** {name} {"*" * (75 - len(name))}')
+		path2 = pickles2.get(name)
+		if path2:
+			count += diff_files(path1, path2, print_diff_lines)
+		else:
+			print(f'{name} is in {dir1} but not {dir2}')
+			count += 1
+
+	only_in_dir2 = pickles2.keys() - pickles1.keys()
+	if only_in_dir2:
+		print(f'\n*** Pickle files in {dir2} but not {dir1}:\n'
+			  f'{sorted(only_in_dir2)}')
+		count += len(only_in_dir2)
+
+	print(f'\n====> Total differences: {count} lines for {len(pickles1)} pickle'
+		  f' files in {dir1} against {len(pickles2)} pickle files in {dir2}.')
+	return count

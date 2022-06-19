@@ -1,21 +1,23 @@
 '''
 NetworkFlow interface to the CPLEX solver package. This package supports both
 linear and quadratic objectives.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/14/2018
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from collections import defaultdict
 
+# NOTE: This file assumes callers catch the ImportError if IBM CPLEX is not
+# installed. To use it, install the CPLEX binary library from IBM (it's
+# free for students) and do `pip install cplex>=12.8.0.0`.
+# noinspection PyPackageRequirements
 import cplex
 import numpy as np
 from scipy.sparse import coo_matrix
+import six
 
 from ._base import NetworkFlowProblemBase
+from six.moves import zip
 
 
 class NetworkFlowCPLEX(NetworkFlowProblemBase):
@@ -46,6 +48,8 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 	def _getVar(self, flow):
 		if flow in self._flows:
 			idx = self._flows[flow]
+		elif self._eqConstBuilt:
+			raise ValueError('Equality constraints already built. Unable to add new flow: "{}".'.format(flow))
 		else:
 			self._model.variables.add(obj=[0])
 			idx = len(self._flows)
@@ -61,19 +65,19 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 		if self._eqConstBuilt:
 			materialIdx = self._materialIdxLookup.get(material, None)
 			if materialIdx is None:
-				raise Exception("Invalid material")
+				raise ValueError("Invalid material: {}".format(material))
 
 			flowIdx = self._flows.get(flow, None)
 			if flowIdx is None:
-				raise Exception("Invalid flow")
+				raise ValueError("Invalid flow: {}".format(flow))
 
-			coeffs, flowIdxs = zip(*self._materialCoeffs[material])
+			coeffs, flowIdxs = list(zip(*self._materialCoeffs[material]))
 			coeffs = list(coeffs)
 			flowLoc = flowIdxs.index(flowIdx)
 			coeffs[flowLoc] = coefficient
-			self._materialCoeffs[material] = zip(coeffs, flowIdxs)
+			self._materialCoeffs[material] = list(zip(coeffs, flowIdxs))
 
-			self._model.linear_constraints.set_coefficients(zip([materialIdx], [flowIdx], [coefficient]))
+			self._model.linear_constraints.set_coefficients(list(zip([materialIdx], [flowIdx], [coefficient])))
 		else:
 			idx = self._getVar(flow)
 			self._materialCoeffs[material].append((coefficient, idx))
@@ -122,7 +126,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 		return self._objective[flow]
 
 	def getFlowRates(self, flows):
-		if isinstance(flows, basestring):
+		if isinstance(flows, six.string_types):
 			flows = (flows,)
 
 		self._solve()
@@ -133,7 +137,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 	def getShadowPrices(self, materials):
 		# reduced cost of row
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
 		self._solve()
 
@@ -143,7 +147,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 	def getReducedCosts(self, fluxNames):
 		# reduced cost of col
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
 		self._solve()
 
@@ -151,14 +155,15 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 		return np.array(self._model.solution.get_reduced_costs(flows))
 
 	def getObjectiveValue(self):
+		self._solve()
 		return self._model.solution.get_objective_value()
 
 	def getSMatrix(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
 		A = np.zeros((len(self._materialCoeffs), len(self._flows)))
 		self._materialIdxLookup = {}
-		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
+		for materialIdx, (material, pairs) in enumerate(sorted(six.viewitems(self._materialCoeffs))):
 			self._materialIdxLookup[material] = materialIdx
 			for pair in pairs:
 				A[materialIdx, pair[1]] = pair[0]
@@ -166,12 +171,12 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 	def getFlowNames(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
 		return sorted(self._flows, key=self._flows.__getitem__)
 
 	def getMaterialNames(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
 		return sorted(self._materialIdxLookup, key=self._materialIdxLookup.__getitem__)
 
 	def getUpperBounds(self):
@@ -185,7 +190,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 	def buildEqConst(self):
 		if self._eqConstBuilt:
-			raise Exception("Equality constraints already built.")
+			raise RuntimeError("Equality constraints already built.")
 
 		nMaterials = len(self._materialCoeffs)
 		nFlows = len(self._flows)
@@ -193,7 +198,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 		# avoid creating duplicate constraints
 		self._materialIdxLookup = {}
-		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
+		for materialIdx, (material, pairs) in enumerate(sorted(six.viewitems(self._materialCoeffs))):
 			self._materialIdxLookup[material] = materialIdx
 			for pair in pairs:
 				A[materialIdx, pair[1]] = pair[0]
@@ -204,7 +209,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 		# set solver constraints
 		self._model.linear_constraints.add(rhs=np.zeros(nMaterials), senses='E'*nMaterials)
-		self._model.linear_constraints.set_coefficients(zip(row.tolist(), col.tolist(), data.tolist()))
+		self._model.linear_constraints.set_coefficients(list(zip(row.tolist(), col.tolist(), data.tolist())))
 
 		self._eqConstBuilt = True
 

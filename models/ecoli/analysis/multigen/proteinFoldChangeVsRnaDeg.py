@@ -1,145 +1,57 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-FROM_CACHE = False
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-
 		# rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 		# countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
 
 
 		# Get all ids reqiured
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
-		ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
-		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes # Only complexes
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
-
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
-		ribosome_subunit_ids = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
-		ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"],data_30s["subunitStoich"]))
-
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
-		rnap_subunit_ids = data_rnap["subunitIds"].tolist()
-		rnap_subunit_stoich = data_rnap["subunitStoich"]
-
-		# Stoich matrices
-		complexStoich = sim_data.process.complexation.stoichMatrixMonomers()
-		equilibriumStoich = sim_data.process.equilibrium.stoichMatrixMonomers()
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
-
-		first_build = True
+		allDir = self.ap.get_cells()
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
-		n_sims = ap.n_generation
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
+		n_sims = self.ap.n_generation
 
-		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
-		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
+		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = float)
+		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = int)
 
-		if not FROM_CACHE:
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			## READ DATA ##
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
 
-				## READ DATA ##
-				# Read in bulk ids and counts
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			## CALCULATIONS ##
+			# Calculate if monomer comes close to doubling
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(float) + 1)
 
-				if first_build:
-					moleculeIds = bulkMolecules.readAttribute("objectNames")
+			# Log data
+			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
 
-					moleculeDict = {mol: i for i, mol in enumerate(moleculeIds)}
-					complexationIdx = np.array([moleculeDict[x] for x in ids_complexation]) # Complexe of proteins, and protein monomers
-					complexation_complexesIdx = np.array([moleculeDict[x] for x in ids_complexation_complexes]) # Only complexes
-					equilibriumIdx = np.array([moleculeDict[x] for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
-					equilibrium_complexesIdx = np.array([moleculeDict[x] for x in ids_equilibrium_complexes]) # Only complexes
-					translationIdx = np.array([moleculeDict[x] for x in ids_translation]) # Only protein monomers
-
-					ribosomeIdx = np.array([moleculeDict[x] for x in ribosome_subunit_ids])
-					rnapIdx = np.array([moleculeDict[x] for x in rnap_subunit_ids])
-
-					first_build = False
-
-				bulkCounts = bulkMolecules.readColumn("counts")
-				bulkMolecules.close()
-
-				# Dissociate protein-protein complexes
-				bulkCounts[:, complexationIdx] += np.dot(complexStoich, bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose().astype(np.int)
-
-				# Dissociate protein-small molecule complexes
-				bulkCounts[:, equilibriumIdx] += np.dot(equilibriumStoich, bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose().astype(np.int)
-
-				# Load unique molecule data for RNAP and ribosomes
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-				nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-				uniqueMoleculeCounts.close()
-
-				# Add subunits from RNAP and ribosomes
-				ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
-				rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
-
-				bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts.astype(np.int)
-				bulkCounts[:, rnapIdx] += rnapSubunitCounts.astype(np.int)
-
-				# Get protein monomer counts for calculations now that all complexes are dissociated
-				proteinMonomerCounts = bulkCounts[:, translationIdx]
-
-				## CALCULATIONS ##
-				# Calculate if monomer comes close to doubling
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
-
-				# Load transcription initiation event data
-				# rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-				# initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
-
-				# Map transcription initiation events to monomers
-				# initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
-
-				# Log data
-				ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
-
-				ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-				# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
-
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-			# cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-		# initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
+			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
+			# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
 
 		# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
-		degradationRates = sim_data.process.transcription.rnaData['degRate'].asNumber(1/units.s)
-		degradationRatesByMonomer = degradationRates[sim_data.relation.rnaIndexToMonomerMapping]
+		degradationRates = sim_data.process.transcription.cistron_data['deg_rate'].asNumber(1 / units.s)
+		degradationRatesByMonomer = degradationRates[sim_data.relation.cistron_to_monomer_mapping]
 		uniqueDegRate = np.unique(degradationRatesByMonomer)
 
 		# burstSizeToPlot = np.zeros(0)
@@ -150,8 +62,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			try:
 				degRateToPlot = np.hstack((degRateToPlot, np.ones(ratioFinalToInitialCountMultigen[:,mask].size) * degRate))
 			except Exception as e:
-				print e
-				import ipdb; ipdb.set_trace()
+				# print(e)
+				# import ipdb; ipdb.set_trace()
+				raise
 			ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[:,mask].flatten()))
 
 		real_values_mask = np.logical_not(np.logical_or(np.isnan(ratioToPlot), np.isinf(ratioToPlot)))

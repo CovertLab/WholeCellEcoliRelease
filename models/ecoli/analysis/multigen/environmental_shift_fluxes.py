@@ -1,19 +1,15 @@
 """
 Plot fluxes for metabolic map figure during a shift
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/13/17
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -21,6 +17,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+from six.moves import zip
 
 START = 8300
 SHIFT = 11000
@@ -31,18 +28,11 @@ MA_WIDTH = 15
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rxnStoich = sim_data.process.metabolism.reactionStoich
+		rxnStoich = sim_data.process.metabolism.reaction_stoich
 
 		reactants = [
 			"GLC[p]",
@@ -232,15 +222,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			]
 
 		fullReactants = [
-			"SUC[c]",
+			"2-KETOGLUTARATE[c]",
 			"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
-			"DADP[c]",
+			"DCDP[c]",
 		]
 
 		fullProducts = [
-			"FUM[c]",
+			"SUC-COA[c]",
 			"PRO[c]",
-			"DATP[c]",
+			"DCTP[c]",
 		]
 
 		figAll = plt.figure(figsize = (17, 22))
@@ -266,7 +256,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			dryMass = massListener.readColumn("dryMass")
 			massListener.close()
 
-			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
+			coefficient = dryMass / cellMass * sim_data.constants.cell_density.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = fbaResults.readAttribute("reactionIDs")
@@ -279,7 +269,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			plt.figure(figAll.number)
 			for idx, transport in enumerate(transports):
-				ax = plt.subplot(subplotRows, subplotCols, idx + 1)
+				ax = self.subplot(subplotRows, subplotCols, idx + 1)
 
 				if firstGen:
 					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
@@ -292,14 +282,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
 
 			for idx, (reactant, product) in enumerate(zip(reactants, products)):
-				ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
+				ax = self.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
 				totalFlux = np.zeros_like(flux[:, 0])
 
 				for rxn in rxnStoich:
 					if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
-						if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+						if rxnStoich[rxn][reactant] < 0 < rxnStoich[rxn][product]:
 							direction = 1
-						elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+						elif rxnStoich[rxn][reactant] > 0 > rxnStoich[rxn][product]:
 							direction = -1
 						else:
 							continue
@@ -317,14 +307,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			plt.figure(figFull.number)
 			for idx, (reactant, product) in enumerate(zip(fullReactants, fullProducts)):
-				ax = plt.subplot(3, 1, idx+1)
+				ax = self.subplot(3, 1, idx+1)
 				totalFlux = np.zeros_like(flux[:, 0])
 
 				for rxn in rxnStoich:
 					if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
-						if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+						if rxnStoich[rxn][reactant] < 0 < rxnStoich[rxn][product]:
 							direction = 1
-						elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+						elif rxnStoich[rxn][reactant] > 0 > rxnStoich[rxn][product]:
 							direction = -1
 						else:
 							continue
@@ -332,21 +322,19 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 						totalFlux += flux[:, reactionIDs.index(rxn)] * direction
 
 				if firstGen:
+					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+					ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
 					ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
 					ax.tick_params(axis = "both", labelsize = 4)
 
-				if idx != 2:
-					ax.spines['bottom'].set_visible(False)
-					ax.tick_params(axis="x", labelbottom=False, bottom=False)
-
 				totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
-				ax.plot(time / 60, totalFlux, color = "b", linewidth = 2)
+				ax.plot(time, totalFlux, color = "b", linewidth = 0.5)
 
 			firstGen = False
 
 		plt.figure(figAll.number)
 		for i in range(subplotRows * subplotCols):
-			ax = plt.subplot(subplotRows, subplotCols, i + 1)
+			ax = self.subplot(subplotRows, subplotCols, i + 1)
 			plt.minorticks_off()
 
 			whitePadSparklineAxis(ax)
@@ -358,24 +346,21 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 		for i in range(subplotRows * subplotCols):
-			ax = plt.subplot(subplotRows, subplotCols, i + 1)
+			ax = self.subplot(subplotRows, subplotCols, i + 1)
 			ax.set_axis_off()
 
 		exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
 
 		plt.figure(figFull.number)
 		for i in range(3):
-			ax = plt.subplot(3, 1, i+1)
+			ax = self.subplot(3, 1, i+1)
 			plt.minorticks_off()
 
 			whitePadSparklineAxis(ax)
-			bounds = ax.dataLim.bounds
-			xlim = [bounds[0], bounds[2]]
-			ylim = [bounds[1], bounds[3]]
-			ax.set_xticks(xlim)
-			ax.set_yticks(ylim)
-			ax.set_xlim(xlim)
-			ax.set_ylim(ylim)
+			xlim = ax.get_xlim()
+			ylim = ax.get_ylim()
+			ax.set_yticks([ylim[0], ylim[1]])
+			ax.set_xticks([xlim[0], xlim[1]])
 
 		exportFigure(plt, plotOutDir, plotOutFileName + "_full", metadata)
 		plt.close("all")

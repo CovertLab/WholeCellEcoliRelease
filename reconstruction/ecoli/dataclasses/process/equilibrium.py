@@ -2,24 +2,20 @@
 Equilibrium.
 
 TODOs:
-_populateDerivativeAndJacobian()
-	Decide if this caching is worthwhile
-	Assumes a directory structure
-
 fluxesAndMoleculesToSS()
-	Consider relocating (since it's useful for both the fitter and simulation)
+	Consider relocating (since it's useful for both the parca and simulation)
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import os
-import cPickle
-import wholecell
-from wholecell.utils import filepath
-from wholecell.utils import units
-from wholecell.utils.write_ode_file import writeOdeFileWithRates
+from scipy import integrate
 import sympy as sp
+
+from wholecell.utils import build_ode, data, units
+from wholecell.utils.random import stochasticRound
+from six.moves import range, zip
+
 
 class EquilibriumError(Exception):
 	pass
@@ -40,114 +36,159 @@ class Equilibrium(object):
 		stoichMatrixJ = []
 		stoichMatrixV = []
 
-		rxnIds = []
-
 		stoichMatrixMass = []
-		self.metaboliteSet = set()
-		self.complexNameToRxnIdx = {}
+		self.metabolite_set = set()
+		self.complex_name_to_rxn_idx = {}
 
-		# Make sure reactions are not duplicated in complexationReactions and equilibriumReactions
-		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibriumReactions])
-		complexationReactionIds = set([x["id"] for x in raw_data.complexationReactions])
+		# Make sure reactions are not duplicated in complexationReactions and
+		# equilibriumReactions
+		equilibrium_reaction_ids = {
+			x["id"] for x in raw_data.equilibrium_reactions}
+		complexation_reaction_ids = {
+			x["id"] for x in raw_data.complexation_reactions}
 
-		if equilibriumReactionIds.intersection(complexationReactionIds) != set():
-			raise Exception, "The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (equilibriumReactionIds.intersection(complexationReactionIds))
+		if equilibrium_reaction_ids.intersection(complexation_reaction_ids) != set():
+			raise Exception(
+				"The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (
+					equilibrium_reaction_ids.intersection(
+						complexation_reaction_ids)))
+
+		# Get IDs of all metabolites
+		metabolite_ids = {met['id'] for met in raw_data.metabolites}
+
+		# IDs of 2CS ligands that should be tagged to the periplasm
+		two_component_system_ligands = [
+			l["molecules"]["LIGAND"] for l in raw_data.two_component_systems]
 
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
 			"modified-charged-selC-tRNA", # molecule does not exist
 			}
 
-		# Remove reactions that we know won't occur (e.g., don't do computations on metabolites that have zero counts)
-		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = [m["Metabolite"] for m in raw_data.metaboliteConcentrations] + ["LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + [l["molecules"]["LIGAND"] for l in raw_data.twoComponentSystems]
+		# Remove reactions that we know won't occur (e.g., don't do
+		# computations on metabolites that have zero counts)
+		# TODO (ggsun): check if this list is accurate
+		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = [
+			m["Metabolite"] for m in raw_data.metabolite_concentrations] + [
+			"LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + two_component_system_ligands
 
-		deleteReactions = []
-		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
-			for molecule in reaction["stoichiometry"]:
-				if molecule["molecule"] in FORBIDDEN_MOLECULES or (molecule["type"] == "metabolite" and molecule["molecule"] not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
-					deleteReactions.append(reactionIndex)
-					break
+		# Get forward and reverse rates of each reaction
+		forward_rates = {
+			rxn['id']: rxn['forward_rate'] for rxn in raw_data.equilibrium_reaction_rates
+			}
+		reverse_rates = {
+			rxn['id']: rxn['reverse_rate'] for rxn in raw_data.equilibrium_reaction_rates
+			}
+		median_forward_rate = np.median(np.array(list(forward_rates.values())))
+		median_reverse_rate = np.median(np.array(list(reverse_rates.values())))
 
-		for reactionIndex in deleteReactions[::-1]:
-			del raw_data.equilibriumReactions[reactionIndex]
+		reaction_index = 0
+
+		def should_skip_reaction(reaction):
+			for mol_id in reaction["stoichiometry"].keys():
+				if mol_id in FORBIDDEN_MOLECULES or (
+						mol_id in metabolite_ids and mol_id not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
+					return True
+			return False
 
 		# Build stoichiometry matrix
-		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
-			assert reaction["process"] == "equilibrium"
-			assert reaction["dir"] == 1
+		for reaction in raw_data.equilibrium_reactions:
+			if should_skip_reaction(reaction):
+				continue
 
-			ratesFwd.append(reaction["forward rate"])
-			ratesRev.append(reaction["reverse rate"])
+			ratesFwd.append(forward_rates.get(reaction['id'], median_forward_rate))
+			ratesRev.append(reverse_rates.get(reaction['id'], median_reverse_rate))
 			rxnIds.append(reaction["id"])
 
-			for molecule in reaction["stoichiometry"]:
-				if molecule["type"] == "metabolite":
-					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(),
-						molecule["location"]
-						)
-					self.metaboliteSet.add(moleculeName)
-
+			for mol_id, coeff in reaction["stoichiometry"].items():
+				if mol_id in metabolite_ids:
+					if mol_id in two_component_system_ligands:
+						mol_id_with_compartment = "{}[{}]".format(
+							mol_id, 'p'  # Assume 2CS ligands are in periplasm
+							)
+					else:
+						mol_id_with_compartment = "{}[{}]".format(
+							mol_id, 'c'  # Assume all other metabolites are in cytosol
+							)
+					self.metabolite_set.add(mol_id_with_compartment)
 				else:
-					moleculeName = "{}[{}]".format(
-						molecule["molecule"],
-						molecule["location"]
+					mol_id_with_compartment = "{}[{}]".format(
+						mol_id,
+						sim_data.getter.get_compartment(mol_id)[0]
 						)
 
-				if moleculeName not in molecules:
-					molecules.append(moleculeName)
-					moleculeIndex = len(molecules) - 1
-
+				if mol_id_with_compartment not in molecules:
+					molecules.append(mol_id_with_compartment)
+					molecule_index = len(molecules) - 1
 				else:
-					moleculeIndex = molecules.index(moleculeName)
+					molecule_index = molecules.index(mol_id_with_compartment)
 
-				coefficient = molecule["coeff"]
+				# Assume coefficients given as null are -1
+				if coeff is None:
+					coeff = -1
 
-				assert coefficient % 1 == 0
+				# All stoichiometric coefficients must be integers
+				assert coeff % 1 == 0
 
-				# Store indices for the row and column, and molecule coefficient for building the stoichiometry matrix
-				stoichMatrixI.append(moleculeIndex)
-				stoichMatrixJ.append(reactionIndex)
-				stoichMatrixV.append(coefficient)
+				# Store indices for the row and column, and molecule
+				# coefficient for building the stoichiometry matrix
+				stoichMatrixI.append(molecule_index)
+				stoichMatrixJ.append(reaction_index)
+				stoichMatrixV.append(coeff)
 
-				if coefficient > 0:
-					assert molecule["type"] == "proteincomplex"
-					self.complexNameToRxnIdx[moleculeName] = reactionIndex
+				# If coefficient is positive, the molecule is the complex
+				if coeff > 0:
+					self.complex_name_to_rxn_idx[mol_id_with_compartment] = reaction_index
 
 				# Find molecular mass
-				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
+				molecularMass = sim_data.getter.get_mass(mol_id_with_compartment).asNumber(units.g / units.mol)
 				stoichMatrixMass.append(molecularMass)
 
+			reaction_index += 1
+
+		# TODO(jerry): Move the rest to a subroutine for __init__ and __setstate__?
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
 
-		self.moleculeNames = molecules
-		self.ids_complexes = [self.moleculeNames[i] for i in np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]]
-		self.rxnIds = rxnIds
-		self.ratesFwd = np.array(ratesFwd)
-		self.ratesRev = np.array(ratesRev)
+		self.molecule_names = molecules
+		self.ids_complexes = [self.molecule_names[i] for i in np.where(np.any(self.stoich_matrix() > 0, axis=1))[0]]
+		self.rxn_ids = rxnIds
+		self.rates_fwd = np.array(ratesFwd)
+		self.rates_rev = np.array(ratesRev)
 
 		# Mass balance matrix
 		self._stoichMatrixMass = np.array(stoichMatrixMass)
-		self.balanceMatrix = self.stoichMatrix()*self.massMatrix()
+		self.balance_matrix = self.stoich_matrix() * self.mass_matrix()
 
 		# Find the mass balance of each equation in the balanceMatrix
-		massBalanceArray = self.massBalance()
+		massBalanceArray = self.mass_balance()
 
 		# The stoichometric matrix should balance out to numerical zero.
 		assert np.max(np.absolute(massBalanceArray)) < 1e-9
 
 		# Build matrices
-		self._makeMatrices()
 		self._populateDerivativeAndJacobian()
-		self._complexIdxs = np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]
-		self._monomerIdxs = [np.where(x < 0)[0] for x in self.stoichMatrix().T]
-		self._rxnNonZeroIdxs = [np.where(x != 0)[0] for x in self.stoichMatrix().T]
-		self._stoichMatrix = self.stoichMatrix()
-		self._stoichMatrixMonomers = self.stoichMatrixMonomers()
+		self._stoichMatrix = self.stoich_matrix()
 
-	def stoichMatrix(self):
+	def __getstate__(self):
+		"""Return the state to pickle, omitting derived attributes that
+		__setstate__() will recompute, esp. those like the rates for ODEs
+		that don't pickle.
+		"""
+		return data.dissoc_strict(self.__dict__, (
+			'_stoichMatrix',
+			'Rp', 'Pp', 'mets_to_rxn_fluxes',
+			'symbolic_rates', 'symbolic_rates_jacobian',
+			'_rates', '_rates_jacobian'))
+
+	def __setstate__(self, state):
+		"""Restore instance attributes, recomputing some of them."""
+		self.__dict__.update(state)
+		self._stoichMatrix = self.stoich_matrix()
+		self._populateDerivativeAndJacobian()
+
+	def stoich_matrix(self):
 		'''
 		Builds stoichiometry matrix
 		Rows: molecules
@@ -159,7 +200,7 @@ class Equilibrium(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
 		return out
 
-	def massMatrix(self):
+	def mass_matrix(self):
 		'''
 		Builds stoichiometry mass matrix
 		Rows: molecules
@@ -171,14 +212,14 @@ class Equilibrium(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
 		return out
 
-	def massBalance(self):
+	def mass_balance(self):
 		'''
 		Sum along the columns of the massBalance matrix to check for reaction
 		mass balance
 		'''
-		return np.sum(self.balanceMatrix, axis=0)
+		return np.sum(self.balance_matrix, axis=0)
 
-	def stoichMatrixMonomers(self):
+	def stoich_matrix_monomers(self):
 		"""
 		Builds a stoichiometric matrix where each column is a reaction that
 		forms a complex directly from its constituent monomers. Since some
@@ -191,15 +232,15 @@ class Equilibrium(object):
 		stoichMatrixMonomersV = []
 
 		for colIdx, id_complex in enumerate(self.ids_complexes):
-			D = self.getMonomers(id_complex)
+			D = self.get_monomers(id_complex)
 
-			rowIdx = self.moleculeNames.index(id_complex)
+			rowIdx = self.molecule_names.index(id_complex)
 			stoichMatrixMonomersI.append(rowIdx)
 			stoichMatrixMonomersJ.append(colIdx)
 			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
-				rowIdx = self.moleculeNames.index(subunitId)
+				rowIdx = self.molecule_names.index(subunitId)
 				stoichMatrixMonomersI.append(rowIdx)
 				stoichMatrixMonomersJ.append(colIdx)
 				stoichMatrixMonomersV.append(-1. * subunitStoich)
@@ -214,59 +255,13 @@ class Equilibrium(object):
 		return out
 
 	def _populateDerivativeAndJacobian(self):
-		'''
-		Creates callable functions for computing the derivative and the Jacobian.
-		'''
-		fixturesDir = filepath.makedirs(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"fixtures",
-			"equilibrium"
-			)
-		odeFile = os.path.join(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"reconstruction", "ecoli", "dataclasses", "process", "equilibrium_odes.py"
-			)
+		'''Compile callable functions for computing the derivative and the Jacobian.'''
+		self._makeMatrices()
+		self._make_rates()
 
-		needToCreate = False
-
-		if not os.path.exists(odeFile):
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
-			S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))
-			if not np.all(S == self.stoichMatrix()):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "ratesFwd.cPickle")):
-			ratesFwd =  cPickle.load(open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "rb"))
-			if not np.all(ratesFwd == self.ratesFwd):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "ratesRev.cPickle")):
-			ratesRev =  cPickle.load(open(os.path.join(fixturesDir, "ratesRev.cPickle"), "rb"))
-			if not np.all(ratesRev == self.ratesRev):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if needToCreate:
-			self._makeMatrices()
-			self._makeDerivative()
-			writeOdeFileWithRates(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
-			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
-			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
-			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
-			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-		else:
-			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
-			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
-			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
+		self._rates = build_ode.rates(self.symbolic_rates)
+		self._rates_jacobian = build_ode.rates_jacobian(
+			self.symbolic_rates_jacobian)
 
 	def _makeMatrices(self):
 		'''
@@ -274,156 +269,198 @@ class Equilibrium(object):
 		'''
 		EPS = 1e-9
 
-		S = self.stoichMatrix()
+		S = self.stoich_matrix()
 		Rp = -1. * (S < -1 * EPS) * S
 		Pp =  1. * (S >  1 * EPS) * S
 		self.Rp = Rp
 		self.Pp = Pp
 
-		metsToRxnFluxes = self.stoichMatrix().copy()
+		mets_to_rxn_fluxes = self.stoich_matrix().copy()
 
-		metsToRxnFluxes[(np.abs(metsToRxnFluxes) > EPS).sum(axis = 1) > 1, : ] = 0
-		for colIdx in xrange(metsToRxnFluxes.shape[1]):
+		mets_to_rxn_fluxes[(np.abs(mets_to_rxn_fluxes) > EPS).sum(axis = 1) > 1, : ] = 0
+		for colIdx in range(mets_to_rxn_fluxes.shape[1]):
 			try:
-				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
+				firstNonZeroIdx = np.where(np.abs(mets_to_rxn_fluxes[:, colIdx]) > EPS)[0][0]
 			except IndexError:
-				raise Exception, "Column %d of S matrix not linearly independent!" % colIdx
-			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
-			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
+				raise Exception(
+					"Column %d of S matrix not linearly independent!" % colIdx)
+			mets_to_rxn_fluxes[:firstNonZeroIdx, colIdx] = 0
+			mets_to_rxn_fluxes[(firstNonZeroIdx + 1):, colIdx] = 0
 
-		self.metsToRxnFluxes = metsToRxnFluxes.T
+		self.mets_to_rxn_fluxes = mets_to_rxn_fluxes.T
 
-	def _makeDerivative(self):
+	def _make_rates(self):
 		'''
-		Creates symbolic representation of the ordinary differential equations and the Jacobian.
-		Used during simulations.
+		Creates symbolic representation of the rates for ordinary differential
+		equations and the Jacobian. Used during simulations.
 		'''
-		S = self.stoichMatrix()
+		S = self.stoich_matrix()
 
-		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
-		ratesFwdStrings = ["kf[%d]" % x for x in xrange(S.shape[0])]
-		ratesRevStrings = ["kr[%d]" % x for x in xrange(S.shape[0])]
+		yStrings = ["y[%d]" % x for x in range(S.shape[0])]
+		ratesFwdStrings = ["kf[%d]" % x for x in range(S.shape[0])]
+		ratesRevStrings = ["kr[%d]" % x for x in range(S.shape[0])]
 		y = sp.symbols(yStrings)
 		ratesFwd = sp.symbols(ratesFwdStrings)
 		ratesRev = sp.symbols(ratesRevStrings)
-		dy = [sp.symbol.S.Zero] * S.shape[0]
 
-		for colIdx in xrange(S.shape[1]):
+		rates = []
+
+		for colIdx in range(S.shape[1]):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 
-			reactantFlux = self.ratesFwd[colIdx]
+			fwd_stoich = 1.
 			reactantFlux = ratesFwd[colIdx]
 			for negIdx in negIdxs:
-				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
+				stoich = -S[negIdx, colIdx]
+				if stoich == 1:
+					reactantFlux *= y[negIdx]
+				else:
+					if stoich > fwd_stoich:
+						fwd_stoich = stoich
+					reactantFlux *= y[negIdx]**stoich
 
-			productFlux = self.ratesRev[colIdx]
-			productFlux = ratesRev[colIdx]
+			# Need to scale the rate by the number of dissociation reactions
+			# which is the highest stoichiometry in the forward direction
+			if fwd_stoich > 1:
+				productFlux = ratesRev[colIdx]**fwd_stoich
+			else:
+				productFlux = ratesRev[colIdx]
 			for posIdx in posIdxs:
-				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
+				stoich = S[posIdx, colIdx]
+				if stoich == 1:
+					productFlux *= y[posIdx]
+				else:
+					# If this needs to be included, it may affect the rate
+					# calculation with multiple products so double check before
+					# implementing.  For now, the assumption is that there will
+					# only be one product and this verifies that assumption.
+					raise ValueError('Expected a single product (stoichiometry'
+						f' of 1) for equilibrium reaction {self.rxn_ids[colIdx]}')
 
-			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
-			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
+			rates.append(reactantFlux - productFlux)
 
-			for thisIdx in negIdxs:
-				dy[thisIdx] += fluxForNegIdxs
-			for thisIdx in posIdxs:
-				dy[thisIdx] += fluxForPosIdxs
-
-		dy = sp.Matrix(dy)
+		dy = sp.Matrix(rates)
 		J = dy.jacobian(y)
 
-		self.derivativesJacobianSymbolic = J
-		self.derivativesSymbolic = dy
+		self.symbolic_rates = dy
+		self.symbolic_rates_jacobian = J
 
-	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
-		'''
-		Calculate change in molecule counts and flux through reactions until steady state.
-		'''
-		rxnFluxes = np.zeros(self._stoichMatrix.shape[1])
-		yMoleculesFinal = np.zeros_like(moleculeCounts)
-		dYMolecules = np.zeros_like(moleculeCounts)
-		monomersTotal = moleculeCounts + np.dot(self._stoichMatrixMonomers, -1. * moleculeCounts[self._complexIdxs])
-		countsToMolarLog = -1. * (np.log10(cellVolume) + np.log10(nAvogadro))
-		for colIdx in xrange(self._stoichMatrix.shape[1]):
-			dYMolecules[self._rxnNonZeroIdxs[colIdx]] = (self._solveSS(
-				monomersTotal,
-				self._stoichMatrix[:, colIdx],
-				np.log10(self.ratesRev[colIdx]) - np.log10(self.ratesFwd[colIdx]),
-				countsToMolarLog,
-				self._monomerIdxs[colIdx],
-				self._rxnNonZeroIdxs[colIdx],
-				) - moleculeCounts[self._rxnNonZeroIdxs[colIdx]])
+	def derivatives(self, t, y):
+		return self._stoichMatrix.dot(self._rates[0](t, y, self.rates_fwd, self.rates_rev))
 
-		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
+	def derivatives_jacobian(self, t, y):
+		return self._stoichMatrix.dot(self._rates_jacobian[0](t, y, self.rates_fwd, self.rates_rev))
+
+	def derivatives_jit(self, t, y):
+		return self._stoichMatrix.dot(self._rates[1](t, y, self.rates_fwd, self.rates_rev))
+
+	def derivatives_jacobian_jit(self, t, y):
+		return self._stoichMatrix.dot(self._rates_jacobian[1](t, y, self.rates_fwd, self.rates_rev))
+
+	def fluxes_and_molecules_to_SS(self, moleculeCounts, cellVolume, nAvogadro,
+			random_state, time_limit=1e20, max_iter=100, jit=True):
+		y_init = moleculeCounts / (cellVolume * nAvogadro)
+
+		# In this version of SciPy, solve_ivp does not support args so need to
+		# select the derivatives functions to use. Could be simplified to single
+		# functions that take a jit argument from solve_ivp in the future.
+		if jit:
+			derivatives = self.derivatives_jit
+			derivatives_jacobian = self.derivatives_jacobian_jit
+		else:
+			derivatives = self.derivatives
+			derivatives_jacobian = self.derivatives_jacobian
+
+		# Note: odeint has issues solving with a long time step so need to use solve_ivp
+		for method in ['LSODA', 'BDF']:
+			try:
+				sol = integrate.solve_ivp(
+					derivatives, [0, time_limit], y_init,
+					method=method, t_eval=[0, time_limit],
+					jac=derivatives_jacobian)
+				break
+			except ValueError as e:
+				print(f'Warning: switching solver method in equilibrium, {e!r}')
+		else:
+			raise RuntimeError('Could not solve ODEs in equilibrium to SS.'
+				' Try adjusting time step or changing methods.')
+
+		y = sol.y.T
+
+		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
+			raise ValueError('Have negative values at equilibrium steady state -- probably due to numerical instability.')
+		if np.linalg.norm(derivatives(0, y[-1, :]), np.inf) * (cellVolume * nAvogadro) > 1:
+			raise RuntimeError('Did not reach steady state for equilibrium.')
+		y[y < 0] = 0
+		yMolecules = y * (cellVolume * nAvogadro)
+
+		# Pick rounded solution that does not cause negative counts
+		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
+		for i in range(max_iter):
+			rxnFluxes = stochasticRound(random_state, np.dot(self.mets_to_rxn_fluxes, dYMolecules))
+			if np.all(moleculeCounts + self._stoichMatrix.dot(rxnFluxes) >= 0):
+				break
+		else:
+			raise ValueError('Negative counts in equilibrium steady state.')
+
 		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
 		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
 		moleculesNeeded = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
+
 		return rxnFluxes, moleculesNeeded
 
-
-	def _solveSS(self, x, S, kdLog, countsToMolarLog, monomerIdxs, nonZeroIdxs):
-		def error(x, S, kdLog, countsToMolarLog):
-			return np.abs(np.dot(-S, countsToMolarLog + np.log10(x)) - kdLog)
-
-		rxnFlux = 0.
-		maxIters = int(np.ceil(np.min(-x[monomerIdxs] / S[monomerIdxs])))
-
-		if maxIters > 0:
-			allAttempts = (np.arange(1, maxIters + 1).reshape(1, -1) * S[nonZeroIdxs].reshape(-1, 1) + np.ones(maxIters).reshape(1, -1) * x[nonZeroIdxs].reshape(-1, 1))
-			h = np.argmin(np.abs(np.sum(-1 * np.ones(maxIters).reshape(1, -1) * S[nonZeroIdxs].reshape(-1, 1) * (countsToMolarLog + np.log10(allAttempts)), axis = 0) - kdLog))
-			rxnFlux = (h + 1)
-
-		return x[nonZeroIdxs] + rxnFlux * S[nonZeroIdxs]
-
-	def getMonomers(self, cplxId):
+	def get_monomers(self, cplxId):
 		'''
 		Returns subunits for a complex (or any ID passed). If the ID passed is
 		already a monomer returns the monomer ID again with a stoichiometric
 		coefficient of one.
 		'''
-		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), self.moleculeNames)
-		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
+		info = self._moleculeRecursiveSearch(cplxId, self._stoichMatrix, self.molecule_names)
+		return {'subunitIds': np.array(list(info.keys())), 'subunitStoich': np.array(list(info.values()))}
 
-	def getMetabolite(self, cplxId):
-		D = self.getMonomers(cplxId)
+	def get_metabolite(self, cplxId):
+		D = self.get_monomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
-			if subunit in self.metaboliteSet:
+			if subunit in self.metabolite_set:
 				return subunit
 
-	def getMetaboliteCoeff(self, cplxId):
-		D = self.getMonomers(cplxId)
+	def get_metabolite_coeff(self, cplxId):
+		D = self.get_monomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit, stoich in zip(D["subunitIds"], D["subunitStoich"]):
-			if subunit in self.metaboliteSet:
+			if subunit in self.metabolite_set:
 				return stoich
 
-	def getUnbound(self, cplxId):
-		D = self.getMonomers(cplxId)
+	def get_unbound(self, cplxId):
+		D = self.get_monomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
-			if subunit not in self.metaboliteSet:
+			if subunit not in self.metabolite_set:
 				return subunit
 
-	def getFwdRate(self, cplxId):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		return self.ratesFwd[rxnIdx]
+	def get_fwd_rate(self, cplxId):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		return self.rates_fwd[rxnIdx]
 
-	def getRevRate(self, cplxId):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		return self.ratesRev[rxnIdx]
+	def get_rev_rate(self, cplxId):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		return self.rates_rev[rxnIdx]
 
-	def setFwdRate(self, cplxId, rate):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		self.ratesFwd[rxnIdx] = rate
+	def set_fwd_rate(self, cplxId, rate):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		self.rates_fwd[rxnIdx] = rate
 
-	def setRevRate(self, cplxId, rate):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		self.ratesRev[rxnIdx] = rate
+	def set_rev_rate(self, cplxId, rate):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		self.rates_rev[rxnIdx] = rate
 
 	def _findRow(self, product, speciesList):
 		try:
@@ -450,10 +487,10 @@ class Equilibrium(object):
 			if i == row:
 				continue
 			val = stoichMatrix[i][col]
-			sp = speciesList[i]
+			species = speciesList[i]
 
 			if val != 0:
-				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList)
+				x = self._moleculeRecursiveSearch(species, stoichMatrix, speciesList)
 				for j in x:
 					if j in total:
 						total[j] += x[j]*(np.absolute(val))

@@ -1,17 +1,15 @@
 """
 Listener
-
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/10/2014
 """
+
+from __future__ import absolute_import, division, print_function
 
 from enum import Enum
 
 class Listener(object):
-	_name = None
+	_name = 'Listener'
 
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		pass
 
 	# Construct state-process graph, calculate constants
@@ -22,7 +20,7 @@ class Listener(object):
 
 		self._external_states = sim.external_states
 
-		if self._sim.loggers.has_key("Shell"):
+		if "Shell" in self._sim.loggers:
 			self._shellLogger = self._sim.loggers["Shell"]
 
 		else:
@@ -41,23 +39,16 @@ class Listener(object):
 		self.update()
 
 
-	def updatePostRequest(self):
-		pass
-
-
 	def update(self):
 		pass
 
 
-	# Saving and loading
+	# Saving
 
 	def tableCreate(self, tableWriter):
 		pass
 
 	def tableAppend(self, tableWriter):
-		pass
-
-	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 
@@ -96,3 +87,4 @@ class WriteMethod(Enum):
 	update = 1
 	increment = 2
 	append = 3
+	fill = 4

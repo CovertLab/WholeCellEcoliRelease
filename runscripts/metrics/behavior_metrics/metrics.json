@@ -1,0 +1,526 @@
+{
+    "proteinMass": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "proteinMass"
+            }
+        },
+        "operations": {
+            "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
+                "range": [2.1134, 2.1135]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["mass"],
+                "range": [241.33, 241.34]
+            },
+            "stdev": {
+                "function": "stdev",
+                "args": ["mass"],
+                "range": [51.859, 51.86]
+            },
+            "min": {
+                "function": "min",
+                "args": ["mass"],
+                "range": [162.16, 162.17]
+            },
+            "max": {
+                "function": "max",
+                "args": ["mass"],
+                "range": [342.72, 342.73]
+            }
+        }
+    },
+    "tRnaMass": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "tRnaMass"
+            }
+        },
+        "operations": {
+            "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
+                "range": [2.2824, 2.2825]
+            }
+        }
+    },
+    "rRnaMass": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "rRnaMass"
+            }
+        },
+        "operations": {
+            "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
+                "range": [2.2515, 2.2516]
+            }
+        }
+    },
+    "mRnaMass": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "mRnaMass"
+            }
+        },
+        "operations": {
+            "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
+                "range": [2.4329, 2.433]
+            }
+        }
+    },
+    "dnaMass": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "dnaMass"
+            }
+        },
+        "operations": {
+            "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
+                "range": [1.9815, 1.9816]
+            }
+        }
+    },
+    "smallMoleculeMass": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "smallMoleculeMass"
+            }
+        },
+        "operations": {
+            "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
+                "range": [2.0782, 2.0783]
+            }
+        }
+    },
+    "ribosome": {
+        "data": {
+            "active_counts": {
+                "table": "UniqueMoleculeCounts",
+                "column": "uniqueMoleculeCounts",
+                "subcolumn": "active_ribosome"
+            },
+            "s30_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "CPLX0-3953[c]"
+            },
+            "s50_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "CPLX0-3962[c]"
+            },
+           "volume": {
+                "table": "Mass",
+                "column": "cellVolume"
+           }
+        },
+        "operations": {
+            "inactive_counts": {
+                "function": "elementwise_min",
+                "args": ["s30_counts", "s50_counts"]
+            },
+            "active_fraction": {
+                "function": "calc_active_fraction",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "total_counts": {
+                "function": "add_two_arrays",
+                "args": ["inactive_counts", "active_counts"]
+            },
+            "concentration": {
+                "function": "elementwise_divide",
+                "args": ["total_counts", "volume"]
+            },
+            "mean_concentration": {
+                "function": "mean",
+                "args": ["concentration"],
+                "range": [16186, 16187]
+            },
+            "mean_active_fraction": {
+                "function": "mean",
+                "args": ["active_fraction"],
+                "range": [0.8677, 0.867702]
+            }
+        }
+    },
+    "rnaPolymerase": {
+        "data": {
+            "active_counts": {
+                "table": "UniqueMoleculeCounts",
+                "column": "uniqueMoleculeCounts",
+                "subcolumn": "active_RNAP"
+            },
+           "inactive_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "APORNAP-CPLX[c]"
+           },
+           "volume": {
+                "table": "Mass",
+                "column": "cellVolume"
+           }
+        },
+        "operations": {
+            "active_fraction": {
+                "function": "calc_active_fraction",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "mean_active_fraction": {
+                "function": "mean",
+                "args": ["active_fraction"],
+                "range": [0.24678, 0.24679]
+            },
+            "total_counts": {
+                "function": "add_two_arrays",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "concentration": {
+                "function": "elementwise_divide",
+                "args": ["total_counts", "volume"]
+            },
+            "mean_concentration": {
+                "function": "mean",
+                "args": ["concentration"],
+                "range": [3294.6, 3294.7]
+            }
+        }
+    },
+    "doublingTime": {
+        "data": {
+            "time": {
+                "table": "Main",
+                "column": "time"
+            },
+            "start_time": {
+                "table": "Main",
+                "attribute": "initialTime"
+            }
+        },
+        "operations": {
+            "end_time": {
+                "function": "last_elem",
+                "args": ["time"]
+            },
+            "doubling_time": {
+                "function": "-",
+                "args": ["end_time", "start_time"],
+                "range": [2910, 2920]
+            }
+        }
+    },
+    "translationElongationRate": {
+        "data": {
+            "rate": {
+                "table": "RibosomeData",
+                "column": "effectiveElongationRate"
+            }
+        },
+        "operations": {
+            "mean": {
+                "function": "mean",
+                "args": ["rate"],
+                "range": [15.793, 15.794]
+            }
+        }
+    },
+    "transcriptionElongationRate": {
+        "data": {
+            "bases": {
+                "table": "TranscriptElongationListener",
+                "column": "countNTPsUSed"
+            },
+            "time": {
+                "table": "Main",
+                "column": "time"
+            },
+            "initial_time": {
+                "table": "Main",
+                "attribute": "initialTime"
+            },
+            "slice_start": {
+                "constant": 1
+            },
+            "slice_end": {
+                "constant": null
+            }
+        },
+        "operations": {
+            "time_deltas": {
+                "function": "pairwise_diffs",
+                "args": ["time"]
+            },
+            "all_but_first_bases": {
+                "function": "slice",
+                "args": ["bases", "slice_start", "slice_end"]
+            },
+            "rate": {
+                "function": "elementwise_divide",
+                "args": ["all_but_first_bases", "time_deltas"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["rate"],
+                "range": [59155, 59156]
+            }
+        }
+    },
+    "replication_elongation_rate": {
+        "data": {
+            "fork_coors": {
+                "table": "ReplicationData",
+                "column": "fork_coordinates"
+            },
+            "first_axis_index": {
+                "constant": 0
+            }
+        },
+        "operations": {
+            "diffs": {
+                "function": "pairwise_diffs_axis",
+                "args": ["fork_coors", "first_axis_index"]
+            },
+            "flattened": {
+                "function": "ravel",
+                "args": ["diffs"]
+            },
+            "no_nan": {
+                "function": "filter_no_nan",
+                "args": ["flattened"]
+            },
+            "absolute_value": {
+                "function": "absolute",
+                "args": ["no_nan"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["absolute_value"],
+                "range": [1932.4, 1932.5]
+            }
+        }
+    },
+    "fluxomeCorrelation": {
+        "data": {
+            "FLUX_UNITS": {
+                "import": "models.ecoli.analysis.single.centralCarbonMetabolismScatter.FLUX_UNITS"
+            },
+            "sim_reaction_ids": {
+                "table": "FBAResults",
+                "attribute": "reactionIDs"
+            },
+            "sim_fluxes_unprocessed": {
+                "table": "FBAResults",
+                "column": "reactionFluxes",
+                "units": {
+                    "import": "models.ecoli.analysis.single.centralCarbonMetabolismScatter.FLUX_UNITS"
+                }
+            },
+            "toya_fluxes_unprocessed": {
+                "cPickle": "validation_data",
+                "dotted_name": "reactionFlux.toya2010fluxes",
+                "dict_key": "reactionFlux"
+            },
+            "toya_reaction_ids": {
+                "cPickle": "validation_data",
+                "dotted_name": "reactionFlux.toya2010fluxes",
+                "dict_key": "reactionID"
+            },
+            "cell_mass": {
+                "table": "Mass",
+                "column": "cellMass",
+                "units": "fg"
+            },
+            "dry_mass": {
+                "table": "Mass",
+                "column": "dryMass",
+                "units": "fg"
+            },
+            "cell_density": {
+                "constant": 1100,
+                "units": "g/L"
+            }
+        },
+        "operations": {
+            "toya_fluxes_adjusted": {
+                "function": "adjust_toya_data",
+                "args": ["toya_fluxes_unprocessed", "cell_mass", "dry_mass", "cell_density"]
+            },
+            "sim_fluxes": {
+                "function": "process_simulated_fluxes",
+                "args": ["toya_reaction_ids", "sim_reaction_ids", "sim_fluxes_unprocessed"]
+            },
+            "toya_fluxes": {
+                "function": "process_toya_data",
+                "args": ["toya_reaction_ids", "toya_reaction_ids", "toya_fluxes_adjusted"]
+            },
+            "sim_fluxes_unitless": {
+                "function": "strip_units",
+                "args": ["sim_fluxes", "FLUX_UNITS"]
+            },
+            "toya_fluxes_unitless": {
+                "function": "strip_units",
+                "args": ["toya_fluxes", "FLUX_UNITS"]
+            },
+            "correlation": {
+                "function": "pearson_correlation",
+                "args": ["sim_fluxes_unitless", "toya_fluxes_unitless"],
+                "range": [0.63497, 0.63498]
+            }
+        }
+    },
+    "proteome_correlation": {
+        "data": {
+            "sim_monomer_ids": {
+                "cPickle": "metrics_data",
+                "dict_key": "translation_monomer_ids"
+            },
+            "wisniewski_ids": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.wisniewski2014Data",
+                "dict_key": "monomerId"
+            },
+            "schmidt_ids": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.schmidt2015Data",
+                "dict_key": "monomerId"
+            },
+            "monomer_counts": {
+                "table": "MonomerCounts",
+                "column": "monomerCounts"
+            },
+            "wisniewski_counts": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.wisniewski2014Data",
+                "dict_key": "avgCounts"
+            },
+            "schmidt_counts": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.schmidt2015Data",
+                "dict_key": "glucoseCounts"
+            }
+        },
+        "operations": {
+            "sim_wisniewski_counts": {
+                "function": "get_simulated_validation_counts",
+                "args": ["monomer_counts", "wisniewski_ids", "sim_monomer_ids"]
+            },
+            "sim_schmidt_counts": {
+                "function": "get_simulated_validation_counts",
+                "args": ["monomer_counts", "schmidt_ids", "sim_monomer_ids"]
+            },
+            "wisniewski_correlation": {
+                "function": "pearson_correlation_log10",
+                "args": ["sim_wisniewski_counts", "wisniewski_counts"],
+                "range": [0.61569, 0.6157]
+            },
+            "schmidt_correlation": {
+                "function": "pearson_correlation_log10",
+                "args": ["sim_schmidt_counts", "schmidt_counts"],
+                "range": [0.75000, 0.75001]
+            }
+        }
+    },
+    "transcriptome_correlation": {
+        "data": {
+            "molecule_ids": {
+                "table": "BulkMolecules",
+                "attribute": "objectNames"
+            },
+            "all_counts": {
+                "table": "BulkMolecules",
+                "column": "counts"
+            },
+            "expected_rna_counts": {
+                "cPickle": "metrics_data",
+                "dict_key": "expected_mRNA_counts"
+            },
+            "rna_ids": {
+                "cPickle": "metrics_data",
+                "dict_key": "rna_ids"
+            },
+            "last_index": {
+                "constant": -1
+            }
+        },
+        "operations": {
+            "rna_indices": {
+                "function": "find_indices_bulk",
+                "args": ["molecule_ids", "rna_ids"]
+            },
+            "rna_counts": {
+                "function": "np_pick",
+                "args": ["all_counts", ["last_index", ["rna_indices"]]]
+            },
+            "expected_counts_sum": {
+                "function": "sum",
+                "args": ["expected_rna_counts"]
+            },
+            "counts_sum": {
+                "function": "sum",
+                "args": ["rna_counts"]
+            },
+            "expected_counts_frac": {
+                "function": "/",
+                "args": ["expected_rna_counts", "expected_counts_sum"]
+            },
+            "expected_counts_scaled": {
+                "function": "*",
+                "args": ["expected_counts_frac", "counts_sum"]
+            },
+            "correlation": {
+                "function": "pearson_correlation",
+                "args": ["rna_counts", "expected_counts_scaled"]
+            }
+        }
+    },
+    "limiting_metabolites": {
+        "data": {
+            "metabolite_counts": {
+                "table": "EnzymeKinetics",
+                "column": "metaboliteCountsFinal"
+            },
+            "metabolite_names": {
+                "table": "EnzymeKinetics",
+                "attribute": "metaboliteNames"
+            },
+            "WINDOW": {
+                "import": "models.ecoli.analysis.multigen.limitedMetabolites.WINDOW"
+            },
+            "REF_COL_INDEX": {
+                "constant": 1
+            }
+        },
+        "operations": {
+            "normalized_counts": {
+                "function": "normalize_to_column",
+                "args": ["metabolite_counts", "REF_COL_INDEX"]
+            },
+            "limiting_metabolites": {
+                "function": "find_limiting_metabolites",
+                "args": ["normalized_counts", "metabolite_names", "WINDOW"],
+                "expected_set": ["GLT[c]", "VAL[c]"]
+            },
+            "num_limiting_metabolites": {
+                "function": "len",
+                "args": ["limiting_metabolites"],
+                "range": [2, 2]
+            }
+        }
+    }
+}

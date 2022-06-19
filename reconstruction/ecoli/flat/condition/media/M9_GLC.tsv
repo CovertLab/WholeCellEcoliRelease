@@ -1,0 +1,23 @@
+# M9 media + 0.4% glucose (with added gases and trace metals)
+"molecule id"	"concentration (units.mmol / units.L)"
+# Media recipe from EcoCyc: MIX0-51
+"NA+"	103.7
+"Pi"	69.454
+"CL-"	27.25
+"GLC"	22.203
+"K+"	21.883
+"AMMONIUM"	18.695
+"SULFATE"	2
+"MG+2"	2
+"WATER"	Infinity
+# Added gases
+"CARBON-DIOXIDE"	Infinity
+"OXYGEN-MOLECULE"	Infinity
+# Added trace metals
+"CA+2"	Infinity
+"CO+2"	Infinity
+"FE+2"	Infinity
+"MN+2"	Infinity
+"NI+2"	Infinity
+"ZN+2"	Infinity
+"L-SELENOCYSTEINE"	Infinity

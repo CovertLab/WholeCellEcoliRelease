@@ -1,16 +1,10 @@
-#!/usr/bin/env python
-
 """
 FBAResults
 
 Records dynamics of FBA output.
-
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/24/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -30,28 +24,14 @@ class FBAResults(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(FBAResults, self).initialize(sim, sim_data)
 
-		self.metabolism = sim.processes["Metabolism"]
+		self.metabolism = sim.processes["Metabolism"].model
+		self.media_id = sim.external_states['Environment'].current_media_id
 
 		self.objectiveValue = 0.0
 
-		self.metaboliteNamesFromNutrients = set()
-		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[
-			sim_data.external_state.environment.nutrients_time_series_label
-			]:
-
-			self.metaboliteNamesFromNutrients.update(
-				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
-					)
-				)
-		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
-
-
-		if self.metabolism.run_flux_sensitivity:
-			self.sensitivity_reactions = self.metabolism.kineticsConstrainedReactions + ['All enabled']
-		else:
-			self.sensitivity_reactions = []
-		self.n_rxns_sensitivity = len(self.sensitivity_reactions)
+		# exchange with environment
+		self.all_external_exchange_molecules = sim_data.external_state.all_external_exchange_molecules
+		self.conc_update_molecules = sim.processes["Metabolism"].conc_update_molecules
 
 	# Allocate memory
 	def allocate(self):
@@ -71,38 +51,67 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.reducedCosts = np.zeros(len(self.reactionIDs), np.float64)
 		self.homeostaticObjectiveValues = np.zeros(len(self.homeostaticTargetMolecules))
 		self.kineticObjectiveValues = np.zeros(len(self.kineticTargetFluxNames))
-		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
+		self.deltaMetabolites = np.zeros(len(self.metabolism.metaboliteNamesFromNutrients), np.float64)
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
 
-		self.succinate_flux_sensitivity = np.zeros(self.n_rxns_sensitivity)
-		self.isocitrate_flux_sensitivity = np.zeros(self.n_rxns_sensitivity)
-
+		# Args for metabolism functions
+		self.conc_updates = np.zeros(len(self.conc_update_molecules))
+		self.catalyst_counts = np.zeros(len(self.metabolism.catalyst_ids))
+		self.translation_gtp = 0.
+		self.coefficient = 0.
+		self.unconstrained_molecules = [False] * len(self.all_external_exchange_molecules)
+		self.constrained_molecules = [False] * len(self.all_external_exchange_molecules)
+		self.uptake_constraints = [np.nan] * len(self.all_external_exchange_molecules)
 
 	def tableCreate(self, tableWriter):
+		subcolumns = {
+			'reactionFluxes': 'reactionIDs',
+			'externalExchangeFluxes': 'externalMoleculeIDs',
+			'shadowPrices': 'outputMoleculeIDs',
+			'reducedCosts': 'reactionIDs',
+			'homeostaticObjectiveValues': 'homeostaticTargetMolecules',
+			'kineticObjectiveValues': 'kineticTargetFluxNames',
+			'deltaMetabolites': 'metaboliteNames',
+			'targetConcentrations': 'homeostaticTargetMolecules',
+			'importConstraint': 'all_external_exchange_molecules',
+			'importExchange': 'all_external_exchange_molecules',
+			'conc_updates': 'conc_update_molecules',
+			'catalyst_counts': 'catalyst_ids',
+			}
+
 		tableWriter.writeAttributes(
-			reactionIDs = list(self.reactionIDs),
-			externalMoleculeIDs = self.externalMoleculeIDs,
-			outputMoleculeIDs = self.outputMoleculeIDs,
-			homeostaticTargetMolecules = self.homeostaticTargetMolecules,
-			kineticTargetFluxNames = self.kineticTargetFluxNames,
-			metaboliteNames = self.metaboliteNamesFromNutrients,
-			sensitivity_reactions = self.sensitivity_reactions,
+			reactionIDs=list(self.reactionIDs),
+			externalMoleculeIDs=self.externalMoleculeIDs,
+			outputMoleculeIDs=self.outputMoleculeIDs,
+			homeostaticTargetMolecules=self.homeostaticTargetMolecules,
+			kineticTargetFluxNames=self.kineticTargetFluxNames,
+			metaboliteNames=self.metabolism.metaboliteNamesFromNutrients,
+			all_external_exchange_molecules=self.all_external_exchange_molecules,
+			conc_update_molecules=self.conc_update_molecules,
+			catalyst_ids=self.metabolism.catalyst_ids,
+			subcolumns=subcolumns,
 			)
 
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			time = self.time(),
-			simulationStep = self.simulationStep(),
-			reactionFluxes = self.reactionFluxes,
-			externalExchangeFluxes = self.externalExchangeFluxes,
-			shadowPrices = self.shadowPrices,
-			reducedCosts = self.reducedCosts,
-			objectiveValue = self.objectiveValue,
-			homeostaticObjectiveValues = self.homeostaticObjectiveValues,
-			kineticObjectiveValues = self.kineticObjectiveValues,
-			deltaMetabolites = self.deltaMetabolites,
-			targetConcentrations = self.targetConcentrations,
-			succinate_flux_sensitivity = self.succinate_flux_sensitivity,
-			isocitrate_flux_sensitivity = self.isocitrate_flux_sensitivity,
+			time=self.time(),
+			simulationStep=self.simulationStep(),
+			reactionFluxes=self.reactionFluxes,
+			externalExchangeFluxes=self.externalExchangeFluxes,
+			shadowPrices=self.shadowPrices,
+			reducedCosts=self.reducedCosts,
+			objectiveValue=self.objectiveValue,
+			homeostaticObjectiveValues=self.homeostaticObjectiveValues,
+			kineticObjectiveValues=self.kineticObjectiveValues,
+			deltaMetabolites=self.deltaMetabolites,
+			targetConcentrations=self.targetConcentrations,
+			media_id=self.media_id,
+			conc_updates=self.conc_updates,
+			catalyst_counts=self.catalyst_counts,
+			translation_gtp=self.translation_gtp,
+			coefficient=self.coefficient,
+			unconstrained_molecules=self.unconstrained_molecules,
+			constrained_molecules=self.constrained_molecules,
+			uptake_constraints=self.uptake_constraints,
 			)

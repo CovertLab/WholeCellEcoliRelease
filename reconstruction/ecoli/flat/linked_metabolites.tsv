@@ -1,0 +1,5 @@
+# Links concentrations of related metabolites in the model to keep a constant proportion.
+# The lead should have a mechanism for a variable concentration and linked should otherwise
+# be static.
+"Lead metabolite"	"Linked metabolite"	"_notes"
+"MET[c]"	"S-ADENOSYLMETHIONINE[c]"	"Met is variable through amino acid supply in translation, SAM regulates Met synthesis through MetJ binding so low Met should lead to increased synthesis through SAM"

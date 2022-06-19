@@ -1,0 +1,171 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+\usepackage{amsmath}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Transcription}
+
+\subparagraph{Model implementation.}
+The \emph{E. coli} model assumes RNA polymerase exists in two states: free and actively transcribing. Every time step, free RNA polymerase transitions to the actively transcribing state to maintain an experimentally-observed active fraction of RNA polymerase. This is a simplification compared to \emph{M. genitalium} model, which modeled RNA polymerase as existing in 4 states: free, non-specifically bound on a chromosome, bound to a promoter, and actively transcribing a gene.  The \emph{E. coli} model does not yet include sigma, elongation or termination factors. The \textit{E. coli} model also currently treats each gene as its own transcription unit.
+Transcription occurs through the action of two processes in the model: \texttt{TranscriptInitiation} (Algorithm \ref{transcript_initiation_algorithm}) and \texttt{TrancriptElongation} (Algorithm \ref{transcript_elongation_algorithm}).
+
+\subparagraph{Initiation.}
+\texttt{TranscriptInitiation} models the binding of RNA polymerase to each gene. The number of initiation events per gene is determined in a probabilistic manner and dependent on the number of free RNA polymerases and each gene's synthesis probability. The number of RNA polymerases to activate in each time step is determined such that the average fraction of RNA polymerases that are active throughout the simulation matches measured fractions, which are dependent on the cellular growth rate. This is done by assuming a steady state concentration of active RNA polymerases (and therefore a constant active fraction):
+\begin{gather}
+    \frac{dR_{act}}{dt} = p_{act}\cdot R_{free} - r\cdot R_{act} = 0 \\
+    p_{act} = \frac{r\cdot R_{act}}{R_{free}}
+\end{gather}
+\noindent where $R_{act}$ is the concentration of active RNA polymerases, $R_{free}$ is the concentration of free RNA polymerases, $p_{act}$ is the activation probability and $r$ is the expected termination rate for active RNA polymerases. Using the definition of the active fraction, $f_{act} = \frac{R_{act}}{R_{act} + R_{free}}$, $p_{act}$ can be defined in terms of the desired active fraction:
+\begin{equation}
+    p_{act} = \frac{r\cdot f_{act}}{1 - f_{act}}
+\end{equation}
+\noindent This activation probability is then used to determine how many free RNA polymerases will initiate.  These newly initiated RNA polymerases are distributed to individual genes based on the synthesis probability for each gene, which is determined based on another steady state assumption for each mRNA concentration:
+\begin{gather}
+    \frac{dm_i}{dt} = v_{synth, i} - m_i \cdot \left(\frac{\ln 2}{\tau} + \frac{\ln 2}{t_{\frac{1}{2}, i}}\right) = 0 \\
+    v_{synth, i} = m_i \cdot \left(\frac{\ln 2}{\tau} + \frac{\ln 2}{t_{\frac{1}{2}, i}}\right)
+\end{gather}
+\noindent where $v_{synth, i}$ is the synthesis rate of each mRNA, $m_i$ is the concentration of each mRNA, $\tau$ is the doubling time and $t_{\frac{1}{2}, i}$ is the half life for each mRNA (see Section \ref{sec:rna-deg}). Using RNA expression data for $m_i$, the rate of synthesis for each gene can be determined.  Synthesis rates are then normalized as below to determine a synthesis probability for each gene:
+\begin{equation}
+    p_{synth, i} = \frac{v_{synth, i}}{\sum\limits_j v_{synth, j}}
+\end{equation}
+
+\noindent where $p_{synth, i}$ is the synthesis probability for each gene. Gene synthesis probabilities are further dependent on transcription factor binding and regulation as discussed in the next section (Section \ref{sec:transcription_reg}).
+
+\subparagraph{Elongation.}
+\texttt{TranscriptElongation} models nucleotide polymerization into RNA molecules by RNA polymerases. Polymerization occurs across all polymerases simultaneously and resources are allocated to maximize the progress of all polymerases up to the limit of the expected polymerase elongation rate and available nucleotides. The termination of RNA elongation occurs once a RNA polymerase has reached the end of the annotated gene. \\
+
+\subparagraph{Model assumptions.}
+The \emph{E. coli} genome contains seven copies of the rRNA operon, and all seven copies contribute to the transcription of ribosomal RNAs. The sequences of the rRNA genes in these operons are known to be slightly different from one another, but it is unclear whether these small differences in sequence lead to significant functional differences between these molecules \cite{maeda2015strength}. In our model, we make the assumption that all seven rRNA operons produce rRNAs that have sequences identical to rRNAs from the \emph{rrnA} operon, such that there is only a single representation for each type of rRNA molecule (23S, 16S, 5S) inside the model. This significantly simplifies the modeling of the complexation reactions that produce the ribosomal subunits, as we do not need to consider all combinations of rRNAs that may be complexed together to form distinct ribosomal subunits.
+
+\begin{algorithm}[H]
+\caption{RNA polymerase initiation on DNA}
+\label{transcript_initiation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{multinomial}{multinomial}
+  \Input{$f_{act}$ fraction of RNA polymerases that are active}
+    \Input{$r$ expected termination rate for active RNA polymerases}
+  \Input{$p_{\text{synth,i}}$ RNA synthesis probability for each gene where $i = 1$ \KwTo $n_{gene}$}
+    \Input{$c_{RNAP,f}$ count of free RNA polymerase}
+    \Input{\multinomial{} function that draws samples from a multinomial distribution}
+
+  \textbf{1.} Calculate probability ($p_{act}$) of a free RNA polymerase binding to a gene.\\
+    \-\hspace{1cm} $p_{act} = \frac{r \cdot f_{act}}{1 - f_{act}}$
+
+    \textbf{2.} Calculate the number of RNA polymerases that will bind and activate ($c_{RNAP,b}$).\\
+    \-\hspace{1cm} $c_{RNAP,b} = p_{act} \cdot c_{RNAP,f}$
+
+    \textbf{3} Sample multinomial distribution $c_{RNAP,b}$ times weighted by $p_{synth,i}$ to determine which genes receive a RNA polymerase and initiate ($n_{init,i}$).\\
+    \-\hspace{1cm} $n_{init,i} =$ \multinomial{$c_{RNAP,b}, p_{\text{synth}, i}$}
+
+    \textbf{4} Assign $n_{init,i}$ RNA polymerases to gene $i$. Decrement free RNA polymerase counts.\\
+
+    \Result{RNA polymerases bind to genes based on the number of free RNA polymerases and the synthesis probability for each gene.}
+
+\end{algorithm}
+\newpage
+
+
+
+\begin{algorithm}[H]
+\caption{mRNA elongation and termination}
+\label{transcript_elongation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{all}{all}
+
+  \Input{$e$ expected RNA polymerase elongation rate in given environment}
+  \Input{$L_i$ length of each gene $i = 1$ \KwTo $n_{gene}$ for each coding gene.}
+    \Input{$p_j$ gene position of RNA polymerase $j = 1$ \KwTo $n_{RNAP}$}
+    \Input{$c_{nt,k}$ counts of nucleotides $k = 1$ \KwTo $4$ for each nucleotide type (A, C, G, U)}
+  \Input{$\Delta t$ length of current time step}
+    \SetNoFillComment
+    \tcc{Elongate RNA transcripts up to limits of sequence or nucleotides}
+    \For{each RNA polymerase j on gene i}{
+      \textbf{1.} Based on RNA polymerase position $p_j$ on a gene $i$ and maximal elongation rate $e$ determine ``stop condition'' ($s_j$) for RNA polymerase $j$ assuming no nucleotide limitation.\\
+      \-\hspace{1cm} $s_j = $ \min{$p_j + e \cdot \Delta t$, $L_i$}\\
+        Stop condition is either maximal elongation rate scaled by the time step or the full length of sequence (i.e. the RNA polymerase will terminate in this time step).\\
+
+      \textbf{2.} Derive sequence between RNA polymerase position ($p_j$) and stop condition ($s_j$).
+
+  \textbf{3.} Based on derived sequence calculate the number of nucleotides required to polymerize sequence $c^{req}_{nt,k}$.\\
+
+    \textbf{4.} Elongate up to limits:\\
+    \eIf{\all{$c^{req}_{nt,k} < c_{nt,k}$}}{
+      Update the position of each polymerase to stop position\\
+      \-\hspace{1cm} $p_j = s_j$
+    }
+    {
+      \textbf{4a.} Attempt to elongate all RNA fragments.\\
+        \textbf{4b.} Update position of each polymerase to maximal position given the limitation of $c_{nt,k}$.
+    }
+
+    \textbf{5.} Update counts of $c_{nt,k}$ to reflect polymerization usage.
+    }
+    \tcc{Terminate RNA polymerases that have reached the end of their gene}
+    \For{each RNA polymerase j on gene i}{
+      \If{$p_j$ == $L_i$}{
+          \textbf{1.} Increment count of RNA that corresponds to elongating RNA transcript that has terminated.\\
+
+            \textbf{2.} Increment free RNA polymerase counts.
+
+        }
+    }
+
+    \Result{Each RNA transcript is elongated up to the limit of available gene sequence, expected elongation rate, or nucleotide limitation. RNA polymerases that reach the end of their genes are terminated and released.}
+\end{algorithm}
+
+\newpage
+\textbf{Associated data}
+
+\begin{table}[h!]
+ \centering
+ \label{transcript_initiation_table}
+ \begin{tabular}{c c c c c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+  Active fraction of RNAP & $f_{act}$ & - & [0.17, 0.30] & \cite{bremer2008modulation} \\
+  RNA synthesis probability & $p_{synth}$ & - & [0, 0.015] & See GitHub \\
+  RNAP elongation rate & $e$ & nt/s & [39, 55] & \cite{bremer2008modulation} \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for Transcript Initiation and Elongation]{Table of parameters for Transcript Initiation and Elongation processes.}
+\end{table}
+
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{transcript\_initiation.py} & process \\
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{transcript\_elongation.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{transcription.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{rnas.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{growthRateDependentParameters.tsv} & raw data \\
+ \hline
+\end{tabular}
+\caption[Table of files for transcription]{Table of files for transcription.}
+\label{files_transcription}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy.optimize import curve_fit
@@ -12,7 +12,7 @@ class GrowthData(object):
 	def __init__(self, kb):
 		self.tau_d = np.array(kb.cellDryMassComposition["doublingTime"].asNumber(units.min))
 
-		avgToBeginningConvFactor = kb.avgCellToInitialCellConvFactor
+		avgToBeginningConvFactor = kb.avg_cell_to_initial_cell_conversion_factor
 		self._dryMass = np.array([148., 258., 433., 641., 865.]) / avgToBeginningConvFactor # TOKB
 		self._proteinMass = self._dryMass * kb.cellDryMassComposition["proteinMassFraction"]
 		self._rnaMass = self._dryMass * kb.cellDryMassComposition["rnaMassFraction"]
@@ -26,10 +26,13 @@ class GrowthData(object):
 		self.TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
 		self.MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 
-		self.dryMassParams, _ = curve_fit(exp2, self.tau_d, self._dryMass, p0 = (0, 0, 0, 0))
-		self.proteinMassParams, _ = curve_fit(exp2, self.tau_d, self._proteinMass, p0 = (0, 0, 0, 0))
-		self.rnaMassParams, _ = curve_fit(exp2, self.tau_d, self._rnaMass, p0 = (0, 0, 0, 0))
-		self.dnaMassParams, _ = curve_fit(exp2, self.tau_d, self._dnaMass, p0 = (0, 0, 0, 0))
+		# The type stub (just in PyCharm?) is wrong about curve_fit's arg p0.
+		# noinspection PyTypeChecker
+		p0 = (0, 0, 0, 0)  # type: float
+		self.dryMassParams, _ = curve_fit(exp2, self.tau_d, self._dryMass, p0=p0)
+		self.proteinMassParams, _ = curve_fit(exp2, self.tau_d, self._proteinMass, p0=p0)
+		self.rnaMassParams, _ = curve_fit(exp2, self.tau_d, self._rnaMass, p0=p0)
+		self.dnaMassParams, _ = curve_fit(exp2, self.tau_d, self._dnaMass, p0=p0)
 
 		self.chromMass = self._chromMass(kb)
 
@@ -45,7 +48,7 @@ class GrowthData(object):
 			kb.genome_T_count + kb.genome_A_count
 		])
 
-		dntMasses = (kb.getMass(kb.moleculeGroups.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
+		dntMasses = (kb.get_masses(kb.molecule_groups.polymerizedDNT_IDs) / kb.n_avogadro).asUnit(units.g)
 
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass
@@ -65,7 +68,8 @@ class GrowthData(object):
 
 	def dnaMass(self, tau_d):
 		if tau_d < self.D_PERIOD:
-			raise Exception, "Can't have doubling time shorter than cytokinesis time!"
+			raise Exception(
+				"Can't have doubling time shorter than cytokinesis time!")
 
 		# TODO: If you really care, this should be a loop.
 		# It is optimized to run quickly over the range of T_d

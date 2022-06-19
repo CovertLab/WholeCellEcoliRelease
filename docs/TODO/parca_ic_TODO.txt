@@ -1,0 +1,51 @@
+Initial Conditions
+==================
+
+(1) Unify this calculation in initial conditions/fitter
+	monomerExpression = normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+		)
+
+	nMonomers = countsFromMassAndExpression(
+		monomerMass.asNumber(units.g),
+		kb.monomerData["mw"].asNumber(units.g/units.mol),
+		monomerExpression,
+		kb.nAvogadro.asNumber(1/units.mol)
+		)
+
+(2) Break initial_conditions/fitter functions into their own separate files or groups of functions into groups of files.
+
+DONE (3) Precompute A,T,G,C content of genome and store it in the KB
+
+DONE (4) Change initializeBulkComponents to initializeSmallMolecules
+
+(5) Address this comment in initial conditions: "We have to remove things with zero concentration because taking the inverse of zero isn't so nice."
+
+(6) Comment the code for adjusting the mass fractions to account for metabolite pools.
+
+(7) Comment the code for setting GDP pool
+
+(8) Comment initializeComplexes code
+
+(9) Address TODO and TOKBs in initializeTranscription and initializeTranslation
+
+(10) Comment initializeReplication a bit
+
+Fitter
+======
+
+DONE (1) Move fitKb, fitKb2 into their own files and rename fitKb to fitKb1
+
+(2) Compute this early in the fitter and reuse:
+		np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
+
+DONE (3) Break setRNACounts into separate functions per RNA type
+
+(4) Counts from mass and expression should have its math documented. Remove units checking and let units carry through.
+
+(5) Counts from mass and exp and normalize should be moved somewhere else - to utils in wholecell.
+
+(6) Don't pass views or the KB object only fundamental types.
+
+(7) Move hard coded data in fitter into hard coded constants in the KB

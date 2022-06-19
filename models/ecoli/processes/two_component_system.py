@@ -1,17 +1,10 @@
-#!/usr/bin/env python
-
 """
 Two component system
 
 Two component system sub-model
 
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/3/2016
-
 """
-
-import numpy as np
+from __future__ import absolute_import, division, print_function
 
 import wholecell.processes.process
 from wholecell.utils import units
@@ -33,15 +26,18 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(TwoComponentSystem, self).initialize(sim, sim_data)
 
+		# Simulation options
+		self.jit = sim._jit
+
 		# Get constants
-		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mmol)
-		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
+		self.nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mmol)
+		self.cellDensity = sim_data.constants.cell_density.asNumber(units.g / units.L)
 
 		# Create method
-		self.moleculesToNextTimeStep = sim_data.process.two_component_system.moleculesToNextTimeStep
+		self.moleculesToNextTimeStep = sim_data.process.two_component_system.molecules_to_next_time_step
 
 		# Build views
-		self.moleculeNames = sim_data.process.two_component_system.moleculeNames
+		self.moleculeNames = sim_data.process.two_component_system.molecule_names
 		self.molecules = self.bulkMoleculesView(self.moleculeNames)
 
 		# Set priority to a lower value (but greater priority than metabolism)
@@ -50,17 +46,23 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		# Get molecule counts
-		moleculeCounts = self.molecules.total()
+		moleculeCounts = self.molecules.total_counts()
 
 		# Get cell mass and volume
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
 		self.cellVolume = cellMass / self.cellDensity
 
-		# Solve ODEs to next time step
-		self.req, self.allMoleculeChanges = self.moleculesToNextTimeStep(moleculeCounts, self.cellVolume, self.nAvogadro, self.timeStepSec())
+		# Solve ODEs to next time step using the BDF solver through solve_ivp.
+		# Note: the BDF solver has been empirically tested to be the fastest
+		# solver for this setting among the list of solvers that can be used
+		# by the scipy ODE suite.
+		self.molecules_required, self.all_molecule_changes = self.moleculesToNextTimeStep(
+			moleculeCounts, self.cellVolume, self.nAvogadro,
+			self.timeStepSec(), self.randomState, method="LSODA", jit=self.jit,
+			)
 
 		# Request counts of molecules needed
-		self.molecules.requestIs(self.req)
+		self.molecules.requestIs(self.molecules_required)
 
 
 	def evolveState(self):
@@ -68,13 +70,18 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		moleculeCounts = self.molecules.counts()
 
 		# Check if any molecules were allocated fewer counts than requested
-		if (self.req > moleculeCounts).any():
+		if (self.molecules_required > moleculeCounts).any():
+			# Solve ODEs to a large time step using the the counts of molecules
+			# allocated to this process using the BDF solver for stable integration.
+			# The number of reactions has already been determined in calculateRequest
+			# and rates will be much lower with a fraction of total counts allocated
+			# so a much longer time scale is needed.
 
-			# Solve ODEs to next time step using the the counts of molecules allocated to this process
-			_, self.allMoleculeChanges = self.moleculesToNextTimeStep(moleculeCounts, self.cellVolume, self.nAvogadro, self.timeStepSec())
+			_, self.all_molecule_changes = self.moleculesToNextTimeStep(
+				moleculeCounts, self.cellVolume, self.nAvogadro,
+				10000, self.randomState, method="BDF", min_time_step=self.timeStepSec(),
+				jit=self.jit,
+				)
 
-			# Increment changes in molecule counts
-			self.molecules.countsInc(self.allMoleculeChanges)
-		else:
-			# Increment changes in molecule counts
-			self.molecules.countsInc(self.allMoleculeChanges)
+		# Increment changes in molecule counts
+		self.molecules.countsInc(self.all_molecule_changes)

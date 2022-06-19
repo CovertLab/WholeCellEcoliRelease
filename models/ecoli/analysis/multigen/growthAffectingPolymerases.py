@@ -1,35 +1,29 @@
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
+from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.utils import units
-import cPickle
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	_suppress_numpy_warnings = True
+
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get first cell from each generation
 		firstCellLineage = []
 
-		for gen_idx in range(ap.n_generation):
-			firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
+		for gen_idx in range(self.ap.n_generation):
+			firstCellLineage.append(self.ap.get_cells(generation = [gen_idx])[0])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
@@ -68,27 +62,39 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			## Mass growth rate ##
-			time, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
+			time, growthRate = getMassData(simDir, ["instantaneous_growth_rate"])
 			timeStep = units.s * TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 			time = units.s * time
 			growthRate = (1 / units.s) * growthRate
 			doublingTime = 1 / growthRate * np.log(2)
 
+			# Get ids for 30S and 50S subunits
+			proteinIds30S = sim_data.molecule_groups.s30_proteins
+			rRnaIds30S = sim_data.molecule_groups.s30_16s_rRNA
+			complexIds30S = [sim_data.molecule_ids.s30_full_complex]
+
+			proteinIds50S = sim_data.molecule_groups.s50_proteins
+			rRnaIds50S = sim_data.molecule_groups.s50_23s_rRNA
+			rRnaIds50S.extend(sim_data.molecule_groups.s50_5s_rRNA)
+			complexIds50S = [sim_data.molecule_ids.s50_full_complex]
+
+			rnapId = ["APORNAP-CPLX[c]"]
+
+			# Read bulk molecules
+			(rnapCountsBulk, freeProteinCounts30S, freeRRnaCounts30S, complexCounts30S,
+				freeProteinCounts50S, freeRRnaCounts50S, complexCounts50S
+				) = read_bulk_molecule_counts(simOutDir,
+				(rnapId, proteinIds30S, rRnaIds30S, complexIds30S,
+				proteinIds50S, rRnaIds50S, complexIds50S)
+				)
+
+			complexCounts30S = complexCounts30S.reshape(-1, 1)
+			complexCounts50S = complexCounts50S.reshape(-1, 1)
+
 			## RNAP counts and statistics ##
-
-			# Get free counts
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
-			rnapId = "APORNAP-CPLX[c]"
-			rnapIndex = moleculeIds.index(rnapId)
-			rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
-			bulkMolecules.close()
-
 			# Get active counts
 			uniqueMolecules = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-			rnapIndex = uniqueMolecules.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+			rnapIndex = uniqueMolecules.readAttribute("uniqueMoleculeIds").index('active_RNAP')
 			rnapCountsActive = uniqueMolecules.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 			uniqueMolecules.close()
 
@@ -107,50 +113,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			## Ribosome counts and statistics ##
-
-			# Get ids for 30S and 50S subunits
-			proteinIds30S = sim_data.moleculeGroups.s30_proteins
-			rnaIds30S = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds30S]
-			rRnaIds30S = sim_data.moleculeGroups.s30_16sRRNA
-			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
-
-			proteinIds50S = sim_data.moleculeGroups.s50_proteins
-			rnaIds50S = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds50S]
-			rRnaIds50S = sim_data.moleculeGroups.s50_23sRRNA
-			rRnaIds50S.extend(sim_data.moleculeGroups.s50_5sRRNA)
-			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
-
-			# Get indexes for 30S and 50S subunits based on ids
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			proteinIndexes30S = np.array([moleculeIds.index(protein) for protein in proteinIds30S], np.int)
-			rnaIndexes30S = np.array([moleculeIds.index(rna) for rna in rnaIds30S], np.int)
-			rRnaIndexes30S = np.array([moleculeIds.index(rRna) for rRna in rRnaIds30S], np.int)
-			complexIndexes30S = np.array([moleculeIds.index(comp) for comp in complexIds30S], np.int)
-
-			proteinIndexes50S = np.array([moleculeIds.index(protein) for protein in proteinIds50S], np.int)
-			rnaIndexes50S = np.array([moleculeIds.index(rna) for rna in rnaIds50S], np.int)
-			rRnaIndexes50S = np.array([moleculeIds.index(rRna) for rRna in rRnaIds50S], np.int)
-			complexIndexes50S = np.array([moleculeIds.index(comp) for comp in complexIds50S], np.int)
-
-			# Get counts of 30S and 50S mRNA, rProteins, rRNA, and full complex counts
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			freeProteinCounts30S = bulkMoleculeCounts[:, proteinIndexes30S]
-			rnaCounts30S = bulkMoleculeCounts[:, rnaIndexes30S]
-			freeRRnaCounts30S = bulkMoleculeCounts[:, rRnaIndexes30S]
-			complexCounts30S = bulkMoleculeCounts[:, complexIndexes30S]
-
-			freeProteinCounts50S = bulkMoleculeCounts[:, proteinIndexes50S]
-			rnaCounts50S = bulkMoleculeCounts[:, rnaIndexes50S]
-			freeRRnaCounts50S = bulkMoleculeCounts[:, rRnaIndexes50S]
-			complexCounts50S = bulkMoleculeCounts[:, complexIndexes50S]
-
-			bulkMolecules.close()
-
 			# Get active ribosome counts
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 			activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 			uniqueMoleculeCounts.close()
@@ -158,7 +124,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get elongation rate data
 			ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 			actualElongations = ribosomeDataFile.readColumn("actualElongations")
-			ribosomeDataFile.close()
 
 			# Calculate statistics
 			rProteinCounts = np.hstack((freeProteinCounts50S, freeProteinCounts30S))
@@ -177,27 +142,28 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			effectiveElongationRate = actualElongations / ribosomeCounts
 			extraRibosomes = (ribosomeCounts - actualElongations / 21.) / (actualElongations / 21.) * 100
 
-			fractionActive = activeRibosome.astype(np.float) / (activeRibosome + np.hstack((counts30S, counts50S)).min(axis=1))
+			fractionActive = activeRibosome.astype(float) / (activeRibosome + np.hstack((counts30S, counts50S)).min(axis=1))
 
 			## Calculate statistics involving ribosomes and RNAP ##
-			ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
-			ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+			ratioRNAPtoRibosome = totalRnap.astype(float) / ribosomeCounts.astype(float)
+			ribosomeConcentration = ((1 / sim_data.constants.n_avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cell_density) * (units.fg * cellMass))
 
-			averageRibosomeElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
-			processElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("processElongationRate")
+			averageRibosomeElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
+			processElongationRate = ribosomeDataFile.readColumn("processElongationRate")
 
 
 			## Calculate statistics involving ribosome efficiency ##
-			aaUsed = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aasUsed")
-			aaAllocated = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaAllocated")
-			aaRequested = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaRequestSize")
-			aaPoolsize = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaPoolSize")
+			growth_limits_table = TableReader(os.path.join(simOutDir, "GrowthLimits"))
+			aaUsed = growth_limits_table.readColumn("aasUsed")
+			aaAllocated = growth_limits_table.readColumn("aaAllocated")
+			aaRequested = growth_limits_table.readColumn("aaRequestSize")
+			aaPoolsize = growth_limits_table.readColumn("aaPoolSize")
 
-			allocatedRibosomes = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("activeRibosomeAllocated")
+			allocatedRibosomes = growth_limits_table.readColumn("activeRibosomeAllocated")
 			allocatedElongationRate = aaUsed.sum(axis=1) / allocatedRibosomes * timeStep.asNumber(units.s)
 
 			## Load other data
-			translationSupply = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("translationSupply")
+			translationSupply = ribosomeDataFile.readColumn("translationSupply")
 
 
 			## Plotting ##
@@ -224,7 +190,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Plot RNAP active fraction
 			ax2.plot(time.asNumber(units.min), fractionRnapActive)
-			ax2.plot(time.asNumber(units.min), sim_data.growthRateParameters.fractionActiveRnap * np.ones(time.asNumber().size), linestyle='--')
+			ax2.plot(time.asNumber(units.min), sim_data.growth_rate_parameters.fractionActiveRnap * np.ones(time.asNumber().size), linestyle='--')
 			ax2.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 			ax2.set_ylabel("Fraction active\nRNAP")
 
@@ -320,6 +286,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				y_lim = [processElongationRate[100:].min(), processElongationRate[100:].max()]
 			else:
 				y_lim = get_new_ylim(ax12, processElongationRate[100:].min(), processElongationRate[100:].max())
+			if y_lim[0] == y_lim[1]:
+				y_lim[0] -= .011  # avoid matplotlib bottom==top singularity warning
+				y_lim[1] += .011
 			ax12.set_ylim(y_lim)
 			ax12.set_ylabel("Process ribosome\nelongation rate\n(aa/s)")
 
