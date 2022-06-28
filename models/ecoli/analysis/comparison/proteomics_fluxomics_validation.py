@@ -58,10 +58,20 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			in validation_data1.reactionFlux.toya2010fluxes["reactionFluxStdev"]]
 			))
 
-		# Get list of reaction IDs
+		# Get list of relevant reaction IDs and indexes
 		fba_reader = TableReader(
 			os.path.join(ap1.get_cells()[0], 'simOut', 'FBAResults'))
 		sim_rxn_ids = fba_reader.readAttribute('reactionIDs')
+
+		relevant_sim_rxn_indexes = []
+		relevant_sim_rxn_ids = []
+		for val_rxn_id in val_rxn_ids:
+			for i, sim_rxn_id in enumerate(sim_rxn_ids):
+				if re.findall(val_rxn_id, sim_rxn_id) and i not in relevant_sim_rxn_indexes:
+					relevant_sim_rxn_indexes.append(i)
+					relevant_sim_rxn_ids.append(sim_rxn_id)
+
+		relevant_sim_rxn_indexes = np.array(relevant_sim_rxn_indexes)
 
 
 		def read_sim_protein_counts(ap):
@@ -97,9 +107,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			)
 
 			# Get flux for each reaction at each timestep
-			all_sim_fluxes = (
+			sim_fluxes = (
 				(COUNTS_UNITS / MASS_UNITS / TIME_UNITS)
-				* (read_stacked_columns(cell_paths, 'FBAResults', 'reactionFluxes', ignore_exception=True) / conversion_coeffs)
+				* (read_stacked_columns(cell_paths, 'FBAResults', 'reactionFluxes', ignore_exception=True)[:, relevant_sim_rxn_indexes] / conversion_coeffs)
 				).asNumber(units.mmol / units.g / units.h)
 
 			# Add up all fluxes that contribute to each value in validation data
@@ -108,16 +118,16 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			for val_rxn_id in val_rxn_ids:
 				rxn_found = False
-				total_fluxes = np.zeros(all_sim_fluxes.shape[0])
+				total_fluxes = np.zeros(sim_fluxes.shape[0])
 
-				for i, sim_rxn_id in enumerate(sim_rxn_ids):
+				for i, sim_rxn_id in enumerate(relevant_sim_rxn_ids):
 					if re.findall(val_rxn_id, sim_rxn_id):
 						rxn_found = True
 						stoich = 1
 						if re.findall('(reverse)', sim_rxn_id):
 							stoich = -1
 
-						total_fluxes += stoich * all_sim_fluxes[:, i]
+						total_fluxes += stoich * sim_fluxes[:, i]
 
 				if rxn_found:
 					rxn_id_to_sim_flux_mean[val_rxn_id] = total_fluxes.mean()
