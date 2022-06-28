@@ -97,11 +97,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			)
 
 			# Get flux for each reaction at each timestep
-			all_raw_sim_fluxes = read_stacked_columns(
-				cell_paths, 'FBAResults', 'reactionFluxes', ignore_exception=True)
 			all_sim_fluxes = (
 				(COUNTS_UNITS / MASS_UNITS / TIME_UNITS)
-				* (all_raw_sim_fluxes / conversion_coeffs)
+				* (read_stacked_columns(cell_paths, 'FBAResults', 'reactionFluxes', ignore_exception=True) / conversion_coeffs)
 				).asNumber(units.mmol / units.g / units.h)
 
 			# Add up all fluxes that contribute to each value in validation data
