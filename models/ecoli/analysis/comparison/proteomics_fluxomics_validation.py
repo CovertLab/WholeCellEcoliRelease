@@ -168,73 +168,49 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		plt.figure(figsize=(8, 8.4))
 
-		ax1 = plt.subplot(2, 2, 1)
-		ax1.plot([0, 6], [0, 6], ls='--', lw=1, c='k', alpha=0.05)
-		ax1.scatter(
-			np.log10(val1_monomer_counts + 1),
-			np.log10(sim1_monomer_counts + 1), clip_on=False,
-			c='#555555', edgecolor='none', s=20, alpha=0.25,
-			)
-		ax1.set_title(f"$R^2$ = {protein_pearson1[0]**2:.2f}")
-		ax1.set_xlabel("log10(Schmidt 2015 protein counts + 1)")
-		ax1.set_ylabel("log10(Mean simulated protein counts + 1)")
-		ax1.spines["top"].set_visible(False)
-		ax1.spines["right"].set_visible(False)
-		ax1.spines["bottom"].set_position(("outward", 15))
-		ax1.spines["left"].set_position(("outward", 15))
-		ax1.set_xlim([0, 6])
-		ax1.set_ylim([0, 6])
+		def plot_protein_counts(ax, val, sim, pearson):
+			ax.plot([0, 6], [0, 6], ls='--', lw=1, c='k', alpha=0.05)
+			ax.scatter(
+				np.log10(val + 1),
+				np.log10(sim + 1), clip_on=False,
+				c='#555555', edgecolor='none', s=20, alpha=0.25,
+				)
+			ax.set_title(f"$R^2$ = {pearson[0] ** 2:.2f}")
+			ax.set_xlabel("log10(Schmidt 2015 protein counts + 1)")
+			ax.set_ylabel("log10(Mean simulated protein counts + 1)")
+			ax.spines["top"].set_visible(False)
+			ax.spines["right"].set_visible(False)
+			ax.spines["bottom"].set_position(("outward", 15))
+			ax.spines["left"].set_position(("outward", 15))
+			ax.set_xlim([0, 6])
+			ax.set_ylim([0, 6])
 
+		ax1 = plt.subplot(2, 2, 1)
 		ax2 = plt.subplot(2, 2, 2)
-		ax2.plot([-15, 25], [-15, 25], ls='--', lw=1, c='k', alpha=0.05)
-		ax2.errorbar(
-			val_flux_mean, sim1_flux_mean,
-			xerr=val_flux_std, yerr=sim1_flux_std,
-			c='#555555', ms=4, fmt="o", ecolor="#cccccc")
-		ax2.set_title(f"$R^2$ = {flux_pearson1[0]**2:.2f}, p = {flux_pearson1[1]:.2e}")
-		ax2.set_xlabel("Toya 2010 flux [mmol/g/hr]")
-		ax2.set_ylabel("Mean simulated flux [mmol/g/hr]")
-		ax2.spines["top"].set_visible(False)
-		ax2.spines["right"].set_visible(False)
-		ax2.spines["bottom"].set_position(("outward", 15))
-		ax2.spines["left"].set_position(("outward", 15))
-		ax2.set_xticks([-15, -10, -5, 0, 5, 10, 15, 20, 25])
-		ax2.set_xlim([-15, 25])
-		ax2.set_ylim([-15, 25])
+		plot_protein_counts(ax1, val1_monomer_counts, sim1_monomer_counts, protein_pearson1)
+		plot_protein_counts(ax2, val2_monomer_counts, sim2_monomer_counts, protein_pearson2)
+
+		def plot_flux(ax, val, sim, val_std, sim_std, pearson):
+			ax.plot([-15, 25], [-15, 25], ls='--', lw=1, c='k', alpha=0.05)
+			ax.errorbar(
+				val, sim,
+				xerr=val_std, yerr=sim_std,
+				c='#555555', ms=4, fmt="o", ecolor="#cccccc")
+			ax.set_title(f"$R^2$ = {pearson[0] ** 2:.2f}, p = {pearson[1]:.2e}")
+			ax.set_xlabel("Toya 2010 flux [mmol/g/hr]")
+			ax.set_ylabel("Mean simulated flux [mmol/g/hr]")
+			ax.spines["top"].set_visible(False)
+			ax.spines["right"].set_visible(False)
+			ax.spines["bottom"].set_position(("outward", 15))
+			ax.spines["left"].set_position(("outward", 15))
+			ax.set_xticks([-15, -10, -5, 0, 5, 10, 15, 20, 25])
+			ax.set_xlim([-15, 25])
+			ax.set_ylim([-15, 25])
 
 		ax3 = plt.subplot(2, 2, 3)
-		ax3.plot([0, 6], [0, 6], ls='--', lw=1, c='k', alpha=0.05)
-		ax3.scatter(
-			np.log10(val2_monomer_counts + 1),
-			np.log10(sim2_monomer_counts + 1), clip_on=False,
-			c='#555555', edgecolor='none', s=20, alpha=0.25,
-			)
-		ax3.set_title(f"$R^2$ = {protein_pearson2[0]**2:.2f}")
-		ax3.set_xlabel("log10(Schmidt 2015 protein counts + 1)")
-		ax3.set_ylabel("log10(Mean simulated protein counts + 1)")
-		ax3.spines["top"].set_visible(False)
-		ax3.spines["right"].set_visible(False)
-		ax3.spines["bottom"].set_position(("outward", 15))
-		ax3.spines["left"].set_position(("outward", 15))
-		ax3.set_xlim([0, 6])
-		ax3.set_ylim([0, 6])
-
 		ax4 = plt.subplot(2, 2, 4)
-		ax4.plot([-15, 25], [-15, 25], ls='--', lw=1, c='k', alpha=0.05)
-		ax4.errorbar(
-			val_flux_mean, sim2_flux_mean,
-			xerr=val_flux_std, yerr=sim2_flux_std,
-			c='#555555', ms=4, fmt="o", ecolor="#cccccc")
-		ax4.set_title(f"$R^2$ = {flux_pearson2[0]**2:.2f}, p = {flux_pearson2[1]:.2e}")
-		ax4.set_xlabel("Toya 2010 flux [mmol/g/hr]")
-		ax4.set_ylabel("Mean simulated flux [mmol/g/hr]")
-		ax4.spines["top"].set_visible(False)
-		ax4.spines["right"].set_visible(False)
-		ax4.spines["bottom"].set_position(("outward", 15))
-		ax4.spines["left"].set_position(("outward", 15))
-		ax4.set_xticks([-15, -10, -5, 0, 5, 10, 15, 20, 25])
-		ax4.set_xlim([-15, 25])
-		ax4.set_ylim([-15, 25])
+		plot_flux(ax3, val_flux_mean, sim1_flux_mean, val_flux_std, sim1_flux_std, flux_pearson1)
+		plot_flux(ax4, val_flux_mean, sim2_flux_mean, val_flux_std, sim2_flux_std, flux_pearson2)
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

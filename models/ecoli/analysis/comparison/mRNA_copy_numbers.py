@@ -386,7 +386,6 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		all_yticks = []
 		labels = []
 
-		# TODO: break y-axis for better scaling
 		for log_t_score_dict in [
 			evidence_multiplicity_to_log_t_scores,
 			evidence_code_to_log_t_scores,
