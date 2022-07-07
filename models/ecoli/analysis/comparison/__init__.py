@@ -15,6 +15,7 @@ ACTIVE = [
 	"mRNA_mass_histogram.py",
 	"polycistronic_transcription.py",
 	"protein_mass_histogram.py",
+	"proteomics_fluxomics_comparison.py",
 	"proteomics_fluxomics_validation.py",
 ]
 
