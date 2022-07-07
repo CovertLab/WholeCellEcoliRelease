@@ -147,7 +147,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				np.log10(count2 + 1), clip_on=False,
 				c='#555555', edgecolor='none', s=20, alpha=0.25,
 				)
-			ax.set_title(f"$R^2$ = {pearson[0] ** 2:.2f}")
+			ax.set_title(f"$R^2$ = {pearson[0] ** 2:.3f}")
 			ax.set_xlabel("log10(Mean simulated protein counts + 1),\nwithout operons")
 			ax.set_ylabel("log10(Mean simulated protein counts + 1),\nwith operons")
 			ax.spines["top"].set_visible(False)
@@ -166,7 +166,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				sim1, sim2,
 				xerr=sim1_std, yerr=sim2_std,
 				c='#555555', ms=4, fmt="o", ecolor="#cccccc")
-			ax.set_title(f"$R^2$ = {pearson[0] ** 2:.2f}, p = {pearson[1]:.2e}")
+			ax.set_title(f"$R^2$ = {pearson[0] ** 2:.3f}, p = {pearson[1]:.2e}")
 			ax.set_xlabel("Mean simulated flux [mmol/g/hr],\nwithout operons")
 			ax.set_ylabel("Mean simulated flux [mmol/g/hr],\nwithout operons")
 			ax.spines["top"].set_visible(False)
