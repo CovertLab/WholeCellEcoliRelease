@@ -20,6 +20,7 @@ from wholecell.analysis.analysis_tools import (exportFigure, read_stacked_column
 # noinspection PyUnresolvedReferences
 from wholecell.io.tablereader import TableReader
 
+TU_ID = 'TU0-1123[c]'
 
 
 class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
@@ -32,7 +33,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ap2, sim_data2, _ = self.setup(input_sim_dir)
 
 		# Load from sim_data
-		cistron_ids = sim_data2.process.transcription.cistron_data['id']
+		operon_cistron_ids = sim_data2.process.transcription.cistron_data['id']
 		cistron_id_to_monomer_id = {
 			monomer['cistron_id']: monomer['id'] for monomer
 			in sim_data2.process.translation.monomer_data
@@ -55,10 +56,10 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			if len(cistron_indexes) < 2:
 				continue
 			operon_monomer_indexes.append(
-				np.array([monomer_id_to_index[cistron_id_to_monomer_id[cistron_ids[i]]] for i in cistron_indexes])
+				np.array([monomer_id_to_index[cistron_id_to_monomer_id[operon_cistron_ids[i]]] for i in cistron_indexes])
 				)
 
-		def read_sims(ap):
+		def read_cov(ap):
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
 
@@ -93,8 +94,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			return max_cov, is_constitutive
 
-		max_cov1, is_constitutive1 = read_sims(ap1)
-		max_cov2, is_constitutive2 = read_sims(ap2)
+		max_cov1, is_constitutive1 = read_cov(ap1)
+		max_cov2, is_constitutive2 = read_cov(ap2)
 
 		# Plot comparison of coefficient distributions
 		fig = plt.figure(figsize=(4.5, 4.4))
@@ -155,6 +156,93 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		plt.close('all')
+
+		operon_cistron_ids = [
+			sim_data2.process.transcription.cistron_data['id'][i]
+			for i in sim_data2.process.transcription.rna_id_to_cistron_indexes(TU_ID)]
+		cistron_monomer_ids = [
+			cistron_id_to_monomer_id[cistron_id] for cistron_id in operon_cistron_ids]
+		cistron_id_to_gene_id = {
+			cistron['id']: cistron['gene_id']
+			for cistron in sim_data2.process.transcription.cistron_data
+			}
+		gene_id_to_gene_symbol = {
+			gene['name']: gene['symbol']
+			for gene in sim_data2.process.replication.gene_data
+			}
+		gene_symbols = [
+			gene_id_to_gene_symbol[cistron_id_to_gene_id[cistron_id]]
+			for cistron_id in operon_cistron_ids]
+
+		def read_monomer_trace(ap):
+			cell_paths = ap.get_cells(seed=[2])
+
+			simOutDir = os.path.join(cell_paths[0], "simOut")
+			monomer_counts_reader = TableReader(os.path.join(simOutDir, 'MonomerCounts'))
+			all_monomer_ids = monomer_counts_reader.readAttribute('monomerIds')
+
+			# Get indexes of monomers translated from the TU
+			monomer_indexes = [
+				all_monomer_ids.index(monomer_id) for monomer_id in cistron_monomer_ids]
+
+			# Load data
+			time = read_stacked_columns(cell_paths, 'Main', 'time')
+			gen_start_time = read_stacked_columns(
+				cell_paths, 'Main', 'time', fun=lambda x: x[0])
+			monomer_counts = read_stacked_columns(
+				cell_paths, 'MonomerCounts', 'monomerCounts')[:, monomer_indexes]
+			monomer_counts_ratios = (monomer_counts[:, 1:].T / monomer_counts[:, 0]).T
+
+			return time, gen_start_time, monomer_counts, monomer_counts_ratios
+
+		t1, gen_start_time1, mc1, mcr1 = read_monomer_trace(ap1)
+		t2, gen_start_time2, mc2, mcr2 = read_monomer_trace(ap2)
+
+		plt.figure(figsize=(8, 6))
+
+		def draw_trace_plot(c, cr, t, gst, ax_index):
+			# Plot monomer counts for reference sims
+			ax1 = plt.subplot(4, 1, ax_index)
+			for i, gene_symbol in enumerate(gene_symbols):
+				ax1.plot(t / 60, c[:, i], label=gene_symbol, clip_on=False)
+			if ax_index == 1:
+				ax1.legend(loc='center left', prop={'size': 8}, bbox_to_anchor=(1, 0.5))
+			ax1.set_ylabel('Protein\ncounts')
+			ax1.spines["top"].set_visible(False)
+			ax1.spines["right"].set_visible(False)
+			ax1.spines["bottom"].set_position(("outward", 10))
+			ax1.spines["left"].set_position(("outward", 10))
+			ax1.spines["bottom"].set_visible(False)
+			ax1.get_xaxis().set_visible(False)
+			ax1.set_xlim([0, t[-1] / 60])
+			ax1.set_ylim([0, 1000])
+			ax1.set_yticks([0, 1000])
+
+			# Plot monomer count ratios for reference sims
+			ax2 = plt.subplot(4, 1, ax_index + 1)
+			for i, color in enumerate(['C1', 'C2', 'C3', 'C4']):
+				ax2.plot(t / 60, cr[:, i], label=f'{gene_symbols[i + 1]}:{gene_symbols[0]}', clip_on=False, color=color, ls='--')
+			if ax_index == 1:
+				ax2.legend(loc='center left', prop={'size': 8}, bbox_to_anchor=(1, 0.5))
+			ax2.set_ylabel('Ratios')
+			ax2.spines["top"].set_visible(False)
+			ax2.spines["right"].set_visible(False)
+			ax2.spines["bottom"].set_position(("outward", 10))
+			ax2.spines["left"].set_position(("outward", 10))
+			ax2.set_xlim([0, t[-1] / 60])
+			ax2.set_yscale('log')
+			ax2.set_ylim([1, 1000])
+			ax2.set_yticks([1, 10, 100, 1000])
+			ax2.set_xticks(list(gst / 60) + [t[-1] / 60])
+			ax2.set_xticklabels(np.arange(len(gst) + 1))
+			ax2.set_xlabel('Generations')
+
+		draw_trace_plot(mc1, mcr1, t1, gen_start_time1, 1)
+		draw_trace_plot(mc2, mcr2, t2, gen_start_time2, 3)
+
+		plt.tight_layout()
+		exportFigure(plt, plotOutDir, plotOutFileName + '_count_trace', metadata)
 		plt.close('all')
 
 
