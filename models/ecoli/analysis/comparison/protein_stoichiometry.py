@@ -176,7 +176,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			for cistron_id in operon_cistron_ids]
 
 		def read_monomer_trace(ap):
-			cell_paths = ap.get_cells(seed=[2])
+			cell_paths = ap.get_cells(seed=[14])
 
 			simOutDir = os.path.join(cell_paths[0], "simOut")
 			monomer_counts_reader = TableReader(os.path.join(simOutDir, 'MonomerCounts'))
@@ -216,8 +216,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax1.spines["bottom"].set_visible(False)
 			ax1.get_xaxis().set_visible(False)
 			ax1.set_xlim([0, t[-1] / 60])
-			ax1.set_ylim([0, 1000])
-			ax1.set_yticks([0, 1000])
+			ax1.set_ylim([0, 800])
+			ax1.set_yticks([0, 800])
 
 			# Plot monomer count ratios for reference sims
 			ax2 = plt.subplot(4, 1, ax_index + 1)
@@ -232,8 +232,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			ax2.spines["left"].set_position(("outward", 10))
 			ax2.set_xlim([0, t[-1] / 60])
 			ax2.set_yscale('log')
-			ax2.set_ylim([1, 1000])
-			ax2.set_yticks([1, 10, 100, 1000])
+			ax2.set_ylim([1, 100])
+			ax2.set_yticks([1, 10, 100])
 			ax2.set_xticks(list(gst / 60) + [t[-1] / 60])
 			ax2.set_xticklabels(np.arange(len(gst) + 1))
 			ax2.set_xlabel('Generations')
