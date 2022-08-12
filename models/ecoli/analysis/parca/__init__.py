@@ -8,7 +8,6 @@ ACTIVE = [
 	'all_operon_tu_structures.py',
 	'amino_acid_uptake_rates.py',
 	'corrected_rnaseq_read_counts.py',
-	'mRNA_cistron_expression.py',
 	'expression_probabilities.py',
 	'fit_cistron_degradation_ls_residuals.py',
 	'fit_cistron_expression_ls_residuals.py',
@@ -16,6 +15,8 @@ ACTIVE = [
 	'growth_expression_comparison.py',
 	'interpolation.py',
 	'metabolite_concentrations.py',
+	'mRNA_cistron_expression.py',
+	'mRNA_transcript_table.py',
 	'ppgpp_expression.py',
 	'tf_target.py',
 ]
