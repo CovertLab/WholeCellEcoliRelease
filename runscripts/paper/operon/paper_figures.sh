@@ -1,6 +1,8 @@
-# Script to run analysis to generate published figures in the operon paper
-# Simulations in runscripts/paper/operon_paper/paper_runs.sh must be run to
-# generate the data before performing analysis
+# Scripts used to run analyses that generate the published figures in the operon
+# paper
+# You should run the simulations in runscripts/paper/operon_paper/paper_runs.sh
+# prior to running these analyses. You will need to edit the timestamps in the
+# directory names.
 
 
 ## Figure 1
@@ -36,43 +38,75 @@ out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_med
 
 
 ## Figure 3
-# Panel A (+Figure S2)
+# Panel A
 python models/ecoli/analysis/comparison/mRNA_copy_numbers.py \
 out/20220526.173929__SET_C_8_gens_128_seeds_operons_v2_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
-# Panel D (+Figure S3)
+# Panel E
+python models/ecoli/analysis/parca/corrected_rnaseq_read_counts.py \
+out/20220518.174649__SET_D_8_gens_128_seeds_operons_v3_with_glucose_minimal_media
+
+# Panel F (+Figure S2A)
 python models/ecoli/analysis/comparison/mRNA_copy_numbers.py \
 out/20220518.174649__SET_D_8_gens_128_seeds_operons_v3_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
-# Panel F, G
+# Panels H, I
 # See Rend-seq repository
 
 
 ## Figure 4
 # Panel A
-python models/ecoli/analysis/cohort/centralCarbonMetabolismScatter.py \
-out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media
+python models/ecoli/analysis/comparison/mRNA_length_histogram.py \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panel B
-python models/ecoli/analysis/multigen/proteinCountsValidation.py \
-out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media
+python models/ecoli/analysis/comparison/mRNA_counts_histogram.py \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 # Panel C
-python models/ecoli/analysis/comparison/mRNA_length_histogram.py \
+python models/ecoli/analysis/comparison/mRNA_mass_histogram.py \
 out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
 
 ## Figure 5
-# Panels A, B, C
+# Panel A
 python models/ecoli/analysis/comparison/coexpression_probabilities.py \
 out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
-# Panels E, F
+# Panels B, C, D
+python models/ecoli/analysis/comparison/protein_stoichiometry.py \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
+
+# Panels E, F, G
 python models/ecoli/analysis/comparison/excess_protein_monomers.py \
 out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
 out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
 
+
+## Figure S2
+# Panel A
+python models/ecoli/analysis/comparison/mRNA_copy_numbers.py \
+out/20220518.174649__SET_D_8_gens_128_seeds_operons_v3_with_glucose_minimal_media \
+out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
+
+# Panel B
+# See Rend-seq repository
+
+
+## Figure S3
+# Panel A
+python models/ecoli/analysis/comparison/doubling_time_histogram.py \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
+
+# Panels B, C
+python models/ecoli/analysis/comparison/proteomics_fluxomics_comparison.py \
+out/20220602.133728__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
+out/20220518.174543__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media

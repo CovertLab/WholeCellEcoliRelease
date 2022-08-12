@@ -40,8 +40,8 @@ SINGLE_DAUGHTERS=1 N_GENS=8 N_INIT_SIMS=128 \
 RUN_AGGREGATE_ANALYSIS=0 \
 python runscripts/fireworks/fw_queue.py
 
-## Set E - operons on (final), glucose minimal media
-# Used for comparisons in Figures 1, 3, 4, 5
+## Set E - operons on (final version), glucose minimal media
+# Used for comparisons in Figures 1, 4, 5
 DESC="SET E 8 gens 128 seeds operons on with glucose minimal media" \
 OPERONS="on" \
 VARIANT="wildtype" FIRST_VARIANT_INDEX=0 LAST_VARIANT_INDEX=0 \
