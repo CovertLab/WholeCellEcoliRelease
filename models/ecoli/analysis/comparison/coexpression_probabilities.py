@@ -3,6 +3,8 @@ Compare coexpression probabilities of genes in the same operon at the mRNA and
 protein level.
 """
 
+import csv
+import os
 from typing import Tuple
 
 from matplotlib import pyplot as plt
@@ -84,6 +86,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		def read_sims_for_protein(ap):
 			protein_coexp_probs = np.zeros(len(gene_group_indexes))
 			is_lowly_expressed = np.zeros(len(gene_group_indexes), dtype=np.bool)
+			mean_monomer_counts = np.zeros(len(gene_group_indexes))
 
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
@@ -99,14 +102,15 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 					(np.any(operon_monomer_counts, axis=1).sum() + 1)
 				)
 				is_lowly_expressed[i] = (operon_monomer_counts.mean() < LOW_EXP_THRESHOLD)
+				mean_monomer_counts[i] = operon_monomer_counts.mean()
 
-			return protein_coexp_probs, is_lowly_expressed
+			return protein_coexp_probs, is_lowly_expressed, mean_monomer_counts
 
 
 		mRNA_p1, is_expressed = read_sims_for_mRNA(ap1)
 		mRNA_p2, _ = read_sims_for_mRNA(ap2)
-		protein_p1, is_lowly_expressed = read_sims_for_protein(ap1)
-		protein_p2, _ = read_sims_for_protein(ap2)
+		protein_p1, is_lowly_expressed, mean_monomer_counts = read_sims_for_protein(ap1)
+		protein_p2, _, _ = read_sims_for_protein(ap2)
 
 		fig = plt.figure(figsize=FIGSIZE)
 		gs = fig.add_gridspec(
@@ -175,6 +179,35 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
+
+		# Build table
+		gene_ids = sim_data1.process.transcription.cistron_data['gene_id']
+		gene_id_to_gene_symbol = {
+			gene['name']: gene['symbol']
+			for gene in sim_data1.process.replication.gene_data
+			}
+		constituent_gene_names = [
+			[gene_id_to_gene_symbol[gene_ids[i]] for i in gene_indexes]
+			for gene_indexes in gene_group_indexes
+			]
+
+		with open(os.path.join(plotOutDir, plotOutFileName + '_table.tsv'), 'w') as f:
+			writer = csv.writer(f, delimiter='\t')
+			writer.writerow([
+				'constituent_gene_names', 'mean_monomer_counts',
+				'prob_mRNA_without_operons', 'prob_mRNA_with_operons',
+				'prob_protein_without_operons', 'prob_protein_with_operons'
+				])
+
+			for exp, gene_names, monomer_count, mp1, mp2, pp1, pp2 in zip(
+					is_expressed, constituent_gene_names, mean_monomer_counts,
+					mRNA_p1, mRNA_p2, protein_p1, protein_p2
+					):
+				if exp:
+					writer.writerow([
+						', '.join(gene_names), monomer_count,
+						mp1, mp2, pp1, pp2
+						])
 
 	def setup(self, inputDir: str) -> Tuple[
 			AnalysisPaths, SimulationDataEcoli, ValidationDataEcoli]:
