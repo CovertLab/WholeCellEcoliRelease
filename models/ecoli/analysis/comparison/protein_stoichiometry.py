@@ -3,6 +3,8 @@ Comparison plot to compare how far the stoichiometry of proteins that are
 encoded from the same operon deviates from their mean values for sims
 with/without polycistronic operons.
 """
+
+import csv
 import os
 from typing import Tuple
 
@@ -59,7 +61,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				np.array([monomer_id_to_index[cistron_id_to_monomer_id[operon_cistron_ids[i]]] for i in cistron_indexes])
 				)
 
-		def read_cov(ap):
+		def read_cv(ap):
 			# Ignore data from first two gens
 			cell_paths = ap.get_cells(generation=np.arange(2, ap.n_generation))
 
@@ -72,7 +74,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 			# Initialize array of maximum coefficients of variation
 			is_constitutive = np.zeros(len(operon_monomer_indexes), dtype=np.bool)
-			max_cov = np.zeros(len(operon_monomer_indexes))
+			max_cv = np.zeros(len(operon_monomer_indexes))
 
 			# Loop through each operon
 			for i, monomer_indexes in enumerate(operon_monomer_indexes):
@@ -87,15 +89,15 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				rescaled_monomer_counts = monomer_counts / avg_monomer_counts
 
 				# Calculate coefficients of variation at every timestep
-				cov = rescaled_monomer_counts.std(axis=1)/rescaled_monomer_counts.mean(axis=1)
+				cv = rescaled_monomer_counts.std(axis=1)/rescaled_monomer_counts.mean(axis=1)
 
 				is_constitutive[i] = True
-				max_cov[i] = cov.max()
+				max_cv[i] = cv.max()
 
-			return max_cov, is_constitutive
+			return max_cv, is_constitutive
 
-		max_cov1, is_constitutive1 = read_cov(ap1)
-		max_cov2, is_constitutive2 = read_cov(ap2)
+		max_cv1, is_constitutive1 = read_cv(ap1)
+		max_cv2, is_constitutive2 = read_cv(ap2)
 
 		# Plot comparison of coefficient distributions
 		fig = plt.figure(figsize=(4.5, 4.4))
@@ -151,7 +153,7 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		plotted_operons = np.logical_and(is_constitutive1, is_constitutive2)
 		draw_scatter_plot(
-			max_cov1[plotted_operons], max_cov2[plotted_operons],
+			max_cv1[plotted_operons], max_cv2[plotted_operons],
 			1, 0, 3)
 
 		plt.tight_layout()
@@ -244,6 +246,35 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName + '_count_trace', metadata)
 		plt.close('all')
+
+		# Write table
+		gene_group_indexes = [
+			operon[0] for operon in sim_data2.process.transcription.operons
+			if len(operon[0]) > 1]
+		gene_ids = sim_data1.process.transcription.cistron_data['gene_id']
+		gene_id_to_gene_symbol = {
+			gene['name']: gene['symbol']
+			for gene in sim_data1.process.replication.gene_data
+			}
+		constituent_gene_names = [
+			[gene_id_to_gene_symbol[gene_ids[i]] for i in gene_indexes]
+			for gene_indexes in gene_group_indexes
+			]
+
+		with open(os.path.join(plotOutDir, plotOutFileName + '_table.tsv'), 'w') as f:
+			writer = csv.writer(f, delimiter='\t')
+			writer.writerow([
+				'constituent_gene_names', 'c.v. without operons',
+				'c.v. with operons'
+				])
+
+			for plotted, gene_names, c1, c2 in zip(
+					plotted_operons, constituent_gene_names, max_cv1, max_cv2
+					):
+				if plotted:
+					writer.writerow([
+						', '.join(gene_names), c1, c2
+						])
 
 
 	def setup(self, inputDir: str) -> Tuple[
