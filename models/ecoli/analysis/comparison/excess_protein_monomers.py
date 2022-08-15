@@ -116,7 +116,8 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			all_monomer_counts_mean = all_monomer_counts.mean(axis=0)
 			all_complex_counts_mean = all_complex_counts.mean(axis=0)
 
-			complex_id_to_cov = {}
+			complex_id_to_cv = {}
+			complex_id_to_monomer_counts = {}
 			excess_monomer_counts = np.zeros_like(all_complex_counts_mean)
 
 			# Loop through each protein complex
@@ -148,24 +149,25 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 					continue
 
 				# Calculate coefficient of variation
-				complex_id_to_cov[complex_id] = (
+				complex_id_to_cv[complex_id] = (
 					rescaled_monomer_counts.std()
 					/ rescaled_monomer_counts.mean())
+				complex_id_to_monomer_counts[complex_id] = monomer_counts
 
 				# Calculate excess monomer counts for this complex
 				excess_monomer_counts[i] = monomer_counts.sum() - all_complex_counts_mean[i]*subunit_stoichs.sum()
 
-			return complex_id_to_cov, all_monomer_counts_mean, all_complex_counts_mean, excess_monomer_counts
+			return complex_id_to_cv, complex_id_to_monomer_counts, all_monomer_counts_mean, all_complex_counts_mean, excess_monomer_counts
 
-		cov1, m1, c1, em1 = read_sims(ap1)
-		cov2, m2, c2, em2 = read_sims(ap2)
+		cv1, cm1, m1, c1, em1 = read_sims(ap1)
+		cv2, cm2, m2, c2, em2 = read_sims(ap2)
 
 		# Select complexes that have coefficients of variation calculated for
 		# both sims and has cotranscribed subunits, known stoichiometries, and
 		# no shared subunits with other complexes
 		complexes_to_plot = [
-			complex_id for complex_id in cov1.keys()
-			if complex_id in cov2
+			complex_id for complex_id in cv1.keys()
+			if complex_id in cv2
 				and complex_id_to_is_in_same_operon[complex_id]
 				and not complex_id_to_stoich_unknown[complex_id]
 				and not complex_id_to_has_shared_subunits[complex_id]
@@ -243,9 +245,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 			plt.setp(hist2_ax.get_yaxis(), visible=False)
 
 		y1 = np.array([
-			cov1[complex_id] for complex_id in complexes_to_plot])
+			cv1[complex_id] for complex_id in complexes_to_plot])
 		y2 = np.array([
-			cov2[complex_id] for complex_id in complexes_to_plot])
+			cv2[complex_id] for complex_id in complexes_to_plot])
 		draw_plot(y1, y2, 1, 0, 3)
 
 		# Plot comparisons of total monomer and complex counts
@@ -279,6 +281,26 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
+
+		# Write table
+		with open(os.path.join(plotOutDir, plotOutFileName + '_table.tsv'), 'w') as f:
+			writer = csv.writer(f, delimiter='\t')
+			writer.writerow([
+				'complex ID', 'subunit IDs', 'subunit stoichiometries',
+				'mean subunit counts without operons', 'c.v. without operons',
+				'mean subunit counts with operons', 'c.v. with operons'
+				])
+
+			for complex_id in complexes_to_plot:
+				writer.writerow([
+					complex_id[:-3],
+					', '.join([x[:-3] for x in complex_id_to_subunit_ids[complex_id]]),
+					', '.join([str(x) for x in complex_id_to_subunit_stoichs[complex_id]]),
+					', '.join([str(round(x, 1)) for x in cm1[complex_id]]),
+					cv1[complex_id],
+					', '.join([str(round(x, 1)) for x in cm2[complex_id]]),
+					cv2[complex_id],
+					])
 
 
 	def setup(self, inputDir: str) -> Tuple[
