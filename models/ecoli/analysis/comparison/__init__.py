@@ -6,6 +6,7 @@ ACTIVE = [
 	"coexpression_probabilities.py",
 	"doubling_time_histogram.py",
 	"excess_protein_monomers.py",
+	"gene_position_vs_expression_change.py",
 	"growth_histograms.py",
 	"massFractionComparison.py",
 	"mRNA_copy_numbers.py",
