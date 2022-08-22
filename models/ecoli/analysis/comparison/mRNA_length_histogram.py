@@ -47,6 +47,9 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		lengths1, mean_counts1 = read_sims(ap1, sim_data1)
 		lengths2, mean_counts2 = read_sims(ap2, sim_data2)
 
+		weighted_mean1 = lengths1.dot(mean_counts1) / mean_counts1.sum()
+		weighted_mean2 = lengths2.dot(mean_counts2) / mean_counts2.sum()
+
 		fig = plt.figure(figsize=FIGSIZE)
 		ax = fig.add_subplot(1, 1, 1)
 
@@ -54,10 +57,12 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		ax.hist(
 			lengths1, bins=bins, weights=mean_counts1, alpha=0.5,
-			label=f'reference ({np.mean(lengths1):.1f} $\pm$ {np.std(lengths1):.1f})')
+			label=f'reference (mean: {weighted_mean1:.1f})')
+		ax.axvline(weighted_mean1, ls='--', lw=2, c='C0')
 		ax.hist(
 			lengths2, bins=bins, weights=mean_counts2, alpha=0.5,
-			label=f'input ({np.mean(lengths2):.1f} $\pm$ {np.std(lengths2):.1f})')
+			label=f'input (mean: {weighted_mean2:.1f})')
+		ax.axvline(weighted_mean2, ls='--', lw=2, c='C1')
 		ax.legend(prop={'size': 6})
 
 		ax.set_xlim([10**1.5, 10**4.5])

@@ -50,9 +50,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		ax.hist(
 			mRNA_masses1, bins=bins, alpha=0.5,
 			label=f'reference ({np.mean(mRNA_masses1):.2f} $\pm$ {np.std(mRNA_masses1):.2f})')
+		ax.axvline(np.mean(mRNA_masses1), ls='--', lw=2, c='C0')
 		ax.hist(
 			mRNA_masses2, bins=bins, alpha=0.5,
 			label=f'input ({np.mean(mRNA_masses2):.2f} $\pm$ {np.std(mRNA_masses2):.2f})')
+		ax.axvline(np.mean(mRNA_masses2), ls='--', lw=2, c='C1')
 
 		ax.legend(prop={'size': 6})
 
