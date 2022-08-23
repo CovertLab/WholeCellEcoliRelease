@@ -1,166 +1,186 @@
 ## How to set up a Python runtime environment for the Whole Cell Model.
-## (See docs/create-pyenv.md for more details.)
+## (See docs/create-pyenv.md for more details, esp. for Sherlock.)
 ## (See docs/dev-tools.md for prerequisites such as installing command line
-## tools, additional SDK headers, and adding pyenv init to your shell.)
+## tools, additional SDK headers, and add pyenv init to your shell.)
 #
 ## Install these packages using your local package manager such as homebrew on macOS:
 #   brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
 #   brew install glpk openssl readline swig suite-sparse xz
 #
-## Optional: Download and install other packages according to their instructions
-## or take a wait-and-see approach with them:
-#	CPLEX from IBM (free for students)
+## Whole Cell Model requires OpenBLAS 0.3.7+ or equivalent. Installing numpy and
+## scipy binary wheels now embed a recent enough OpenBLAS release by default.
+##
+## If OpenBLAS uses multiple threads, it will produce slightly different results
+## and usually runs significantly slower, esp. when called from multiple
+## processes. See wholecell/tests/utils/test_openblas_threads.py .
+## To fix that, set the environment variable:
+#   export OPENBLAS_NUM_THREADS=1
 #
 ## Install the required version of Python via pyenv, and remember to enable it as
 ## a shared library:
-#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.7
 #
-## Create the "wcEcoli-paper" python virtual environment and select it for your project
-## directory (adjust this for where you keep your git repo clones, e.g. ~/dev/):
+## Create the "wcEcoli3" python virtual environment based on that Python version,
+## and select it for your project directory:
 #   cd ~/dev/wcEcoli
-#   pyenv local 2.7.16
-#   pyenv virtualenv wcEcoli-paper
-#   pyenv local wcEcoli-paper
+#   pyenv virtualenv 3.8.7 wcEcoli3 && pyenv local wcEcoli3
 #
 ## Upgrade this virtual environment's installers:
-#   pip install pip==20.1.1 setuptools==44.1.1 virtualenv==16.4.1 virtualenv-clone==0.5.1 virtualenvwrapper==4.8.4 wheel==0.34.2
+#   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
 #
-## Install OpenBLAS 0.3.5 or later using your package manager or download and
-## build it from source. (Earlier releases of OpenBLAS had threading bugs. So
-## does Apple's "Accelerate" framework and Intel's Math Kernel Library, so don't
-## use those substitutes.) See docs/create-pyenv.md for instructions if you need
-## to download and build OpenBLAS.
-#
-## Create ~/.numpy-site.cfg pointing to your openblas installation.
-## (Brew installs openblas in /usr/local/opt/openblas/. Building it from source,
-## you might've installed it in /opt/OpenBLAS/.)
-#    [openblas]
-#    libraries = openblas
-#    library_dirs = /usr/local/opt/openblas/lib
-#    include_dirs = /usr/local/opt/openblas/include
-#
-## Install NumPy linked to this OpenBLAS thanks to ~/.numpy-site.cfg:
-#   pip install numpy==1.14.6 --no-binary numpy
-#
-## Install the packages listed in this file (SciPy will also use ~/.numpy-site.cfg):
-#   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary numpy,scipy,cvxopt; pyenv rehash
-#
-## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
+## Install numpy (if it's the first time) then all the packages listed in this file (see
+## docs/create-pyenv.md about whether to add `--no-binary numpy,scipy` to these steps):
+## [When updating numpy here also update it below, in Dockerfile, and in docs/*.]
+#   pip install numpy==1.19.5
+#   pip install -r requirements.txt && pyenv rehash
 
-appnope==0.1.0
-astroid==1.6.5
-atomicwrites==1.1.5
-attrs==18.1.0
-backports-abc==0.5
-backports.functools-lru-cache==1.5
-backports.shutil-get-terminal-size==1.0.0
-backports.ssl-match-hostname==3.5.0.1
-biopython==1.72
-bokeh==0.11.1  # bokeh==0.12+ require changes
-certifi==2018.4.16
-chardet==3.0.4
-click==6.7
-colorama==0.3.9
-configparser==3.5.0
-coverage==4.5.1
-cplex==12.8.0.0
-CVXcanon==0.1.1
-cvxopt==1.1.7  # cvxopt==1.2.0 installs on OSX but not on Sherlock
-cvxpy==1.0.6
-cycler==0.10.0
-Cython==0.28.4
-decorator==4.3.0
-dill==0.2.8.2
-docutils==0.14
-ecos==2.0.5
-enum34==1.1.6
+# Installers
+pip>=20.1.1
+setuptools>=49.1.0
+virtualenv>=20.0.26
+virtualenv-clone>=0.5.4
+virtualenvwrapper>=4.8.4
+wheel>=0.34.2
+
+# Direct dependendencies, frozen at the latest version 2020-07-08, except bokeh is
+# frozen at the latest version that's compatible with Python 2.
+#
+# dnspython is for pymongo to access server clusters.
+# pytest-cov is for `pytest --cov`.
+#
+# TODO: Periodically unfreeze, update, test, and refreeze.
+numpy==1.19.5
+scipy==1.5.4
+
+aesara==2.0.8
+biopython==1.77
+bokeh==1.4.0
+borealis-fireworks==0.11.0
+cvxpy==1.1.10
+Cython==0.29.21
+dash==1.18.1
+dnspython==2.0.0
 Equation==1.2.1
-fastcache==1.0.2
-FireWorks==1.8.7
-Flask==1.0.2
-flask-paginate==0.5.1
-funcsigs==1.0.2
-functools32==3.2.3.post2
-future==0.16.0
-futures==3.2.0
-gnureadline==6.3.8
-gunicorn==19.7.1
-idna==2.6
-ipdb==0.11
-ipython==5.7.0  # 6.0+ are for Python 3
-ipython-genutils==0.2.0
-isort==4.3.4
-itsdangerous==0.24
-Jinja2==2.10.1
-jsonschema==2.6.0
-jupyter-core==4.4.0
-kiwisolver==1.0.1
-lazy-object-proxy==1.3.1
-line-profiler==2.1.2
-MarkupSafe==1.0
-matplotlib==2.2.2
-matplotlib-venn==0.11.5
-mccabe==0.6.1
-memory-profiler==0.52.0
-mock==2.0.0
-monty==1.0.3
-more-itertools==4.2.0
-mpmath==1.0.0
-multiprocess==0.70.6.1
-nbformat==4.4.0
-nose==1.3.7
-numpy==1.14.6
-optlang==1.4.2
-osqp==0.4.1
-packaging==17.1
-pandas==0.22.0  # pandas 0.23+ releases have backwards incompatible API changes
-path.py==11.0.1
-pathlib==1.0.1
-pathlib2==2.3.3
-pbr==4.1.0
-pexpect==4.6.0
-pickleshare==0.7.4
-pluggy==0.6.0
-prompt-toolkit==1.0.15
-psutil==5.6.6
-ptyprocess==0.6.0
-py==1.5.4
-py-cpuinfo==4.0.0
-Pygments==2.2.0
-pylint==1.9.2
-pymongo==3.6.1
-pyparsing==2.2.0
-pytest==3.6.3
-pytest-benchmark==3.1.1
-python-dateutil==2.7.3
-pytz==2018.5
-PyYAML==5.1
-requests==2.21.0
-ruamel.ordereddict==0.4.13
-ruamel.yaml==0.15.94
-scandir==1.7
-scipy==1.0.1
-scs==2.0.2
-simplegeneric==0.8.1
-singledispatch==3.4.0.3
-six==1.11.0
-statistics==1.0.3.5
-subprocess32==3.5.2
-swiglpk==1.4.4
-sympy==1.1.1
-tabulate==0.8.2
-Theano==1.0.2
-toolz==0.9.0
-tornado==5.0.2
-tqdm==4.23.0
-traitlets==4.3.2
-typing==3.6.6
+FireWorks==1.9.7
+future==0.18.2
+ipdb==0.13.3
+ipython==7.16.1
+line-profiler==3.0.2
+llvmlite==0.33.0
+matplotlib==3.2.2
+mock==4.0.2
+mypy==0.812
+numba==0.50.1
+pandas==1.0.5
+Pillow==7.2.0
+plotly==4.14.1
+pymongo==3.10.1
+pytest==5.4.3
+pytest-cov==2.10.0
+PyYAML==5.3.1
+ruamel.yaml==0.16.10
+six==1.15.0
+stochastic-arrow==0.5.0
+swiglpk==4.65.1
+sympy==1.6.1
 Unum==4.1.4
-urllib3==1.24.2
-virtualenv==16.4.1
-virtualenv-clone==0.5.1
-virtualenvwrapper==4.8.4
-wcwidth==0.1.7
-Werkzeug==0.15.3
-wrapt==1.10.11
-xlrd==1.1.0
+
+## The following requirements were added by pip freeze:
+alphashape==1.1.0
+appdirs==1.4.4
+appnope==0.1.0
+Arpeggio==1.9.2
+attrs==19.3.0
+backcall==0.2.0
+backports.entry-points-selectable==1.1.0
+Brotli==1.0.9
+cachetools==4.1.1
+certifi==2020.6.20
+cffi==1.14.0
+chardet==3.0.4
+click==7.1.2
+click-log==0.3.2
+cobra==0.18.1
+coverage==5.2
+cycler==0.10.0
+dash-core-components==1.14.1
+dash-html-components==1.1.1
+dash-renderer==1.8.3
+dash-table==4.11.1
+decorator==4.4.2
+depinfo==1.5.3
+distlib==0.3.1
+docker==4.2.2
+ecos==2.0.7.post1
+filelock==3.4.2
+Flask==1.1.2
+Flask-Compress==1.8.0
+flask-paginate==0.7.0
+google-api-core==1.26.3
+google-auth==1.28.1
+google-cloud-core==1.6.0
+google-cloud-logging==2.3.1
+google-cloud-storage==1.37.1
+google-crc32c==1.1.2
+google-resumable-media==1.2.0
+googleapis-common-protos==1.53.0
+grpcio==1.37.0
+gunicorn==20.0.4
+idna==2.10
+ipython-genutils==0.2.0
+itsdangerous==1.1.0
+jedi==0.17.1
+Jinja2==2.11.2
+kiwisolver==1.2.0
+MarkupSafe==1.1.1
+monty==3.0.2
+more-itertools==8.4.0
+mpmath==1.1.0
+mypy-extensions==0.4.3
+networkx==2.4
+optlang==1.4.4
+osqp==0.6.1
+packaging==20.4
+parsimonious==0.8.1
+parso==0.7.0
+pbr==5.4.5
+pexpect==4.8.0
+pickleshare==0.7.5
+Pint==0.14
+pipdeptree==1.0.0
+platformdirs==2.4.0
+pluggy==0.13.1
+prompt-toolkit==3.0.5
+proto-plus==1.18.1
+protobuf==3.15.8
+ptyprocess==0.6.0
+py==1.9.0
+py-cpuinfo==7.0.0
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycparser==2.20
+Pygments==2.6.1
+pymunk==5.6.0
+pyparsing==2.4.7
+pytest-benchmark==3.2.3
+python-dateutil==2.8.1
+python-libsbml-experimental==5.18.1
+pytz==2020.1
+requests==2.24.0
+retrying==1.3.3
+rsa==4.6
+ruamel.yaml.clib==0.2.0
+scs==2.1.2
+shapely==1.7.1
+stevedore==2.0.1
+subprocess32==3.5.4
+tabulate==0.8.7
+tornado==6.0.4
+tqdm==4.47.0
+traitlets==4.3.3
+typed-ast==1.4.3
+typing_extensions==4.0.1
+urllib3==1.25.9
+wcwidth==0.2.5
+websocket-client==0.57.0
+Werkzeug==1.0.1

@@ -1,0 +1,6 @@
+"tRNA"	"Target"	"_notes"
+"tRNA-Leu"	"ilvA"	"Removed for more stable growth with amino acid supply by making ilvA more responsive to low Ile charging."
+"tRNA-Val"	"ilvA"	"Val activates enzyme activity which is not included in the model so high Val should have a neutral impact on IlvA activity not just repressing from attenuation."
+"tRNA-Ile"	"ilvE"	"Removed for more stable growth with amino acid supply because ilvE catalyzes a forward and reverse reaction for multiple amino acids but is only accounted for as the reverse enzyme in the pathway representation. Could be removed if intermediates are considered in amino_acid_pathways.tsv"
+"tRNA-Leu"	"ilvE"	"Removed for more stable growth with amino acid supply because ilvE catalyzes a forward and reverse reaction for multiple amino acids but is only accounted for as the reverse enzyme in the pathway representation. Could be removed if intermediates are considered in amino_acid_pathways.tsv"
+"tRNA-Val"	"ilvE"	"Removed for more stable growth with amino acid supply because ilvE catalyzes a forward and reverse reaction for multiple amino acids but is only accounted for as the reverse enzyme in the pathway representation. Could be removed if intermediates are considered in amino_acid_pathways.tsv"

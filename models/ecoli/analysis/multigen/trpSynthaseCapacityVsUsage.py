@@ -1,21 +1,15 @@
 """
 Plot trp regulation
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
@@ -24,19 +18,12 @@ BURN_IN = 10
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-
-		allDirs = ap.get_cells()
+		allDirs = self.ap.get_cells()
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		trpIdx = sim_data.moleculeGroups.aaIDs.index("TRP[c]")
+		trpIdx = sim_data.molecule_groups.amino_acids.index("TRP[c]")
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -61,16 +48,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			trpSynKcat = 2**( (37. - 25.) / 10.) * 4.1 # From PMID 6402362 (kcat of 4.1/s measured at 25 C)
 
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[BURN_IN:]
-			timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")[BURN_IN:]
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			# initialTime = main_reader.readAttribute("initialTime")
+			time = main_reader.readColumn("time")[BURN_IN:]
+			timeStep = main_reader.readColumn("timeStepSec")[BURN_IN:]
 
 
 			trpSynMaxCapacity = trpSynKcat * trpSynCounts * timeStep
 
 
 			##############################################################
-			ax = plt.subplot(3, 1, 1)
+			ax = self.subplot(3, 1, 1)
 			ax.plot(time / 60., trpSynMaxCapacity, color = "b")
 			plt.ylabel("Tryptophan Synthase Max Capacity", fontsize = 10)
 
@@ -85,7 +73,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(3, 1, 2)
+			ax = self.subplot(3, 1, 2)
 			ax.plot(time, trpRequests, color = "b")
 			plt.ylabel("Trp Requested By Translation", fontsize = 10)
 
@@ -101,7 +89,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			##############################################################
-			ax = plt.subplot(3, 1, 3)
+			ax = self.subplot(3, 1, 3)
 			ax.plot(time / 3600., trpSynMaxCapacity / trpRequests, color = "b")
 			ax.plot([0, time[-1] / 3600.], [1., 1.], "k--")
 			plt.ylabel("(Max capacity) / (Request)", fontsize = 10)

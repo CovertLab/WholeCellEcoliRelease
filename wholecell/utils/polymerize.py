@@ -8,23 +8,20 @@ profile. It @profile-decorates polymerize().
 
 TODO:
 - document algorithm/corner cases (should already exist somewhere...)
-
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/23/14
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 from ._build_sequences import buildSequences, computeMassIncrease
 from ._fastsums import sum_monomers, sum_monomers_reference_implementation
+from six.moves import range
 
-# Reexport _build_sequences functions. (Declaring this avoids
-# "unused import statement" warnings.)
-__all__ = ['polymerize', 'buildSequences', 'computeMassIncrease']
+# Reexport these Cython functions. Declaring them avoids
+# "unused import statement" warnings.
+__all__ = ['polymerize', 'buildSequences', 'computeMassIncrease',
+	'sum_monomers_reference_implementation']
 
 def sample_array(array):
 	samples = np.random.random(array.shape)
@@ -34,6 +31,9 @@ def choices(array, n):
 	indexes = np.arange(array.shape[0])
 	np.random.shuffle(indexes)
 	return indexes[:n]
+
+class DimensionException(Exception):
+	pass
 
 class polymerize(object): # Class name is lowercase because interface is function-like
 	"""
@@ -55,7 +55,10 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			indicating how far the sequences proceeded,
 		monomerUsages: ndarray of integer, shape (num_monomers,) counting how
 			many monomers of each type got used,
-		nReactions: total number of reactions (monomers used).
+		nReactions: total number of reactions (monomers used),
+		sequences_limited_elongation: ndarray of bool, shape (num_sequences,),
+			mask indicating whether the sequences were actually elongated to the
+			max lengths expected from the current step.
 	"""
 
 	PAD_VALUE = -1
@@ -69,11 +72,16 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			elongation_rates,
 			variable_elongation=False):
 
+		# Check dimensions
+		if sequences.shape[0] != len(elongation_rates):
+			raise DimensionException('Dimensions of input sequences and elongation rates do not match.')
+
 		# Gather inputs
 		self._sequences = sequences
 		self._monomerLimits = monomerLimits
 		self._reactionLimit = reactionLimit
 		self._randomState = randomState
+		self._raw_elongation_rates = elongation_rates
 		self.elongation_rates = elongation_rates / np.max(elongation_rates)
 		self.variable_elongation = variable_elongation
 
@@ -126,8 +134,8 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		#     (num_monomers, num_sequences, num_steps), a bitmask of monomer usage.
 		self._sequenceMonomers = np.empty(
 			(self._nMonomers, self._nSequences, self._sequenceLength),
-			dtype = np.bool)
-		for monomerIndex in xrange(self._nMonomers):
+			dtype = bool)
+		for monomerIndex in range(self._nMonomers):
 			self._sequenceMonomers[monomerIndex, ...] = (
 				self._sequences == monomerIndex)
 
@@ -156,7 +164,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 		# Empty placeholders - will be filled in during trivial elongation,
 		# then inspected during nontrivial (resource-limited) elongation
-		self._monomerIsLimiting = np.empty(self._nMonomers, np.bool)
+		self._monomerIsLimiting = np.empty(self._nMonomers, bool)
 		self._reactionIsLimiting = None
 
 	def _prepare_outputs(self):
@@ -168,6 +176,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
 		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
+		self.sequences_limited_elongation = np.full(self._nSequences, False)
 
 	# Iteration subroutines
 
@@ -357,6 +366,13 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		'''
 
 		self._clamp_elongation_to_sequence_length()
+		# sequences_limited_elongation: ndarray of bool, shape (num_sequences,),
+		#	mask indicating whether the sequences were actually elongated to the
+		#	max lengths expected from the current step
+		self.sequences_limited_elongation = (
+			np.minimum(self._raw_elongation_rates, self._sequenceLength)
+			!= self.sequenceElongation
+			)
 
 	def _clamp_elongation_to_sequence_length(self):
 		'''

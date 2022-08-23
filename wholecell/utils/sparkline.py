@@ -1,19 +1,21 @@
-#!/usr/bin/env python
-
 '''
 Utility functions for generating sparkline plots
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
-def whitePadSparklineAxis(axis, xAxis = True):
-	axis.spines["right"].set_visible(False)
+
+def whitePadSparklineAxis(axis, xAxis=True, secondary=False):
+	axis.spines["right"].set_visible(secondary)
 	axis.spines["top"].set_visible(False)
 	axis.spines["left"].set_position(("outward", 10))
+	axis.spines["right"].set_position(("outward", 10))
 	axis.spines["bottom"].set_position(("outward", 10))
 	axis.set_yticks(axis.get_ylim())
 	axis.set_xticks(axis.get_xlim())
-	axis.tick_params(which = "both", direction = "out", right = False, top = False)
+	axis.tick_params(which="both", direction="out", right=secondary, top=False)
 
 	if not xAxis:
 		axis.spines["bottom"].set_visible(False)
@@ -28,13 +30,13 @@ def simpleSparklineAxis(axis):
 
 
 def sparklineAxis(axis, x, y, tickPos, lineType, color):
-	axis.plot(x, y, linestyle = 'steps' + lineType, color = color, linewidth = 2)
+	axis.plot(x, y, linestyle=lineType, drawstyle='steps', color=color, linewidth=2)
 	axis.spines['top'].set_visible(False)
 	axis.spines['bottom'].set_visible(False)
 	axis.yaxis.set_ticks_position(tickPos)
 	axis.xaxis.set_ticks_position('none')
 	axis.tick_params(which = 'both', direction = 'out')
-	#axis.tick_params(labelbottom = 'off')
+
 	for tl in axis.get_yticklabels():
 		tl.set_color(color)
 

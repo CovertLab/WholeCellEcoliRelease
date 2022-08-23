@@ -1,23 +1,14 @@
-#!/usr/bin/env python
-
 """
 Logger
 
 Abstract class which defines the interface loggers expose to the simulation
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/28/2013
 """
-
-from __future__ import division
 
 import abc
 
-class Logger(object):
+
+class Logger(metaclass=abc.ABCMeta):
 	""" Logger """
-	
-	__metaclass__ = abc.ABCMeta
 
 	@abc.abstractmethod
 	def initialize(self, sim):

@@ -1,12 +1,20 @@
+# A temporary copy to upload to Cloud Build. Don't .dockerignore it.
+/cloud/docker/runtime/requirements.txt
+
 # Compiled source #
 ###################
 *.pyc
+__pycache__
 
 # OS generated files #
 ######################
 .DS_Store
 .DS_Store?
 ._*
+
+# git source info to copy into Docker Images #
+##############################################
+/source-info/
 
 # VIM temp files #
 ##################
@@ -22,6 +30,7 @@ coverage.xml
 nosetests.xml
 nosetests.*.xml
 .pytest_cache
+/unittests.xml
 
 # IPython notebook files #
 ##########################
@@ -29,11 +38,9 @@ nosetests.*.xml
 
 # Output files #
 ################
-out
-out/*
-!out/out.txt
-!out/images.html
-!out/makeHtml.py
+/out
+/colony/out
+reconstruction/ecoli/scripts/nca/out/
 
 # Cached sim data #
 ###################
@@ -72,15 +79,15 @@ user/*
 # kernprof.py output #
 ######################
 *.lprof
+*.prof
 
 # pyenv python version #
 ########################
 .python-version
 
-# files created from templates #
-################################
-/my_launchpad*.yaml
-/my_qadapter*.yaml
+# personal config files #
+#########################
+/*.yaml
 
 # Fireworks output #
 ####################
@@ -88,7 +95,7 @@ launcher_*
 block_*
 FW.json
 
-# Fitter output #
+# Parca output #
 #################
 reconstruction/ecoli/dataclasses/process/equilibrium_odes.py
 reconstruction/ecoli/dataclasses/process/two_component_system_odes.py
@@ -107,7 +114,11 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 *.pickle
 *.log
 *.hdf
+*.tar.gz
 /build/
+/.mypy_cache/
+secrets.*
+reconstruction/ecoli/scripts/nca/data/regulon-db/*.tsv
 
 # PyCharm files #
 #################
@@ -120,6 +131,7 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 .idea/libraries
 .idea/codeStyleSettings.xml
 .idea/codeStyles/codeStyleConfig.xml
+.idea/inspectionProfiles/profiles_settings.xml
 
 # Potentially OK if editing it to project-jdk-name="Python 2.7" works:
 .idea/misc.xml
@@ -135,7 +147,18 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 
 # Gradle:
 .idea/gradle.xml
-.idea/libraries
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
+
+# LaTeX compilation files #
+###########################
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# VSCode:
+.vscode/

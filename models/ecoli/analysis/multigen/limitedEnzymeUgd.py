@@ -1,20 +1,15 @@
 """
 Plots limited enzyme fluxes, protein counts, and transcription initiation events.
-
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/3/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
@@ -23,45 +18,39 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		enzymeComplexId = "CPLX0-8098[c]"
 		enzymeMonomerId = "UGD-MONOMER[c]"
-		enzymeRnaId = "G7091_RNA[c]"
+		enzyme_rna_cistron_id = "G7091_RNA"
 		reactionId = "UGD-RXN"
 		transcriptionFreq = 0.64
 		metaboliteId = "UDP-GLUCURONATE[c]"
-
-		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		mRnaIndexes = np.where(isMRna)[0]
-		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
 		simOutDir = os.path.join(allDir[0], "simOut")
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		enzymeComplexIndex = moleculeIds.index(enzymeComplexId)
 		enzymeMonomerIndex = moleculeIds.index(enzymeMonomerId)
-		enzymeRnaIndex = moleculeIds.index(enzymeRnaId)
 		metaboliteIndex = moleculeIds.index(metaboliteId)
-		bulkMolecules.close()
+
+		mRNA_counts_reader = TableReader(
+			os.path.join(simOutDir, 'mRNACounts'))
+		all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+		enzyme_rna_cistron_index = all_mRNA_cistron_ids.index(enzyme_rna_cistron_id)
+
+		rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+		rnap_data_cistron_ids = rnapDataReader.readAttribute('cistron_ids')
+		enzyme_RNA_cistron_index_rnap_data = rnap_data_cistron_ids.index(enzyme_rna_cistron_id)
 
 		time = []
 		enzymeFluxes = []
 		enzymeComplexCounts = []
 		enzymeMonomerCounts = []
-		enzymeRnaCounts = []
-		enzymeRnaInitEvent = []
+		enzyme_rna_cistron_counts = []
+		enzyme_cistron_init_event = []
 		metaboliteCounts = []
 
 		for gen, simDir in enumerate(allDir):
@@ -73,19 +62,20 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			moleculeCounts = bulkMolecules.readColumn("counts")
 			enzymeComplexCounts += moleculeCounts[:, enzymeComplexIndex].tolist()
 			enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
-			enzymeRnaCounts += moleculeCounts[:, enzymeRnaIndex].tolist()
 			metaboliteCounts += moleculeCounts[:, metaboliteIndex].tolist()
-			bulkMolecules.close()
+
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+			enzyme_rna_cistron_counts += mRNA_cistron_counts[:, enzyme_rna_cistron_index].tolist()
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 			reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
-			fbaResults.close()
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			enzymeRnaInitEvent += rnapDataReader.readColumn("rnaInitEvent")[:, np.where(mRnaIds == enzymeRnaId)[0][0]].tolist()
-			rnapDataReader.close()
+			enzyme_cistron_init_event += rnapDataReader.readColumn("rna_init_event_per_cistron")[:, enzyme_RNA_cistron_index_rnap_data].tolist()
 
 		time = np.array(time)
 
@@ -98,13 +88,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		fluxAxis = plt.subplot(6, 1, 5, sharex = rnaInitAxis)
 		metAxis = plt.subplot(6, 1, 6, sharex = rnaInitAxis)
 
-		rnaInitAxis.plot(time / 3600., enzymeRnaInitEvent)
-		rnaInitAxis.set_title("%s transcription initiation events" % enzymeRnaId, fontsize = 10)
+		rnaInitAxis.plot(time / 3600., enzyme_cistron_init_event)
+		rnaInitAxis.set_title("%s transcription initiation events" % enzyme_rna_cistron_id, fontsize = 10)
 		rnaInitAxis.set_xlim([0, time[-1] / 3600.])
 		rnaInitAxis.set_ylim([0, rnaInitAxis.get_ylim()[1] * 1.1])
 
-		rnaAxis.plot(time / 3600., enzymeRnaCounts)
-		rnaAxis.set_title("%s counts" % enzymeRnaId, fontsize = 10)
+		rnaAxis.plot(time / 3600., enzyme_rna_cistron_counts)
+		rnaAxis.set_title("%s counts" % enzyme_rna_cistron_id, fontsize = 10)
 
 		monomerAxis.plot(time / 3600., enzymeMonomerCounts)
 		monomerAxis.set_title("%s counts" % enzymeMonomerId, fontsize = 10)

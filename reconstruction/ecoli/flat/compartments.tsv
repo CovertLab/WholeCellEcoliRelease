@@ -1,11 +1,10 @@
-"abbrev"	"id"
-"n"	"CCO-BAC-NUCLEOID"
-"j"	"CCO-CELL-PROJECTION"
-"w"	"CCO-CW-BAC-NEG"
-"c"	"CCO-CYTOSOL"
-"e"	"CCO-EXTRACELLULAR"
-"m"	"CCO-MEMBRANE"
-"o"	"CCO-OUTER-MEM"
-"p"	"CCO-PERI-BAC"
-"l"	"CCO-PILUS"
-"i"	"CCO-PM-BAC-NEG"
+"id"	"abbrev"	"complexation_priority"
+"CCO-CELL-PROJECTION"	"j"	2
+"CCO-CYTOSOL"	"c"	8
+"CCO-EXTRACELLULAR"	"e"	6
+"CCO-FLAGELLUM"	"s"	1
+"CCO-MEMBRANE"	"m"	5
+"CCO-OUTER-MEM"	"o"	3
+"CCO-PERI-BAC"	"p"	7
+"CCO-PILUS"	"l"	0
+"CCO-PM-BAC-NEG"	"i"	4

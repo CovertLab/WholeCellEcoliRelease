@@ -1,20 +1,13 @@
-#!/usr/bin/env python
-
 """
 RibosomeData
-
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/21/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 import wholecell.listeners.listener
 
-# from numpy.lib.recfunctions import merge_arrays
 
 VERBOSE = False
 
@@ -32,32 +25,22 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RibosomeData, self).initialize(sim, sim_data)
 
-		# Logged quantities
-		self.registerLoggedQuantity(
-			"Fraction\nribosomes\nstalled",
-			"fractionStalled",
-			".3f"
-			)
+		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
+
+		self.monomerIds = sim_data.process.translation.monomer_data['id'].tolist()
+		self.nMonomers = len(self.monomerIds)
 
 
 	# Allocate memory
 	def allocate(self):
 		super(RibosomeData, self).allocate()
 
-		# Computed, saved attributes
-		self.stallingRateTotal = 0
-		self.stallingRateMean = 0
-		self.stallingRateStd = 0
-		self.fractionStalled = 0
-
 		# Attributes broadcast by the PolypeptideElongation process
-		self.ribosomeStalls = np.zeros(0, np.int64)
 		self.aaCountInSequence = np.zeros(21, np.int64)
 		self.aaCounts = np.zeros(21, np.int64)
 		self.actualElongations = 0
 		self.actualElongationHist = np.zeros(22, np.int64)
 		self.elongationsNonTerminatingHist = np.zeros(22, np.int64)
-		self.expectedElongations = 0
 		self.didTerminate = 0
 		self.didInitialize = 0
 		self.terminationLoss = 0
@@ -72,39 +55,55 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.processElongationRate = 0.
 		self.translationSupply = np.zeros(21, np.float64)
 		self.numTrpATerminated = 0.
+		self.probTranslationPerTranscript = np.zeros(self.nMonomers, np.float64)
+
+		# Attributes computed by the listener
+		self.n_ribosomes_per_transcript = np.zeros(self.nMonomers, np.int64)
+		self.n_ribosomes_on_partial_mRNA_per_transcript = np.zeros(self.nMonomers, np.int64)
 
 	def update(self):
-		if self.ribosomeStalls.size:
-			# TODO: divide rates by time step length
-			self.stallingRateTotal = self.ribosomeStalls.sum()
-			self.stallingRateMean = self.ribosomeStalls.mean()
-			self.stallingRateStd = self.ribosomeStalls.std()
-			self.fractionStalled = (self.ribosomeStalls > 0).mean()
+		# Get attributes of RNAs and ribosomes
+		RNAs = self.uniqueMolecules.container.objectsInCollection('RNA')
+		ribosomes = self.uniqueMolecules.container.objectsInCollection(
+			'active_ribosome')
+		is_full_transcript_RNA, unique_index_RNA = RNAs.attrs(
+			'is_full_transcript', 'unique_index')
+		protein_index_ribosomes, mRNA_index_ribosomes = ribosomes.attrs(
+			'protein_index', 'mRNA_index')
 
-		else:
-			self.stallingRateTotal = 0
-			self.stallingRateMean = 0
-			self.stallingRateStd = 0
-			self.fractionStalled = 0
+		# Get mask for ribosomes that are translating proteins on partially
+		# transcribed mRNAs
+		ribosomes_on_nascent_mRNA_mask = np.isin(
+			mRNA_index_ribosomes,
+			unique_index_RNA[np.logical_not(is_full_transcript_RNA)])
+
+		# Get counts of ribosomes for each type
+		self.n_ribosomes_per_transcript = np.bincount(
+			protein_index_ribosomes, minlength=self.nMonomers)
+		self.n_ribosomes_on_partial_mRNA_per_transcript = np.bincount(
+			protein_index_ribosomes[ribosomes_on_nascent_mRNA_mask],
+			minlength=self.nMonomers)
 
 	def tableCreate(self, tableWriter):
-		pass
+		subcolumns = {
+			'probTranslationPerTranscript': 'monomerIds',
+			'n_ribosomes_per_transcript': 'monomerIds',
+			'n_ribosomes_on_partial_mRNA_per_transcript': 'monomerIds',
+			}
 
+		tableWriter.writeAttributes(
+			monomerIds = self.monomerIds,
+			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			stallingRateTotal = self.stallingRateTotal,
-			stallingRateMean = self.stallingRateMean,
-			stallingRateStd = self.stallingRateStd,
-			fractionStalled = self.fractionStalled,
 			aaCountInSequence = self.aaCountInSequence,
 			aaCounts = self.aaCounts,
 			actualElongations = self.actualElongations,
 			actualElongationHist = self.actualElongationHist,
 			elongationsNonTerminatingHist = self.elongationsNonTerminatingHist,
-			expectedElongations = self.expectedElongations,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss,
@@ -119,4 +118,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			processElongationRate = self.processElongationRate,
 			translationSupply = self.translationSupply,
 			numTrpATerminated = self.numTrpATerminated,
+			probTranslationPerTranscript = self.probTranslationPerTranscript,
+			n_ribosomes_per_transcript = self.n_ribosomes_per_transcript,
+			n_ribosomes_on_partial_mRNA_per_transcript = self.n_ribosomes_on_partial_mRNA_per_transcript,
 			)

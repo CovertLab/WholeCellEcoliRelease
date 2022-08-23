@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+\usepackage{amsmath}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Protein degradation}
+
+\subparagraph{Model Implementation.}
+The \texttt{ProteinDegradation} process accounts for the degradation of protein monomers. It uses the N-end rule \cite{Tobias:1991tz} to assign half-lives for each protein monomer with half-lives for select protein determined experimentally as noted in the main text. Specific proteins to be degraded are selected as a Poisson process. The \emph{E. coli} model is not yet gene complete, hence this process does not take into account the activities of specific proteases and does not specifically target prematurely aborted polypeptides. In addition, protein unfolding and refolding by chaperones is not accounted for by this process. The exclusion of these effects is a difference from the \textit{M. genitalium} model and may be the reason for the discrepancies in protein half-lives observed in Figure 5.\\
+
+\begin{algorithm}[H]
+\caption{Protein degradation}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+
+  \Input{$t_{1/2,i}$ Protein half-lives for each monomer where $i = 1$ \KwTo $n_{protein}$}
+    \Input{$L_i$ length of each protein monomer where $i = 1$ \KwTo $n_{protein}$}
+    \Input{$c_{aa,i,j}$ number of each amino acid present in the protein monomer where $i = 1$ \KwTo $n_{protein}$ and  $j = 1$ \KwTo $21$ for each amino acid}
+    \Input{$c_{protein,i}$ the number of each protein present in the cell}
+    \textbf{1.} Determine how many proteins to degrade based on the degradation rates and counts of each protein. \\
+    \-\hspace{1cm} $n_{protein, i}$ = $\texttt{poisson}(\frac{ln(2)}{t_{1/2,i}} \cdot c_{protein, i} \cdot \Delta t$)\\
+    \textbf{2.} Determine the number of hydrolysis reactions ($n_{rxns}$) that will need to occur.\\
+    \-\hspace{1cm} $n_{rxns} = \sum\limits_i (L_i - 1) \cdot n_{proteins,i}$\\
+
+    \textbf{3.} Determine the number of amino acids ($n_{aa,j}$) that will be released.\\
+    \-\hspace{1cm} $n_{aa,j} = \sum\limits_i c_{aa,i,j} \cdot n_{proteins,i}$\\
+    \textbf{4.} Degrade selected proteins, release amino acids from those proteins back into the cell, and consume $H_2O$ according to the number required for the hydrolysis reactions.\\
+    \textbf{Result:} Proteins are selected and degraded. During the process water is consumed, and amino acids are released.
+\end{algorithm}
+
+\newpage
+\textbf{Associated data}
+
+ \begin{table}[h!]
+ \centering
+ \begin{tabular}{c c c c c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+N-end rule protein half-lives & $t_{1/2}$ & min & 2 or 600 & \cite{Tobias:1991tz} \\
+Measured protein half-lives & $t_{1/2}$ & hr & [0.6, 39.7] & This study \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for protein degradation]{Table of parameters for protein degradation process. The measured protein half-lives are for DcuR, BioD, Rph, CarA, Pnp, GshA, and CdsA. Note: CdsA was unable to be measured exactly but was observed to be longer than 2 minutes (which is its expected value according to the N-end rule) so was assigned 10 hours.}
+\end{table}
+
+\begin{table}[h!]
+\hspace{16pt} \textbf{Associated files}
+ \begin{center}
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{protein\_degradation.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{translation.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{protein\_half\_lives.tsv} & raw data \\
+ \hline
+\end{tabular}
+\end{center}
+\caption[Table of files for protein degradation]{Table of files for protein degradation.}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

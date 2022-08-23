@@ -1,50 +1,40 @@
 """
 Plot trp regulation
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-
-		allDirs = ap.get_cells()
+		allDirs = self.ap.get_cells()
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
-		cellDensity = sim_data.constants.cellDensity
+		nAvogadro = sim_data.constants.n_avogadro
+		cellDensity = sim_data.constants.cell_density
 
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		argRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX0-228"][0]
+		simOutDir = os.path.join(allDirs[0], "simOut")
+		rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 
-		tfBoundIds = [target + "__CPLX0-228" for target in sim_data.tfToFC["CPLX0-228"].keys()]
-		synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX0-228"].keys()]
+		argRIndex = tf_ids.index("CPLX0-228")
+		target_ids = sim_data.relation.tf_id_to_target_RNAs["CPLX0-228"]
+		target_idx = np.array(
+			[rna_ids.index(target_id) for target_id in target_ids])
 
 		plt.figure(figsize = (8.5, 13))
 		nRows = 9
@@ -52,7 +42,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for simDir in allDirs:
 			simOutDir = os.path.join(simDir, "simOut")
 			# Load time
-			initialTime = 0#TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+			initialTime = 0  # TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 			# Load mass data
@@ -61,7 +51,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			massReader = TableReader(os.path.join(simOutDir, "Mass"))
 			cellMass = units.fg * massReader.readColumn("cellMass")
 			proteinMass = units.fg * massReader.readColumn("proteinMass")
-			massReader.close()
 
 			# Load data from ribosome data listener
 			# ribosomeDataReader = TableReader(os.path.join(simOutDir, "RibosomeData"))
@@ -72,6 +61,18 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+
+			# Load data from mRNA counts listener
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+
+			# Load data from RnaSynthProb listener
+			rna_synth_prob_reader = TableReader(
+				os.path.join(simOutDir, "RnaSynthProb"))
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape((-1, len(rna_ids), len(tf_ids)))
 
 			# Get the concentration of intracellular arg
 			argId = ["ARG[c]"]
@@ -97,8 +98,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			argRMonomerCounts = bulkMoleculeCounts[:, argRMonomerIndex].reshape(-1)
 
 			# Get the promoter-bound status for all regulated genes
-			tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
-			tfBoundCounts = bulkMoleculeCounts[:, tfBoundIndex]
+			tfBoundCounts = n_bound_TF_per_TU[:, target_idx, argRIndex]
 
 			# Get the amount of monomeric carA
 			carAProteinId = ["CARBPSYN-SMALL[c]"]
@@ -110,12 +110,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in carAComplexId])
 			carAComplexCounts = bulkMoleculeCounts[:, carAComplexIndex].reshape(-1)
 
-			# Get the amount of carA mRNA
-			carARnaId = ["EG10134_RNA[c]"]
-			carARnaIndex = np.array([bulkMoleculeIds.index(x) for x in carARnaId])
-			carARnaCounts = bulkMoleculeCounts[:, carARnaIndex].reshape(-1)
-
-			bulkMoleculesReader.close()
+			# Get the amount of carA mRNA cistron
+			carA_rna_cistron_id = ["EG10134_RNA"]
+			carA_rna_cistron_index = np.array([all_mRNA_cistron_ids.index(x) for x in carA_rna_cistron_id])
+			carA_rna_cistron_counts = mRNA_cistron_counts[:, carA_rna_cistron_index].reshape(-1)
 
 			# Compute total counts and concentration of carA in monomeric and complexed form
 			# (we know the stoichiometry)
@@ -124,26 +122,19 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carAProteinTotalConcentration = carAProteinTotalMols * 1. / volume
 
 			# Compute concentration of carA mRNA
-			carARnaMols = 1. / nAvogadro * carARnaCounts
-			carARnaConcentration = carARnaMols * 1. / volume
+			carA_rna_mols = 1. / nAvogadro * carA_rna_cistron_counts
+			carA_rna_concentration = carA_rna_mols * 1. / volume
 
 			# Compute the carA mass in the cell
-			carAMw = sim_data.getter.getMass(carAProteinId)
+			carAMw = sim_data.getter.get_masses(carAProteinId)
 			carAMass = 1. / nAvogadro * carAProteinTotalCounts * carAMw
 
 			# Compute the proteome mass fraction
 			proteomeMassFraction = carAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 			# Get the synthesis probability for all regulated genes
-			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-
-			rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
-			synthProbIndex = np.array([rnaIds.index(x) for x in synthProbIds])
-			synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
-
-			argRBound = rnaSynthProbReader.readColumn("nActualBound")[:,argRIndex]
-
-			rnaSynthProbReader.close()
+			synthProbs = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, target_idx]
+			argRBound = rna_synth_prob_reader.readColumn("nActualBound")[:,argRIndex]
 
 			# Calculate total argR - active, inactive, bound and monomeric
 			argRTotalCounts = 6 * (argRActiveCounts + argRInactiveCounts + argRBound) + argRMonomerCounts
@@ -157,7 +148,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					for i in range(synthProbs.shape[1])]).T
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 1)
+			ax = self.subplot(nRows, 1, 1)
 			ax.plot(time, argConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("Internal ARG Conc. [uM]", fontsize = 6)
 
@@ -172,7 +163,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 2)
+			ax = self.subplot(nRows, 1, 2)
 			ax.semilogy(time, argRActiveCounts, color = "b")
 			ax.semilogy(time, argRInactiveCounts, color = "r")
 			ax.semilogy(time, argRTotalCounts, color = "g")
@@ -190,7 +181,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 3)
+			ax = self.subplot(nRows, 1, 3)
 			ax.plot(time, tfBoundCountsMA)
 			plt.ylabel("ArgR Bound To Promoters\n(Moving Average)", fontsize = 6)
 
@@ -205,7 +196,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 4)
+			ax = self.subplot(nRows, 1, 4)
 			ax.plot(time, synthProbsMA)
 			plt.ylabel("Regulated Gene Synthesis Prob.\n(Moving Average)", fontsize = 6)
 
@@ -220,7 +211,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 5)
+			ax = self.subplot(nRows, 1, 5)
 			ax.plot(time, carAProteinTotalCounts, color = "b")
 			plt.ylabel("CarA Counts", fontsize = 6)
 
@@ -235,7 +226,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 6)
+			ax = self.subplot(nRows, 1, 6)
 			ax.plot(time, carAProteinTotalConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("CarA Concentration", fontsize = 6)
 
@@ -250,9 +241,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 7)
-			ax.plot(time, carARnaCounts, color = "b")
-			plt.ylabel("CarA mRNA Counts", fontsize = 6)
+			ax = self.subplot(nRows, 1, 7)
+			ax.plot(time, carA_rna_cistron_counts, color = "b")
+			plt.ylabel("CarA mRNA cistron counts", fontsize = 6)
 
 			ymin, ymax = ax.get_ylim()
 			ax.set_yticks([ymin, ymax])
@@ -265,9 +256,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 8)
-			ax.plot(time, carARnaConcentration.asNumber(units.umol / units.L), color = "b")
-			plt.ylabel("CarA mRNA\nConcentration", fontsize = 6)
+			ax = self.subplot(nRows, 1, 8)
+			ax.plot(time, carA_rna_concentration.asNumber(units.umol / units.L), color = "b")
+			plt.ylabel("CarA mRNA cistron\nConcentration", fontsize = 6)
 
 			ymin, ymax = ax.get_ylim()
 			ax.set_yticks([ymin, ymax])
@@ -280,7 +271,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 9)
+			ax = self.subplot(nRows, 1, 9)
 			ax.plot(time / 3600., proteomeMassFraction, color = "b")
 			plt.ylabel("CarA Mass Fraction\nof Proteome", fontsize = 6)
 

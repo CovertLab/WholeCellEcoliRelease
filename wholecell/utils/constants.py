@@ -1,38 +1,40 @@
 '''
 constants.py
 
-Simulation constants.  Biological constants should go into the knowledge base;
-configurable constants belong in the default_config.cfg file.
-
+Simulation constants.  Biological constants should go into the knowledge base.
 '''
 
-import os
+from __future__ import absolute_import, division, print_function
 
-TEST_FIXTURE_DIR = os.path.join("fixtures", "test")
 
-OUTPUT_DIRECTORY = os.path.join("out", "simOut")
-
-SERIALIZED_KB_DIR = os.path.join("fixtures", "kb")
-SERIALIZED_KB_PREFIX = "KnowledgeBase"
-SERIALIZED_KB_SUFFIX = ".cPickle"
-SERIALIZED_KB_MOST_FIT_FILENAME = SERIALIZED_KB_PREFIX + "_Most_Fit" + SERIALIZED_KB_SUFFIX
-SERIALIZED_KB_UNFIT_FILENAME = SERIALIZED_KB_PREFIX + "_Unfit" + SERIALIZED_KB_SUFFIX
+OPERON_OPTIONS = ('off', 'on')
+EXTENDED_OPERON_OPTIONS = OPERON_OPTIONS + ('both',)
+DEFAULT_OPERON_OPTION = 'off'
 
 SERIALIZED_RAW_DATA = "rawData.cPickle"
 SERIALIZED_RAW_VALIDATION_DATA = "rawValidationData.cPickle"
 SERIALIZED_VALIDATION_DATA = "validationData.cPickle"
-SERIALIZED_SIM_DATA_PREFIX = "simData"
-SERIALIZED_SIM_DATA_SUFFIX = ".cPickle"
-SERIALIZED_SIM_DATA_FILENAME = "simData_Fit_1.cPickle"
-SERIALIZED_FIT1_FILENAME = SERIALIZED_SIM_DATA_PREFIX + "_Fit_1" + SERIALIZED_SIM_DATA_SUFFIX
-SERIALIZED_SIM_DATA_MOST_FIT_FILENAME = SERIALIZED_SIM_DATA_PREFIX + "_Most_Fit" + SERIALIZED_SIM_DATA_SUFFIX
+SERIALIZED_SIM_DATA_FILENAME = "simData.cPickle"
+SERIALIZED_METRICS_DATA_FILENAME = "metricsData.cPickle"
 SERIALIZED_SIM_DATA_MODIFIED = "simData_Modified.cPickle"
-SERIALIZED_METADATA_FILE = 'metadata.cPickle'
-SERIALIZED_CELL_SPECS = "cellSpecs.cPickle"
+SERIALIZED_INHERITED_STATE = "Daughter%d_inherited_state.cPickle"
+
+# Workflow directories
+KB_PLOT_OUTPUT_DIR = 'kb_plot_out'
+KB_DIR = 'kb'
+VKB_DIR = 'kb'  # VARIANTTYPE_INDEX/kb/ directory containing simData_Modified.cPickle
+OPERON_SUFFIX = "_operons"
+
+METADATA_DIR = 'metadata'  # in KB_DIR and VKB_DIR
+PLOTOUT_DIR = 'plotOut'
+COMPARISON_PLOTOUT_DIR = 'comparison_plot_out'
+
+JSON_METADATA_FILE = 'metadata.json'
+GIT_DIFF_FILE = 'git_diff.txt'
 
 REQUEST_PRIORITY_DEGRADATION = 10
-REQUEST_PRIORITY_ATP_USAGE = 1
 REQUEST_PRIORITY_DEFAULT = 0
 REQUEST_PRIORITY_INTERN = -1 # processes that just request molecules
-REQUEST_PRIORITY_METABOLISM = -10
 REQUEST_PRIORITY_TWO_COMPONENT_SYSTEM = -5
+REQUEST_PRIORITY_TF_BINDING = -10  # need to have low priority with requestAll
+REQUEST_PRIORITY_METABOLISM = -10

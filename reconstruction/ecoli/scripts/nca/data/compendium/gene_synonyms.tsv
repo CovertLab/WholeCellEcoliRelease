@@ -1,0 +1,4654 @@
+b0001	thrL
+b0002	thrA	Hs	thrA1	thrA2	thrD	
+b0003	thrB
+b0004	thrC
+b0005	yaaX
+b0006	yaaA
+b0007	yaaJ
+b0008	talB	yaaK	
+b0009	mog	bisD	chlG	mogA	yaaG	
+b0010	yaaH
+b0011	yaaW	htgA	htpY	
+b0012	htgA
+b0013	yaaI
+b0014	dnaK	groPAB	groPC	groPF	grpC	grpF	seg	
+b0015	dnaJ	faa	groP	grpC	
+b0016	insL-1
+b0017	yi82_1
+b0018	mokC	gefL	
+b0019	nhaA	ant	antA	
+b0020	nhaR	antO	yaaB	
+b0021	insB-1
+b0022	insA-1
+b0023	rpsT	sup(s20)	
+b0024	yaaY
+b0025	ribF	yaaC	
+b0026	ileS	ilvS	
+b0027	lspA
+b0028	fkpB	slpA	yaaD	
+b0029	ispH	lytB	yaaE	
+b0030	rihC	yaaF	
+b0031	dapB
+b0032	carA	arg	cap	pyrA	
+b0033	carB	cap	pyrA	
+b0034	caiF
+b0035	caiE
+b0036	caiD	yaaL	
+b0037	caiC	yaaM	
+b0038	caiB	yaaN	
+b0039	caiA	yaaO	
+b0040	caiT	yaaP	
+b0041	fixA	yaaQ	
+b0042	fixB	yaaR	
+b0043	fixC	yaaS	
+b0044	fixX	yaaT	
+b0045	yaaU	yabE	
+b0046	kefF	yabF	
+b0047	kefC	trkC	
+b0048	folA	tmrA	
+b0049	apaH	cfcB	
+b0050	apaG	corD(S.t.)	temP	
+b0051	rsmA	ksgA	
+b0052	pdxA
+b0053	surA
+b0054	lptD	imp	ostA	yabG	
+b0055	djlA	yabH	
+b0056	yabP
+b0057	yabQ
+b0058	rluA	yabO	
+b0059	hepA	rapA
+b0060	polB	dinA	
+b0061	araD
+b0062	araA
+b0063	araB
+b0064	araC
+b0065	yabI
+b0066	thiQ	sfuC	yabJ	
+b0067	thiP	sfuB	yabK	
+b0068	tbpA
+b0069	sgrR	yabN	
+b0070	setA	yabM	
+b0071	leuD
+b0072	leuC
+b0073	leuB
+b0074	leuA
+b0075	leuL	leuLP	
+b0076	leuO
+b0077	ilvI
+b0078	ilvH	brnP
+b0079	fruL
+b0080	cra	fruC	fruR	fruS?	serR?	shl	
+b0081	mraZ	yabB	
+b0082	rsmH	mraW	yabC	
+b0083	ftsL	mraR	yabD	
+b0084	ftsI	pbpB	sep	
+b0085	murE
+b0086	murF	mra	
+b0087	mraY	murX	
+b0088	murD
+b0089	ftsW
+b0090	murG
+b0091	murC
+b0092	ddlB	ddl	
+b0093	ftsQ
+b0094	ftsA	divA	
+b0095	ftsZ	sfiB	sulB	
+b0096	lpxC	asmB	envA	
+b0097	secM	srrA	yacA	
+b0098	secA	azi	pea	prlD	
+b0099	mutT	nudA	
+b0100	b0100
+b0101	yacG
+b0102	zapD	yacF	
+b0103	coaE	yacE	
+b0104	guaC
+b0105	b0105
+b0106	hofC	hopC	yacD	
+b0107	hofB	hopB	
+b0108	ppdD
+b0109	nadC
+b0110	ampD
+b0111	ampE
+b0112	aroP
+b0113	pdhR	aceC	genA	yacB	
+b0114	aceE
+b0115	aceF
+b0116	lpd	dhl	lpdA	
+b0117	yacH
+b0118	acnB	yacI	yacJ	
+b0119	yacL
+b0120	speD
+b0121	speE
+b0122	yacC	gspS	
+b0123	cueO	cuiD(S.t.)	yacK	
+b0124	gcd
+b0125	hpt
+b0126	can	yadF	
+b0127	yadG
+b0128	yadH
+b0129	yadI	agaX	
+b0130	yadE
+b0131	panD
+b0132	yadD
+b0133	panC
+b0134	panB	panA(S.t.)	
+b0135	yadC
+b0136	yadK
+b0137	yadL
+b0138	yadM
+b0139	htrE
+b0140	yadV	
+b0141	yadN
+b0142	folK
+b0143	pcnB
+b0144	gluQ	yadB	
+b0145	dksA	msmA	
+b0146	sfsA	sfs	sfs1	
+b0147	ligT	yadP	
+b0148	hrpB	yadO	
+b0149	mrcB	pbpF	ponB	
+b0150	fhuA	T1	tonA	
+b0151	fhuC
+b0152	fhuD
+b0153	fhuB
+b0154	hemL	gsa?	popC	
+b0155	clcA	eriC	yadQ	
+b0156	erpA	yadR	
+b0157	yadS
+b0158	btuF	yadT	
+b0159	mtn	mtnN	pfs	yadA	
+b0160	dgt	optA	
+b0161	degP	htrA	ptd	
+b0162	cdaR	sdaR	yaeG	
+b0163	yaeH
+b0164	yaeI
+b0165	b0165
+b0166	dapD	ssa	
+b0167	glnD
+b0168	map	pepM(S.t.)	
+b0169	rpsB
+b0170	tsf
+b0171	pyrH	smbA	umk	
+b0172	frr	rrf	
+b0173	dxr	ispC	yaeM	
+b0174	ispU	rth	uppS	yaeS	
+b0175	cdsA
+b0176	rseP	ecfE	yaeL	
+b0177	bamA	ecfK	omp85(N.m.)	yaeT	yzzN	yzzY	
+b0178	hlpA	skp
+b0179	lpxD	firA	omsA	ssc	
+b0180	fabZ	sabA	sefA	sfhC	yaeA	
+b0181	lpxA
+b0182	lpxB	pgsB	
+b0183	rnhB
+b0184	dnaE	polC	sdgC	
+b0185	accA
+b0186	ldcC	ldc	LDC2	ldcH	
+b0187	yaeR
+b0188	tilS	mesJ	yaeN	
+b0189	rof	mesJ	yaeO	
+b0190	yaeQ
+b0191	arfB	yaeJ	
+b0192	nlpE	cutF	
+b0193	yaeF	yaeK	
+b0194	proS	drpA	
+b0195	yaeB
+b0196	rcsF
+b0197	metQ	metD	yaeC	
+b0198	metI	metD	yaeE	
+b0199	metN	abc	metD	
+b0200	gmhB	gmbC	gmbX	gmhX(N.m.)	wcbN	yaeD	
+b0201	rrsH
+b0202	ileV
+b0203	alaV
+b0204	rrlH
+b0205	rrfH
+b0206	aspU
+b0207	dkgB	yafB	
+b0208	yafC
+b0209	yafD
+b0210	yafE
+b0211	mltD	dniR	yafG	
+b0212	gloB	yafR	
+b0213	yafS
+b0214	rnhA	cer	dasF	herA	rnh	sdrA	sin	
+b0215	dnaQ	mutD	
+b0216	aspV
+b0217	yafT
+b0218	yafU
+b0219	yafV
+b0220	ivy	ykfE	
+b0221	fadE	fadF(S.t.)	yafH	
+b0222	lpcA
+b0223	yafJ
+b0224	yafK
+b0225	yafQ
+b0226	dinJ	sosA	
+b0227	yafL
+b0228	rayT	tnpAREP	yafM	
+b0229	lfhA
+b0230	lafU
+b0231	dinB	dinP	
+b0232	yafN
+b0233	yafO
+b0234	yafP
+b0235	ykfJ
+b0236	prfH
+b0237	pepD	pepH	
+b0238	gpt	gpp	gxu	
+b0239	frsA	yafA	
+b0240	crl
+b0241	phoE	ompE	
+b0242	proB	pro(2)	
+b0243	proA	pro(1)	
+b0244	thrW
+b0245	ykfI
+b0246	yafW
+b0247	ykfG
+b0248	yafX
+b0249	ykfF
+b0250	ykfB
+b0251	yafY
+b0252	yafZ
+b0253	ykfA
+b0254	perR
+b0255	insN-1
+b0256	insI-1
+b0257	insO-1
+b0258	ykfC
+b0259	insH-1
+b0260	mmuP	ykfD	
+b0261	mmuM	yagD	
+b0262	afuC	fbpC	yagC	
+b0263	afuB
+b0264	insB-2
+b0265	insA-2
+b0266	yagB
+b0267	yagA
+b0268	yagE
+b0269	yagF
+b0270	yagG
+b0271	yagH
+b0272	yagI
+b0273	argF	Arg5	argD	
+b0274	insB-3
+b0275	insA-3
+b0276	yagJ
+b0277	yagK
+b0278	yagL
+b0279	yagM
+b0280	yagN
+b0281	intF	yagO	
+b0282	yagP
+b0283	paoD	yagQ	
+b0284	paoC	hsm	yagR	
+b0285	paoB	yagS	
+b0286	paoA	yagT	
+b0287	yagU
+b0288	ykgJ
+b0289	ecpE	matF	yagV	
+b0290	ecpD	matE	yagW	
+b0291	ecpC	matD	yagX	
+b0292	ecpB	matC	yagY	
+b0293	ecpA	matB	yagZ	
+b0294	ecpR	matA	ykgK	
+b0295	ykgL
+b0296	ykgM	rpmE2	
+b0297	eaeH
+b0298	insE-1
+b0299	insF-1
+b0300	ykgA
+b0301	ykgB
+b0302	b0302
+b0303	ykgI
+b0304	ykgC
+b0305	ykgD
+b0306	ykgE
+b0307	ykgF
+b0308	ykgG
+b0309	b0309
+b0310	ykgH
+b0311	betA
+b0312	betB
+b0313	betI
+b0314	betT
+b0315	yahA
+b0316	yahB
+b0317	yahC
+b0318	yahD
+b0319	yahE
+b0320	yahF
+b0321	yahG
+b0322	yahH
+b0323	yahI
+b0324	yahJ
+b0325	yahK
+b0326	yahL
+b0327	yahM
+b0328	yahN
+b0329	yahO
+b0330	prpR	yahP	
+b0331	prpB	yahQ	
+b0332	b0332
+b0333	prpC	yahS	yzzD	
+b0334	prpD	acnC	yahT	
+b0335	prpE	yahU	
+b0336	codB
+b0337	codA
+b0338	cynR
+b0339	cynT
+b0340	cynS	cnt	
+b0341	cynX
+b0342	lacA
+b0343	lacY
+b0344	lacZ
+b0345	lacI
+b0346	mhpR
+b0347	mhpA
+b0348	mhpB
+b0349	mhpC
+b0350	mhpD	mhpS	
+b0351	mhpF
+b0352	mhpE
+b0353	mhpT	yaiK	
+b0354	yaiL
+b0355	frmB	yaiM	
+b0356	frmA	adhC	
+b0357	frmR	yaiN	
+b0358	yaiO
+b0359	yaiX
+b0360	insC-1
+b0361	insD-1
+b0362	yaiF
+b0363	yaiP
+b0364	yaiS
+b0365	tauA	ssiA	yaiR	
+b0366	tauB	ssiB	yaiQ	
+b0367	tauC	ssiC	yaiJ	
+b0368	tauD	ssiD	yaiG	
+b0369	hemB	ncf
+b0370	ykiB	
+b0371	yaiT
+b0372	insF-2
+b0373	insE-2
+b0374	yaiU
+b0375	yaiV
+b0376	ampH	yaiH	
+b0377	sbmA
+b0378	yaiW
+b0379	yaiY
+b0380	yaiZ
+b0381	ddlA
+b0382	iraP	yaiB	
+b0383	phoA	psiA	
+b0384	psiF
+b0385	adrA
+b0386	proC	pro(3)	Pro2	
+b0387	yaiI
+b0388	aroL
+b0389	yaiA
+b0390	aroM
+b0391	yaiE
+b0392	ykiA
+b0393	rdgC	yaiD	
+b0394	mak	yajF	
+b0395	b0395
+b0396	araJ
+b0397	sbcC	rmuA	
+b0398	sbcD	yajA	
+b0399	phoB	phoRc	
+b0400	phoR	nmpB	phoR1	R1pho	
+b0401	brnQ	hrbA	
+b0402	proY	hisY	yajM	
+b0403	malZ
+b0404	acpH	acpD	yajB	
+b0405	queA
+b0406	tgt	vacC(S.f.)	
+b0407	yajC
+b0408	secD
+b0409	secF
+b0410	yajD
+b0411	tsx	nupA	T6rec	
+b0412	yajI
+b0413	nrdR	ribX	ybaD	
+b0414	ribD	ribG	ybaE	
+b0415	ribE	ribH	ybaF	
+b0416	nusB	groNB	ssaD	ssyB	
+b0417	thiL
+b0418	pgpA	yajN	
+b0419	yajO
+b0420	dxs	yajP	
+b0421	ispA
+b0422	xseB	yajE	
+b0423	thiI	nuvA	yajJ	yajK	
+b0424	yajL	thiJ	
+b0425	panE	apbA(S.t.)	
+b0426	yajQ
+b0427	yajR
+b0428	cyoE
+b0429	cyoD
+b0430	cyoC
+b0431	cyoB
+b0432	cyoA
+b0433	ampG
+b0434	yajG
+b0435	bolA
+b0436	tig
+b0437	clpP	lopP	wseA	
+b0438	clpX	lopC	
+b0439	lon	capR	deg	dir	lonA	lopA	muc	
+b0440	hupB	dpeA	hopD	
+b0441	ppiD	ybaU	
+b0442	ybaV
+b0443	fadM	tesC	ybaW	
+b0444	queC	ybaX	
+b0445	ybaE
+b0446	cof
+b0447	ybaO	grp?	
+b0448	mdlA	mdl	
+b0449	mdlB	mdl	
+b0450	glnK	ybaI	
+b0451	amtB	ybaG	
+b0452	tesB
+b0453	ybaY
+b0454	atl	ybaZ
+b0455	ffs
+b0456	ybaA
+b0457	ylaB
+b0458	ylaC
+b0459	maa	ylaD	
+b0460	hha
+b0461	tomB	ybaJ	
+b0462	acrB	acrE	
+b0463	acrA	lir	Mb	mbl	mtcA	nbsA	sipB	
+b0464	acrR	ybaH	
+b0465	mscK	aefA	kefA	pnuH(S.t.)	
+b0466	ybaM
+b0467	priC
+b0468	ybaN
+b0469	apt
+b0470	dnaX	dnaZ	
+b0471	ybaB
+b0472	recR
+b0473	htpG
+b0474	adk	dnaW	plsA	
+b0475	hemH	popA	visA	
+b0476	aes	ybaC	
+b0477	gsk
+b0478	ybaL	ylaA	
+b0479	fsr
+b0480	ushA
+b0481	ybaK	proX	
+b0482	ybaP
+b0483	ybaQ
+b0484	copA	ybaR	
+b0485	ybaS
+b0486	ybaT
+b0487	cueR	ybbI	
+b0488	ybbJ
+b0489	qmcA	ybbK	
+b0490	ybbL
+b0491	ybbM
+b0492	ybbN
+b0493	ybbO
+b0494	tesA	apeA	pldC	
+b0495	ybbA
+b0496	ybbP
+b0497	rhsD
+b0498	ybbC
+b0499	ylbH
+b0500	ybbD
+b0501	b0501
+b0502	ylbG
+b0503	ybbB
+b0504	allS	glxA1	ybbS	
+b0505	allA	glxA2	ybbT	
+b0506	allR	glxA3	ybbU	
+b0507	gcl
+b0508	hyi	gip	ybbG	
+b0509	glxR	glxB1	ybbQ	
+b0510	ybbV
+b0511	ybbW	allP	glxB2	
+b0512	allB	glxB3	ybbX	
+b0513	ybbY	glxB4	
+b0514	glxK	glxB5	ybbZ	
+b0515	allE	ylbA
+b0516	allC	glxB7	ylbB	
+b0517	allD	glxB8	ylbC	
+b0518	fdrA	ylbD	
+b0519	ylbE_2
+b0520	ylbF
+b0521	ybcF	arcC(P.a.)	
+b0522	purK	purE2	
+b0523	purE	ade(f)	ade3	Pur2	
+b0524	lpxH	ybbF	
+b0525	ppiB
+b0526	cysS
+b0527	ybcI
+b0528	ybcJ
+b0529	folD	ads	
+b0530	sfmA	fimA(S.t.)	
+b0531	sfmC	fimC(S.t.)	
+b0532	sfmD	fimD(S.t.)	
+b0533	sfmH	fimH(S.t.)	
+b0534	sfmF	fimF(S.t.)	ybcG	
+b0535	fimZ	ybcA	
+b0536	argU	argW(S.t.)	dnaY	fimU(S.t.)	pin	
+b0537	intD	int	
+b0538	b0501
+b0539	ybcC
+b0540	insE-3
+b0541	insF-3
+b0542	renD
+b0543	emrE	eb	mvrC	
+b0544	ybcK
+b0545	ybcL
+b0546	ybcM
+b0547	ybcN
+b0548	ninE
+b0549	ybcO
+b0550	rusA	rus	ybcP	
+b0551	ybcQ	quuD
+b0552	insH-2
+b0553	nmpC
+b0554	essD	ybcR	
+b0555	rrrD	arrD	ybcS	
+b0556	rzpD	Rz	ybcT	
+b0557	borD	iss	ybcU	
+b0558	ybcV
+b0559	ybcW
+b0560	nohB
+b0561	tfaD
+b0562	ybcY
+b0563	tfaX
+b0564	appY
+b0565	ompT
+b0566	envY
+b0567	ybcH
+b0568	nfrA
+b0569	nfrB
+b0570	cusS	silS(S.t.)	ybcZ	
+b0571	cusR	silR(S.t.)	ylcA	
+b0572	cusC	ibeB	silC(S.t.)	ylcB	
+b0573	cusF	cusX	silF(S.t.)	ylcC	
+b0574	cusB	silB(S.t.)	ylcD	
+b0575	cusA	silA(S.t.)	ybdE	
+b0576	pheP
+b0577	ybdG	mscM	
+b0578	nfsB	dprA	nfnB	nfsI(S.t.)	ntr	
+b0579	ybdF
+b0580	ybdJ
+b0581	ybdK
+b0582	insL-2
+b0583	entD
+b0584	fepA	cbr	cbt	fep	feuB	
+b0585	fes
+b0586	entF
+b0587	fepE
+b0588	fepC
+b0589	fepG
+b0590	fepD
+b0591	entS	ybdA	
+b0592	fepB
+b0593	entC	fepF	
+b0594	entE
+b0595	entB	entG	
+b0596	entA
+b0597	entH	ybdB	
+b0598	cstA	ybdC	
+b0599	ybdH
+b0600	ybdL
+b0601	ybdM
+b0602	ybdN
+b0603	ybdO
+b0604	dsbG	ybdP	
+b0605	ahpC	tpx	
+b0606	ahpF
+b0607	uspG	UP12	ybdQ	yzzU	
+b0608	ybdR
+b0609	b0609
+b0610	rnk
+b0611	rna	rnsA	
+b0612	citT	ybdS	
+b0613	citG	ybdT	
+b0614	citX	ybdU	
+b0615	citF	ybdV	
+b0616	citE	ybdW	
+b0617	citD	ybdX	
+b0618	citC	ybeO	
+b0619	dpiB	citA	mpdB	ybeP	
+b0620	dpiA	citB	criR	mpdA	
+b0621	dcuC
+b0622	pagP	crcA	ybeG	
+b0623	cspE	gicA	msmC	
+b0624	crcB	ybeI	
+b0625	ybeM_1
+b0626	ybeM_2
+b0627	tatE	ybeC	
+b0628	lipA	lip	
+b0629	ybeF
+b0630	lipB	cde	
+b0631	ybeD
+b0632	dacA	pfv	
+b0633	rlpA
+b0634	mrdB	rodA	
+b0635	mrdA	pbpA	
+b0636	rlmH	ybeA	
+b0637	rsfS	rsfA	slm3	ybeB	
+b0638	cobC	phpB	
+b0639	nadD	fusB	ybeN	
+b0640	holA
+b0641	lptE	rlpB	
+b0642	leuS
+b0643	ybeL
+b0644	ybeQ
+b0645	ybeR
+b0646	djlB	ybeS	
+b0647	ybeT
+b0648	ybeU
+b0649	djlC	hscD	ybeV	
+b0650	hscC	ybeW	
+b0651	rihA	ybeK	
+b0652	gltL
+b0653	gltK
+b0654	gltJ
+b0655	gltI	ybeJ	yzzK	
+b0656	insH-3
+b0657	lnt	cutE	
+b0658	ybeX	corC(S.t.)	
+b0659	ybeY
+b0660	ybeZ	phoL	
+b0661	miaB	yleA	
+b0662	ubiF	yleB	
+b0663	b0663
+b0664	glnX	glnVbeta	supE	
+b0665	glnV	glnValpha	Su2	suII	supE	
+b0666	metU	metTbeta	
+b0667	b0667
+b0668	glnW	glnUbeta	
+b0669	b0669
+b0670	glnU	glnUalpha	supB	
+b0671	b0671
+b0672	leuW	feeB	
+b0673	metT	metTalpha	
+b0674	asnB
+b0675	nagD
+b0676	nagC	nagR	
+b0677	nagA
+b0678	nagB	glmD	
+b0679	nagE	pstN	ptsN	
+b0680	glnS
+b0681	chiP	ybfM	
+b0682	ybfN
+b0683	fur
+b0684	fldA
+b0685	ybfE
+b0686	ybfF
+b0687	seqA	hsm-1	
+b0688	pgm	blu	pgmA	
+b0689	ybfP
+b0690	ybfG
+b0691	ybfH
+b0692	potE
+b0693	speF
+b0694	kdpE
+b0695	kdpD	kac	
+b0696	kdpC	kac	
+b0697	kdpB	kac	
+b0698	kdpA	kac	
+b0699	ybfA
+b0700	rhsC
+b0702	ybfB
+b0703	ybfO
+b0704	ybfC
+b0705	ybfL
+b0706	ybfD
+b0707	ybgA	tkp	
+b0708	phr	phrB	
+b0709	dtpD	ybgH	
+b0710	ybgI
+b0711	ybgJ
+b0712	ybgK
+b0713	ybgL
+b0714	nei
+b0715	abrB	ybgN	
+b0716	ybgO
+b0717	ybgP
+b0718	ybgQ
+b0719	ybgD
+b0720	gltA	gluT	icdB	
+b0721	sdhC	cybA	
+b0722	sdhD
+b0723	sdhA
+b0724	sdhB
+b0725	b0725
+b0726	sucA	lys	
+b0727	sucB
+b0728	sucC
+b0729	sucD
+b0730	mngR	farR	ybgB	
+b0731	mngA	hrsA	
+b0732	mngB	ybgG	
+b0733	cydA
+b0734	cydB
+b0735	ybgE
+b0736	ybgC
+b0737	tolQ	fii	tolP	
+b0738	tolR
+b0739	tolA	cim	excC	lky	
+b0740	tolB
+b0741	pal	excC	
+b0742	ybgF
+b0743	lysT	lysTalpha	sua	supG	supL	
+b0744	valT
+b0745	lysW	lysTbeta	su	
+b0746	valZ
+b0747	lysY
+b0748	lysZ
+b0749	lysQ
+b0750	nadA	nicA	
+b0751	pnuC
+b0752	zitB	ybgR	
+b0753	ybgS
+b0754	aroG
+b0755	gpmA	gpm	
+b0756	galM
+b0757	galK	galA	
+b0758	galT	galB	
+b0759	galE	galD	
+b0760	modF	chlD	phrA	
+b0761	modE	chlD	modR	
+b0762	acrZ	ybhT	
+b0763	modA
+b0764	modB	chlJ	
+b0765	modC	chlD	narD	
+b0766	ybhA	modD	
+b0767	pgl	blu	ybhE	
+b0768	ybhD
+b0769	ybhH
+b0770	ybhI
+b0771	ybhJ
+b0772	ybhC
+b0773	ybhB
+b0774	bioA
+b0775	bioB
+b0776	bioF
+b0777	bioC
+b0778	bioD
+b0779	uvrB	dar-1	dar-6	
+b0780	ybhK
+b0781	moaA	bisA	chlA	narA	
+b0782	moaB
+b0783	moaC
+b0784	moaD	chlM	
+b0785	moaE
+b0786	ybhL
+b0787	ybhM
+b0788	ybhN
+b0789	ybhO	clsB
+b0790	ybhP
+b0791	ybhQ
+b0792	ybhR
+b0793	ybhS
+b0794	ybhF
+b0795	ybhG
+b0796	ybiH
+b0797	rhlE
+b0798	ybiA
+b0799	dinG	rarB	
+b0800	ybiB
+b0801	ybiC
+b0802	ybiJ
+b0803	ybiI
+b0804	ybiX
+b0805	fiu	ybiL	
+b0806	mcbA	ybiM	
+b0807	rlmF	ybiN	
+b0808	ybiO
+b0809	glnQ
+b0810	glnP
+b0811	glnH
+b0812	dps	pexB	vtm	
+b0813	rhtA	ybiF	
+b0814	ompX	ybiG	
+b0815	ybiP
+b0816	yliL
+b0817	mntR	ybiQ	
+b0818	ybiR
+b0819	ybiS
+b0820	ybiT
+b0821	ybiU
+b0822	ybiV	supH	
+b0823	ybiW	pflF	
+b0824	ybiY	pflE	
+b0825	fsaA	mipB	ybiZ	
+b0826	moeB	chlN	
+b0827	moeA	bisB	chlE	narE	
+b0828	iaaA	spt	ybiK	
+b0829	gsiA	yliA	
+b0830	gsiB	yliB	
+b0831	gsiC	yliC	
+b0832	gsiD	yliD	
+b0833	yliE
+b0834	yliF
+b0835	rimO	yliG	
+b0836	bssR	yliH	
+b0837	yliI
+b0838	gstB	yliJ	
+b0839	dacC
+b0840	deoR	nucR	
+b0841	ybjG	bcrC	
+b0842	mdfA	cmlA	cmr	
+b0843	ybjH
+b0844	ybjI
+b0845	ybjJ
+b0846	ybjK	rcdA
+b0847	ybjL
+b0848	ybjM
+b0849	grxA	grx	
+b0850	ybjC
+b0851	nfsA	mda18	mdaA	snrA(S.t.)	ybjB	
+b0852	rimK	nek	
+b0853	ybjN
+b0854	potF
+b0855	potG
+b0856	potH
+b0857	potI
+b0858	ybjO
+b0859	rlmC	rumB	ybjF	
+b0860	artJ
+b0861	artM
+b0862	artQ
+b0863	artI
+b0864	artP
+b0865	ybjP
+b0866	ybjQ
+b0867	amiD	ybjR	
+b0868	ybjS
+b0869	ybjT
+b0870	ltaE	ltaA	ybjU	
+b0871	poxB
+b0872	hcr	ybjV	
+b0873	hcp	ybjW	
+b0874	ybjE
+b0875	aqpZ	bniP	
+b0876	ybjD
+b0877	ybjX
+b0878	macA	ybjY	
+b0879	macB	ybjZ	
+b0880	cspD	cspH	ybjA	
+b0881	clpS	yljA	
+b0882	clpA	lopD	
+b0883	serW
+b0884	infA	bypA1	
+b0885	aat	ycaA	
+b0886	cydC	mdrA	mdrH	surB	ycaB	
+b0887	cydD	htrD	
+b0888	trxB
+b0889	lrp	alsB	ihb	livR	lrs	lss	lstR	mbf	oppI	rblA	
+b0890	ftsK	dinH	
+b0891	lolA	lplA	yzzV	
+b0892	rarA	mgsA	ycaJ	
+b0893	serS
+b0894	dmsA
+b0895	dmsB
+b0896	dmsC
+b0897	ycaC
+b0898	ycaD
+b0899	ycaM
+b0900	ycaN
+b0901	ycaK
+b0902	pflA	act	
+b0903	pflB	pfl	
+b0904	focA	ycaE	
+b0905	ycaO
+b0906	ycaP
+b0907	serC	pdxC	pdxF	
+b0908	aroA
+b0909	ycaL
+b0910	cmk	mssA	ycaF	ycaG	
+b0911	rpsA	ssyF	
+b0912	ihfB	himD	hip	
+b0913	ycaI
+b0914	msbA
+b0915	lpxK	ycaH	
+b0916	ycaQ
+b0917	ycaR
+b0918	kdsB
+b0919	ycbJ
+b0920	ycbC
+b0921	smtA	ycbD	
+b0922	mukF	kicB	
+b0923	mukE	kicA	ycbA	
+b0924	mukB
+b0925	ycbB
+b0926	ycbK
+b0927	ycbL
+b0928	aspC
+b0929	ompF	cmlB	coa	cry	nfxB?	tolF	
+b0930	asnS	lcs	tss	
+b0931	pncB
+b0932	pepN
+b0933	ssuB	ycbE	
+b0934	ssuC	ycbM	
+b0935	ssuD	ssi6	ycbN	
+b0936	ssuA	ycbO	
+b0937	ssuE	ssi4	ycbP	
+b0938	elfA	ycbQ	
+b0939	elfD	ycbR	
+b0940	elfC	ycbS	
+b0941	elfG	ycbT	
+b0942	ycbU
+b0943	ycbV
+b0944	ycbF
+b0945	pyrD
+b0946	zapC	ycbW	
+b0947	ycbX
+b0948	rlmL	rlmK	rlmKL	ycbY	
+b0949	uup	ycbH	ycbI	
+b0950	pqiA	pqi5	
+b0951	pqiB	pqi5	
+b0952	ymbA
+b0953	rmf
+b0954	fabA
+b0955	ycbZ
+b0956	matP	ycbG	
+b0957	ompA	con	tolG	tut	
+b0958	sulA	sfiA	
+b0959	sxy	tfoX	yccR	
+b0960	yccS
+b0961	yccF
+b0962	helD	srjB	
+b0963	mgsA	mgs	yccG	
+b0964	yccT
+b0965	yccU
+b0966	hspQ	yccV	
+b0967	rlmI	yccW	
+b0968	yccX
+b0969	tusE	yccK	
+b0970	yccA
+b0971	serT	divE	
+b0972	hyaA
+b0973	hyaB
+b0974	hyaC
+b0975	hyaD
+b0976	hyaE
+b0977	hyaF
+b0978	appC	cbdA	cyxA	
+b0979	appB	cbdB	cyxB	
+b0980	appA
+b0981	etk	yccC	
+b0982	etp	yccY	
+b0983	gfcE	yccZ	
+b0984	gfcD	ymcA	
+b0985	gfcC	ymcB	
+b0986	gfcB	ymcC	
+b0987	gfcA	ymcD	
+b0988	insB-4
+b0989	cspH	cspK	
+b0990	cspG	cspI	
+b0991	ymcE	sfa	
+b0992	yccM
+b0993	torS	yccI	
+b0994	torT	yccH	
+b0995	torR
+b0996	torC
+b0997	torA
+b0998	torD
+b0999	cbpM	yccD	
+b1000	cbpA
+b1001	yccE
+b1002	agp
+b1003	yccJ
+b1004	wrbA
+b1005	ycdF
+b1006	rutG	ycdG	
+b1007	rutF	ycdH	
+b1008	rutE	ycdI	
+b1009	rutD	ycdJ	
+b1010	rutC	ycdK	
+b1011	rutB	ycdL	
+b1012	rutA	ycdM	
+b1013	rutR	ycdC	
+b1014	putA	poaA	putC	
+b1015	putP	putC	
+b1016	efeU_1
+b1017	efeU_2
+b1018	efeO	ycdO	
+b1019	efeB	ycdB	
+b1020	phoH	psiH	
+b1021	pgaD	hmsS(Y.p.)	ycdP	
+b1022	pgaC	hmsR(Y.p.)	ycdQ	
+b1023	pgaB	ycdR	
+b1024	pgaA	ycdS	
+b1025	ycdT
+b1026	insF-4
+b1027	insE-4
+b1028	ymdE
+b1029	ycdU
+b1031	ycdV
+b1032	serX
+b1033	ghrA	ycdW	
+b1034	ycdX
+b1035	ycdY
+b1036	ycdZ
+b1037	csgG	agfG(S.t.)	
+b1038	csgF	agfF(S.t.)	
+b1039	csgE	agfE(S.t.)	
+b1040	csgD	agfD(S.t.)	
+b1041	csgB	agfB(S.t.)	
+b1042	csgA	agfA(S.t.)	
+b1043	csgC	agfC(S.t.)	ycdE	
+b1044	ymdA
+b1045	ymdB
+b1046	ymdC	clsC
+b1047	mdoC	opgC
+b1048	mdoG	opgG
+b1049	mdoH	opgH
+b1050	yceK
+b1051	msyB
+b1052	b1052
+b1053	mdtG	yceE	
+b1054	lpxL
+b1055	yceA
+b1056	yceI
+b1057	yceJ
+b1058	yceO
+b1059	solA
+b1060	bssS	yceP	
+b1061	dinI
+b1062	pyrC
+b1063	yceB
+b1064	grxB
+b1065	mdtH	yceL	
+b1066	rimJ	tcp	
+b1067	yceH
+b1068	yceM	mviM(S.t.)	mviS(S.t.)	
+b1069	murJ	mviN(S.t.)	mviS(S.t.)	yceN	
+b1070	flgN
+b1071	flgM	mviS	
+b1072	flgA	flaU	
+b1073	flgB	flbA	
+b1074	flgC	flaW	
+b1075	flgD	flaV	
+b1076	flgE	flaK	
+b1077	flgF	flaX	
+b1078	flgG	flaL	
+b1079	flgH	flaY	
+b1080	flgI	flaM	
+b1081	flgJ	flaZ	
+b1082	flgK	flaS	
+b1083	flgL	flaT	
+b1084	rne	ams	hmp1	smbB	
+b1085	yceQ
+b1086	rluC	yceC	
+b1087	yceF
+b1088	yceD
+b1089	rpmF
+b1090	plsX
+b1091	fabH
+b1092	fabD	tfpA	
+b1093	fabG
+b1094	acpP
+b1095	fabF	cvc	fabJ	vtr	
+b1096	pabC
+b1097	yceG
+b1098	tmk	ycfG	
+b1099	holB
+b1100	ycfH
+b1101	ptsG	car	cat	CR	glcA	tgl	umg	umgC	
+b1102	fhuE
+b1103	hinT	ycfF	
+b1104	ycfL
+b1105	lpoB	ycfM	
+b1106	thiK	ycfN	
+b1107	nagZ	ycfO	
+b1108	ycfP
+b1109	ndh
+b1110	ycfJ
+b1111	ycfQ	comR
+b1112	bhsA	ycfR	
+b1113	ycfS
+b1114	mfd
+b1115	ycfT
+b1116	lolC	ycfU	
+b1117	lolD	ycfV	
+b1118	lolE	ycfW	
+b1119	nagK	ycfX	
+b1120	cobB	npdA	ycfY	
+b1121	ycfZ
+b1122	ymfA
+b1123	potD
+b1124	potC
+b1125	potB
+b1126	potA
+b1127	pepT
+b1128	ycfD
+b1129	phoQ
+b1130	phoP
+b1131	purB	ade(h)	
+b1132	hflD	hslZ	ycfC	
+b1133	mnmA	asuE	trmU	ycfB	
+b1134	nudJ	ymfB	
+b1135	rluE	ymfC	
+b1136	icd	icdA	icdE	
+b1137	ymfD
+b1138	ymfE
+b1139	lit
+b1140	intE	int(Lambda)	ycfI	
+b1141	xisE	Vxis	ymfG	
+b1142	ymfH
+b1143	ymfI
+b1144	ymfJ
+b1145	ymfK
+b1146	ymfT
+b1147	ymfL
+b1148	ymfM
+b1149	ymfN
+b1150	ymfR
+b1151	ymfO
+b1152	ymfP
+b1153	ymfQ
+b1154	ycfK
+b1155	ymfS
+b1156	tfaE	ycfA	
+b1157	stfE
+b1158	pinE	pin	
+b1159	mcrA	rglA	
+b1160	iraM	elb1	elbA	ycgW	
+b1161	ycgX
+b1162	bluR	ycgE	
+b1163	bluF	ycgF	
+b1164	ycgZ
+b1165	ymgA
+b1166	ariR	ymgB	
+b1167	ymgC
+b1168	ycgG
+b1169	ycgH_1
+b1170	ycgH_2
+b1171	ymgD
+b1172	ymgG
+b1173	ycgI
+b1174	minE	minB	
+b1175	minD	minB	
+b1176	minC	minB	
+b1177	ycgJ
+b1178	pliG	ycgK	
+b1179	ycgL
+b1180	ycgM
+b1181	ycgN
+b1182	hlyE	clyA	hpr	sheA	ycgD	
+b1183	umuD
+b1184	umuC	uvm	
+b1185	dsbB	dsbX	iarB	roxB	ycgA	
+b1186	nhaB
+b1187	fadR	dec	ole	oleR	thdB	
+b1188	ycgB
+b1189	dadA	dadR	
+b1190	dadX	alnB	dadB(S.t.)	msuA?	
+b1191	cvrA	ycgO	
+b1192	ldcA	ycgQ	
+b1193	emtA	mltE	sltZ	ycgP	
+b1194	ycgR
+b1195	ymgE	tag	
+b1196	ycgY
+b1197	treA	osmA	
+b1198	dhaM	dhaH	ptsD	ycgC	
+b1199	dhaL	dhaK2	ptsD	ycgS	
+b1200	dhaK	dhaK1	ptsD	ycgT	
+b1201	dhaR	ptsD	ycgU	
+b1202	ycgV
+b1203	ychF	engD	gtp1	
+b1204	pth	asuA?	rap	
+b1205	ychH
+b1206	ychM	dauA
+b1207	prs	dnaR	prsA	
+b1208	ispE	ipk	ychB	
+b1209	lolB	hemM	ychC	
+b1210	hemA	gtrA	
+b1211	prfA	sueB	uar	ups?	
+b1212	prmC	hemK	
+b1213	ychQ	sirB2(S.t.)	
+b1214	ychA	sirB1(S.t.)	
+b1215	kdsA
+b1216	chaA
+b1217	chaB
+b1218	chaC
+b1219	ychN
+b1220	ychO	ychP	
+b1221	narL	frdR	
+b1222	narX	frdR	narR	
+b1223	narK
+b1224	narG	chlC	narC	
+b1225	narH	chlC	
+b1226	narJ
+b1227	narI	chlI	
+b1228	ychS
+b1229	tpr
+b1230	tyrV	tyrTbeta	
+b1231	tyrT	su(c)	Su-3	Su-4	suIII	supC	supFsupO	tyrTalpha	
+b1232	purU	tgs	ychI	
+b1233	ychJ
+b1234	rssA	ychK	
+b1235	rssB	hnr	mviA(S.t.)	sprE	verA	ychL	
+b1236	galU	verA	ychD	
+b1237	hns	B1	bglY	cur	drc	drdX	drs	fimG	H1	hnsA	irk	msyA	osmZ	pilG	topS	topX	verA	virR	
+b1238	tdk
+b1239	ychG_2
+b1240	ychG_1
+b1241	adhE	adhC	ana	
+b1242	ychE
+b1243	oppA
+b1244	oppB	stkB	
+b1245	oppC	stkB	
+b1246	oppD
+b1247	oppF
+b1248	yciU
+b1249	clsA	cls	nov	yciJ	
+b1250	kch
+b1251	yciI
+b1252	tonB	exbA	T1rec	
+b1253	yciA
+b1254	yciB	ispA(S.f.)	
+b1255	yciC
+b1256	ompW	yciD	
+b1257	yciE
+b1258	yciF
+b1259	yciG
+b1260	trpA	try	tryp	
+b1261	trpB
+b1262	trpC	trpF	
+b1263	trpD	trpGD	
+b1264	trpE	anth	tryD	tryp-4	
+b1265	trpL	trpEE	
+b1266	yciV	trpH	
+b1267	yciO
+b1268	yciQ	yciP	
+b1269	rluB	yciL	
+b1270	btuR	cobA(S.t.)	
+b1271	yciK
+b1272	sohB
+b1273	yciN
+b1274	topA	asuA?	supX	
+b1275	cysB
+b1276	acnA	acn	
+b1277	ribA
+b1278	pgpB
+b1279	yciS
+b1280	yciM
+b1281	pyrF
+b1282	yciH
+b1283	osmB
+b1284	yciT	deoT	
+b1285	gmr	yciR	
+b1286	rnb
+b1287	yciW
+b1288	fabI	envM	gts	qmeA	
+b1289	ycjD
+b1290	sapF
+b1291	sapD	trkE	
+b1292	sapC
+b1293	sapB
+b1294	sapA
+b1295	ymjA
+b1296	puuP	ycjJ	
+b1297	puuA	ycjK	
+b1298	puuD	ycjL	
+b1299	puuR	ycjC	
+b1300	puuC	aldH	
+b1301	puuB	ordL	ycjA	
+b1302	puuE	goaG	
+b1303	pspF	ycjB	
+b1304	pspA	cog	
+b1305	pspB
+b1306	pspC
+b1307	pspD
+b1308	pspE
+b1309	ycjM
+b1310	ycjN
+b1311	ycjO
+b1312	ycjP
+b1313	ycjQ
+b1314	ycjR
+b1315	ycjS
+b1316	ycjT
+b1317	ycjU
+b1318	ycjV
+b1319	ompG
+b1320	ycjW
+b1321	ycjX
+b1322	ycjF
+b1323	tyrR
+b1324	tpx	yzzJ	
+b1325	ycjG	ycjH	
+b1326	mpaA	ycjI	
+b1327	ycjY
+b1328	ycjZ	pgrR		
+b1329	mppA	ynaH	
+b1330	ynaI
+b1331	insH-4
+b1332	ynaJ
+b1333	uspE	ydaA	
+b1334	fnr	nirA	nirR	ossA	
+b1335	ogt
+b1336	abgT	ydaH	
+b1337	abgB	ydaI	
+b1338	abgA	ydaJ	
+b1339	abgR	ydaK	
+b1340	smrA	ydaL	
+b1341	ydaM
+b1342	ydaN	zntB(S.t.)	
+b1343	dbpA	rhlC	
+b1344	ttcA	stcA	ydaO	
+b1345	intR	ydaP	
+b1346	ydaQ
+b1347	rcbA	ydaC	
+b1348	lar	ralR
+b1349	recT
+b1350	recE	rmuB	sbcA	
+b1351	racC	sbcA	
+b1352	kilR	kil	ydaD	
+b1353	sieB	git	
+b1354	b1354
+b1355	ydaG	gatA	
+b1356	racR	cohR	ydaR	
+b1357	ydaS
+b1358	ydaT
+b1359	ydaU
+b1360	ydaV
+b1361	ydaW
+b1362	rzpR
+b1363	trkG
+b1364	b1364
+b1365	ynaK
+b1366	ydaY
+b1367	b1367
+b1368	ynaA
+b1369	lomR_1
+b1370	insH-5
+b1371	lomR_2
+b1372	stfR	ynaB	
+b1373	tfaR	ynaC	
+b1374	pinR	ynaD	
+b1375	ynaE
+b1376	uspF	ynaF	yzzL	
+b1377	ompN	ynaG	
+b1378	ydbK
+b1379	hslJ	ydbI	
+b1380	ldhA	hslF	hslI	htpH	
+b1381	ydbH
+b1382	ynbE
+b1383	ydbL
+b1384	feaR	maoB	maoR	maoX	ydbM	
+b1385	feaB	padA	ydbG	
+b1386	tynA	maoA	
+b1387	paaZ	maoC	tynP?	ydbN	
+b1388	paaA	ydbO	
+b1389	paaB	ynbF	
+b1390	paaC	ydbP	
+b1391	paaD	ydbQ	
+b1392	paaE	ydbR	
+b1393	paaF	ydbR	
+b1394	paaG	ydbT	
+b1395	paaH	ydbU	
+b1396	paaI	ydbV	
+b1397	paaJ	ydbW	
+b1398	paaK
+b1399	paaX	ydbY	
+b1400	paaY	ydbZ	
+b1401	ydbA_1
+b1402	insD-2
+b1403	insC-2
+b1404	insI-2
+b1405	ydbA_2
+b1406	ydbC
+b1407	ydbD
+b1408	ynbA
+b1409	ynbB
+b1410	ynbC
+b1411	ynbD
+b1412	azoR	acpD	
+b1413	hrpA
+b1414	ydcF
+b1415	aldA	ald	
+b1416	gapC_2
+b1417	gapC_1
+b1418	cybB
+b1419	ydcA
+b1420	mokB
+b1421	trg
+b1422	ydcI
+b1423	ydcJ
+b1424	mdoD	opgD	ydcG
+b1425	b1425
+b1426	ydcH
+b1427	rimL
+b1428	ydcK
+b1429	tehA
+b1430	tehB
+b1431	ydcL
+b1432	ydcM
+b1433	ydcO
+b1434	ydcN
+b1435	ydcP
+b1436	yncJ
+b1437	b1437
+b1438	hicB	ydcQ	
+b1439	ydcR
+b1440	ydcS
+b1441	ydcT
+b1442	ydcU
+b1443	ydcV
+b1444	ydcW	prr	patD
+b1445	ydcX
+b1446	ydcY
+b1447	ydcZ
+b1448	mnaT	yncA	
+b1449	curA	yncB	
+b1450	mcbR	yncC	
+b1451	yncD
+b1452	yncE
+b1453	ansP	yncF	
+b1454	yncG
+b1455	yncH
+b1456	rhsE
+b1457	ydcD
+b1458	yncI
+b1459	yncM
+b1460	ydcC
+b1461	pptA	ydcE	
+b1462	yddH
+b1463	nhoA	yddI	
+b1464	yddE
+b1465	narV	chlZ	
+b1466	narW	chlZ	
+b1467	narY	chlZ	
+b1468	narZ	chlZ	
+b1469	narU	yddF	
+b1470	yddJ
+b1471	yddK
+b1472	yddL
+b1473	yddG
+b1474	fdnG
+b1475	fdnH
+b1476	fdnI
+b1477	yddM
+b1478	adhP	yddN	
+b1479	maeA	sfcA	
+b1480	sra	rpsV	
+b1481	bdm	yddX	
+b1482	osmC
+b1483	ddpF	yddO	
+b1484	ddpD	yddP	
+b1485	ddpC	yddQ	
+b1486	ddpB	yddR	
+b1487	ddpA	yddS	
+b1488	ddpX	vanX	yddT	
+b1489	dosP	dos	yddU	
+b1490	dosC	yddV	
+b1491	yddW
+b1492	gadC	acsA	xasA	
+b1493	gadB
+b1494	pqqL	pqqE	pqqM	yddC	
+b1495	yddB
+b1496	yddA
+b1497	ydeM
+b1498	ydeN
+b1499	ydeO
+b1500	safA	yneN	
+b1501	ydeP
+b1502	ydeQ	fmlD	
+b1503	ydeR
+b1504	ydeS
+b1505	ydeT
+b1506	yneL
+b1507	hipA
+b1508	hipB
+b1509	ydeU
+b1510	ydeK
+b1511	lsrK	ydeV	
+b1512	lsrR	ydeW	
+b1513	lsrA	ego	lsrA	ydeX	
+b1514	lsrC	ydeY	
+b1515	lsrD	ydeZ	
+b1516	lsrB	yneA	
+b1517	lsrF	yneB	
+b1518	lsrG	yneC	
+b1519	tam	lsrE	yneD	
+b1520	yneE
+b1521	uxaB
+b1522	yneF
+b1523	yneG
+b1524	yneH
+b1525	sad	yneI	
+b1526	yneJ
+b1527	yneK
+b1528	ydeA	sotB	
+b1529	marC	ydeB	ydeC	
+b1530	marR	cfxB	inaR	soxQ	
+b1531	marA	cfxB	inaR	nfxC	norB	soxQ	
+b1532	marB
+b1533	eamA	ydeD	
+b1534	ydeE	ydeF	
+b1535	ydeH	ydeG	
+b1536	ydeI
+b1537	ydeJ
+b1538	dcp
+b1539	ydfG
+b1540	ydfH
+b1541	ydfZ
+b1542	ydfI
+b1543	ydfJ
+b1544	ydfK
+b1545	pinQ	ydfL	
+b1546	tfaQ	ydfM	
+b1547	ydfN	stfQ
+b1548	nohA
+b1549	ydfO
+b1550	gnsB	ydfY	
+b1551	ynfN
+b1552	cspI	cspJ	
+b1553	ydfP
+b1554	rrrQ	arrQ	ydfQ	
+b1555	ydfR
+b1556	essQ	ydfS	
+b1557	cspB
+b1558	cspF
+b1559	ydfT
+b1560	ydfU
+b1561	rem
+b1562	hokD	relF	
+b1563	relE
+b1564	relB	RC	
+b1565	ydfV
+b1566	flxA
+b1567	ydfW
+b1568	ydfX
+b1569	dicC	ftsT	
+b1570	dicA	ftsT	
+b1571	ydfA
+b1572	ydfB
+b1573	rzpQ	Rz	ydfC
+b1574	dicF
+b1575	dicB	ftsT	
+b1576	ydfD
+b1577	ydfE
+b1578	insD
+b1579	intQ
+b1580	rspB
+b1581	rspA
+b1582	ynfA
+b1583	ynfB
+b1584	speG
+b1585	ynfC
+b1586	ynfD
+b1587	ynfE
+b1588	ynfF
+b1589	ynfG
+b1590	ynfH
+b1591	dmsD	ynfI	
+b1592	clcB	mriT	ynfJ	
+b1593	ynfK
+b1594	mlc	dgsA	
+b1595	ynfL
+b1596	ynfM	yzyC	
+b1597	asr
+b1598	ydgD
+b1599	mdtI	ydgE	
+b1600	mdtJ	ydgF	
+b1601	tqsA	ydgG	
+b1602	pntB
+b1603	pntA
+b1604	ydgH
+b1605	ydgI	arcD(P.a.)	
+b1606	folM	ydgB	
+b1607	ydgC
+b1608	rstA	urpT	
+b1609	rstB	uspT	
+b1610	tus	tau	
+b1611	fumC
+b1612	fumA
+b1613	manA	pmi	
+b1614	ydgA
+b1615	uidC	gusC	
+b1616	uidB	gusB	uidP	
+b1617	uidA	gurA	gusA	
+b1618	uidR	gusR	
+b1619	hdhA	hsd	hsdH	
+b1620	malI
+b1621	malX
+b1622	malY
+b1623	add
+b1624	ydgJ
+b1625	cnu	ydgT	
+b1626	ydgK	rsxP	
+b1627	rsxA	rnfA(R.c.)	ydgL	
+b1628	rsxB	rnfB(R.c.)	ydgM	
+b1629	rsxC	rnfC(R.c.)	ydgN	
+b1630	rsxD	rnfD(R.c.)	ydgO	
+b1631	rsxG	rnfG(R.c.)	ydgP	
+b1632	rsxE	rnfE(R.c.)	ydgQ	
+b1633	nth
+b1634	tppB	dtpA
+b1635	gstA	gst	
+b1636	pdxY	ydgS	
+b1637	tyrS
+b1638	pdxH
+b1639	mliC	ydhA	
+b1640	anmK	ydhH	
+b1641	slyB
+b1642	slyA
+b1643	ydhI
+b1644	ydhJ
+b1645	ydhK
+b1646	sodC
+b1647	ydhF
+b1648	ydhL
+b1649	nemR	ydhM	
+b1650	nemA	ydhN	
+b1651	gloA
+b1652	rnt
+b1653	lhr	rhlF	
+b1654	grxD	ydhD	
+b1655	ydhO
+b1656	sodB
+b1657	ydhP
+b1658	purR
+b1659	ydhB
+b1660	ydhC
+b1661	cfa	cdfA	
+b1662	ribC	
+b1663	mdtK	norE	norM	ydhE	
+b1664	ydhQ
+b1665	valV
+b1666	valW
+b1667	ydhR
+b1668	ydhS
+b1669	ydhT
+b1670	ydhU
+b1671	ydhX
+b1672	ydhW
+b1673	ydhV
+b1674	ydhY
+b1675	ydhZ
+b1676	pykF
+b1677	lpp	mlpA	mulI	
+b1678	ynhG
+b1679	sufE	ynhA	
+b1680	sufS	csdB	ynhB	
+b1681	sufD	ynhC	
+b1682	sufC	ynhD	
+b1683	sufB	ynhE	
+b1684	sufA	ydiC	
+b1685	ydiH
+b1686	ydiI
+b1687	ydiJ
+b1688	ydiK
+b1689	ydiL
+b1690	ydiM
+b1691	ydiN
+b1692	ydiB
+b1693	aroD
+b1694	ydiF
+b1695	ydiO
+b1696	ydiP
+b1697	ydiQ
+b1698	ydiR
+b1699	ydiS
+b1700	ydiT
+b1701	fadK	ydiD	
+b1702	ppsA	pps	
+b1703	ppsR	duf299	ydiA	
+b1704	aroH
+b1705	ydiE
+b1706	ydiU
+b1707	ydiV	cdgR(S.t.)	
+b1708	nlpC
+b1709	btuD
+b1710	btuE
+b1711	btuC
+b1712	ihfA	hid	himA	
+b1713	pheT
+b1714	pheS	phe-act	
+b1715	pheM	phtL	
+b1716	rplT	pdzA	
+b1717	rpmI
+b1718	infC	fit	srjA	
+b1719	thrS
+b1720	arpB_1
+b1721	arpB_2
+b1722	ydiY
+b1723	pfkB
+b1724	ydiZ
+b1725	yniA
+b1726	yniB
+b1727	yniC
+b1728	ydjM
+b1729	ydjN
+b1730	ydjO
+b1731	cedA	ydjP	
+b1732	katE
+b1733	chbG	celG	ydjC	
+b1734	chbF	celF	ydjD	
+b1735	chbR	celD	
+b1736	chbA	celC	
+b1737	chbC	celB	
+b1738	chbB	celA	
+b1739	osmE	anr	
+b1740	nadE	efg	ntrL	
+b1741	cho	dinM	sosD	ydjQ	
+b1742	ves	ydjR	
+b1743	spy
+b1744	astE	ydjS	
+b1745	astB	ydjT	
+b1746	astD	ydjU	
+b1747	astA	ydjV	
+b1748	astC	argM	cstC	ydjW	
+b1749	xthA	xth	
+b1750	ydjX
+b1751	ydjY
+b1752	ydjZ
+b1753	ynjA
+b1754	ynjB
+b1755	ynjC
+b1756	ynjD
+b1757	ynjE
+b1758	ynjF
+b1759	nudG	orf135	ynjG	
+b1760	ynjH
+b1761	gdhA
+b1762	ynjI
+b1763	topB	mutR	
+b1764	selD	fdhB	
+b1765	ydjA
+b1766	sppA
+b1767	ansA
+b1768	pncA	nam	ydjB	
+b1769	ydjE
+b1770	ydjF
+b1771	ydjG
+b1772	ydjH
+b1773	ydjI
+b1774	ydjJ
+b1775	ydjK
+b1776	ydjL
+b1777	yeaC
+b1778	msrB	yeaA	
+b1779	gapA
+b1780	yeaD	yzzQ	
+b1781	yeaE
+b1782	mipA	yeaF	
+b1783	yeaG
+b1784	yeaH
+b1785	yeaI
+b1786	yeaJ
+b1787	yeaK
+b1788	yoaI
+b1789	yeaL
+b1790	yeaM
+b1791	yeaN
+b1792	yeaO
+b1793	yoaF
+b1794	yeaP
+b1795	yeaQ
+b1796	yoaG
+b1797	yeaR
+b1798	leuE	yeaS	
+b1799	dmlR	yeaT	
+b1800	dmlA	yeaU	
+b1801	yeaV
+b1802	yeaW
+b1803	yeaX
+b1804	rnd
+b1805	fadD	oldD	
+b1806	yeaY
+b1807	tsaB	rpf(S.t.)	yeaZ	
+b1808	yoaA
+b1809	yoaB
+b1810	yoaC
+b1811	yoaH
+b1812	pabB
+b1813	nudL	yeaB	
+b1814	sdaA
+b1815	yoaD	adrB(S.t.)	
+b1816	yoaE	borG	
+b1817	manX	gptB	mpt	ptsL	ptsX	
+b1818	manY	pel	ptsP	ptsX	
+b1819	manZ	gptB	mpt	ptsM	ptsX	
+b1820	yobD
+b1821	mntP	yebN	
+b1822	rlmA	rrmA	yebH	
+b1823	cspC	msmB	
+b1824	yobF
+b1825	yebO
+b1826	mgrB	yobG	
+b1827	kdgR	yebP	
+b1828	yebQ
+b1829	htpX
+b1830	prc	tsp	
+b1831	proQ	yebJ	yobE	yoeC	
+b1832	msrC	yebR	
+b1833	yebS
+b1834	yebT
+b1835	rsmF	yebU	
+b1836	yebV
+b1837	yebW
+b1838	pphA	prpA	yebX	
+b1839	yebY
+b1840	yebZ
+b1841	yobA
+b1842	holE
+b1843	yobB
+b1844	exoX	yobC	
+b1845	ptrB	opdB	tlp(S.t.)	
+b1846	yebE
+b1847	yebF
+b1848	yebG
+b1849	purT
+b1850	eda	hga	kdgA	kga	
+b1851	edd
+b1852	zwf
+b1853	yebK	hexR(P.a.)	
+b1854	pykA
+b1855	lpxM
+b1856	yebA
+b1857	znuA	yebL	yzzP	
+b1858	znuC	yebM	
+b1859	znuB	yebI	
+b1860	ruvB
+b1861	ruvA
+b1862	yebB
+b1863	ruvC
+b1864	yebC
+b1865	nudB	ntpA	orf17	yebD	
+b1866	aspS	tls	
+b1867	yecD
+b1868	yecE
+b1869	yecN
+b1870	cmoA	yecO	
+b1871	cmoB	yecP	
+b1872	torZ	bisZ	
+b1873	torY	yecK	
+b1874	cutC	dinY?	
+b1875	yecM	yecL	
+b1876	argS	lov	
+b1877	yecT
+b1878	flhE
+b1879	flhA	flaH	
+b1880	flhB	flaG	yecQ	
+b1881	cheZ
+b1882	cheY
+b1883	cheB
+b1884	cheR	cheX	
+b1885	tap
+b1886	tar	cheM	
+b1887	cheW
+b1888	cheA
+b1889	motB	flaJ	
+b1890	motA	flaJ	
+b1891	flhC	flaI	
+b1892	flhD	flbB	
+b1893	insB-5
+b1894	insA-5
+b1895	uspC	yecG	
+b1896	otsA	pexA	
+b1897	otsB	otsP	
+b1898	araH_2	araH
+b1899	araH_1	araH
+b1900	araG
+b1901	araF
+b1902	ftnB	yecI	
+b1903	b1903
+b1904	yecR
+b1905	ftnA	ftn	gen-165	rsgA	
+b1906	yecH
+b1907	tyrP
+b1908	yecA
+b1909	leuZ
+b1910	cysT
+b1911	glyW	ins	mutC	suA58	suA78	
+b1912	pgsA
+b1913	uvrC
+b1914	uvrY	gacA	sirA(S.t.)	yecB	
+b1915	yecF
+b1916	sdiA	uvrX	
+b1917	yecC
+b1918	yecS
+b1919	dcyD	yedO	
+b1920	fliY	yzzR	
+b1921	fliZ	yedH	
+b1922	fliA	flaD	rpoF	
+b1923	fliC	flaF	H	hag	
+b1924	fliD	flbC	rfs	
+b1925	fliS
+b1926	fliT
+b1927	amyA	yedC	
+b1928	yedD
+b1929	yedE
+b1930	yedF
+b1931	yedK	yedG	
+b1932	yedL
+b1933	yedN_2
+b1934	yedN_1
+b1935	yedM
+b1936	intG
+b1937	fliE	flaAI	flaN	
+b1938	fliF	flaAII.1	flaBI	
+b1939	fliG	flaAII.2	flaBII	
+b1940	fliH	flaAII.3	flaBIII	
+b1941	fliI	flaC	
+b1942	fliJ	flaO	
+b1943	fliK	flaE	
+b1944	fliL	cheC1	flaAI	flaQI	
+b1945	fliM	cheC2	flaA	flaAII	flaQII	
+b1946	fliN	motD	
+b1947	fliO	flbD	
+b1948	fliP	flaR	
+b1949	fliQ	flaQ	
+b1950	fliR	flaP	
+b1951	rcsA	cpsR	
+b1952	dsrB
+b1953	yodD
+b1954	dsrA	IS095	
+b1955	yedP
+b1956	yedQ
+b1957	yodC
+b1958	yedI
+b1959	yedA
+b1960	vsr
+b1961	dcm	mec	
+b1962	yedJ
+b1963	yedR
+b1964	yedS_1
+b1965	yedS_2
+b1966	yedS_3
+b1967	hchA	gloC	yedU	yzzC	
+b1968	yedV
+b1969	yedW
+b1970	yedX
+b1971	yedY
+b1972	yedZ
+b1973	zinT	yodA	
+b1974	yodB
+b1975	serU	ftsM	Su-1	su1	supD	supH	
+b1976	mtfA	yeeI	
+b1977	asnT
+b1978	yeeJ
+b1979	yeeL_2
+b1980	yeeL_1
+b1981	shiA	yeeM	
+b1982	amn
+b1983	yeeN
+b1984	asnW
+b1985	yeeO
+b1986	asnU
+b1987	cbl
+b1988	nac
+b1989	asnV
+b1990	erfK	srfK(S.t.)	yeeG	yzzT	
+b1991	cobT
+b1992	cobS
+b1993	cobU
+b1994	insH-6
+b1995	yoeA
+b1996	insD-3
+b1997	insC-3
+b1998	yoeE
+b1999	yeeP
+b2000	flu	agn	agn43	yeeQ	yzzX	
+b2001	yeeR
+b2002	yeeS
+b2003	yeeT
+b2004	cbeA	yeeU	
+b2005	cbtA	yeeV	
+b2006	yeeW
+b2007	yeeX
+b2008	yeeA
+b2009	sbmC	dgi	gyrI	yeeB	
+b2010	dacD	phsE(S.t.)	phsF(S.t.)	yeeC	
+b2011	sbcB	cpeA	xonA	
+b2012	yeeD
+b2013	yeeE
+b2014	plaP	yeeF	
+b2015	yeeY
+b2016	yeeZ
+b2017	yefM
+b2018	hisL
+b2019	hisG
+b2020	hisD
+b2021	hisC
+b2022	hisB
+b2023	hisH
+b2024	hisA
+b2025	hisF
+b2026	hisI	hisE	hisIE	
+b2027	wzzB	cld	rol	wzz	
+b2028	ugd	pagA(S.t.)	pmrE(S.t.)	udg	yefA	
+b2029	gnd
+b2030	insH-7
+b2031	wbbL_1
+b2032	wbbK	yefI	
+b2033	wbbJ	yefH	
+b2034	wbbI	yefG	
+b2035	wbbH	rfc	yefF	
+b2036	glf	yefE	
+b2037	rfbX
+b2038	rfbC	rfbD	rmlC	
+b2039	rfbA	rmlA	som	
+b2040	rfbD	rmlD	
+b2041	rfbB	rmlB	som	
+b2042	galF
+b2043	wcaM	yefK	
+b2044	wcaL	yefL	
+b2045	wcaK
+b2046	wzxC	wzx	
+b2047	wcaJ
+b2048	cpsG	manB	rfbK	
+b2049	cpsB	manC	mni	rfbM	
+b2050	wcaI	yefD	
+b2051	gmm
+b2052	fcl
+b2053	gmd	yefA	yefN	
+b2054	wcaF
+b2055	wcaE
+b2056	wcaD
+b2057	wcaC
+b2058	wcaB
+b2059	wcaA
+b2060	wzc
+b2061	wzb
+b2062	wza
+b2063	yegH
+b2064	asmA	yegA	
+b2065	dcd	dus	paxA	
+b2066	udk
+b2067	yegE
+b2068	alkA	aidA	
+b2069	yegD
+b2070	yegI
+b2071	yegJ
+b2072	yegK
+b2073	yegL
+b2074	mdtA	yegM	
+b2075	mdtB	yegN	
+b2076	mdtC	yegO	
+b2077	mdtD	yegB	
+b2078	baeS
+b2079	baeR
+b2080	yegP
+b2081	yegQ
+b2082	ogrK
+b2083	yegZ
+b2084	b2084
+b2085	yegR
+b2086	yegS
+b2087	gatR_1 gatR
+b2088	insE-5
+b2089	insF-5
+b2090	gatR_2
+b2091	gatD
+b2092	gatC
+b2093	gatB
+b2094	gatA
+b2095	gatZ
+b2096	gatY	yegF	
+b2097	fbaB	dhnA	
+b2098	yegT
+b2099	yegU
+b2100	yegV
+b2101	yegW
+b2102	yegX
+b2103	thiD	thiA	thiJ	thiN	
+b2104	thiM
+b2105	rcnR	yohL	
+b2106	rcnA	yohM	
+b2107	rcnB	yohN	
+b2108	yehA
+b2109	yehB
+b2110	yehC
+b2111	yehD
+b2112	yehE
+b2113	mrp	apbC(S.t.)	
+b2114	metG
+b2115	molR_1
+b2116	molR_2
+b2117	molR_3
+b2118	yehI
+b2119	yehL
+b2120	yehM	yehN	yehO	
+b2121	yehP
+b2122	yehQ
+b2123	yehR
+b2124	yehS
+b2125	yehT
+b2126	yehU
+b2127	mlrA	yehV	
+b2128	yehW
+b2129	yehX
+b2130	yehY
+b2131	osmF	yehZ	
+b2132	bglX	glh	yohA	
+b2133	dld
+b2134	pbpG	psv	yohB	
+b2135	yohC
+b2136	yohD
+b2137	yohF	yohE	
+b2138	mdtQ
+b2139	yohH
+b2140	dusC	yohI	
+b2141	yohJ
+b2142	yohK
+b2143	cdd
+b2144	sanA	sfiX(St)	yeiF	
+b2145	yeiS
+b2146	preT	dpdA	preB	yeiT	
+b2147	preA	yeiA	
+b2148	mglC	mglP	
+b2149	mglA	mglP	
+b2150	mglB
+b2151	galS	mglD	
+b2152	yeiB
+b2153	folE
+b2154	yeiG
+b2155	cirA	cir	feuA	
+b2156	lysP	cadR	
+b2157	yeiE
+b2158	yeiH
+b2159	nfo
+b2160	yeiI
+b2161	nupX	yeiJ	
+b2162	rihB	yeiK	
+b2163	yeiL
+b2164	yeiM	psuT
+b2165	psuG	pscG	yeiN	
+b2166	psuK	pscK	yeiC	
+b2167	fruA	ptsF	
+b2168	fruK	fpk	
+b2169	fruB	fpr	fruF	
+b2170	setB	yeiO	
+b2171	yeiP
+b2172	yeiQ
+b2173	yeiR
+b2174	lpxT	yeiU	
+b2175	spr	yeiV	
+b2176	rtn
+b2177	yejA
+b2178	yejB
+b2179	yejE
+b2180	yejF
+b2181	yejG
+b2182	bcr	bicA	bicR	sur	suxA	
+b2183	rsuA	yejD	
+b2184	yejH	yejI	yejJ	
+b2185	rplY
+b2186	yejK	ndpA	
+b2187	yejL
+b2188	yejM	yejN	
+b2189	proL	proW	
+b2190	yejO
+b2191	b2191
+b2192	insH-8
+b2193	narP
+b2194	ccmH	yejP	
+b2195	ccmG
+b2196	ccmF	yejR	
+b2197	ccmE	yejS	
+b2198	ccmD	yojM	
+b2199	ccmC	yejT	yejU	
+b2200	ccmB	yejV	
+b2201	ccmA	yejW	
+b2202	napC	yejX	
+b2203	napB	yejY	
+b2204	napH	yejZ	
+b2205	napG	yojA	yojB	
+b2206	napA	yojC	yojD	yojE	
+b2207	napD	yojF	
+b2208	napF	yojG	
+b2209	eco	eti	
+b2210	mqo	yojH	
+b2211	yojI	yojJ	
+b2212	alkB	aidD	
+b2213	ada
+b2214	apbE	yojK	yojL	
+b2215	ompC	meoA	par	
+b2216	rcsD	yojN	yojP	yojQ	
+b2217	rcsB	viaA	
+b2218	rcsC
+b2219	atoS
+b2220	atoC	Az	
+b2221	atoD
+b2222	atoA
+b2223	atoE
+b2224	atoB
+b2225	yfaP
+b2226	yfaQ
+b2227	yfaS_2
+b2228	yfaS_1
+b2229	yfaT
+b2230	yfaA	pufY	
+b2231	gyrA	hisW	nalA	nfxA	norA	parD	
+b2232	ubiG	pufX	yfaB	
+b2233	yfaL	yfaF	yfaJ	yfaK	
+b2234	nrdA	dnaF	
+b2235	nrdB	ftsB	
+b2236	yfaE
+b2237	inaA	yfaG	
+b2238	yfaH
+b2239	glpQ
+b2240	glpT
+b2241	glpA
+b2242	glpB	psi-51	
+b2243	glpC	
+b2244	yfaD
+b2245	yfaU
+b2246	yfaV
+b2247	yfaW
+b2248	yfaX
+b2249	yfaY	cinA(B.s.)	
+b2250	yfaZ
+b2251	nudI	yfaO	
+b2252	ais	pagH(S.t.)	pmrG(S.t.)	
+b2253	arnB	pgbP1(S.t.)	pmrH(S.t.)	yfbE	
+b2254	arnC	ORF2	pmrF(S.t.)	yfbF	
+b2255	arnA	pbgP3(S.t.)	pmrI(S.t.)	SAF	yfbG	
+b2256	arnD	pbgP4(S.t.)	pmrJ(S.t.)	yfbH	
+b2257	arnT	pbgE1(S.t.)	pmrK(S.t.)	pqaB(S.t.)	yfbI	
+b2258	arnF	pbgE3(S.t.)	pmrM(S.t.)	yfbJ	
+b2259	pmrD
+b2260	menE
+b2261	menC
+b2262	menB
+b2263	menH	yfbB	
+b2264	menD
+b2265	menF	yfbA	
+b2266	elaB	yfbD	
+b2267	elaA	yfbC	
+b2268	ecoZ	rbn	elaC	rnz	zipD	
+b2269	elaD
+b2270	yfbK
+b2271	yfbL
+b2272	yfbM
+b2273	yfbN
+b2274	yfbO
+b2275	yfbP
+b2276	nuoN
+b2277	nuoM	nuoA	
+b2278	nuoL
+b2279	nuoK
+b2280	nuoJ
+b2281	nuoI
+b2282	nuoH
+b2283	nuoG
+b2284	nuoF	nuoB	
+b2285	nuoE
+b2286	nuoC	nuoCD	nuoD	
+b2287	nuoB
+b2288	nuoA
+b2289	lrhA	genR	hexA(E.c.)	
+b2290	alaA	yfbQ	
+b2291	yfbR
+b2292	yfbS
+b2293	yfbT
+b2294	yfbU
+b2295	yfbV
+b2296	ackA
+b2297	pta
+b2298	yfcC
+b2299	yfcD
+b2300	yfcE
+b2301	yfcF
+b2302	yfcG
+b2303	folX
+b2304	yfcH
+b2305	yfcI
+b2306	hisP
+b2307	hisM
+b2308	hisQ
+b2309	hisJ
+b2310	argT
+b2311	ubiX	dedF	
+b2312	purF	ade(ub)	purC	
+b2313	cvpA	dedE	
+b2314	dedD
+b2315	folC	dedC	
+b2316	accD	dedB	usg	
+b2317	dedA
+b2318	truA	asuC	hisT	leuK	
+b2319	usg
+b2320	pdxB
+b2321	flk	div	rflH	
+b2322	yfcJ
+b2323	fabB	fabC	
+b2324	mnmC	trmC	yfcK	
+b2325	yfcL
+b2326	epmC	yfcM	
+b2327	yfcA
+b2328	mepA
+b2329	aroC
+b2330	prmB	yfcB	
+b2331	smrB	yfcN	
+b2332	yfcO
+b2333	yfcP
+b2334	yfcQ
+b2335	yfcR
+b2336	yfcS
+b2337	yfcT
+b2338	yfcU
+b2339	yfcV
+b2340	sixA	yfcW	
+b2341	fadJ	yfcX	
+b2342	fadI	yfcY	
+b2343	yfcZ
+b2344	fadL	ttr	
+b2345	yfdF
+b2346	mlaA	vacJ	
+b2347	yfdC
+b2348	argW
+b2349	intS	intC	yfdB	
+b2350	yfdG
+b2351	yfdH
+b2352	yfdI
+b2353	tfaS
+b2354	yfdK
+b2355	yfdL
+b2356	yfdM
+b2357	yfdN	yzyA	
+b2358	yfdO	oweS
+b2359	yfdP
+b2360	yfdQ
+b2361	yfdR
+b2362	yfdS
+b2363	yfdT
+b2364	dsdC
+b2365	dsdX	dsdC	yfdA	yfdD	
+b2366	dsdA
+b2367	emrY
+b2368	emrK
+b2369	evgA
+b2370	evgS
+b2371	yfdE
+b2372	yfdV
+b2373	oxc	yfdU	
+b2374	frc	yfdW	
+b2375	yfdX
+b2376	ypdI
+b2377	yfdY
+b2378	lpxP	ddg	
+b2379	alaC	yfdZ	
+b2380	ypdA
+b2381	ypdB
+b2382	ypdC
+b2383	fryA	ypdD	
+b2384	ypdE
+b2385	ypdF
+b2386	fryC	ypdG	
+b2387	fryB	ypdH	
+b2388	glk
+b2389	yfeO
+b2390	ypeC
+b2392	mntH	mntA	yfeP	
+b2393	nupC	cru	
+b2394	insL-3
+b2395	yfeA
+b2396	alaX	alaWbeta	
+b2397	alaW	alaWalpha	
+b2398	yfeC
+b2399	yfeD
+b2400	gltX
+b2401	valU	valUalpha	
+b2402	valX	valUbeta	
+b2403	valY	valUgamma	
+b2404	lysV	supN	
+b2405	xapR	pRndR	yfeB	
+b2406	xapB
+b2407	xapA	pndA	
+b2408	yfeN
+b2409	yfeR	osmT(S.t.)	
+b2410	yfeH
+b2411	ligA	dnaL	lig	lop	pdeC	
+b2412	zipA
+b2413	cysZ
+b2414	cysK	
+b2415	ptsH	ctr	Hpr	iex?	
+b2416	ptsI	ctr	
+b2417	crr	gsr	iex	tgs	treD	
+b2418	pdxK	pdxL	thiJ	yfeI	
+b2419	yfeK
+b2420	yfeS
+b2421	cysM
+b2422	cysA
+b2423	cysW
+b2424	cysU	cysT	
+b2425	cysP
+b2426	ucpA	yfeF	
+b2427	murR	yfeT	
+b2428	murQ	yfeU	
+b2429	murP	yfeV	
+b2430	yfeW	pbp4B	
+b2431	yfeX
+b2432	yfeY
+b2433	yfeZ
+b2434	ypeA
+b2435	amiA	yfeE	
+b2436	hemF	popB	sec	
+b2437	eutR	yfeG	
+b2438	eutK	yffI	
+b2439	eutL	yffJ	
+b2440	eutC
+b2441	eutB
+b2442	intZ
+b2443	yffL
+b2444	yffM
+b2445	yffN
+b2446	yffO
+b2447	yffP
+b2448	yffQ
+b2449	yffR
+b2450	yffS
+b2451	eutA	yffT	
+b2452	eutH	yffU	
+b2453	eutG	yffV	
+b2454	eutJ	yffW	
+b2455	eutE	yffX	
+b2456	eutN	cchB	yffY	
+b2457	eutM	cchA	yffZ	
+b2458	eutD	eutI	ypfA	
+b2459	eutT	ypfB	
+b2460	eutQ	ypfC	
+b2461	eutP	ypfD	
+b2462	eutS	ypfE	
+b2463	maeB	ypfF	
+b2464	talA
+b2465	tktB
+b2466	ypfG
+b2467	nudK	yffH	
+b2468	aegA	yffG	
+b2469	narQ
+b2470	acrD	yffA	
+b2471	yffB
+b2472	dapE	msgB	
+b2473	ypfH
+b2474	tmcA	ypfI	
+b2475	ypfJ
+b2476	purC	ade(g)	
+b2477	bamC	dapX	nlpB	
+b2478	dapA
+b2479	gcvR	yffD	
+b2480	bcp
+b2481	hyfA	yffE	
+b2482	hyfB	yffF	
+b2483	hyfC
+b2484	hyfD
+b2485	hyfE
+b2486	hyfF
+b2487	hyfG
+b2488	hyfH
+b2489	hyfI
+b2490	hyfJ
+b2491	hyfR
+b2492	focB
+b2493	yfgO	perM	
+b2494	yfgC
+b2495	yfgD
+b2496	hda	idaB	yfgE	
+b2497	uraA
+b2498	upp	uraP	
+b2499	purM	purG	purI(S.t.)	
+b2500	purN	ade(c)	
+b2501	ppk
+b2502	ppx
+b2503	yfgF
+b2504	yfgG
+b2505	yfgH
+b2506	yfgI
+b2507	guaA
+b2508	guaB	guaR	
+b2509	xseA	xse	
+b2510	yfgJ
+b2511	der	engA	yfgK	
+b2512	bamB	yfgL	
+b2513	yfgM
+b2514	hisS
+b2515	ispG	gcpE	
+b2516	rodZ	yfgA	
+b2517	rlmN	yfgB	
+b2518	ndk
+b2519	pbpC	yfgN	
+b2520	yfhM
+b2521	sseA
+b2522	sseB
+b2523	pepB	yfhI	
+b2524	iscX	yfhJ	
+b2525	fdx
+b2526	hscA	hsc	
+b2527	hscB	yfhE	
+b2528	iscA	yfhF	
+b2529	iscU	hsm-5	miaC(S.t.)	nifU	yfhN	
+b2530	iscS	nuvC	yfhO	yzzO	
+b2531	iscR	yfhP	
+b2532	trmJ	yfhQ	
+b2533	suhB	ssyA	
+b2534	yfhR
+b2535	csiE	csi-16	
+b2536	hcaT	yfhS	
+b2537	hcaR	phdR	yfhT	
+b2538	hcaE	digA	hcaA	hcaA1	phdC1	yfhU	
+b2539	hcaF	digB	hcaA	hcaA2	hcaB	phdC2	yfhV	
+b2540	hcaC	hcaA3	phdB	yfhW	
+b2541	hcaB	phdD	yfhX	
+b2542	hcaD	hcaA4	phdA	yfhY	
+b2543	yphA
+b2544	yphB
+b2545	yphC
+b2546	yphD
+b2547	yphE
+b2548	yphF
+b2549	yphG
+b2550	yphH
+b2551	glyA
+b2552	hmp	fsrB	hmpA	
+b2553	glnB
+b2554	glrR	qseF	yfhA	
+b2555	yfhG	qseG	
+b2556	glrK	qseE	yfhK	yfhZ	
+b2557	purL	purG(S.t.)	purI	
+b2558	mltF	yfhD	
+b2559	tadA	yfhC	
+b2560	pgpC	yfhB	
+b2561	yfhH
+b2562	yfhL
+b2563	acpS	dpj	
+b2564	pdxJ
+b2565	recO
+b2566	era	sdgE	
+b2567	rnc	ranA	
+b2568	lepB	lep	
+b2569	lepA
+b2570	rseC
+b2571	rseB
+b2572	rseA	mclA	yfiJ	
+b2573	rpoE	sigE	
+b2574	nadB	nic	nicB	
+b2575	yfiC	trmN6	
+b2576	srmB	rbaB	rhlA	
+b2577	yfiE
+b2578	eamB	yfiK	
+b2579	grcA	yfiD	
+b2580	ung
+b2581	yfiF
+b2582	trxC	yfiG	
+b2583	yfiP
+b2584	pka	pat	(S.t.)	yfiQ	
+b2585	pssA	pss	
+b2586	yfiM
+b2587	kgtP	witA	
+b2588	rrfG
+b2589	rrlG
+b2590	gltW
+b2591	rrsG
+b2592	clpB	htpM	
+b2593	yfiH
+b2594	rluD	sfhB	yfiI	
+b2595	bamD	ecfD	yfiO	
+b2596	b2596
+b2597	raiA	yfiA	
+b2598	pheL	pheAE	
+b2599	pheA
+b2600	tyrA
+b2601	aroF
+b2602	yfiL
+b2603	yfiR
+b2604	yfiN
+b2605	yfiB
+b2606	rplS
+b2607	trmD
+b2608	rimM	yfjA	
+b2609	rpsP
+b2610	ffh
+b2611	ypjD	corE(S.t.)	
+b2614	grpE
+b2615	nadK	yfjB	yfjE	
+b2616	recN	radB	
+b2617	bamE	smpA	smqA	
+b2618	ratB	pasI	yfjF	
+b2619	ratA	pasT	yfjG	
+b2620	smpB	smqB	
+b2621	ssrA	sipB	
+b2622	intA	intX	slpA	
+b2623	yfjH
+b2624	alpA
+b2625	yfjI
+b2626	yfjJ
+b2627	yfjK
+b2628	yfjL
+b2629	yfjM
+b2630	rnlA	std	yfjN	
+b2631	rnlB	yfjO	
+b2632	yfjP
+b2633	yfjQ
+b2634	yfjR
+b2635	ypjK
+b2636	yfjS
+b2637	yfjT
+b2638	yfjU
+b2639	ypjM_3
+b2640	ypjM_2
+b2641	ypjM_1
+b2642	yfjW
+b2643	yfjX
+b2644	yfjY
+b2645	yfjZ
+b2646	ypjF
+b2647	ypjA
+b2648	pinH
+b2649	ypjB
+b2650	ypjC
+b2651	b2651
+b2652	ileY
+b2653	b2653
+b2654	ygaQ_1
+b2655	ygaQ_2	yqaC
+b2656	ygaR
+b2657	ygaQ_3
+b2658	ygaQ_4
+b2659	csiD	csi-12	ygaT	
+b2660	lhgO	ygaF	
+b2661	gabD
+b2662	gabT
+b2663	gabP
+b2664	csiR	gabC	ygaE	
+b2665	ygaU	yzzM	
+b2666	yqaE
+b2667	ygaV
+b2668	ygaP
+b2669	stpA	hnsB	hsm-3	rsv	
+b2670	alaE	ygaW	
+b2671	ygaC
+b2672	ygaM
+b2673	nrdH	ygaN	
+b2674	nrdI	ygaO	
+b2675	nrdE
+b2676	nrdF	ygaD	
+b2677	proV	osrA	proU	
+b2678	proW	osrA	proU	
+b2679	proX	osrA	proU	
+b2680	ygaX
+b2681	ygaY
+b2682	ygaZ
+b2683	ygaH
+b2684	mprA	emrR	
+b2685	emrA
+b2686	emrB
+b2687	luxS	ygaG	
+b2688	gshA	gshI	
+b2689	yqaA
+b2690	yqaB
+b2691	argQ	argVdelta	
+b2692	argZ	argVgamma	
+b2693	argY	argVbeta	
+b2694	argV	argValpha	
+b2695	serV	supD	
+b2696	csrA	zfiA	
+b2697	alaS	act	ala-act	lovB	
+b2698	recX	oraA	
+b2699	recA	lexB	recH	rnmB	srf	tif	umuB	umuR	zab	
+b2700	pncC	ygaD	
+b2701	mltB
+b2702	srlA	gutA	sbl	
+b2703	srlE	gutA	gutE	sbl	
+b2704	srlB	gutB	
+b2705	srlD	gutD	
+b2706	gutM	srlM	
+b2707	srlR	gutR	
+b2708	gutQ	srlQ	
+b2709	norR	ygaA	
+b2710	norV	flrd	ygaI	ygaJ	ygaK	
+b2711	norW	ygaL	ygbD	
+b2712	hypF	hydA	
+b2713	hydN
+b2714	ascG	sac	
+b2715	ascF	sac	
+b2716	ascB	sac	
+b2717	hycI
+b2718	hycH	hevH	
+b2719	hycG	hevG	
+b2720	hycF	hevF	
+b2721	hycE	hevE	
+b2722	hycD	hevD	
+b2723	hycC	hevC	
+b2724	hycB	hevB	
+b2725	hycA	hevA	
+b2726	hypA
+b2727	hypB	hydB	hydE	
+b2728	hypC
+b2729	hypD	hydF	
+b2730	hypE	hydB	
+b2731	fhlA	fhl	
+b2732	ygbA
+b2733	mutS	ant	fdv	plm	
+b2734	pphB	ygbH	
+b2735	ygbI
+b2736	ygbJ
+b2737	ygbK
+b2738	ygbL
+b2739	ygbM
+b2740	ygbN
+b2741	rpoS	abrD	appR	csi2	dpeB	katF	nur	otsX	sigS	
+b2742	nlpD
+b2743	pcm
+b2744	surE	ygbC	
+b2745	truD	ygbO	
+b2746	ispF	ygbB	
+b2747	ispD	ygbP	
+b2748	ftsB	ygbQ	
+b2749	ygbE
+b2750	cysC
+b2751	cysN
+b2752	cysD
+b2753	iap
+b2754	cas2	ygbF
+b2755	cas1	ygbT
+b2756	casE	cas6e	cse3	ygcH	
+b2757	casD	cas5	ygcI	
+b2758	casC	cas4	cas7	cse4	ygcJ	
+b2759	casB	cse2	ygcK	
+b2760	casA	cse1	ygcL	
+b2761	cas3	ygcB
+b2762	cysH
+b2763	cysI
+b2764	cysJ
+b2765	queD	sscR	ygcM	
+b2766	ygcN
+b2767	ygcO
+b2768	ygcP
+b2769	ygcQ
+b2770	ygcR
+b2771	ygcS
+b2772	ygcT
+b2774	ygcW
+b2775	yqcE	yqcF	
+b2776	ygcE
+b2777	queE	ygcF	
+b2778	ygcG
+b2779	eno
+b2780	pyrG
+b2781	mazG
+b2782	mazF	chpA	chpAK	
+b2783	mazE	chpAI	chpR	tasA	
+b2784	relA	RC	
+b2785	rlmD	rumA	ygcA	
+b2786	barA	airS(S.t.)	gacC	
+b2787	gudD	ygcX	
+b2788	gudX	ygcY	
+b2789	gudP	ygcZ	
+b2790	yqcA
+b2791	truC	yqcB	
+b2792	yqcC
+b2793	syd	ydr	
+b2794	queF	yqcD	
+b2795	ygdH
+b2796	sdaC	dcrA	
+b2797	sdaB
+b2798	ygdG	exo	xni	
+b2799	fucO
+b2800	fucA	fucC	prd	
+b2801	fucP
+b2802	fucI
+b2803	fucK
+b2804	fucU
+b2805	fucR
+b2806	rlmM	ygdE	
+b2807	ygdD
+b2808	gcvA
+b2809	ygdI
+b2810	csdA	ygdJ	
+b2811	csdE	ygdK	
+b2812	csdL	ygdL	tcdA	
+b2813	mltA	mlt	ygdM	
+b2814	metZ	metZalpha	
+b2815	metW
+b2816	metV	metX	metZbeta	
+b2817	amiC	ygdN	
+b2818	argA	Arg1	Arg2	argB	
+b2819	recD	hopE	
+b2820	recB	ior	rorA	
+b2821	ptrA	ptr	
+b2822	recC
+b2823	ppdC	ygdA	
+b2824	ygdB
+b2825	ppdB	ygdC	
+b2826	ppdA
+b2827	thyA
+b2828	lgt	umpA	
+b2829	ptsP	ygdF	ygdO	
+b2830	rppH	nudH	ygdP	
+b2831	mutH	mutR	prv	
+b2832	ygdQ
+b2833	ygdR
+b2834	tas	ygdS	
+b2835	lplT	ygeD	
+b2836	aas
+b2837	galR
+b2838	lysA
+b2839	lysR
+b2840	ygeA
+b2841	araE
+b2842	kduD	ygeC	yqeD	
+b2843	kduI	yqeE	
+b2844	yqeF
+b2845	yqeG
+b2846	yqeH
+b2847	yqeI
+b2848	yqeJ
+b2849	yqeK
+b2850	ygeF
+b2851	ygeG
+b2852	ygeH
+b2853	ygeI
+b2854	pbl
+b2855	ygeK
+b2856	ygeL
+b2857	ygeM
+b2858	ygeN
+b2859	ygeO
+b2860	insD-4
+b2861	insC-4
+b2862	ygeP
+b2863	ygeQ
+b2864	glyU	suA36	sufD	sumB	supT	
+b2865	ygeR
+b2866	xdhA	ygeS	
+b2867	xdhB	ygeT	
+b2868	xdhC	ygeU	
+b2869	ygeV
+b2870	ygeW
+b2871	ygeX
+b2872	ygeY
+b2873	hyuA	ygeZ	
+b2874	yqeA
+b2875	yqeB
+b2876	yqeC
+b2877	mocA	ygfJ	
+b2878	ygfK
+b2879	ssnA	ygfL	
+b2880	ygfM
+b2881	xdhD	ygfN	
+b2882	xanQ	ygfO	
+b2883	guaD	ygfP	
+b2886	ygfS
+b2887	ygfT
+b2888	uacT	ygfU	
+b2889	idi	ygfV	
+b2890	lysS	asuD	herC	
+b2891	prfB	supK	
+b2892	recJ
+b2893	dsbC	xprA	
+b2894	xerD	xprB	
+b2895	fldB
+b2896	cptA	ygfX	
+b2897	cptB	ygfY	
+b2898	ygfZ	yzzW	
+b2899	yqfA
+b2900	yqfB
+b2901	bglA	bglD	yqfC	
+b2902	ygfF	yqfD	
+b2903	gcvP
+b2904	gcvH
+b2905	gcvT
+b2906	visC
+b2907	ubiH	acd	visB	
+b2908	pepP
+b2909	ygfB
+b2910	zapA	ygfE	
+b2911	ssrS	ssr	ssrI	
+b2912	fau	ygfA	
+b2913	serA
+b2914	rpiA	ygfC	
+b2915	yqfE
+b2916	argP	canR	iciA	
+b2917	scpA	mcm	sbm	yliK	
+b2918	argK	meaB	scpK?	ygfD	
+b2919	scpB	mmcD	ygfG	
+b2920	scpC	ygfH	
+b2921	ygfI
+b2922	yggE
+b2923	argO	yggA	
+b2924	mscS	yggB	
+b2925	fbaA	ald	fba	fda	
+b2926	pgk
+b2927	epd	gapB	
+b2928	yggC
+b2929	yggD
+b2930	yggF	yggK	
+b2931	b2931
+b2933	cmtA
+b2934	cmtB	tolM	
+b2935	tktA	tkt	
+b2936	loiP	yggG	
+b2937	speB
+b2938	speA
+b2939	yqgB
+b2940	yqgC
+b2941	yqgD
+b2942	metK	metX	
+b2943	galP	Pgal	
+b2944	yggI	sprT	
+b2945	endA
+b2946	rsmE	yggJ	
+b2947	gshB	gsh-II	
+b2948	yqgE
+b2949	yqgF
+b2950	yggR
+b2951	yggS
+b2952	yggT
+b2953	yggU
+b2954	rdgB	yggV	
+b2955	yggW
+b2956	yggM
+b2957	ansB
+b2958	yggN	ecfF	
+b2959	yggL
+b2960	trmI	trmB?	yggH	
+b2961	mutY	micA	mutB(S.t.)	
+b2962	yggX
+b2963	mltC	yggZ	
+b2964	nupG
+b2965	speC
+b2966	yqgA
+b2967	pheV	pheC	
+b2968	yghD	ecfC	gspMbeta	
+b2969	yghE
+b2970	yghF
+b2971	yghG	gspSbeta	
+b2972	pppA	yghH	
+b2973	ygcV
+b2974	b2974
+b2975	glcA	yghK	
+b2976	glcB	glc	
+b2977	glcG	yghC	
+b2979	glcD	gox	yghM	
+b2980	glcC	yghN	
+b2981	yghO
+b2982	insH-9
+b2983	yghQ
+b2984	yghR
+b2985	yghS
+b2986	yghT
+b2987	pitB
+b2988	gss	gsp	
+b2989	yghU
+b2990	hybG
+b2991	hybF
+b2992	hybE
+b2993	hybD
+b2994	hybC
+b2995	hybB
+b2996	hybA	hydL	
+b2997	hybO	yghV	
+b2998	yghW
+b2999	yghX_1
+b3000	yghX_2
+b3001	yghZ
+b3002	yqhA
+b3003	yghA
+b3004	b3004
+b3005	exbD
+b3006	exbB
+b3007	b3007
+b3008	metC
+b3009	yghB
+b3010	yqhC
+b3011	yqhD
+b3012	dkgA	yqhE	
+b3013	yqhG	yqhF	
+b3014	yqhH
+b3015	b3015
+b3017	ftsP	sufI	sui	ygiJ(S.t.)	
+b3018	plsC	parF	
+b3019	parC
+b3020	ygiS
+b3021	mqsA	ygiT	
+b3022	mqsR	ygiU	
+b3023	ygiV
+b3024	ygiW
+b3025	qseB	preA(S.T.)	ygiX	
+b3026	qseC	preB(S.t.)	ygiY	
+b3027	ygiZ
+b3028	mdaB	mda66	
+b3029	ygiN
+b3030	parE	nfxD	
+b3031	yqiA	yzzI	
+b3032	cpdA	icc	
+b3033	yqiB	yzzH	
+b3034	nudF	adpP	aspP	rdsA	trgB(R.s.)	yqiE	yzzG	
+b3035	tolC	colE1-i	mtcB	mukA	refI	toc	weeA	
+b3036	ygiA
+b3037	ygiB
+b3038	ygiC
+b3039	ygiD
+b3040	zupT	ygiE	
+b3041	ribB	htrP	luxH	
+b3042	yqiC
+b3043	ygiL
+b3044	insC-5
+b3045	insD-5
+b3046	yqiG
+b3047	yqiH
+b3048	yqiI
+b3049	glgS
+b3050	yqiJ
+b3051	yqiK
+b3052	rfaE
+b3053	glnE
+b3054	ygiF
+b3055	ygiM	ecfG	htrG	
+b3056	cca
+b3057	bacA	uppP	
+b3058	folB	ygiG	
+b3059	ygiH	plsY
+b3060	ttdR	dan	ygiP	
+b3061	ttdA	ygjA	
+b3062	ttdB	ygjB	
+b3063	ttdT	ygjC	ygjE	
+b3064	tsaD	gcp	ygjD	
+b3065	rpsU
+b3066	dnaG	dnaP	parB	sdgA	
+b3067	rpoD	alt	
+b3068	mug	dug	ygjF	
+b3069	ileX
+b3070	yqjH
+b3071	yqjI
+b3072	aer	air	yqjJ	
+b3073	ygjG
+b3074	ygjH
+b3075	ebgR
+b3076	ebgA
+b3077	ebgC
+b3078	ygjI	ebgB	
+b3079	ygjJ
+b3080	ygjK
+b3081	fadH	ygjL	
+b3082	higA	ygjM	
+b3083	higB	ygjN	
+b3084	rlmG	rsmD	ygjO	
+b3085	ygjP
+b3086	ygjQ
+b3087	ygjR
+b3088	alx	ygjT	
+b3089	sstT	ygjU	
+b3090	ygjV
+b3091	uxaA	ygjW	
+b3092	uxaC	ygjX	ygjY	ygjZ	
+b3093	exuT
+b3094	exuR
+b3095	yqjA	ecfL	
+b3096	mzrA	ecfM	yqjB	
+b3097	yqjC
+b3098	yqjD
+b3099	yqjE
+b3100	yqjK
+b3101	yqjF
+b3102	yqjG
+b3103	yhaH
+b3104	yhaI
+b3105	yhaJ
+b3106	yhaK
+b3107	yhaL
+b3110	yhaO
+b3113	tdcF	yhaR	
+b3114	tdcE	yhaS	
+b3115	tdcD	yhaA	
+b3116	tdcC
+b3117	tdcB
+b3118	tdcA
+b3119	tdcR
+b3120	yhaB
+b3121	yhaC
+b3122	b3122
+b3123	rnpB
+b3124	garK	yhaD	
+b3125	garR	yhaE	
+b3126	garL	yhaF	
+b3127	garP	yhaU	
+b3128	garD	yhaG	
+b3129	prlF	sohA	
+b3130	yhaV
+b3131	agaR	yhaW	
+b3132	kbaZ	agaZ	yhaX	
+b3133	agaV	yhaY	
+b3134	agaW
+b3135	agaA
+b3136	agaS	yraB	
+b3137	kbaY	agaY	kba	yraC	
+b3138	agaB	yraD	
+b3139	agaC	yraE	
+b3140	agaD	yraF	
+b3141	agaI	yraG	
+b3142	yraH
+b3143	yraI
+b3144	yraJ
+b3145	yraK
+b3146	rsmI	yraL	
+b3147	lpoA	yraM	
+b3148	yraN
+b3149	diaA	yraO	
+b3150	yraP	ecfH	
+b3151	yraQ
+b3152	yraR
+b3153	yhbO
+b3154	yhbP
+b3155	yhbQ
+b3156	yhbS
+b3157	yhbT
+b3158	yhbU
+b3159	yhbV
+b3160	yhbW
+b3161	mtr
+b3162	deaD	mssB	rhlD	
+b3163	nlpI	yhbM	
+b3164	pnp	bfl	
+b3165	rpsO	secC	
+b3166	truB	yhbA	
+b3167	rbfA	sdr-43	yhbB	
+b3168	infB	gicD	ssyG	
+b3169	nusA
+b3170	rimP	yhbC	
+b3171	metY
+b3172	argG	Arg6	argE	
+b3173	yhbX
+b3174	leuU
+b3175	secG	prlH	
+b3176	glmM	mrsA	yhbF	
+b3177	folP	dhpS	
+b3178	ftsH	hflB	mrsC	std	tolZ	
+b3179	rlmE	ftsJ	mrsF	rrmJ	
+b3180	yhbY
+b3181	greA
+b3182	dacB
+b3183	obgE	cgtA	obg	yhbZ	
+b3184	yhbE
+b3185	rpmA	rpz	
+b3186	rplU
+b3187	ispB	cel	yhbD	
+b3188	sfsB	nlp	sfs7	
+b3189	murA	mrbA	murZ	
+b3190	ibaG	yrbA	
+b3191	mlaB	yrbB	
+b3192	mlaC	yrbC	
+b3193	mlaD	vpsC(S.f.)	yrbD	
+b3194	mlaE	vpsB(S.f.)	yrbE	
+b3195	mlaF	vpsA(S.f.)	yrbF	
+b3196	yrbG
+b3197	kdsD	yrbH	
+b3198	kdsC	yrbI	yrbJ	
+b3199	lptC	yrbK	
+b3200	lptA	yhbN	
+b3201	lptB	yhbG	
+b3202	rpoN	glnF	ntrA	
+b3203	hpf	yhbH	
+b3204	ptsN	rpoP	yhbI	
+b3205	yhbJ	rapZ
+b3206	npr	ptsO	rpoR	yhbK	
+b3207	yrbL
+b3208	mtgA	mgt	yrbM	
+b3209	elbB	elb2	yhbL	yzzB	
+b3210	arcB
+b3211	yhcC
+b3212	gltB	aspB	ossB	psiQ	
+b3213	gltD	aspB	ossB	psiQ	
+b3214	gltF	ossB	
+b3215	yhcA
+b3216	yhcD
+b3217	ychE_1
+b3218	insH-10
+b3219	yhcF
+b3220	yhcG
+b3221	yhcH
+b3222	nanK	yhcI	
+b3223	nanE	yhcJ	
+b3224	nanT
+b3225	nanA	npl	
+b3226	nanR	yhcK	
+b3227	dcuD	yhcL	
+b3228	sspB
+b3229	sspA	pog	ssp	
+b3230	rpsI
+b3231	rplM
+b3232	yhcM
+b3233	yhcB
+b3234	degQ	hhoA	
+b3235	degS	hhoB	htrH	
+b3236	mdh
+b3237	argR	Rarg	xerA	
+b3238	yhcN
+b3239	yhcO
+b3240	aaeB	yhcP	
+b3241	aaeA	yhcQ	
+b3242	aaeX	yhcR	
+b3243	aaeR	qseA	yhcS	
+b3244	tldD	yhdO	
+b3247	rng	adhR	cafA	yhdF	
+b3248	yhdE	maf(B.s.)	
+b3249	mreD
+b3250	mreC
+b3251	mreB	envB	mon	rodY	
+b3252	csrD	yhdA	
+b3253	yhdH
+b3254	b3254
+b3255	accB	fabE	
+b3256	accC	
+b3257	yhdT
+b3258	panF
+b3259	prmA	prm-1	yhdI	
+b3260	dusB	yhdG	
+b3261	fis	nbp	
+b3262	yhdJ	ccrM	
+b3263	yhdU
+b3264	envR	acrS	yhdK	
+b3265	acrE	envC	
+b3266	acrF	envD	
+b3267	yhdV
+b3268	yhdW
+b3269	yhdX
+b3270	yhdY
+b3271	yhdZ
+b3272	rrfF	rrfDbeta	rrvD	
+b3273	thrV
+b3274	rrfD
+b3275	rrlD
+b3276	alaU	talD	
+b3277	ileU	tilD	
+b3278	rrsD
+b3279	yrdA
+b3280	yrdB
+b3281	aroE
+b3282	tsaC	rimN	yrdC	
+b3283	yrdD
+b3284	smg
+b3285	smf_2	smf
+b3286	smf_1	smf
+b3287	def	fms	
+b3288	fmt	yhdD	
+b3289	rsmB	fmu	fmv	rrmB	sun	yhdB	
+b3290	trkA	sapG(S.t.)	
+b3291	mscL	stkA	yhdC	
+b3292	zntR	yhdM	
+b3293	yhdN
+b3294	rplQ
+b3295	rpoA	pez	phs	sez	
+b3296	rpsD	ramA	sud(2)	
+b3297	rpsK
+b3298	rpsM
+b3299	rpmJ	secX	
+b3300	secY	prlA	
+b3301	rplO
+b3302	rpmD
+b3303	rpsE	eps	spc	spcA	
+b3304	rplR
+b3305	rplF
+b3306	rpsH
+b3307	rpsN
+b3308	rplE
+b3309	rplX
+b3310	rplN
+b3311	rpsQ	neaA	
+b3312	rpmC
+b3313	rplP
+b3314	rpsC
+b3315	rplV	eryB	
+b3316	rpsS
+b3317	rplB
+b3318	rplW
+b3319	rplD	eryA	
+b3320	rplC
+b3321	rpsJ	nusE	
+b3322	gspB	pinO	pioO	
+b3323	gspA	yheD	
+b3324	gspC	yheE	
+b3325	gspD	yheF	
+b3326	gspE	yheG	
+b3327	gspF	hofF	hopF	
+b3328	gspG	hofG	hopG	
+b3329	gspH	hofH	hopH	
+b3330	gspI	yheH	
+b3331	gspJ	yheI	
+b3332	gspK	yheJ	
+b3333	gspL	yheK	
+b3334	gspM	hopZ	pshM	
+b3335	gspO	hofD	hopD	hopO	yheC	
+b3336	bfr
+b3337	bfd	yheA	
+b3338	chiA	yheB	
+b3339	tufA	kirT	pulT	
+b3340	fusA	far	fus	
+b3341	rpsG
+b3342	rpsL	asuB	strA	
+b3343	tusB	yheL	
+b3344	tusC	yheM	
+b3345	tusD	yheN	
+b3346	yheO
+b3347	fkpA	yzzS	
+b3348	slyX
+b3349	slyD
+b3350	kefB	trkB	
+b3351	kefG	yheR	
+b3352	yheS
+b3353	yheT
+b3354	yheU
+b3355	prkB	prk?	yhfF	
+b3356	yhfA
+b3357	crp	cap	csm	
+b3358	yhfK
+b3359	argD	alaB	Arg1	dapC	dtu	
+b3360	pabA
+b3361	fic	vhpT(B.s.)	
+b3362	yhfG	vhpA(B.s.)	
+b3363	ppiA	rot	
+b3364	tsgA	gutS	yhfC	yhfH	
+b3365	nirB
+b3366	nirD
+b3367	nirC
+b3368	cysG
+b3369	yhfL
+b3370	frlA	yhfM	
+b3371	frlB	yhfN	
+b3374	frlD	yhfQ	
+b3375	frlR	yhfR	
+b3376	yhfS
+b3377	yhfT
+b3378	yhfU
+b3379	php	yhfV	
+b3380	yhfW
+b3381	yhfX
+b3382	yhfY
+b3383	yhfZ
+b3384	trpS
+b3385	gph	yhfE	
+b3386	rpe	dod	yhfD	
+b3387	dam
+b3388	damX	yhfB	
+b3389	aroB
+b3390	aroK
+b3391	hofQ	hopQ	
+b3392	hofP	yrfA	
+b3393	hofO	yrfB	
+b3394	hofN	yrfC	
+b3395	hofM	yrfD	
+b3396	mrcA	ponA	
+b3397	nudE	yrfE	
+b3398	yrfF	igaA(S.t.)	mucM(S.t.)	umoB(P.m.)	
+b3399	yrfG
+b3400	hslR	yrfH	
+b3401	hslO	yrfI	
+b3402	yhgE
+b3403	pck	pckA	
+b3404	envZ	cpr	ompB	perA	tpo	
+b3405	ompR	kmt	ompB	
+b3406	greB
+b3407	yhgF	tex(B.p.)	
+b3408	feoA
+b3409	feoB
+b3410	feoC	yhgG	
+b3411	yhgA
+b3412	bioH
+b3413	gntX	yhgH	
+b3414	nfuA	gntY	yhgI	
+b3415	gntT	gntM	gntTalpha	usgA	yhgC	
+b3416	malQ	malA	
+b3417	malP	blu	malA	
+b3418	malT	malA	
+b3421	rtcB	yhgL	
+b3422	rtcR	yhgB	
+b3423	glpR
+b3424	glpG
+b3425	glpE
+b3426	glpD	glyD	
+b3427	yzgL
+b3428	glgP	glgY	
+b3429	glgA
+b3430	glgC
+b3431	glgX
+b3432	glgB
+b3433	asd	dap	hom	
+b3434	yhgN
+b3435	gntU_2	gntU
+b3436	gntU_1	gntU
+b3437	gntK
+b3438	gntR
+b3439	yhhW
+b3440	yhhX
+b3441	yhhY
+b3442	yhhZ
+b3443	yrhA
+b3444	insA-6
+b3445	insB-6
+b3446	yrhB
+b3447	ggt
+b3448	yhhA
+b3449	ugpQ
+b3450	ugpC
+b3451	ugpE
+b3452	ugpA	psiB	psiC	
+b3453	ugpB	psiB	psiC	
+b3454	livF
+b3455	livG	hrbB	hrbC	hrbD	
+b3456	livM
+b3457	livH	hrbB	hrbC	hrbD	
+b3458	livK	hrbB	hrbC	hrbD	
+b3459	yhhK	panZ
+b3460	livJ	hrbB	hrbC	hrbD	
+b3461	rpoH	fam	hin	htpR	
+b3462	ftsX	ftsS	
+b3463	ftsE
+b3464	ftsY
+b3465	rsmD	yhhF	
+b3466	yhhL
+b3467	yhhM
+b3468	yhhN
+b3469	zntA	yhhO	
+b3470	tusA	sirA	yhhP	
+b3471	yhhQ
+b3472	dcrB	yhhR	
+b3473	yhhS
+b3474	yhhT
+b3475	acpT	yhhU	
+b3476	nikA	hydC	hydD	
+b3477	nikB	hydC	hydD	
+b3478	nikC	hydC	hydD	
+b3479	nikD	hydC	hydD	
+b3480	nikE	hydC	hydD	
+b3481	nikR	yhhG	
+b3482	rhsB
+b3483	yhhH
+b3484	yhhI
+b3485	yhhJ
+b3486	rbbA	yhiG	yhiH	
+b3487	yhiI
+b3488	yhiJ
+b3489	yhiK
+b3490	yhiL
+b3491	yhiM
+b3492	yhiN
+b3493	pitA	pit	
+b3494	uspB	yhiO	
+b3495	uspA
+b3496	dtpB	yhiP	
+b3497	rsmJ	yhiQ	
+b3498	prlC	opdA(S.t.)	
+b3499	rlmJ	yhiR	
+b3500	gor	gorA	
+b3501	arsR	arsE	
+b3502	arsB	arsF	
+b3503	arsC	arsG	
+b3504	yhiS_1
+b3505	insH-11
+b3506	slp
+b3507	dctR	yhiF	
+b3508	yhiD	yhhE	
+b3509	hdeB	yhhD	yhiC	
+b3510	hdeA	yhhC	yhiB	
+b3511	hdeD	yhiA	
+b3512	gadE	yhiE	yhiT	
+b3513	mdtE	yhiU	
+b3514	mdtF	yhiV	
+b3515	gadW	yhiW	
+b3516	gadX	yhiX	
+b3517	gadA	gadS	
+b3518	yhjA
+b3519	treF
+b3520	yhjB
+b3521	yhjC
+b3522	yhjD
+b3523	yhjE
+b3524	yhjG	yhjF	
+b3525	yhjH
+b3526	kdgK	yhjI	
+b3527	yhjJ
+b3528	dctA	out(S.t.)	
+b3529	yhjK
+b3530	bcsC	yhjL	
+b3531	bcsZ	yhjM	
+b3532	bcsB	yhjN	
+b3533	bcsA	yhjO	yhjP	
+b3534	bcsQ
+b3535	yhjR
+b3536	bcsE	yhjS	
+b3537	bcsF	yhjT	
+b3538	bcsG	yhjU	
+b3539	yhjV
+b3540	dppF
+b3541	dppD
+b3542	dppC
+b3543	dppB
+b3544	dppA	alu	dpp	fpp	
+b3545	proK	proV	
+b3546	eptB	pagC(S.t.)	yhjW	
+b3547	yhjX	oxlT?	
+b3548	yhjY
+b3549	tag	tagA	
+b3550	yiaC
+b3551	bisC
+b3552	yiaD
+b3553	ghrB	tkrA	yiaE	
+b3554	yiaF
+b3555	yiaG
+b3556	cspA
+b3557	insJ
+b3558	insK	dinS	
+b3559	glyS	gly-act	glyS(B)	
+b3560	glyQ	cfcA	glyS(A)	
+b3561	wecH	yiaH	
+b3562	yiaA
+b3563	yiaB
+b3564	xylB
+b3565	xylA
+b3566	xylF	xylT	
+b3567	xylG
+b3568	xylH
+b3569	xylR
+b3570	bax
+b3571	malS
+b3572	avtA
+b3573	ysaA
+b3574	yiaJ
+b3575	yiaK
+b3576	yiaL
+b3577	yiaM
+b3578	yiaN
+b3579	yiaO
+b3580	lyxK	lyx	xylK	yiaP	
+b3581	sgbH	yiaQ
+b3582	sgbU	yiaR
+b3583	sgbE	yiaS
+b3584	yiaT
+b3585	yiaU
+b3586	yiaV
+b3587	yiaW
+b3588	aldB	yiaX	
+b3589	yiaY
+b3590	selB	fdhA	
+b3591	selA	fdhA	
+b3592	yibF
+b3593	rhsA
+b3594	yibA
+b3595	yibJ
+b3596	yibG
+b3597	yibH
+b3598	yibI
+b3599	mtlA	mtlC	
+b3600	mtlD
+b3601	mtlR
+b3602	yibL
+b3603	lldP	lct	lctP	
+b3604	lldR	lct	lctR	
+b3605	lldD	lct	lctD	
+b3606	trmL	yibK	
+b3607	cysE
+b3608	gpsA
+b3609	secB
+b3610	grxC	yibM	
+b3611	yibN
+b3612	gpmM	gpmC	gpmI	pgmI	yibO	
+b3613	envC	slm11	yibP	
+b3614	yibQ
+b3615	yibD	waaH
+b3616	tdh
+b3617	kbl
+b3618	htrL	yibB
+b3619	rfaD
+b3620	waaF	rfaF	
+b3621	waaC	rfaC	yibC	
+b3622	rfaL	waaL
+b3623	waaK		
+b3624	rfaZ	waaZ
+b3625	waaY	rfaY	
+b3626	waaJ	rfaJ	waaR	
+b3627	waaI	rfaI
+b3628	waaB	lps	phx*	rfaB	syn*	
+b3629	rfaS	waaS
+b3630	waaP	rfaP	
+b3631	waaG	rfaG	
+b3632	waaQ	rfaQ	
+b3633	waaA	kdtA	
+b3634	coaD	kdtB	yicA	
+b3635	mutM	fpg	
+b3636	rpmG
+b3637	rpmB
+b3638	yicR	radC	
+b3639	dfp	coaBC	
+b3640	dut	dnaS	sof	
+b3641	slmA	ttk	yicB	
+b3642	pyrE
+b3643	rph
+b3644	yicC
+b3645	dinD	pcsA	yicD	
+b3646	yicG
+b3647	ligB	yicF	
+b3648	gmk	spoR	
+b3649	rpoZ	spoS	
+b3650	spoT
+b3651	trmH	spoU	
+b3652	recG	radC	spoV	
+b3653	gltS	gltC	
+b3654	xanP	yicE	
+b3655	yicH
+b3656	yicI
+b3657	yicJ
+b3658	selC	fdhC	
+b3659	setC	yicK	
+b3660	yicL
+b3661	nlpA
+b3662	nepI	gaiA(S.t.)	yicM	
+b3663	yicN
+b3664	yicO	pbuA	
+b3665	ade	adeC(B.s.)	adu	yicP	
+b3666	uhpT
+b3667	uhpC
+b3668	uhpB
+b3669	uhpA
+b3670	ilvN
+b3671	ilvB
+b3672	ivbL
+b3673	emrD	yicQ	
+b3674	yidF
+b3675	yidG
+b3676	yidH
+b3677	yidI
+b3678	yidJ
+b3679	yidK
+b3680	yidL
+b3681	glvG
+b3682	glvB
+b3683	glvC
+b3684	yidP
+b3685	yidE	yibE	
+b3686	ibpB	hslS	htpE	
+b3687	ibpA	hslT	htpN	
+b3688	yidQ	ecfI	
+b3689	yidR
+b3690	cbrA	yidS	
+b3691	dgoT	yidT	
+b3693	dgoK	yidV	
+b3694	yidW
+b3696	yidX
+b3697	yidA
+b3698	yidB
+b3699	gyrB	Cou	himB	hisU	hopA	nalC	parA	pcbA	pcpA	
+b3700	recF	uvrF	
+b3701	dnaN
+b3702	dnaA	hsm-2	
+b3703	rpmH	rimA	ssaF	
+b3704	rnpA
+b3705	yidC
+b3706	mnmE	thdF	trmE	
+b3707	tnaC	tnaL	
+b3708	tnaA	ind	
+b3709	tnaB	tnaP	trpP	
+b3710	mdtL	yidY	
+b3711	yidZ
+b3712	yieE
+b3713	yieF
+b3714	purP	yieG	
+b3715	yieH
+b3716	cbrB	yieI	
+b3717	cbrC	yieJ	
+b3718	yieK
+b3719	yieL
+b3720	bglH	yieC	
+b3721	bglB
+b3722	bglF	bglC	bglS	
+b3723	bglG	bglC	bglR	bglS	
+b3724	phoU	phoT	
+b3725	pstB	phoT	
+b3726	pstA	phoR2b	phoT	R2pho	
+b3727	pstC	phoW	
+b3728	pstS	nmpA	phoR2a	phoS	R2pho	
+b3729	glmS
+b3730	glmU	tms(B.s.)	yieA	
+b3731	atpC	papG	uncC	
+b3732	atpD	papB	uncD	
+b3733	atpG	papC	uncG	
+b3734	atpA	papA	uncA	
+b3735	atpH	papE	uncH	
+b3736	atpF	papF	uncF	
+b3737	atpE	papH	uncE	
+b3738	atpB	papD	uncB	
+b3739	atpI	uncI	
+b3740	rsmG	gidB	
+b3741	mnmG	gidA	mnmB	trmF	
+b3742	mioC	yieB	
+b3743	asnC
+b3744	asnA
+b3745	viaA	yieD	yieM	
+b3746	ravA	yieN	
+b3747	kup	trkD	
+b3748	rbsD	rbsP	
+b3749	rbsA	rbsP	rbsT	
+b3750	rbsC	rbsP	rbsT	
+b3751	rbsB	prlB	rbsP	
+b3752	rbsK
+b3753	rbsR
+b3754	hsrA	yieO	
+b3755	yieP
+b3756	rrsC
+b3757	gltU	tgtC	
+b3758	rrlC
+b3759	rrfC
+b3760	aspT	tasC	
+b3761	trpT	su7	su8	su9	supU	supV	
+b3763	pssR
+b3764	yifE
+b3765	yifB
+b3766	ilvL
+b3767	ilvG_1
+b3768	ilvG_2
+b3769	ilvM
+b3770	ilvE
+b3771	ilvD
+b3772	ilvA
+b3773	ilvY
+b3774	ilvC
+b3775	ppiC	parvA	
+b3776	yifO
+b3777	yifN
+b3778	rep	dasC	mbrA	mmrA?	
+b3779	gpp	gppA	
+b3780	rhlB	mmrA?	
+b3781	trxA	dasC	fip	fipA	tsnC	
+b3782	rhoL
+b3783	rho	hdf	nitA	nusD	psuA	rnsC	sbaA	sun	tabC	tsu	
+b3784	rfe
+b3785	wzzE	metNSt	wzz	yifC	
+b3786	rffE
+b3787	rffD
+b3788	rffG	rff	
+b3789	rffH	yifG	
+b3790	rffC
+b3791	rffA
+b3792	wzxE	wzx	yifJ	
+b3793	wzyE	rffT	
+b3794	rffM
+b3795	yifK
+b3796	argX
+b3797	hisR
+b3798	leuT
+b3799	proM	proU	
+b3800	aslB	atsB	gppB	
+b3801	aslA	atsA	gppB	
+b3802	hemY
+b3803	hemX
+b3804	hemD
+b3805	hemC	popE	
+b3806	cyaA	cya	
+b3807	cyaY
+b3808	yzcX
+b3809	dapF
+b3810	yigA
+b3811	xerC
+b3812	yigB
+b3813	uvrD	dar-2	dda	mutU	pdeB	rad	recL	srjC	uvr502	uvrE	
+b3814	b3814
+b3816	corA
+b3817	yigF
+b3818	yigG
+b3819	rarD	yigH	
+b3820	yigI
+b3821	pldA
+b3822	recQ
+b3823	rhtC	yigJ	
+b3824	rhtB	yigK	
+b3825	pldB
+b3826	yigL
+b3827	yigM
+b3828	metR
+b3829	metE	metB12	
+b3830	ysgA
+b3831	udp
+b3832	rmuC	dinK	sosB	yigN	
+b3833	ubiE	menG(B.stearo.)	menH(B.stearo.)	yigO	
+b3834	yigP
+b3835	ubiB	aarF	yigQ	yigR	yigS	
+b3836	tatA	mttA1	yigT	
+b3837	b3837
+b3838	tatB	mttA2	ysgB	
+b3839	tatC	mttB	yigU	yigV	
+b3840	yigW_1	tatD
+b3841	yigW_2	tatD
+b3842	rfaH	hlyT	sfrB	
+b3843	ubiD	yigC	yigY	
+b3844	fre	flrD	fsrC	hsm-6	
+b3845	fadA	oldA	
+b3846	fadB	oldB	
+b3847	pepQ
+b3848	yigZ
+b3849	trkH	sapJ(S.t.)	
+b3850	hemG	yihB	
+b3851	rrsA
+b3852	ileT	tilA	
+b3853	alaT	talA	
+b3854	rrlA
+b3855	rrfA
+b3856	mobB	yihC	
+b3857	mobA	chlB	mob	narB	
+b3858	yihD
+b3859	rdoA	orfA	yihE	
+b3860	dsbA	dsf	iarA	ppfA	
+b3861	yihF
+b3862	yihG
+b3863	polA	resA	
+b3864	spf	IS197	
+b3865	yihA	engB	
+b3866	yihI
+b3867	hemN	yihJ	
+b3868	glnG	glnT	ntrC	
+b3869	glnL	glnR	ntrB	
+b3870	glnA
+b3871	typA	bipA	yihK	
+b3872	yihL
+b3873	yihM
+b3874	yihN
+b3875	ompL	yshA	
+b3876	yihO
+b3877	yihP
+b3878	yihQ
+b3879	yihR
+b3880	yihS	manC?	
+b3881	yihT
+b3882	yihU
+b3883	yihV
+b3884	yihW
+b3885	yihX
+b3886	yihY	
+b3887	dtd	yihZ	
+b3888	yiiD
+b3889	yiiE
+b3890	yiiF
+b3891	fdhE
+b3892	fdoI
+b3893	fdoH
+b3894	fdoG
+b3895	fdhD
+b3896	yiiG
+b3897	frvR	yiiH	
+b3898	frvX	yiiI	
+b3899	frvB	yiiJ	
+b3900	frvA	yiiK	
+b3901	rhaM	yiiL	
+b3902	rhaD
+b3903	rhaA
+b3904	rhaB
+b3905	rhaS	rhaC2	
+b3906	rhaR	rhaC1	
+b3907	rhaT
+b3908	sodA
+b3909	kdgT
+b3910	yiiM
+b3911	cpxA	ecfB	eup	rssE	ssd	
+b3912	cpxR	yiiA	
+b3913	yiiO
+b3914	b3914
+b3915	fieF	yiiP	
+b3916	pfkA
+b3917	sbp
+b3918	cdh	pnuE(S.t.)	ushB(S.t.)	
+b3919	tpiA	tpi	
+b3920	yiiQ
+b3921	yiiR
+b3922	yiiS
+b3923	uspD	yiiT	
+b3924	fpr	flxR	
+b3925	glpX
+b3926	glpK
+b3927	glpF
+b3928	zapB	yiiU	
+b3929	rraA	menG	yiiV	
+b3930	menA	yiiW	
+b3931	hslU	clpY	htpI	
+b3932	hslV	clpQ	htpO	yiiC	
+b3933	ftsN	msgA	
+b3934	cytR
+b3935	priA	srgA	
+b3936	rpmE
+b3937	yiiX
+b3938	metJ
+b3939	metB	met-1	
+b3940	metL	metM	
+b3941	metF
+b3942	katG
+b3943	yijE
+b3944	yijF
+b3945	gldA
+b3946	fsaB	talC	yijG	
+b3947	ptsA	frwA	yijH	
+b3948	yijI
+b3949	frwC	yijJ	
+b3950	frwB	yijK	
+b3951	pflD	yijL	
+b3952	pflC	yijM	
+b3953	frwD	yijN	
+b3954	yijO
+b3955	yijP	eptC
+b3956	ppc	asp	glu	
+b3957	argE	Arg4	
+b3958	argC	Arg2	argH	
+b3959	argB
+b3960	argH
+b3961	oxyR	momR	mor	
+b3962	sthA	sth	udhA	
+b3963	fabR	yijC	
+b3964	yijD
+b3965	trmA	rumT	
+b3966	btuB	bfe	cer	dcrC	
+b3967	murI	dga	glr	yijA	
+b3968	rrsB
+b3969	gltT	tgtB	
+b3970	rrlB
+b3971	rrfB
+b3972	murB	yijB	
+b3973	birA	bioR	dhbB	
+b3974	coaA	panK	rts	ts-9	
+b3975	b3975
+b3976	thrU
+b3977	tyrU	supM	supZ	
+b3978	glyT	sumA	sup15B	supA36	
+b3979	thrT
+b3980	tufB	kirT	pulT	
+b3981	secE	mbrC	prlG	
+b3982	nusG
+b3983	rplK	relC	
+b3984	rplA	rpy	
+b3985	rplJ
+b3986	rplL
+b3987	rpoB	ftsR	groN	mbrD?	nitB	rif	ron	sdgB	stl	stv	tabD	tabG	
+b3988	rpoC	tabB	
+b3989	yjaZ	htrC	
+b3990	thiH	thiB	
+b3991	thiG	thiB	
+b3992	thiF	thiA	
+b3993	thiE	thiA	
+b3994	thiC
+b3995	rsd	yjaE	
+b3996	nudC	yjaD	
+b3997	hemE	
+b3998	nfi	yjaF	
+b3999	yjaG
+b4000	hupA
+b4001	yjaH
+b4002	zraP	yjaI	zra	
+b4003	zraS	hydH	
+b4004	zraR	hydG	
+b4005	purD	adth(a)	
+b4006	purH
+b4007	rrsE
+b4008	gltV	tgtE	
+b4009	rrlE
+b4010	rrfE
+b4011	yjaA
+b4012	yjaB
+b4013	metA
+b4014	aceB	mas	
+b4015	aceA	icl	
+b4016	aceK
+b4017	arpA	yjaC	
+b4018	iclR
+b4019	metH
+b4020	yjbB
+b4021	pepE
+b4022	rluF	yjbC	
+b4023	pagB	yjbD
+b4024	lysC	apk	
+b4025	pgi
+b4026	yjbE
+b4027	yjbF
+b4028	yjbG
+b4029	yjbH
+b4030	psiE	yjbA	
+b4031	xylE
+b4032	malG	malJ	
+b4033	malF	malJ	
+b4034	malE	malJ	
+b4035	malK
+b4036	lamB	malB	malL	
+b4037	malM	molA	
+b4038	yjbI
+b4039	ubiC	sdgG?	
+b4040	ubiA	cyr	sdgG?	
+b4041	plsB
+b4042	dgkA
+b4043	lexA	exrA	tsl	umuA	
+b4044	dinF
+b4045	yjbJ
+b4046	zur	yjbK	
+b4047	yjbL
+b4048	yjbM
+b4049	dusA	yjbN	
+b4050	pspG	yjbO	
+b4051	qor	qorA
+b4052	dnaB	groP	grpA	grpD	
+b4053	alr
+b4054	tyrB
+b4055	aphA	hobH	yjbP	
+b4056	yjbQ
+b4057	yjbR
+b4058	uvrA	dar	
+b4059	ssb	exrB	lexC	
+b4060	yjcB
+b4061	yjcC
+b4062	soxS
+b4063	soxR	
+b4064	yjcD
+b4065	yjcE
+b4066	yjcF
+b4067	actP	yjcG	
+b4068	yjcH
+b4069	acs	acsA	yfaC	
+b4070	nrfA
+b4071	nrfB	yjcI	
+b4072	nrfC	yjcJ	
+b4073	nrfD	yjcK	
+b4074	nrfE	yjcL	
+b4075	nrfF	yjcM	
+b4076	nrfG	aidC	yjcN	
+b4077	gltP
+b4078	yjcO
+b4079	fdhF
+b4080	sdsP	yjcP	mdtP
+b4081	sdsQ	yjcQ	mdtO
+b4082	sdsR	mdtN	yjcR
+b4083	yjcS
+b4084	alsK	yjcT	
+b4085	alsE	yjcU	
+b4086	alsC	yjcV	
+b4087	alsA	yjcW	
+b4088	alsB	yjcX	
+b4089	rpiR	alsR	yjcY	
+b4090	rpiB	alsI	yjcA	
+b4091	phnQ
+b4092	phnP
+b4093	phnO
+b4094	phnN
+b4095	phnM
+b4096	phnL
+b4097	phnK
+b4098	phnJ
+b4099	phnI
+b4100	phnH
+b4101	phnG
+b4102	phnF
+b4103	phnE_2
+b4104	phnE_1
+b4105	phnD	psiD	
+b4106	phnC
+b4107	yjdN	phnB	
+b4108	yjdM	phnA	
+b4109	yjdA
+b4110	yjcZ
+b4111	proP
+b4112	basS	pmrB(S.t.)	
+b4113	basR	pmrA(S.t.)	
+b4114	eptA	pagB(S.t.)	pmrC(S.t.)	yjdB	
+b4115	adiC	aniC(S.t.)	yjdD	yjdE	
+b4116	adiY
+b4117	adiA	adi	
+b4118	melR
+b4119	melA	mel-7	
+b4120	melB	mel-4	
+b4121	yjdF
+b4122	fumB
+b4123	dcuB	genF	
+b4124	dcuR	yjdG	
+b4125	dcuS	yjdH	
+b4126	yjdI
+b4127	yjdJ
+b4128	yjdK
+b4129	lysU
+b4130	yjdL	dtpC	
+b4131	cadA	ldcI	
+b4132	cadB
+b4133	cadC
+b4134	pheU	pheR	pheW	
+b4135	yjdC	cutA3	
+b4136	dipZ	dsbD
+b4137	cutA	cutA1	cycY	
+b4138	dcuA	genA	
+b4139	aspA
+b4140	fxsA	yjeG	
+b4141	yjeH
+b4142	groS	groES	mopB	TabB	
+b4143	groL	groEL	mopA	
+b4144	yjeI
+b4145	yjeJ
+b4146	epmB	yjeK	
+b4147	efp
+b4148	sugE
+b4149	blc	yjeL	
+b4150	ampC	ampA	
+b4151	frdD
+b4152	frdC
+b4153	frdB
+b4154	frdA
+b4155	epmA	genX	poxA	yjeA	
+b4156	yjeM
+b4157	yjeN
+b4158	yjeO
+b4159	yjeP	mscM
+b4160	psd
+b4161	rsgA	engC	yjeQ	
+b4162	orn	yjeR	
+b4163	glyV	glyValpha	ins	suA58	suA78	
+b4164	glyX	glyVbeta	mutA	
+b4165	glyY	glyVgamma	
+b4166	queG	yjeS	
+b4167	yjeF
+b4168	tsaE	yjeE	
+b4169	amiB	yjeD	
+b4170	mutL
+b4171	miaA	trpX	
+b4172	hfq
+b4173	hflX	hflA	hslX	
+b4174	hflK	hflA	hslY	
+b4175	hflC	hflA	
+b4176	yjeT
+b4177	purA
+b4178	nsrR	yjeB	
+b4179	rnr	vacB	yjeC	
+b4180	rlmB	yjfH	
+b4181	yjfI
+b4182	yjfJ
+b4183	yjfK
+b4184	yjfL
+b4185	yjfM
+b4186	yjfC
+b4187	aidB
+b4188	yjfN
+b4189	bsmA	yjfO	
+b4190	yjfP
+b4191	ulaR	yjfQ	
+b4192	ulaG	yjfR	
+b4193	ulaA	sgaT	yjfS	
+b4194	ulaB	sgaB	yjfT	
+b4195	ulaC	ptxA	sgaA	yjfU	
+b4196	ulaD	sgaH	yjfV	
+b4197	ulaE	sgaU	yjfW	
+b4198	ulaF	sgaE	yjfX	
+b4199	yjfY
+b4200	rpsF	sdgH	
+b4201	priB
+b4202	rpsR
+b4203	rplI
+b4204	yjfZ
+b4205	ytfA
+b4206	ytfB
+b4207	fklB	ytfC	
+b4208	cycA	dagA	ytfD	
+b4209	ytfE	dnrN	
+b4210	ytfF
+b4211	ytfG	qorB
+b4212	ytfH
+b4213	cpdB
+b4214	cysQ	amt	amtA	
+b4215	ytfI
+b4216	ytfJ	ecfJ	
+b4217	ytfK
+b4218	ytfL
+b4219	msrA	pms	pmsR	
+b4220	tamA	yftM	ytfM	
+b4221	tamB	ytfN	ytfO	
+b4222	ytfP
+b4223	yzfA
+b4224	chpS	chpBI	yjfB	
+b4225	chpB	chpBK	yjfE	
+b4226	ppa
+b4227	ytfQ
+b4230	ytfT
+b4231	yjfF
+b4232	fbp	fdp	
+b4233	mpl	tpl	yjfG	
+b4234	yjgA
+b4235	pmbA	mcb	tldE	
+b4236	cybC
+b4237	nrdG	yjgE	
+b4238	nrdD
+b4239	treC	olgH	treE	
+b4240	treB
+b4241	treR
+b4242	mgtA	corB	mgt	
+b4243	ridA	yjgF	
+b4244	pyrI
+b4245	pyrB
+b4246	pyrL
+b4247	yjgG
+b4248	yjgH
+b4249	bdcA	yjgI	
+b4250	b4250
+b4251	bdcR	yjgJ	
+b4252	tabA	yjgK	
+b4253	yjgL
+b4254	argI
+b4255	rraB	yjgD	
+b4256	yjgM
+b4257	yjgN
+b4258	valS	val-act	
+b4259	holC
+b4260	pepA	carP	xerB	
+b4261	lptF	yjgP	
+b4262	lptG	yjgQ	
+b4263	yjgR
+b4264	idnR	gntH	gntS?	yjgS	
+b4265	idnT	gntW	yjgT	
+b4266	idnO	yjgU	
+b4267	idnD	yjgV	
+b4268	idnK	gntV	
+b4269	yjgB	ahr	
+b4270	leuX	Su-6	supP	
+b4271	intB
+b4272	insC-6
+b4273	insD-6
+b4274	yjgW
+b4275	yjgX_2
+b4276	yjgX_1
+b4277	yjgZ
+b4278	insG
+b4279	yjhB
+b4280	yjhC
+b4281	yjhD
+b4282	yjhE
+b4283	insN-2
+b4284	insI-3
+b4285	insO-2
+b4286	yjhV
+b4287	fecE
+b4288	fecD
+b4289	fecC
+b4290	fecB
+b4291	fecA
+b4292	fecR
+b4293	fecI
+b4294	insA-7
+b4295	yjhU
+b4296	yjhF
+b4297	yjhG
+b4298	yjhH
+b4299	yjhI
+b4300	sgcR	yjhJ	
+b4301	sgcE	yjhK	
+b4302	sgcA	yjhL	
+b4303	sgcQ	yjhM	
+b4304	sgcC	yjhN	
+b4305	sgcX	yjhO	
+b4306	yjhP
+b4307	yjhQ
+b4308	yjhR
+b4309	nanS	yjhS	
+b4310	nanM	yjhT	
+b4311	nanC	yjhA	
+b4312	fimB
+b4313	fimE	hyp	
+b4314	fimA	fimD	pilA	
+b4315	fimI
+b4316	fimC
+b4317	fimD
+b4318	fimF
+b4319	fimG
+b4320	fimH
+b4321	gntP	yjiB	
+b4322	uxuA
+b4323	uxuB
+b4324	uxuR
+b4325	yjiC
+b4326	iraD	yjiD	
+b4327	yjiE	qseD	hypT	
+b4328	iadA	yjiF	
+b4329	yjiG
+b4330	yjiH
+b4331	kptA	yjiI	
+b4332	yjiJ
+b4333	yjiK
+b4334	yjiL
+b4335	yjiM
+b4336	yjiN
+b4337	mdtM	yjiO	
+b4338	yjiP
+b4339	yjiQ
+b4340	yjiR
+b4341	yjiS
+b4342	yjiT
+b4343	yjiU	yjiV
+b4344	mcrD	yjiV
+b4345	mcrC
+b4346	mcrB	rglB	
+b4347	symE	dinL	sosC	yjiW	
+b4348	hsdS	hsp	hss	
+b4349	hsdM	hsm	hsp	
+b4350	hsdR	hsp	hsr	
+b4351	mrr	mcrF	
+b4352	yjiA
+b4353	yjiX
+b4354	yjiY	oppE?	
+b4355	tsr	cheD	
+b4356	yjjL	yjiZ	
+b4357	yjjM
+b4358	yjjN
+b4359	mdoB	opgB
+b4360	yjjA
+b4361	dnaC	dnaD	
+b4362	dnaT
+b4363	yjjB
+b4364	yjjP
+b4365	yjjQ
+b4366	bglJ	yjjR	
+b4367	fhuF	yjjS	
+b4368	leuV	leuValpha	
+b4369	leuP	leuVbeta	
+b4370	leuQ	leuVgamma	
+b4371	rsmC	yjjT	
+b4372	holD
+b4373	rimI
+b4374	yjjG
+b4375	prfC	miaD	srb	tos	
+b4376	osmY
+b4377	yjjU
+b4378	yjjV
+b4379	yjjW
+b4380	yjjI	yjjH	
+b4381	deoC	dra	thyR	tlr	
+b4382	deoA	TP	tpp	ttg	
+b4383	deoB	drm	thyR	tlr	
+b4384	deoD	pup	
+b4385	yjjJ
+b4386	lplA	slr	yjjF	
+b4387	ytjB	smp	
+b4388	serB
+b4389	radA	sms	
+b4390	nadR	nadI	pnuA(S.t.)	
+b4391	yjjK
+b4392	slt	sltY	
+b4393	trpR
+b4394	yjjX
+b4395	ytjC	gpmB	
+b4396	rob	cbpB	robA	
+b4397	creA	yjjD	
+b4398	creB	ORF2	yjjE	
+b4399	creC	phoM	
+b4400	creD	cet	refII	
+b4401	arcA	cpxC	dye	fexA	msp	seg	sfrA	
+b4402	yjjY
+b4403	yjtD	lasT	
+b4406	yaeP
+b4407	thiS
+b4408	csrB
+b4409	blr
+b4410	ecnA
+b4411	ecnB	yjeU	
+b4412	hokC	gef	
+b4413	sokC	sof	
+b4414	tff	t44	
+b4415	hokE	ybdY	
+b4416	rybA
+b4417	rybB	p25	
+b4418	psrD	pke20	psrA4	sraB	
+b4419	ldrA
+b4420	rdlA
+b4421	ldrB
+b4422	rdlB
+b4423	ldrC
+b4424	rdlC
+b4425	rttR	rtT	rtV1	
+b4426	mcaS	IS061	isrA	
+b4427	micC	IS063	tke8	
+b4428	hokB	ydcB	
+b4429	sokB
+b4430	rydB	IS082	tpe7	
+b4431	rprA	IS083	psrA5	
+b4432	ryeA	IS091	psrA8	sraC	tpke79	
+b4433	ryeB	sdsR	tpke79	
+b4434	isrB
+b4435	isrC	IS102	
+b4436	sibA	QUAD1a	ryeC	tp11	
+b4437	sibB	QUAD1b	ryeD	tpe60	
+b4438	cyaR	ryeE	
+b4439	micF	IS113	stc	
+b4440	ryfA	PAIR3b	tp1	
+b4441	glmY	sroF	tke1	
+b4442	micA	psrA10	sraD	
+b4443	gcvB	IS145	psrA11	
+b4444	omrA	PAIR2a	psrA12	rygA	sraE	t59	
+b4445	omrB	PAIR2b	rygB	t59	
+b4446	sibC	QUAD1c	rygC	t27	
+b4447	sibD	C0730	IS156	QUAD1d	rygD	tp8	
+b4448	sraF
+b4449	psrO	p3	psrA15	sraG	
+b4450	arcZ	psrA16	ryhA	sraH	
+b4451	ryhB	IS176	psrA18	sraI	
+b4452	gadY	IS183	
+b4453	ldrD
+b4454	rdlD
+b4455	hokA	yiaZ	
+b4456	glmZ	k19	psrA20	ryiA	sraJ	
+b4457	csrC	IS198	psrA21	ryiB	sraK	tpk2	
+b4458	oxyS
+b4459	ryjA	sraL	
+b4460	araH
+b4461	yfjD	corB(S.t.)	corF(S.t.)	ypjE	
+b4462	ygaQ_2
+b4463	ygcU	ygcT	ygcV	
+b4464	ygfQ	ygfR	
+b4465	yggP
+b4466	yghJ	acfD(V.c.)	
+b4467	glcF	gox	yghL	
+b4468	glcE	gox	yghL	
+b4469	ygiQ	ygiR	
+b4470	yhaM	yhaN	
+b4471	tdcG	yhaP	yhaQ	
+b4472	yhdP	yhdQ	yhdR	
+b4473	smf
+b4474	frlC	yhfO	yhfP	
+b4475	rtcA	yhgJ	yhgK	
+b4476	gntU
+b4477	dgoA	yidU	
+b4478	dgoD	yidU	
+b4479	dgoR	yidW	
+b4480	hdfR	apeR?	yifA	yifD	
+b4481	rffT
+b4482	yigE
+b4483	tatD	mttC	yigW	yigX	
+b4484	cpxP	yiiO	
+b4485	ytfR	ytfS	
+b4486	yjiV
+b4487	yjdP
+b4501	torI
+b4502	yeiW
+b4503	yafF
+b4504	ykfH
+b4505	ykgN
+b4506	ykgO	rpmJ2	
+b4507	ylbE_1
+b4508	ybcD	peaD
+b4509	ylcG
+b4510	rzoD	Rz1	
+b4511	ybdZ	mbtH(M.t)	
+b4512	ybdD
+b4513	kdpF
+b4514	ybfQ
+b4515	ybgT
+b4516	insA-4
+b4517	gnsA	sfa	yccL	
+b4518	ymdF
+b4519	icdC
+b4520	ymgF
+b4521	ymgH
+b4522	ymiA
+b4523	yciX
+b4524	ymjB
+b4525	ymjC
+b4526	ydaE
+b4527	ydaF
+b4528	rzoR	Rz1	
+b4529	ydbJ
+b4530	yncK_1
+b4531	yncK_2
+b4532	hicA	yncN	
+b4533	ynfO
+b4534	ynfP
+b4535	yniD
+b4536	yobH
+b4537	yecJ
+b4538	yoeF
+b4539	yoeB
+b4541	yehK
+b4542	yohO
+b4544	arnE	pbgE2(S.t.)	pmrL(S.t.)	yfbW	
+b4545	ypdJ
+b4546	ypeB
+b4547	ypfN
+b4548	ypjJ
+b4550	arfA	yhdL	
+b4551	yheV
+b4552	yrhC
+b4553	ysaB
+b4554	yibT
+b4555	yicS
+b4556	ysdC
+b4557	yidD
+b4558	yifL
+b4559	yjdO
+b4560	yjgX_3
+b4561	insM
+b4565	sgcB
+b4566	yjhX
+b4567	yjjZ
+b4568	ytjA
+b4577	sgrS	ryaA
+b4581	ybeM
+b4585	micM
+b4586	ykfM
+b4588	ylcH
+b4589	ylcI
+b4590	ybfK
+b4591	ybhU
+b4592	yccB
+b4593	ymgI
+b4594	ymgJ
+b4595	yciY
+b4596	yciZ	deoL	
+b4597	rydC	IS067	
+b4598	yncL
+b4599	yneM
+b4601	ydgU
+b4602	ynhF
+b4603	rseX	IS96	
+b4604	yojO
+b4605	ypaB
+b4606	ypfM
+b4607	ryfB
+b4608	ohsC	ryfC	
+b4609	ryfD
+b4610	ygdT
+b4611	sibE	QUAD1e	rygE	
+b4612	yrhD
+b4613	dinQ
+b4614	sokA
+b4615	yibV
+b4616	istR-2
+b4617	tisA
+b4618	tisB	ysdA	ysdB	
+b4620	yjbT
+b4621	yjbS
+b4622	ytcA
+b4624	ryjB
+b4625	symR	ryjC	
+b4631	ykgQ
+b4635	pauD
+b4636	ybfI
+b4637	uof
+b4639	yeeH
+b4649	ysaD
+b4655	ythA
+b4662	sgrT
+b4663	azuC	IS092	isrB	
+b4664	ibsD
+b4665	ibsC
+b4666	ibsE
+b4667	ibsA
+b4668	ibsB
+b4669	ilvX
+b4670	yjeV
+b4671	ykgR
+b4673	ymjD
+b4674	ynbG
+b4675	yoaJ
+b4676	yoaK
+b4677	yobI
+b4678	yoeI
+b4679	yohP
+b4680	ypdK
+b4682	yqcG
+b4683	yqeL
+b4684	yqfG
+b4685	yrbN
+b4686	yshB
+b4687	shoB	ryfB	yphI	
+b4690	eyeA	I001	
+b4691	sroH	IS206	
+b4698	mgrR
+b4701	sokX
+b4702	mgtL
+b4703	pmrR
+b4704	arrS
+b4705	mntS	rybA	
+b4706	iroK
+b4707	esrE
+aminotransferase	alaB
+dehydrogenase	dgd
+phantom	ackB	
+protein insAB	insJK
+pseudogene	insB-7_1
+pseudogene	insB-7_2
+pseudogene	wbbL_2
+pseudogene	ychE_2
+pseudogene	yhiS_2
+pseudogene	yjhW
+pseudogene	ykfK
+pseudogene	ykfL
+pseudogene	ypaA
+sRNA	C0067
+sRNA	C0293
+sRNA	C0299
+sRNA	C0343
+sRNA	C0362
+sRNA	C0465
+sRNA	C0614
+sRNA	C0664
+sRNA	C0719
+sRNA	IS128
+sRNA	fnrS	rydA	
+sRNA	istR-1
+sRNA	ryeF
+sRNA	sokE
+sRNA	sraA
+sRNA	sroA
+sRNA	sroC
+sRNA	sroD
+sRNA	sroE
+sRNA	sroG
+sRNA	tp2
+sRNA	tpke11
+sRNA	tpke70
+sncRNA	nc1
+tranposase	insAB-1
+tranposase	insAB-4
+tranposase	insAB-5
+tranposase	insCD-2
+tranposase	insEF-4
+transposase	insAB-2
+transposase	insAB-3
+transposase	insAB-6
+transposase	insCD-1
+transposase	insCD-3
+transposase	insCD-4
+transposase	insCD-5
+transposase	insCD-6
+transposase	insEF-1
+transposase	insEF-2
+transposase	insEF-3
+transposase	insEF-5

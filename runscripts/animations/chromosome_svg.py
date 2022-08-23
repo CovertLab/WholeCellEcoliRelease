@@ -5,9 +5,16 @@ fraction complete for second set of replication forks)
 Output: time series of svg images to folder svg
 '''
 
-import numpy as np
+from __future__ import absolute_import, division, print_function
+
+import io
 import os
-import csv
+
+import numpy as np
+
+from wholecell.io import tsv
+from wholecell.utils import filepath as fp
+
 
 def boilerplate_start(h):
 #	h.write("<html>\n")
@@ -21,14 +28,14 @@ def boilerplate_end(h):
 
 def svg_draw(h, count, frac1, frac2):
 	if frac1 < 0 or frac1 >= 1:
-		raise Exception, "frac1 is out of bounds"
+		raise Exception("frac1 is out of bounds")
 	if frac2 < 0 or frac2 >= 0.5:
-		raise Exception, "frac2 is out of bounds"
+		raise Exception("frac2 is out of bounds")
 	if frac2 > frac1:
-		raise Exception, "frac1 must be greater than frac2"
+		raise Exception("frac1 must be greater than frac2")
 	if count <= 0 or count > 2:
-		raise Exception, "count must be 1 or 2"
-	xVal = 0.
+		raise Exception("count must be 1 or 2")
+	# xVal = 0.
 	yVal1 = 0.
 	useOuter = 0
 	spaceBetween = 15.
@@ -69,21 +76,22 @@ def svg_draw(h, count, frac1, frac2):
 		h.write("<use xlink:href=\"#chromosome\" x=\"0\" y=\"0\" transform=\"translate(0 %f) scale(1,-1)\" />\n" % verticalOffset)
 
 def write_svg(dirname, idx, count, frac1, frac2):
-	if not os.path.exists(dirname):
-		os.makedirs(dirname)
+	fp.makedirs(dirname)
 
-	h = open(os.path.join(dirname, "chromosome_%05d.svg" % idx), "w")
-	boilerplate_start(h)
-	svg_draw(h, count, frac1, frac2)
-	boilerplate_end(h)
-	h.close()
+	with io.open(os.path.join(dirname, "chromosome_%05d.svg" % idx), "w") as h:
+		boilerplate_start(h)
+		svg_draw(h, count, frac1, frac2)
+		boilerplate_end(h)
 
 def main():
 	folder = os.path.dirname(__file__)
-	reader = csv.reader(open(os.path.join(folder, "repAnimation.tsv"), "r"), delimiter="\t")
-	reader.next()
-	for line in reader:
-		write_svg(os.path.join(folder, "svg"), float(line[0]), float(line[1]), float(line[2]), float(line[3]))
+	svg_dirname = os.path.join(folder, "svg")
+
+	with io.open(os.path.join(folder, "repAnimation.tsv"), "rb") as fh:
+		reader = tsv.reader(fh)
+		next(reader)
+		for line in reader:
+			write_svg(svg_dirname, *[float(x) for x in line[:4]])
 
 if __name__ == "__main__":
 	main()

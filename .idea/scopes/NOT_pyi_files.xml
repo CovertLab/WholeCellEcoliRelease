@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="NOT pyi files" pattern="!file:*.pyi" />
+</component>

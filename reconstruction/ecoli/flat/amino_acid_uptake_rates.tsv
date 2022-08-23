@@ -1,0 +1,24 @@
+# Data from Zampieri et al. Regulatory mechanisms underlying coordination of amino acid and glucose catabolism in Escherichia coli. 2019.
+# From Supplementary Data 1 tabs Absolute Meas fluxes, Absolute Meas fluxes LB, Absolute Meas Fluxes UB (data plotted in Fig 3)
+# Uptake columns are the maximum value across all time points from the appropriate tab
+"Amino acid"	"Uptake (units.mmol/units.g/units.h)"	"Uptake, LB (units.mmol/units.g/units.h)"	"Uptake, UB (units.mmol/units.g/units.h)"
+"L-ALPHA-ALANINE"	0.28	0.27	0.45
+"ARG"	0.55	0.53	0.57
+"ASN"	0.14	0.14	0.16
+"L-ASPARTATE"	2.97	1.87	3.05
+"CYS"	0.0017	0.0016	0.0027
+"GLN"	0.10	0.10	0.11
+"GLT"	2.25	1.90	2.71
+"GLY"	2.78	2.56	3.10
+"HIS"	0.064	0.061	0.067
+"ILE"	0.31	0.00	0.32
+"LEU"	0.31	0.00	0.32
+"LYS"	0.12	0.10	0.18
+"MET"	0.11	0.11	0.11
+"PHE"	0.14	0.14	0.14
+"PRO"	0.19	0.18	0.20
+"SER"	5.42	5.08	5.71
+"THR"	0.74	0.72	0.77
+"TRP"	0.049	0.048	0.050
+"TYR"	0.038	0.037	0.039
+"VAL"	0.28	0.27	0.28

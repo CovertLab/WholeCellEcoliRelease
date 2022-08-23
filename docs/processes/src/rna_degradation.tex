@@ -1,0 +1,183 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{caption}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{RNA degradation}
+\label{sec:rna-deg}
+
+\subparagraph{Model Implementation.}
+The \emph{E. coli} model provides a more detailed, mechanistic representation of RNA degradation compared to the \emph{M. genitalium} model. Unlike the previous model, the gene functionality of endoRNase and exoRNase is mechanistically integrated to evaluate: (1) rates of RNA degradation due to endo-nucleolytic cleavage, and (2) rates of nucleotides digested by exoRNases.  These mechanisms are implemented in the \texttt{RnaDegradation} process (detailed in Algorithm \ref{RNA_degradation_algorithm}).
+
+\subparagraph{Endo-nucelolytic Cleavage.}
+RNAs are cleaved by nine different endoRNases, each of which are assumed to have the same rate of cleavage but can have a different specificity for cleavage of mRNAs, tRNAs or rRNAs. The rate of cleavage for each RNA is determined with a Michaelis-Menten kinetic equation:
+\begin{equation}
+\label{endornase}
+    r_i = k_{cat,endo} \cdot c_{endo,i} \cdot f_i
+\end{equation}
+\noindent where $i$ indicates the RNA from each gene, $r_i$ is the rate of cleavage of each RNA species, $k_{cat,endo}$ is the rate of cleavage for a single endoRNase, $c_{endo,i}$ is the count of endoRNases specific to each RNA species, and $f_i$ is the saturation of endoRNases for each RNA and is defined:
+\begin{equation}
+    f_i = \frac{\frac{c_{RNA,i}}{K_{M,i}}}{1 + \sum\limits_j \frac{c_{RNA,j}}{K_{M,j}}}
+\end{equation}
+\noindent where $c_{RNA,i}$ is the count of each RNA and $K_{M,i}$ is the Michaelis constant for each RNA, $i$.  The saturation fraction accounts for competitive binding of each RNA species for the available endoRNases.  The Michaelis constant for each RNA is determined by setting Eq. \ref{endornase} equal to the first order approximation based on measured (or assumed, if measurement data is not available) RNA half lives:
+\begin{equation}
+    k_{cat,endo} \cdot c_{endo,i} \cdot \frac{\frac{c_{RNA,i}}{K_{M,i}}}{1 + \sum\limits_j \frac{c_{RNA,j}}{K_{M,j}}} = \frac{\ln 2}{\tau_{RNA,i}} \cdot c_{RNA,i}
+\end{equation}
+\noindent where $\tau_{RNA,i}$ is the half life for each RNA.  Expected counts of endoRNases and RNA transcripts for an average cell are used to solve the non-linear equation for each $K_{M,i}$.
+
+During simulations, individual RNA counts are low so $r_i$ from Eq. \ref{endornase} would be very low ($\ll$1) for most RNA. To get integer counts to degrade within a timestep, the total number of RNAs expected to be degraded is first determined. Then, samples are drawn from a multinomial distribution of available RNAs to degrade until this total is reached.  This is done separately for each RNA group (mRNA, tRNA and rRNA) based on the known endoRNase affinity for each group:
+\begin{equation}
+    R_{endo,group} = \sum\limits_{i \in group} r_i \cdot \Delta t
+\end{equation}
+\noindent where $r_i$ is as defined in Eq. \ref{endornase}, $\Delta t$ is the length of the simulation timestep, and $i \in group$ means that the RNA is in a specific RNA group (mRNA, tRNA or rRNA). The multinomial distribution for each RNA to degrade is sampled with a probability for each RNA species based on the saturated fraction of that species:
+\begin{equation}
+    p_{deg, group, i} = \frac{f_i \cdot \textbf{1}_{i\in group}}{\sum\limits_{j \in group} f_j}
+\end{equation}
+\noindent where \textbf{1}$_{i\in group}$ is an indicator function that is 1 if $i$ in in $group$ and 0 otherwise.
+
+\subparagraph{Exo-nucleolytic Digestion.}
+Endo-nucleolytic cleavage produces non-functional RNA fragments, which are then degraded to individual nucleotides via nine different exoRNases. Once degraded, these nucleotides can be recycled by the \texttt{Metabolism} process.  ExoRNase capacity is determined as the following:
+\begin{equation}
+    R_{exo} = k_{cat,exo} \cdot c_{exo} \cdot \Delta t
+\end{equation}
+\noindent where $R_{exo}$ is the exoRNase digestion capacity, $k_{cat,exo}$ is the rate of cleavage for a single exoRNase, $c_{exo}$ is the total count of exoRNases, and $\Delta t$ is the length of the simulation timestep. Since non-functional RNA fragments are modeled in aggregate and not individually like functional RNA molecules, we do not include a $K_M$ term for the digestion capacity and assume full saturation.
+
+\begin{algorithm}
+\caption{RNA degradation: endo-nucelolytic cleavage and exo-nucleolytic digestion}
+\label{RNA_degradation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{multinomial}{multinomial}
+\SetKwFunction{countNTs}{countNTs}
+\SetKwFunction{lengthFragments}{lengthFragments}
+
+    \Input{$K_{M,i}$ Michaelis constants of each mRNA transcript binding to endoRNases where $i = 1$ \KwTo $n_{RNA}$}
+    \Input{$k_{cat,endo}$, $k_{cat,exo}$ catalytic rate of endoRNase and exoRNase}
+    \Input{$c_{endo}$, $c_{exo}$ count of endoRNases and exoRNases}
+    \Input{$c_{frag,i}$ count of nucleotides in non-functional RNA fragments where $i=1$ \KwTo $4$ for AMP, CMP, GMP, UMP}
+    \Input{$c_{nt,i}$ count of free nucleotides where $i=1$ \KwTo $4$ for AMP, CMP, GMP, UMP}
+    \Input{$c_{mRNA}$, $c_{tRNA}$, $c_{rRNA}$ count of each mRNA, tRNA and rRNA}
+    \Input{$c_{H_2O}$, $c_{PPi}$, $c_{proton}$ count of small molecules}
+    \Input{\multinomial{} function that draws samples from a multinomial distribution}
+    \Input{\countNTs{} function that returns counts of AMP, CMP, GMP, and UMP for a given non-functional RNA fragment}
+    \Input{\lengthFragments{} function that returns the total number of bases of all RNA fragments}
+\SetNoFillComment
+\tcc{Endo-nucleolytic cleveage}
+\textbf{1.} Calculate fraction of active endoRNases ($f_i$) that target each RNA where $i = 1$ \KwTo $n_{gene}$\\
+    \-\hspace{1cm} $f_i = \frac{ \frac{c_{RNA,i}} {K_{M,i}}} {1 + \sum\limits_j{\frac{c_{RNA,j}} {K_{M,j}}}}$\\
+
+\textbf{2.} Calculate total counts of RNAs to be degraded ($R_{endo,group}$)\\
+    \-\hspace{1cm} $R_{endo,mRNA} = \sum\limits_{i\in mRNA}{k_{cat,endo} \cdot c_{endo,i} \cdot f_i} \cdot \Delta t$ \\
+    \-\hspace{1cm} $R_{endo,tRNA} = \sum\limits_{i\in tRNA}{k_{cat,endo} \cdot c_{endo,i} \cdot f_i} \cdot \Delta t$ \\
+    \-\hspace{1cm} $R_{endo,rRNA} = \sum\limits_{i\in rRNA}{k_{cat,endo} \cdot c_{endo,i} \cdot f_i} \cdot \Delta t$ \\
+
+\textbf{3.} Determine probabilities for multinomial distributions of RNAs to degrade for each RNA group ($p_{deg,group,i}$) \\
+    \-\hspace{1cm} $p_{deg,mRNA,i} = \frac{f_i \cdot \textbf{1}_{i\in mRNA}}{\sum\limits_{j \in mRNA} f_j}$ \\
+    \-\hspace{1cm} $p_{deg,tRNA,i} = \frac{f_i \cdot \textbf{1}_{i\in tRNA}}{\sum\limits_{j \in tRNA} f_j}$ \\
+    \-\hspace{1cm} $p_{deg,rRNA,i} = \frac{f_i \cdot \textbf{1}_{i\in rRNA}}{\sum\limits_{j \in rRNA} f_j}$ \\
+
+\textbf{4.} Sample multinomial distributions for each group $R_{endo,group}$ times, with probability determined by relative endoRNase saturation, to determine counts of RNAs that are converted into non-functional RNAs ($d_{i}$)\\
+    \-\hspace{1cm} $d_{i} =$ \multinomial{$R_{endo,mRNA}, p_{deg,mRNA,i}$} \\
+    \-\hspace{1.9cm} + \multinomial{$R_{endo,tRNA}, p_{deg,tRNA,i}$} \\
+    \-\hspace{1.9cm} + \multinomial{$R_{endo,rRNA}, p_{deg,rRNA,i}$} \\
+
+\end{algorithm}
+\newpage
+
+
+{
+% Removes extra bar for empty title
+\setlength{\interspacetitleruled}{0pt}
+\setlength{\algotitleheightrule}{0pt}
+\begin{algorithm}[H]
+\SetNoFillComment
+\textbf{5.} Increase number of RNA fragments. Decrease RNA and water counts by amount required for RNA hydrolysis and increase pyrophosphate counts for the removal of the 5' pyrophosphate\\
+    \-\hspace{1cm} $c_{frag} = c_{frag} +$ \countNTs{$d_i$}\\
+    \-\hspace{1cm} $c_{RNA,i} = c_{RNA,i} - d_{i}$\\
+    \-\hspace{1cm} $c_{H_2O} = c_{H_2O} - \sum\limits_i d_i$\\
+    \-\hspace{1cm} $c_{PPi} = c_{PPi} + \sum\limits_i d_i$\\
+
+\vspace{12pt}
+\tcc{Exo-nucleolytic digestion}
+\textbf{6.} Compute exoRNase capacity ($R_{exo}$)\\
+    \-\hspace{1cm} $R_{exo} = k_{cat,exo} \cdot c_{exo} \cdot \Delta t$\\
+    \eIf{$R_{exo} > \sum{c_{frag,i}}$}{
+      Update nucleotide, water and proton counts\\
+      \-\hspace{1cm} $c_{nt,i} = c_{nt,i} + c_{frag,i}$\\
+        \-\hspace{1cm} $c_{H_2O} = c_{H_2O} -   $\lengthFragments{$c_{frag}$}\\
+        \-\hspace{1cm} $c_{proton} = c_{proton} + $ \lengthFragments{$c_{frag}$}\\
+  Set counts of RNA fragments equal to zero ($c_{frag,i} = 0$)\\
+    }
+    {
+      Sample multinomial distribution $c_{frag}$ with equal probability to determine which fragments are exo-digested ($c_{frag,dig}$) and recycled\\
+        \-\hspace{1cm} $c_{frag,dig,i} =$ \multinomial{$R_{exo}, \frac{c_{frag,i}} {\sum\limits_i{c_{frag,i}}}$}\\
+        Update nucleotide, water, proton counts, and RNA fragments\\
+      \-\hspace{1cm} $c_{nt,i} = c_{nt,i} + c_{frag,dig,i}$\\
+        \-\hspace{1cm} $c_{H_2O} = c_{H_2O} - $ \lengthFragments{$c_{frag,dig}$}\\
+        \-\hspace{1cm} $c_{proton} = c_{proton} + $ \lengthFragments{$c_{frag,dig}$}\\
+        \-\hspace{1cm} $c_{frag,i} = c_{frag,i} - c_{frag,dig,i}$\\
+    }
+    \textbf{Result:} RNAs are selected and degraded by endoRNases, and non-functional RNA fragments are digested through exoRNases. During the process water is consumed, and nucleotides, pyrophosphate and protons are released.
+
+\end{algorithm}
+}
+\newpage
+
+\textbf{Associated data}
+
+ \begin{table}[h!]
+ \centering
+ \begin{tabular}{p{1.9in} p{0.8in} p{1in} p{1in} c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+ EndoRNase catalytic rate & $k_{cat,endo}$ & RNA counts/s & 0.10 & See GitHub \\
+ ExoRNase catalytic rate & $k_{cat,exo}$ & nt digested/s & 50 & See GitHub \\
+ mRNA half-lives$^{(1)}$ & $\tau_{mRNA}$ & min & [1.30, 31.40] & \cite{bernstein2002global} \\
+ tRNA, rRNA half-lives & $\tau_{tRNA}$, $\tau_{rRNA}$ & hour & 48 & \cite{bernstein2002global} \\
+ Michaelis constant & $K_{M}$ & RNA counts & - & See GitHub \\
+ RNAse mechanism of action & - & - & endo-/exo-RNAse & See GitHub \\
+ EndoRNase specificity$^{(2)}$ & - & - & Specificity for mRNA, tRNA, rRNA & See GitHub \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for RNA degradation]{Table of parameters for RNA degradation process.\\
+$^{(1)}$Non-measured mRNA half-lives were estimated as the mean mRNA half-life (5.75 min).\\
+$^{(2)}$Matrix relating each endoRNase to the type(s) of RNA that it targets.}
+\end{table}
+
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{rna\_degradation.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{rna\_decay.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{rnas.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{endoRnases.tsv} & raw data \\
+ \hline
+\end{tabular}
+\caption[Table of files for RNA degradation]{Table of files for RNA degradation.}
+\label{RNA_decay_files}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

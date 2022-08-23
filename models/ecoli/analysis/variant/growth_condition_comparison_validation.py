@@ -1,13 +1,12 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -16,30 +15,9 @@ from models.ecoli.analysis import variantAnalysisPlot
 
 FONT_SIZE=9
 
-SIM_PLOT_STYLE = dict(
-	label="Simulation",
-	fmt='',
-	marker='o',
-	markersize=5,
-	linewidth=1,
-	capsize=2)
-
-EXP_PLOT_STYLE = dict(
-	label="Experimental",
-	marker='o',
-	markersize=5,
-	linewidth=1,
-	)
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 		fig = plt.figure()
 		fig.set_figwidth(5)
@@ -53,34 +31,28 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		bremer_rna_mass_per_cell = [77, 20,  211]
 		bremer_elng_rate = [18, 12,  21]
 
-		sim_doubling_time = np.zeros(ap.n_variant)
-		sim_doubling_time_std = np.zeros(ap.n_variant)
+		sim_doubling_time = np.zeros(self.ap.n_variant)
+		sim_doubling_time_std = np.zeros(self.ap.n_variant)
 
-		sim_origins_per_cell_at_initiation = np.zeros(ap.n_variant)
-		sim_rna_mass_per_cell = np.zeros(ap.n_variant)
-		sim_elng_rate = np.zeros(ap.n_variant)
-		sim_rrn_init_rate = np.zeros(ap.n_variant)
+		sim_origins_per_cell_at_initiation = np.zeros(self.ap.n_variant)
+		sim_rna_mass_per_cell = np.zeros(self.ap.n_variant)
+		sim_elng_rate = np.zeros(self.ap.n_variant)
+		sim_rrn_init_rate = np.zeros(self.ap.n_variant)
 
-		sim_origins_per_cell_at_initiation_std = np.zeros(ap.n_variant)
-		sim_elng_rate_std = np.zeros(ap.n_variant)
-		sim_rna_mass_per_cell_std = np.zeros(ap.n_variant)
-		sim_rrn_init_rate_std = np.zeros(ap.n_variant)
+		sim_origins_per_cell_at_initiation_std = np.zeros(self.ap.n_variant)
+		sim_elng_rate_std = np.zeros(self.ap.n_variant)
+		sim_rna_mass_per_cell_std = np.zeros(self.ap.n_variant)
+		sim_rrn_init_rate_std = np.zeros(self.ap.n_variant)
 
-		variants = ap.get_variants()
+		variants = self.ap.get_variants()
 
-		for varIdx in range(ap.n_variant):
+		for varIdx in range(self.ap.n_variant):
 			variant = variants[varIdx]
-
-			print("variant {}".format(variant))
-
-			all_cells = ap.get_cells(variant=[variant])
-
-			print("Total cells: {}".format(len(all_cells)))
-
+			all_cells = self.ap.get_cells(variant=[variant])
 			try:
-				sim_data = cPickle.load(open(ap.get_variant_kb(variant)))
+				sim_data = cPickle.load(open(self.ap.get_variant_kb(variant), 'rb'))
 			except Exception as e:
-				print "Couldn't load sim_data object. Exiting.", e
+				print("Couldn't load sim_data object. Exiting.", e)
 				return
 
 			num_origin_at_init = np.zeros(len(all_cells))
@@ -90,25 +62,25 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			meanRrnInitRate = np.zeros(len(all_cells))
 
 			for idx, simDir in enumerate(all_cells):
-				print "cell {} of {}".format(idx, len(all_cells))
-
 				simOutDir = os.path.join(simDir, "simOut")
 
 				try:
-					time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-					doubling_time[idx] = time[-1] - time[0]
+					main_reader = TableReader(os.path.join(simOutDir, "Main"))
+					time = main_reader.readColumn("time")
 				except Exception as e:
-					print 'Error with data for %s: %s' % (simDir, e)
+					print('Error with data for %s: %s' % (simDir, e))
 					continue
 
-				timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+				doubling_time[idx] = time[-1] - time[0]
+				timeStepSec = main_reader.readColumn("timeStepSec")
 
 				meanRnaMass[idx] = TableReader(os.path.join(simOutDir, "Mass")).readColumn("rnaMass").mean()
 				meanElngRate[idx] = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate").mean()
 
-				numOrigin = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
+				replicationData = TableReader(os.path.join(simOutDir, "ReplicationData"))
+				numOrigin = replicationData.readColumn("numberOfOric")
 
-				massPerOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalMassPerOriC")
+				massPerOric = replicationData.readColumn("criticalMassPerOriC")
 				idxInit = np.where(massPerOric >= 1)[0]
 				numOriginAtInit = numOrigin[idxInit - 1]
 				if numOriginAtInit.size:
@@ -118,7 +90,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 				transcriptDataFile = TableReader(os.path.join(simOutDir, "TranscriptElongationListener"))
 				rnaSynth = transcriptDataFile.readColumn("countRnaSynthesized")
-				isRRna = sim_data.process.transcription.rnaData["isRRna"]
+				isRRna = sim_data.process.transcription.rna_data['is_rRNA']
 				meanRrnInitRate[idx] = (rnaSynth[:, isRRna].sum(axis=1) / timeStepSec).mean() * 60. / 3
 
 			sim_rna_mass_per_cell[varIdx] = meanRnaMass.mean()
@@ -133,7 +105,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			sim_doubling_time_std[varIdx] = np.nanstd(doubling_time) / 60.
 			sim_rrn_init_rate_std[varIdx] = np.nanstd(meanRrnInitRate)
 
-		bremer_tau = np.array(bremer_tau)
+		sim_growth_rate = np.log(2) / sim_doubling_time
+		bremer_growth_rate = np.log(2) / bremer_tau
 
 		ax0 = plt.subplot2grid((2,2), (0,0))
 		ax1 = plt.subplot2grid((2,2), (1,0), sharex=ax0)
@@ -142,34 +115,27 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		lines = {'linestyle': 'dashed'}
 		plt.rc('lines', **lines)
-		plt.style.use('seaborn-deep')
-		color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-		ax0.errorbar(sim_doubling_time[np.argsort(sim_doubling_time)[::-1]], sim_rna_mass_per_cell[np.argsort(sim_doubling_time)[::-1]], yerr=sim_rna_mass_per_cell_std[np.argsort(sim_doubling_time)[::-1]], color=color_cycle[0], **SIM_PLOT_STYLE)
-		ax0.errorbar(bremer_tau[np.argsort(bremer_tau)[::-1]], np.array(bremer_rna_mass_per_cell)[np.argsort(bremer_tau)[::-1]], color=color_cycle[2], **EXP_PLOT_STYLE)
+		ax0.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_rna_mass_per_cell[np.argsort(sim_growth_rate)[::-1]], yerr=sim_rna_mass_per_cell_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+		ax0.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_rna_mass_per_cell)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_rna_mass_per_cell)[np.argsort(bremer_growth_rate)[::-1]] * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5)#, markeredgecolor="blue")
 		ax0.set_title("RNA mass per cell (fg)", fontsize=FONT_SIZE)
-		ax0.set_xlim([0, 135])
-		ax0.set_ylim([0, 250])
-		ax0.legend(loc=1, fontsize='xx-small', markerscale=0.5, frameon=False)
+		ax0.set_xlim([0.005, 0.03])
 
-		ax1.errorbar(sim_doubling_time[np.argsort(sim_doubling_time)[::-1]], sim_elng_rate[np.argsort(sim_doubling_time)[::-1]], yerr=sim_elng_rate_std[np.argsort(sim_doubling_time)[::-1]], color=color_cycle[0], **SIM_PLOT_STYLE)
-		ax1.errorbar(bremer_tau[np.argsort(bremer_tau)[::-1]], np.array(bremer_elng_rate)[np.argsort(bremer_tau)[::-1]], color=color_cycle[2], **EXP_PLOT_STYLE)
+		ax1.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_elng_rate[np.argsort(sim_growth_rate)[::-1]], yerr=sim_elng_rate_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+		ax1.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_elng_rate)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_elng_rate)[np.argsort(bremer_growth_rate)[::-1]] * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5, markeredgecolor="blue")
 		ax1.set_title("Ribosome elongation\nrate (aa/s/ribosome)", fontsize=FONT_SIZE)
-		ax1.set_xlabel("Doubling time (min)", fontsize=FONT_SIZE)
-		ax1.set_ylim([0, 24])
+		ax1.set_xlabel("Growth rate (1/min)", fontsize=FONT_SIZE)
 
-		ax2.errorbar(sim_doubling_time[np.argsort(sim_doubling_time)[::-1]], sim_origins_per_cell_at_initiation[np.argsort(sim_doubling_time)[::-1]], yerr=sim_origins_per_cell_at_initiation_std[np.argsort(sim_doubling_time)[::-1]], color=color_cycle[0], **SIM_PLOT_STYLE)
-		ax2.errorbar(bremer_tau[np.argsort(bremer_tau)[::-1]], np.array(bremer_origins_per_cell_at_initiation)[np.argsort(bremer_tau)[::-1]], color=color_cycle[2], **EXP_PLOT_STYLE)
+		ax2.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_origins_per_cell_at_initiation[np.argsort(sim_growth_rate)[::-1]], yerr=sim_origins_per_cell_at_initiation_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+		ax2.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_origins_per_cell_at_initiation)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_origins_per_cell_at_initiation)[np.argsort(bremer_growth_rate)[::-1]] * 0.1, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5, markeredgecolor="blue")
 		ax2.set_title("Average origins at chrom. init.", fontsize=FONT_SIZE)
-		ax2.set_ylim([0.5, 4.5])
 
-		ax3.errorbar(sim_doubling_time[np.argsort(sim_doubling_time)[::-1]], sim_rrn_init_rate[np.argsort(sim_doubling_time)[::-1]], yerr=sim_rrn_init_rate_std[np.argsort(sim_doubling_time)[::-1]], color=color_cycle[0], **SIM_PLOT_STYLE)
-		ax3.errorbar(bremer_tau[np.argsort(bremer_tau)[::-1]], np.array(bremer_rrn_init_rate)[np.argsort(bremer_tau)[::-1]], color=color_cycle[2], **EXP_PLOT_STYLE)
+		ax3.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_rrn_init_rate[np.argsort(sim_growth_rate)[::-1]], yerr=sim_rrn_init_rate_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+		ax3.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_rrn_init_rate)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_rrn_init_rate)[np.argsort(bremer_growth_rate)[::-1]] * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5, markeredgecolor="blue")
 		ax3.set_title("Rate of rrn initiation (1/min)", fontsize=FONT_SIZE)
-		ax3.set_ylim([0, 2500])
 
 		# ax3.legend(loc=1, frameon=True, fontsize=7)
-		ax3.set_xlabel("Doubling time (min)", fontsize=FONT_SIZE)
+		ax3.set_xlabel("Growth rate (1/min)", fontsize=FONT_SIZE)
 
 		axes_list = [ax0, ax1, ax2, ax3]
 

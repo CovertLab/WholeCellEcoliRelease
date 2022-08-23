@@ -1,17 +1,15 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
-import cPickle
+from six.moves import cPickle
 
 from wholecell.utils import units
-FROM_CACHE = False
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
@@ -28,135 +26,112 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
 
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all ids reqiured
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
+		ids_complexation = sim_data.process.complexation.molecule_names # Complexe of proteins, and protein monomers
 		ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
+		ids_equilibrium = sim_data.process.equilibrium.molecule_names # Complexes of proteins + small molecules, small molecules, protein monomers
 		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes # Only complexes
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
+		ids_translation = sim_data.process.translation.monomer_data["id"].tolist() # Only protein monomers
 
 		# ids_ribosome =
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
+		data_50s = sim_data.process.complexation.get_monomers(sim_data.molecule_ids.s50_full_complex)
+		data_30s = sim_data.process.complexation.get_monomers(sim_data.molecule_ids.s30_full_complex)
 		ribosome_subunit_ids = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
 		ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"],data_30s["subunitStoich"]))
 
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
+		data_rnap = sim_data.process.complexation.get_monomers(sim_data.molecule_ids.full_RNAP)
 		rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 		rnap_subunit_stoich = data_rnap["subunitStoich"]
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-		allDir = ap.get_cells(seed = [0])
+		allDir = self.ap.get_cells(seed = [0])
 
 		first_build = True
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
-		n_sims = ap.n_generation
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
+		n_sims = self.ap.n_generation
 
-		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
-		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
-		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
-		monomerCountInitialMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
-		cellMassInitialMultigen = np.zeros(n_sims, dtype = np.float)
+		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = bool)
+		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = float)
+		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = int)
+		monomerCountInitialMultigen = np.zeros((n_sims, n_monomers), dtype = int)
+		cellMassInitialMultigen = np.zeros(n_sims, dtype = float)
 
-		if not FROM_CACHE:
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+			## READ DATA ##
+			# Read in bulk ids and counts
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			if first_build:
+				moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-				## READ DATA ##
-				# Read in bulk ids and counts
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+				complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexe of proteins, and protein monomers
+				complexation_complexesIdx = np.array([moleculeIds.index(x) for x in ids_complexation_complexes]) # Only complexes
+				equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
+				equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
+				translationIdx = np.array([moleculeIds.index(x) for x in ids_translation]) # Only protein monomers
 
-				if first_build:
-					moleculeIds = bulkMolecules.readAttribute("objectNames")
+				ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
+				rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
 
-					complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexe of proteins, and protein monomers
-					complexation_complexesIdx = np.array([moleculeIds.index(x) for x in ids_complexation_complexes]) # Only complexes
-					equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
-					equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
-					translationIdx = np.array([moleculeIds.index(x) for x in ids_translation]) # Only protein monomers
+				first_build = False
 
-					ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
-					rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
+			bulkCounts = bulkMolecules.readColumn("counts")
+			bulkMolecules.close()
 
-					first_build = False
+			# Dissociate protein-protein complexes
+			bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoich_matrix_monomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
 
-				bulkCounts = bulkMolecules.readColumn("counts")
-				bulkMolecules.close()
+			# Dissociate protein-small molecule complexes
+			bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoich_matrix_monomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
 
-				# Dissociate protein-protein complexes
-				bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
+			# Load unique molecule data for RNAP and ribosomes
+			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
+			rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_RNAP')
+			nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+			nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+			uniqueMoleculeCounts.close()
 
-				# Dissociate protein-small molecule complexes
-				bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
+			# Add subunits from RNAP and ribosomes
+			ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
+			rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
 
-				# Load unique molecule data for RNAP and ribosomes
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-				nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-				uniqueMoleculeCounts.close()
+			bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
+			bulkCounts[:, rnapIdx] += rnapSubunitCounts
 
-				# Add subunits from RNAP and ribosomes
-				ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
-				rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
+			# Get protein monomer counts for calculations now that all complexes are dissociated
+			proteinMonomerCounts = bulkCounts[:, translationIdx]
 
-				bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
-				bulkCounts[:, rnapIdx] += rnapSubunitCounts
+			## CALCULATIONS ##
+			# Calculate if monomer exists over course of cell cycle
+			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
 
-				# Get protein monomer counts for calculations now that all complexes are dissociated
-				proteinMonomerCounts = bulkCounts[:, translationIdx]
+			# Calculate if monomer comes close to doubling
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(float) + 1)
+			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
 
-				## CALCULATIONS ##
-				# Calculate if monomer exists over course of cell cycle
-				monomerExist = proteinMonomerCounts.sum(axis=0) > 1
+			# Load transcription initiation event data
+			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
+			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
-				# Calculate if monomer comes close to doubling
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
-				# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
+			# Map transcription initiation events to monomers
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.cistron_to_monomer_mapping]
 
-				# Load transcription initiation event data
-				rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-				initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
+			# Load cell mass
+			cellMassInitial = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")[0]
 
-				# Map transcription initiation events to monomers
-				initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			# Log data
+			monomerExistMultigen[gen_idx,:] = monomerExist
+			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
+			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
+			monomerCountInitialMultigen[gen_idx,:] = proteinMonomerCounts[0,:]
+			cellMassInitialMultigen[gen_idx] = cellMassInitial
 
-				# Load cell mass
-				cellMassInitial = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")[0]
-
-				# Log data
-				monomerExistMultigen[gen_idx,:] = monomerExist
-				ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-				initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
-				monomerCountInitialMultigen[gen_idx,:] = proteinMonomerCounts[0,:]
-				cellMassInitialMultigen[gen_idx] = cellMassInitial
-
-			cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-			cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-			cPickle.dump(monomerCountInitialMultigen, open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "wb"))
-			cPickle.dump(cellMassInitialMultigen, open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "wb"))
-
-
-		monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-		initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
-		monomerCountInitialMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "rb"))
-		cellMassInitialMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "rb"))
 		cellMassInitialMultigen = units.fg * cellMassInitialMultigen
 
 		existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
@@ -166,8 +141,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		averageInitiationEventsPerMonomer = np.tile(averageInitiationEventsPerMonomer, (6,1))
 
 
-		mws = sim_data.getter.getMass(sim_data.process.translation.monomerData['id'])
-		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.nAvogadro)
+		mws = sim_data.getter.get_masses(sim_data.process.translation.monomer_data['id'])
+		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.n_avogadro)
 
 		# np.tile(cellMassInitialMultigen.asNumber().reshape((1,10)), (n_monomers,1))
 
@@ -221,14 +196,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "blue", alpha = 0.5, lw = 0.)#, s = 5)
 		scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "red", alpha = 0.5, lw = 0.)#, s = 5)
 
-		scatterAxis.set_ylabel("Fold change per protein\nin each generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
-		scatterAxis.set_xlabel("Average number of transcription events\nper protein per generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
+		scatterAxis.set_ylabel("Fold change per protein\nin each generation ({} generations)".format(self.ap.n_generation), fontsize = FONT_SIZE)
+		scatterAxis.set_xlabel("Average number of transcription events\nper protein per generation ({} generations)".format(self.ap.n_generation), fontsize = FONT_SIZE)
 
 		# lims = yhistAxis.get_ylim()
 		# step = (lims[1] - lims[0]) / 125
 		# bins = np.arange(lims[0], lims[1] + step, step)
 
-		# mass_in_binrange = np.zeros(bins.size-1, dtype=np.float)
+		# mass_in_binrange = np.zeros(bins.size-1, dtype=float)
 		# for i in range(len(bins) - 1):
 		# 	in_bin_range = np.logical_and(averageFoldChangePerMonomer > bins[i], averageFoldChangePerMonomer < bins[i+1])
 		# 	mass_in_binrange[i] = avgMonomerInitialMassFraction[in_bin_range].sum()
@@ -279,28 +254,28 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		scatterAxis.tick_params(
 			axis='both',          # which axis
 			which='both',      # both major and minor ticks are affected
-			right='off',      # ticks along the bottom edge are off
-			left='on',         # ticks along the top edge are off
-			top = 'off',
-			bottom = 'on',
+			right=False,       # ticks along the bottom edge are off
+			left=True,         # ticks along the top edge are off
+			top = False,
+			bottom = True,
 			)
 
 		yhistAxis.tick_params(
 			axis='both',          # which axis
 			which='both',      # both major and minor ticks are affected
-			right='off',      # ticks along the bottom edge are off
-			left='on',         # ticks along the top edge are off
-			top = 'off',
-			bottom = 'on',
+			right=False,       # ticks along the bottom edge are off
+			left=True,         # ticks along the top edge are off
+			top = False,
+			bottom = True,
 			)
 
 		# xhistAxis.tick_params(
 		# 	axis='both',          # which axis
 		# 	which='both',      # both major and minor ticks are affected
-		# 	right='off',      # ticks along the bottom edge are off
-		# 	left='on',         # ticks along the top edge are off
-		# 	top = 'off',
-		# 	bottom = 'on',
+		# 	right=False,      # ticks along the bottom edge are off
+		# 	left=True,         # ticks along the top edge are off
+		# 	top=False,
+		# 	bottom=True,
 		# 	)
 
 		plt.subplots_adjust(wspace=0.3, hspace=0.3, bottom = 0.2)

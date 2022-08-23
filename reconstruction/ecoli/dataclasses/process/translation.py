@@ -1,273 +1,284 @@
 """
 SimulationData for translation process
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 03/09/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
+import six
 
-from wholecell.utils import units
+from wholecell.sim.simulation import MAX_TIME_STEP
+from wholecell.utils import data, units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
-from wholecell.utils.random import make_elongation_rates, make_elongation_rates_flat
+from wholecell.utils.random import make_elongation_rates
+
+
+PROCESS_MAX_TIME_STEP = 2.
+
 
 class Translation(object):
 	""" Translation """
 
-	def __init__(self, raw_data, sim_data, options):
-		self._buildMonomerData(raw_data, sim_data, options['disable_measured_protein_deg'])
-		self._buildTranslation(raw_data, sim_data)
-		self._buildTranslationEfficiency(raw_data, sim_data, options['alternate_translation_efficiency'])
+	def __init__(self, raw_data, sim_data):
+		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
+		self.next_aa_pad = 1  # Need an extra amino acid in sequences lengths to find next one
 
-		self.ribosomal_proteins = self._build_ribosomal_proteins(raw_data, sim_data)
-		self.elongation_rates = self._build_elongation_rates(raw_data, sim_data)
+		self._build_monomer_data(raw_data, sim_data)
+		self._build_translation(raw_data, sim_data)
+		self._build_translation_efficiency(raw_data, sim_data)
+		self._build_elongation_rates(raw_data, sim_data)
 
-	def _buildMonomerData(self, raw_data, sim_data, disable_measured_protein_deg):
-		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])
-		ids = ['{}[{}]'.format(protein['id'], protein['location'][0]) for protein in raw_data.proteins]
+	def __getstate__(self):
+		"""Return the state to pickle with translationSequences removed and
+		only storing data from translationSequences with pad values stripped.
+		"""
 
-		rnaIds = []
+		state = data.dissoc_strict(self.__dict__, ('translation_sequences',))
+		state['sequences'] = np.array([
+			seq[seq != polymerize.PAD_VALUE]
+			for seq in self.translation_sequences], dtype=object)
+		state['sequence_shape'] = self.translation_sequences.shape
+		return state
 
+	def __setstate__(self, state):
+		"""Restore translationSequences and remove processed versions of the data."""
+		sequences = state.pop('sequences')
+		sequence_shape = state.pop('sequence_shape')
+		self.__dict__.update(state)
+
+		self.translation_sequences = np.full(sequence_shape, polymerize.PAD_VALUE, dtype=np.int8)
+		for i, seq in enumerate(sequences):
+			self.translation_sequences[i, :len(seq)] = seq
+
+	def _build_monomer_data(self, raw_data, sim_data):
+		# Get set of all cistrons IDs with an associated gene and right and left
+		# end positions
+		rna_id_to_gene_id = {
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
+		gene_id_to_left_end_pos = {
+			gene['id']: gene['left_end_pos'] for gene in raw_data.genes
+			}
+		gene_id_to_right_end_pos = {
+			gene['id']: gene['right_end_pos'] for gene in raw_data.genes
+			}
+
+		all_mRNA_cistrons = {
+			rna['id'] for rna in raw_data.rnas
+			if rna['id'] in rna_id_to_gene_id
+			    and gene_id_to_left_end_pos[rna_id_to_gene_id[rna['id']]] is not None
+			    and gene_id_to_right_end_pos[rna_id_to_gene_id[rna['id']]] is not None
+				and rna['type'] == 'mRNA'
+			}
+
+		# Get mappings from monomer IDs to cistron IDs
+		# TODO (ggsun): Handle cistrons with two or more associated proteins
+		monomer_id_to_cistron_id = {
+			rna['monomer_ids'][0]: rna['id']
+			for rna in raw_data.rnas
+			if len(rna['monomer_ids']) > 0}
+
+		# Select proteins with valid sequences and mappings to valid mRNAs
+		all_proteins = []
 		for protein in raw_data.proteins:
-			rnaId = protein['rnaId']
+			if sim_data.getter.is_valid_molecule(protein['id']):
+				try:
+					rna_id = monomer_id_to_cistron_id[protein['id']]
+				except KeyError:
+					continue
+				if rna_id in all_mRNA_cistrons:
+					all_proteins.append(protein)
 
-			rnaLocation = None
-			for rna in raw_data.rnas:
-				if rna['id'] == rnaId:
-					assert len(rna['location']) == 1
-					rnaLocation = rna['location'][0]
-					break
+		# Get protein IDs with compartments
+		protein_ids = [protein['id'] for protein in all_proteins]
+		protein_compartments = sim_data.getter.get_compartments(protein_ids)
+		assert all([len(loc) == 1 for loc in protein_compartments])
+		protein_ids_with_compartments = [
+			f'{protein_id}[{loc[0]}]' for (protein_id, loc)
+			in zip(protein_ids, protein_compartments)
+			]
+		n_proteins = len(protein_ids)
+		
+		# Get cistron IDs associated to each monomer
+		cistron_ids = [
+			monomer_id_to_cistron_id[protein['id']] for protein in all_proteins]
 
-			rnaIds.append('{}[{}]'.format(
-				rnaId,
-				rnaLocation
-				))
+		# Get lengths and amino acids counts of each protein
+		protein_seqs = sim_data.getter.get_sequences(protein_ids)
+		lengths = [len(seq) for seq in protein_seqs]
+		aa_counts = [
+			[seq.count(aa) for aa in sim_data.amino_acid_code_to_id_ordered.keys()]
+			for seq in protein_seqs]
+		n_amino_acids = len(sim_data.amino_acid_code_to_id_ordered)
 
-		lengths = []
-		aaCounts = []
-		sequences = []
-
-		for protein in raw_data.proteins:
-			sequence = protein['seq']
-
-			counts = []
-
-			for aa in sim_data.amino_acid_1_to_3_ordered.viewkeys():
-				counts.append(
-					sequence.count(aa)
-					)
-
-			lengths.append(len(sequence))
-			aaCounts.append(counts)
-			sequences.append(sequence)
-
-		maxSequenceLength = max(len(seq) for seq in sequences)
-
-		mws = np.array([protein['mw'] for protein in raw_data.proteins]).sum(axis = 1)
-
-		size = len(rnaIds)
-
-		nAAs = len(aaCounts[0])
+		# Get molecular weights
+		mws = sim_data.getter.get_masses(protein_ids).asNumber(units.g / units.mol)
 
 		# Calculate degradation rates based on N-rule
-		# TODO: citation
 		deg_rate_units = 1 / units.s
-		fastRate = (np.log(2) / (2*units.min)).asNumber(deg_rate_units)
-		slowRate = (np.log(2) / (10*60*units.min)).asNumber(deg_rate_units)
-		self.fastRate = fastRate
-
-		fastAAs = ["R", "K", "F", "L", "W", "Y"]
-		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
-		noDataAAs = ["P", "U"]
-
-		NruleDegRate = {}
-		NruleDegRate.update(
-			(fastAA, fastRate) for fastAA in fastAAs
-			)
-		NruleDegRate.update(
-			(slowAA, slowRate) for slowAA in slowAAs
-			)
-		NruleDegRate.update(
-			(noDataAA, slowRate) for noDataAA in noDataAAs
-			) # Assumed slow rate because of no data
+		n_end_rule_deg_rates = {
+			row['aa_code']: (np.log(2)/(row['half life'])).asNumber(deg_rate_units)
+			for row in raw_data.protein_half_lives_n_end_rule}
+		slow_deg_rate = min(n_end_rule_deg_rates.values())
 
 		# Build list of ribosomal proteins
 		# Give all ribosomal proteins the slowAA rule
 		ribosomalProteins = []
-		ribosomalProteins.extend([x[:-3] for x in sim_data.moleculeGroups.s30_proteins])
-		ribosomalProteins.extend([x[:-3] for x in sim_data.moleculeGroups.s50_proteins])
+		ribosomalProteins.extend([x[:-3] for x in sim_data.molecule_groups.s30_proteins])
+		ribosomalProteins.extend([x[:-3] for x in sim_data.molecule_groups.s50_proteins])
 
 		# Get degradation rates from measured protein half lives
-		measured_deg_rates = {}
-		if not disable_measured_protein_deg:
-			measured_deg_rates.update({
-				p['id']: (np.log(2) / p['half life']).asNumber(deg_rate_units)
-				for p in raw_data.protein_half_lives
-				})
+		measured_deg_rates = {
+			p['id']: (np.log(2) / p['half life']).asNumber(deg_rate_units)
+			for p in raw_data.protein_half_lives_measured
+			}
 
-		degRate = np.zeros(len(raw_data.proteins))
-		isRProtein = []
-		for i,m in enumerate(raw_data.proteins):
-			if m['id'] in measured_deg_rates:
-				degRate[i] = measured_deg_rates[m['id']]
-				isRProtein.append(m['id'] in ribosomalProteins)
-			elif m['id'] in ribosomalProteins:
-				degRate[i] = slowRate
-				isRProtein.append(True)
+		deg_rate = np.zeros(len(all_proteins))
+		for i, protein in enumerate(all_proteins):
+			if protein['id'] in measured_deg_rates:
+				deg_rate[i] = measured_deg_rates[protein['id']]
+			elif protein['id'] not in ribosomalProteins:
+				deg_rate[i] = n_end_rule_deg_rates[protein['seq'][0]]
 			else:
-				degRate[i] = NruleDegRate[m['seq'][0]]
-				isRProtein.append(False)
-		monomerData = np.zeros(
-			size,
+				deg_rate[i] = slow_deg_rate
+
+		max_protein_id_length = max(
+			len(protein_id) for protein_id in protein_ids_with_compartments)
+		max_cistron_id_length = max(
+			len(cistron_id) for cistron_id in cistron_ids)
+		monomer_data = np.zeros(
+			n_proteins,
 			dtype = [
-				('id', 'a50'),
-				('rnaId', 'a50'),
-				('degRate', 'f8'),
+				('id', 'U{}'.format(max_protein_id_length)),
+				('cistron_id', 'U{}'.format(max_cistron_id_length)),
+				('deg_rate', 'f8'),
 				('length', 'i8'),
-				('aaCounts', '{}i8'.format(nAAs)),
+				('aa_counts', '{}i8'.format(n_amino_acids)),
 				('mw', 'f8'),
-				('sequence', 'a{}'.format(maxSequenceLength)),
-				('isRProtein', 'bool'),
 				]
 			)
 
-		monomerData['id'] = ids
-		monomerData['rnaId'] = rnaIds
-		monomerData['degRate'] = degRate
-		monomerData['length'] = lengths
-		monomerData['aaCounts'] = aaCounts
-		monomerData['mw'] = mws
-		monomerData['sequence'] = sequences
-		monomerData['isRProtein'] = isRProtein
+		monomer_data['id'] = protein_ids_with_compartments
+		monomer_data['cistron_id'] = cistron_ids
+		monomer_data['deg_rate'] = deg_rate
+		monomer_data['length'] = lengths
+		monomer_data['aa_counts'] = aa_counts
+		monomer_data['mw'] = mws
 
 		field_units = {
-			'id'		:	None,
-			'rnaId'		:	None,
-			'degRate'	:	deg_rate_units,
-			'length'	:	units.aa,
-			'aaCounts'	:	units.aa,
-			'mw'		:	units.g / units.mol,
-			'sequence'  :   None,
-			'isRProtein':   None,
+			'id': None,
+			'cistron_id': None,
+			'deg_rate': deg_rate_units,
+			'length': units.aa,
+			'aa_counts': units.aa,
+			'mw': units.g / units.mol,
 			}
 
-		self.monomerData = UnitStructArray(monomerData, field_units)
+		self.monomer_data = UnitStructArray(monomer_data, field_units)
+		self.n_monomers = len(self.monomer_data)
 
-	def _buildTranslation(self, raw_data, sim_data):
-		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
+	def _build_translation(self, raw_data, sim_data):
+		sequences = sim_data.getter.get_sequences(
+			[protein_id[:-3] for protein_id in self.monomer_data['id']])
 
-		maxLen = np.int64(
-			self.monomerData["length"].asNumber().max()
-			+ sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
-			)
+		max_len = np.int64(
+			self.monomer_data["length"].asNumber().max()
+			+ self.max_time_step * sim_data.constants.ribosome_elongation_rate_max.asNumber(units.aa / units.s)
+			) + self.next_aa_pad
 
-		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
-		self.translationSequences.fill(polymerize.PAD_VALUE)
-
-		aaIDs_singleLetter = sim_data.amino_acid_1_to_3_ordered.keys()
-
-		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
-
+		self.translation_sequences = np.full((len(sequences), max_len), polymerize.PAD_VALUE, dtype=np.int8)
+		aa_ids_single_letter = six.viewkeys(sim_data.amino_acid_code_to_id_ordered)
+		aaMapping = {aa: i for i, aa in enumerate(aa_ids_single_letter)}
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):
-				self.translationSequences[i, j] = aaMapping[letter]
+				self.translation_sequences[i, j] = aaMapping[letter]
 
-		aaIDs = sim_data.amino_acid_1_to_3_ordered.values()
+		aaIDs = list(sim_data.amino_acid_code_to_id_ordered.values())
 
-		self.translationMonomerWeights = (
+		self.translation_monomer_weights = (
 			(
-				sim_data.getter.getMass(aaIDs)
-				- sim_data.getter.getMass(["WATER[c]"])
+				sim_data.getter.get_masses(aaIDs)
+				- sim_data.getter.get_masses([sim_data.molecule_ids.water])
 				)
-			/ raw_data.constants['nAvogadro']
+			/ sim_data.constants.n_avogadro
 			).asNumber(units.fg)
+		self.translation_end_weight = (sim_data.getter.get_masses([sim_data.molecule_ids.water]) / sim_data.constants.n_avogadro).asNumber(units.fg)
 
-		self.translationEndWeight = (sim_data.getter.getMass(["WATER[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)
+	def _build_translation_efficiency(self, raw_data, sim_data):
+		monomer_ids = [
+			protein_id[:-3] for protein_id in self.monomer_data['id']]
 
-	def _buildTranslationEfficiency(self, raw_data, sim_data, alternate_translation_efficiency):
-		"""
-		Since the translation efficiency data set from Li et al. 2014 does not
-		report a measurement for all genes, genes that do not have a measurement
-		are assigned the average translation efficiency.
+		# Get mappings from monomer IDs to gene IDs
+		monomer_id_to_rna_id = {
+			rna['monomer_ids'][0]: rna['id']
+			for rna in raw_data.rnas
+			if len(rna['monomer_ids']) > 0}
+		rna_id_to_gene_id = {
+			gene['rna_ids'][0]: gene['id'] for gene in raw_data.genes}
+		monomer_id_to_gene_id = {
+			monomer_id: rna_id_to_gene_id[monomer_id_to_rna_id[monomer_id]]
+			for monomer_id in monomer_ids}
 
-		If alternate_translation_efficiency is set to True, the translation
-		efficiency described by Mohammad et al. 2019 is used instead.
-		"""
-		monomerIds = [x["id"].encode("utf-8") + "[" + sim_data.getter.getLocation([x["id"]])[0][0] + "]" for x in raw_data.proteins]
-		monomerIdToGeneId = dict([(x["id"].encode("utf-8") + "[" + sim_data.getter.getLocation([x["id"]])[0][0] + "]", x["geneId"].encode("utf-8")) for x in raw_data.proteins])
+		# Get mappings from gene IDs to translation efficiencies
+		gene_id_to_trl_eff = {
+			x["geneId"]: x["translationEfficiency"]
+			for x in raw_data.translation_efficiency
+			if type(x["translationEfficiency"]) == float}
 
-		if alternate_translation_efficiency:
-			geneIdToTrEff = dict(
-				[(x["geneId"].encode("utf-8"), x["translationEfficiency"]) for x in raw_data.translationEfficiency_alternate])
-		else:
-			geneIdToTrEff = dict([(x["geneId"].encode("utf-8"), x["translationEfficiency"]) for x in raw_data.translationEfficiency if type(x["translationEfficiency"]) == float])
+		trl_effs = []
+		for monomer_id in monomer_ids:
+			gene_id = monomer_id_to_gene_id[monomer_id]
 
-		trEffs = []
-		for monomerId in monomerIds:
-			geneId = monomerIdToGeneId[monomerId]
-			if geneId in geneIdToTrEff:
-				trEffs.append(geneIdToTrEff[geneId])
+			if gene_id in gene_id_to_trl_eff:
+				trl_effs.append(gene_id_to_trl_eff[gene_id])
 			else:
-				trEffs.append(np.nan)
+				trl_effs.append(np.nan)
 
-		self.translationEfficienciesByMonomer = np.array(trEffs)
-		self.translationEfficienciesByMonomer[np.isnan(self.translationEfficienciesByMonomer)] = np.nanmean(self.translationEfficienciesByMonomer)
-
-	def _build_ribosomal_proteins(self, raw_data, sim_data):
-		self.ribosomal_proteins = [
-			rprotein['id'] + rprotein['location']
-			for rprotein in raw_data.ribosomal_protein_transcripts]
+		# If efficiency is unavailable, the average of existing effciencies
+		# is used
+		self.translation_efficiencies_by_monomer = np.array(trl_effs)
+		self.translation_efficiencies_by_monomer[
+			np.isnan(self.translation_efficiencies_by_monomer)
+			] = np.nanmean(self.translation_efficiencies_by_monomer)
 
 	def _build_elongation_rates(self, raw_data, sim_data):
-		self.protein_ids = self.monomerData['id']
-		self.ribosomal_protein_ids = sim_data.moleculeGroups.rProteins
+		protein_ids = self.monomer_data['id']
+		ribosomal_protein_ids = sim_data.molecule_groups.ribosomal_proteins
 
-		self.protein_indexes = {
+		protein_indexes = {
 			protein: index
-			for index, protein in enumerate(self.protein_ids)}
+			for index, protein in enumerate(protein_ids)}
 
-		self.ribosomal_proteins = {
-			rprotein: self.protein_indexes.get(rprotein, -1)
-			for rprotein in self.ribosomal_protein_ids}
+		ribosomal_proteins = {
+			rprotein: protein_indexes.get(rprotein, -1)
+			for rprotein in ribosomal_protein_ids}
 
-		self.rprotein_indexes = np.array([
+		self.ribosomal_protein_indexes = np.array([
 			index
-			for index in self.ribosomal_proteins.values()
+			for index in sorted(ribosomal_proteins.values())
 			if index >= 0], dtype=np.int64)
 
-		self.base_elongation_rate = sim_data.constants.ribosomeElongationRateBase.asNumber(units.aa / units.s)
-		self.max_elongation_rate = sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+		self.basal_elongation_rate = sim_data.constants.ribosome_elongation_rate_basal.asNumber(units.aa / units.s)
+		self.max_elongation_rate = sim_data.constants.ribosome_elongation_rate_max.asNumber(units.aa / units.s)
 		self.elongation_rates = np.full(
-			self.protein_ids.shape,
-			self.base_elongation_rate,
+			self.n_monomers,
+			self.basal_elongation_rate,
 			dtype=np.int64)
 
-		self.elongation_rates[self.rprotein_indexes] = self.max_elongation_rate
-
-	def make_elongation_rates_flat(self, base, flat_elongation=False):
-		return make_elongation_rates_flat(
-			self.protein_ids.shape,
-			base,
-			self.rprotein_indexes,
-			self.max_elongation_rate,
-			flat_elongation)
+		self.elongation_rates[self.ribosomal_protein_indexes] = self.max_elongation_rate
 
 	def make_elongation_rates(
 			self,
 			random,
 			base,
 			time_step,
-			flat_elongation=False):
+			variable_elongation=False):
 
 		return make_elongation_rates(
 			random,
-			self.protein_ids.shape,
+			self.n_monomers,
 			base,
-			self.rprotein_indexes,
+			self.ribosomal_protein_indexes,
 			self.max_elongation_rate,
 			time_step,
-			flat_elongation)
+			variable_elongation)

@@ -1,0 +1,5 @@
+# Adjustments to get protein expression for certain enzymes required for metabolism				
+"name"	"value"	"units"	"_source"	"_comments"
+"ADENYLATECYC-MONOMER[c]"	"2.0/600"		"fit_sim_data_1.py"	"CyaA, adenylate cyclase; convert from 2 min to 10 hr half life to get expression in acetate condition (required for cAMP)"
+"SPOT-MONOMER[c]"	"2.0/600"		"fit_sim_data_1.py"	"SpoT, ppGpp phosphatase; convert from 2 min to 10 hr half life to better match expected protein counts"
+"EG12298-MONOMER[p]"	0.1		"fit_sim_data_1.py"	"yibQ, Predicted polysaccharide deacetylase; This protein is fit for the anaerobic condition"

@@ -1,0 +1,20 @@
+# Data from unpublished work from SRI (Paul O'Maille) in a plate reader with 4 replicates
+"Media"	"Average max growth rate (1/units.s)"	"Max growth rate standard deviation (1/units.s)"
+"minimal"	1.25e-4	2e-6
+"minimal_plus_L-ALPHA-ALANINE"	1.40e-4	7e-6
+"minimal_plus_ARG"	1.47e-4	6e-6
+"minimal_plus_ASN"	1.41e-4	1.5e-5
+"minimal_plus_L-ASPARTATE"	1.46e-4	1.3e-5
+"minimal_plus_GLT"	1.60e-4	6e-6
+"minimal_plus_GLN"	1.33e-4	9e-6
+"minimal_plus_GLY"	1.54e-4	8e-6
+"minimal_plus_HIS"	1.19e-4	6e-6
+"minimal_plus_ILE"	1.37e-4	6e-6
+"minimal_plus_LEU"	1.22e-4	1.3e-5
+"minimal_plus_LYS"	1.36e-4	7e-6
+"minimal_plus_MET"	1.31e-4	4e-6
+"minimal_plus_PHE"	1.25e-4	1.4e-5
+"minimal_plus_PRO"	1.51e-4	4e-6
+"minimal_plus_SER"	1.21e-4	8e-6
+"minimal_plus_THR"	1.42e-4	7e-6
+"minimal_plus_amino_acids"	3.02e-4	2.1e-5

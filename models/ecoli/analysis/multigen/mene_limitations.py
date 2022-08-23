@@ -1,134 +1,140 @@
-"""
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/12/2017
-"""
-
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from typing import cast
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from six.moves import cPickle, range
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.utils import units
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from models.ecoli.analysis import multigenAnalysisPlot
 
 FONTSIZE = 6
 LABELSIZE = 6
-
-ENZYME_COMPLEX_ID = "MENE-CPLX[c]"
-ENZYME_MONOMER_ID = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
-ENZYME_RNA_ID = "EG12437_RNA[c]"
-ENZYME_REACTION_ID = "O-SUCCINYLBENZOATE-COA-LIG-RXN"
-METABOLITE_IDS = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
+PLOT_DOWNSTREAM = True
 
 def clearLabels(axis):
 	axis.set_yticklabels([])
 	axis.set_ylabel("")
 
+def bold(lines):
+	for line in lines:
+		line.set_linewidth(2)
+
+def unbold(lines):
+	for line in lines:
+		line.set_linewidth(1)
+
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		enzymeComplexId = "MENE-CPLX[c]"
+		enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
+		enzyme_rna_cistron_id = "EG12437_RNA"
+		reactionId = "O-SUCCINYLBENZOATE-COA-LIG-RXN"
+		metaboliteIds = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
 
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		if 0 not in self.ap._path_data["seed"]:
+			print("Skipping -- figure5D only runs for seed 0")
+			return
+
+		allDir = self.ap.get_cells(seed = [0])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		cellDensity = sim_data.constants.cellDensity
-		rnaIds = sim_data.process.transcription.rnaData["id"]
+		cellDensity = sim_data.constants.cell_density
 
-		enzyme_rna_transcription_index = np.where(rnaIds == ENZYME_RNA_ID)[0][0]
+		cistron_ids = sim_data.process.transcription.cistron_data["id"]
 
 		simOutDir = os.path.join(allDir[0], "simOut")
-		bulk_molecules_reader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		fba_results_reader = TableReader(os.path.join(simOutDir, "FBAResults"))
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		moleculeIds = bulkMolecules.readAttribute("objectNames")
+		enzymeComplexIndex = moleculeIds.index(enzymeComplexId)
+		enzymeMonomerIndex = moleculeIds.index(enzymeMonomerId)
+		metaboliteIndexes = [moleculeIds.index(x) for x in metaboliteIds]
 
-		moleculeIDs = bulk_molecules_reader.readAttribute("objectNames")
-		reactionIDs = np.array(fba_results_reader.readAttribute("reactionIDs"))
+		mRNA_counts_reader = TableReader(
+			os.path.join(simOutDir, 'mRNACounts'))
+		all_mRNA_cistron_ids = mRNA_counts_reader.readAttribute('mRNA_cistron_ids')
+		enzyme_rna_cistron_index = all_mRNA_cistron_ids.index(enzyme_rna_cistron_id)
 
-		enzyme_complex_index = moleculeIDs.index(ENZYME_COMPLEX_ID)
-		enzyme_monomer_index = moleculeIDs.index(ENZYME_MONOMER_ID)
-		enzyme_rna_counts_index = moleculeIDs.index(ENZYME_RNA_ID)
-		metabolite_indexes = [moleculeIDs.index(x) for x in METABOLITE_IDS]
-		reaction_index = np.where(reactionIDs == ENZYME_REACTION_ID)[0][0]
-
-		# Initialize arrays
 		time = []
-		enzyme_fluxes = []
-		enzyme_complex_counts = []
-		enzyme_monomer_counts = []
-		enzyme_rna_counts = []
-		enzyme_rna_init_events = []
-		metabolite_counts = np.empty((0, len(METABOLITE_IDS)))
+		enzymeFluxes = []
+		enzymeComplexCounts = []
+		enzymeMonomerCounts = []
+		enzyme_rna_cistron_counts = []
+		enzymeRnaInitEvent = []
+		metaboliteCounts = np.array([])
 
 		cellMass = []
 		dryMass = []
 		timeStepSec = []
 		generationTicks = [0.]
 
-		n_transcription_init_events_per_gen = []
-		enzyme_complex_avg_counts = []
+		nTranscriptionInitEventsPerGen = []
+		nAvgTetramersPerGen = []
 
-		for simDir in allDir:
+		for gen, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			main_reader = TableReader(os.path.join(simOutDir, "Main"))
-			mass_reader = TableReader(os.path.join(simOutDir, "Mass"))
-			bulk_molecules_reader = TableReader(
-				os.path.join(simOutDir, "BulkMolecules"))
-			fba_results_reader = TableReader(os.path.join(simOutDir, "FBAResults"))
-			rnap_data_reader = TableReader(os.path.join(simOutDir, "RnapData"))
-
-			time.extend(main_reader.readColumn("time").tolist())
+			time += main_reader.readColumn("time").tolist()
 			generationTicks.append(time[-1])
+			timeStepSec += main_reader.readColumn("timeStepSec").tolist()
 
-			timeStepSec.extend(main_reader.readColumn("timeStepSec").tolist())
-			cellMass.extend(mass_reader.readColumn("cellMass").tolist())
-			dryMass.extend(mass_reader.readColumn("dryMass").tolist())
+			mass = TableReader(os.path.join(simOutDir, "Mass"))
+			cellMass += mass.readColumn("cellMass").tolist()
+			dryMass += mass.readColumn("dryMass").tolist()
 
-			molecule_counts = bulk_molecules_reader.readColumn("counts")
-			enzyme_monomer_counts.extend(molecule_counts[:, enzyme_monomer_index].tolist())
-			enzyme_rna_counts.extend(molecule_counts[:, enzyme_rna_counts_index].tolist())
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeCounts = bulkMolecules.readColumn("counts")
+			enzymeComplexCountsInThisGen = moleculeCounts[:, enzymeComplexIndex].tolist()
+			enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
+			enzymeComplexCounts += enzymeComplexCountsInThisGen
+			nAvgTetramersPerGen.append(np.mean(enzymeComplexCountsInThisGen))
 
-			enzyme_complex_counts_this_gen = molecule_counts[:, enzyme_complex_index]
-			enzyme_complex_counts.extend(enzyme_complex_counts_this_gen.tolist())
-			enzyme_complex_avg_counts.append(np.mean(enzyme_complex_counts_this_gen))
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			mRNA_cistron_counts = mRNA_counts_reader.readColumn('mRNA_cistron_counts')
+			enzyme_rna_cistron_counts += mRNA_cistron_counts[:, enzyme_rna_cistron_index].tolist()
 
-			metabolite_counts = np.vstack((
-				metabolite_counts, molecule_counts[:, metabolite_indexes]))
+			if gen == 0:
+				metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
+			else:
+				metaboliteCounts = np.vstack((metaboliteCounts, moleculeCounts[:, metaboliteIndexes]))
 
-			reactionFluxes = np.array(fba_results_reader.readColumn("reactionFluxes"))
-			enzyme_fluxes.extend(reactionFluxes[:, reaction_index].tolist())
+			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+			reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
+			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
 
-			rna_init_events_this_gen = rnap_data_reader.readColumn("rnaInitEvent")[:, enzyme_rna_transcription_index]
+			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+			rnaInitEventsInThisGen = rnapDataReader.readColumn("rna_init_event_per_cistron")[:, np.where(cistron_ids == enzyme_rna_cistron_id)[0][0]].tolist()
 
-			enzyme_rna_init_events.extend(rna_init_events_this_gen.tolist())
-			n_transcription_init_events_per_gen.append(np.sum(rna_init_events_this_gen))
+			enzymeRnaInitEvent += rnaInitEventsInThisGen
+			nTranscriptionInitEventsPerGen.append(np.sum(rnaInitEventsInThisGen))
 
-		coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * (timeStepSec * units.s) * cellDensity
-		enzyme_fluxes = (((COUNTS_UNITS / VOLUME_UNITS) * enzyme_fluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
-
-		# Convert time to hours
 		time = np.array(time)
-		time_hours = time / 3600.
+
+		coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)
+		enzymeFluxes = (((COUNTS_UNITS // VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
+
+		averages = []
+		indices = [np.where(time == x)[0][0] for x in generationTicks]
+		for x in np.arange(len(indices) - 1):
+			avg = np.average(enzymeComplexCounts[indices[x]:indices[x+1]])
+			averages.append(avg)
 
 		# Plot
-		plt.figure(figsize = (11, 8.5))
-		plt.suptitle("O-succinylbenzoate-CoA ligase downstream behaviors", fontsize = FONTSIZE)
-
-		# Define axes
+		fig = plt.figure(figsize = (7, 7))
+		plt.suptitle("O-succinylbenzoate-CoA ligase downstream behaviors", fontsize = FONTSIZE
+			)
 		rnaInitAxis = plt.subplot(6, 1, 1)
 		rnaAxis = plt.subplot(6, 1, 2, sharex = rnaInitAxis)
 		monomerAxis = plt.subplot(6, 1, 3, sharex = rnaInitAxis)
@@ -136,53 +142,47 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		fluxAxis = plt.subplot(6, 1, 5, sharex = rnaInitAxis)
 		metAxis = plt.subplot(6, 1, 6)
 
-		# Plot transcription initiation events
-		rnaInitAxis.plot(time_hours, enzyme_rna_init_events, c = "b")
+		rnaInitLine = rnaInitAxis.plot(time / 3600., enzymeRnaInitEvent)
 		rnaInitAxis.set_ylabel(r"$menE$" + "\n transcription\nevents", fontsize = FONTSIZE, rotation = 0)
 		rnaInitAxis.yaxis.set_label_coords(-.1, 0.25)
-		rnaInitAxis.set_xlim([time_hours[0], time_hours[-1]])
 		whitePadSparklineAxis(rnaInitAxis, xAxis = False)
-		rnaInitAxis.set_yticks([0, 1])
 
-		rnaAxis.plot(time_hours, enzyme_rna_counts, c = "b")
+		rnaLine = rnaAxis.plot(time / 3600., enzyme_rna_cistron_counts)
 		rnaAxis.set_ylabel("menE mRNA\ncounts", fontsize = FONTSIZE, rotation = 0)
 		rnaAxis.yaxis.set_label_coords(-.1, 0.25)
 		whitePadSparklineAxis(rnaAxis, xAxis = False)
-		rnaAxis.set_yticks([0, max(enzyme_rna_counts)])
 
-		monomerAxis.plot(time_hours, enzyme_monomer_counts, c = "b")
+		monomerLine = monomerAxis.plot(time / 3600., enzymeMonomerCounts)
 		monomerAxis.set_ylabel("MenE monomer\ncounts", fontsize = FONTSIZE, rotation = 0)
 		monomerAxis.yaxis.set_label_coords(-.1, 0.25)
 		whitePadSparklineAxis(monomerAxis, xAxis = False)
-		monomerAxis.set_yticks([0, 4, max(enzyme_monomer_counts)])
+		monomerAxis.set_yticks([0, 4, monomerAxis.get_ylim()[1]])
+		monomerAxis.set_yticklabels(["0", "4", "%s" % monomerAxis.get_ylim()[1]])
 
-		complexAxis.plot(time_hours, enzyme_complex_counts, c = "b")
+		complexLine = complexAxis.plot(time / 3600., enzymeComplexCounts)
 		complexAxis.set_ylabel("MenE tetramer\ncounts", fontsize = FONTSIZE, rotation = 0)
 		complexAxis.yaxis.set_label_coords(-.1, 0.25)
 		whitePadSparklineAxis(complexAxis, xAxis = False)
-		complexAxis.set_yticks([0, max(enzyme_complex_counts)])
 
-		fluxAxis.plot(time_hours, enzyme_fluxes, c = "b")
+		fluxLine = fluxAxis.plot(time / 3600., enzymeFluxes)
 		fluxAxis.set_ylabel("SUCBZL flux\n(mmol/gDCW/hour)", fontsize = FONTSIZE, rotation = 0)
 		fluxAxis.yaxis.set_label_coords(-.1, 0.25)
 		whitePadSparklineAxis(fluxAxis, xAxis = False)
-		fluxAxis.set_yticks([min(enzyme_fluxes), max(enzyme_fluxes)])
 
-		metAxis.plot(time_hours, np.sum(metabolite_counts, axis = 1), c = "b")
+		metLine = metAxis.plot(time / 3600., np.sum(metaboliteCounts, axis = 1))
 		metAxis.set_ylabel("End product\ncounts", fontsize = FONTSIZE, rotation = 0)
 		metAxis.yaxis.set_label_coords(-.1, 0.25)
 		metAxis.set_xlabel("Time (hour)\ntickmarks at each new generation", fontsize = FONTSIZE)
 		metAxis.set_ylim([metAxis.get_ylim()[0] * 0.2, metAxis.get_ylim()[1]])
-		metAxis.set_xlim([time_hours[0], time_hours[-1]])
 		whitePadSparklineAxis(metAxis)
 		metAxis.set_yticklabels(["%0.1e" % metAxis.get_ylim()[0], "%0.1e" % metAxis.get_ylim()[1]])
 		metAxis.set_xticks(np.array(generationTicks) / 3600.)
 		xticklabels = np.repeat("     ", len(generationTicks))
 		xticklabels[0] = "0"
-		xticklabels[-1] = "%0.2f" % (time_hours[-1])
+		xticklabels[-1] = "%0.2f" % (time[-1] / 3600.)
 		metAxis.set_xticklabels(xticklabels)
 
-		noComplexIndexes = np.where(np.array(enzyme_complex_counts) == 0)[0]
+		noComplexIndexes = np.where(np.array(enzymeComplexCounts) == 0)[0]
 		patchStart = []
 		patchEnd = []
 		if len(noComplexIndexes):
@@ -198,26 +198,93 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
 		for axis in axesList:
 			axis.tick_params(labelsize = LABELSIZE)
-			for i in xrange(len(patchStart)):
-				width = time_hours[patchEnd[i]] - time_hours[patchStart[i]]
+			for i in range(len(patchStart)):
+				width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
 				if width <= 0.1:
 					continue
 
 				height = axis.get_ylim()[1] - axis.get_ylim()[0]
-				axis.add_patch(patches.Rectangle((time_hours[patchStart[i]], axis.get_ylim()[0]), width, height, alpha = 0.25, color = "gray", linewidth = 0.))
+				axis.add_patch(patches.Rectangle((time[patchStart[i]] / 3600., axis.get_ylim()[0]), width, height, alpha = 0.25, color = "gray", linewidth = 0.))
 
 		plt.subplots_adjust(hspace = 0.5, right = 0.9, bottom = 0.1, left = 0.15, top = 0.9)
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-		# Get clean version of plot
+		lineList = [rnaInitLine, rnaLine, monomerLine, complexLine, fluxLine, metLine]
+		axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
+		for l in lineList:
+			bold(l)
+		exportFigure(plt, plotOutDir, plotOutFileName + "__boldLines", metadata)
+
+		for l in lineList:
+			unbold(l)
 		for a in axesList:
 			clearLabels(a)
-
 		plt.suptitle("")
 		metAxis.set_xticklabels([])
 		metAxis.set_xlabel("")
 		exportFigure(plt, plotOutDir, plotOutFileName + "__clean", "")
 		plt.close("all")
+
+		if PLOT_DOWNSTREAM:
+			fig, axesList = plt.subplots(12, figsize = (14, 14))
+			plt.subplots_adjust(hspace = 0.5, right = 0.95, bottom = 0.05, left = 0.15, top = 0.95)
+			enzymeIds = ["MENE-CPLX[c]", "CPLX0-7882[c]", "CPLX0-8128[c]", "DMK-MONOMER[i]", "2-OCTAPRENYL-METHOXY-BENZOQ-METH-MONOMER[c]"]
+			reactionIds = ["O-SUCCINYLBENZOATE-COA-LIG-RXN", "NAPHTHOATE-SYN-RXN", "RXN-9311", "DMK-RXN", "ADOMET-DMK-METHYLTRANSFER-RXN"]
+			reactantIds = ["CPD-12115[c]"]
+
+			for gen, simDir in enumerate(allDir):
+				simOutDir = os.path.join(simDir, "simOut")
+
+				main_reader = TableReader(os.path.join(simOutDir, "Main"))
+				time_ = main_reader.readColumn("time")
+				timeStepSec = main_reader.readColumn("timeStepSec")
+
+				mass = TableReader(os.path.join(simOutDir, "Mass"))
+				cellMass = mass.readColumn("cellMass")
+				dryMass = mass.readColumn("dryMass")
+
+				(enzymeCounts, metCounts, reactantCounts) = read_bulk_molecule_counts(
+					simOutDir, (enzymeIds, metaboliteIds[:1], reactantIds))
+
+				fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+				reactionIDs_ = cast(list, np.array(fbaResults.readAttribute("reactionIDs")).tolist())
+				reactionIndexes = [reactionIDs_.index(x) for x in reactionIds]
+				reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
+				enzymeFluxes = reactionFluxes[:, reactionIndexes]
+				fbaResults.close()
+
+				coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (units.s * timeStepSec)
+
+				for i, row in enumerate(range(0, 2 * len(enzymeIds), 2)):
+					countAxis = axesList[row]
+					fluxAxis = axesList[row + 1]
+					plotFlux = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes[:, i]) / coefficient).asNumber(units.mmol / units.g / units.h)
+					countAxis.plot(time_ / 3600., enzymeCounts[:, i], color = "b")
+					fluxAxis.plot(time_ / 3600., plotFlux, color = "b")
+				axesList[-2].plot(time_ / 3600., reactantCounts, color = "b")
+				axesList[-1].plot(time_ / 3600., metCounts, color = "b")
+
+			ylabels = ["menE", "menB", "menI", "menA", "ubiE", "CPD-12115", "Menaquinone"]
+			for i, axis in enumerate(axesList[::2]):
+				axis.set_xlim([0, time_[-1] / 3600.])
+				axis.set_ylabel("%s" % ylabels[i], rotation = 0)
+				whitePadSparklineAxis(axis, False)
+			for axis in axesList[1::2]:
+				axis.set_xlim([0, time_[-1] / 3600.])
+				whitePadSparklineAxis(axis)
+			axesList[-1].set_ylabel(ylabels[-1], rotation = 0)
+
+			for axis in axesList:
+				for i in range(len(patchStart)):
+					width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
+					if width <= 0.1:
+						continue
+
+					height = axis.get_ylim()[1] - axis.get_ylim()[0]
+					axis.add_patch(patches.Rectangle((time[patchStart[i]] / 3600., axis.get_ylim()[0]), width, height, alpha = 0.25, color = "gray", linewidth = 0.))
+
+			plt.subplots_adjust(hspace = 0.5, right = 0.95, bottom = 0.05, left = 0.11, top = 0.95)
+			exportFigure(plt, plotOutDir, plotOutFileName + "__downstreamFluxes", metadata)
 
 
 if __name__ == "__main__":

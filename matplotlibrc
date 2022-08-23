@@ -1,3 +1,6 @@
 # Set the backend globally to Agg (non-interactive backend)
 backend: Agg
 
+# Set for editable text in illustrator with a widely available font
+pdf.fonttype: 42
+font.sans-serif: Arial

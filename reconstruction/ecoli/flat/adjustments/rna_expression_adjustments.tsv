@@ -1,0 +1,12 @@
+# Adjustments to get protein expression for certain enzymes required for metabolism
+"name"	"value"	"units"	"_source"	"_comments"
+"EG11493_RNA"	10		"fit_sim_data_1.py"	"pabC, aminodeoxychorismate lyase"
+"EG12438_RNA"	10		"fit_sim_data_1.py"	"menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase"
+"EG12298_RNA"	10		"fit_sim_data_1.py"	"yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability"
+"EG11672_RNA"	10		"fit_sim_data_1.py"	"atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability"
+"EG10236_RNA"	10		"fit_sim_data_1.py"	"dnaB, replicative DNA helicase; This RNA is fit for the sims to produce enough DNAPs for timely replication in anaerobic condition"
+"EG10238_RNA"	10		"fit_sim_data_1.py"	"dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication"
+"EG11673_RNA"	10		"fit_sim_data_1.py"	"folB, dihydroneopterin aldolase; needed for growth (METHYLENE-THF) in acetate condition"
+"EG10808_RNA"	4		"fit_sim_data_1.py"	"pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model"
+"EG10581_RNA"	10			"metA, homoserine O-succinyltransferase; Met synthesis enzyme with low protein expression on aa_synthesis_enzymes parca analysis plot"
+"EG10091_RNA"	10			"asnA, asparagine synthetase A; Asn synthesis enzyme with low protein expression on aa_synthesis_enzymes parca analysis plot"

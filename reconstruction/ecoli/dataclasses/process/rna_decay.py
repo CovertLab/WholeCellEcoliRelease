@@ -1,18 +1,13 @@
 """
 SimulationData for rna decay process
-
-@author: Javier Carrera
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 08/18/2015
 """
 
-from __future__ import division
-
 from wholecell.utils import units
-from wholecell.utils.unit_struct_array import UnitStructArray
+
+import aesara.tensor as T
+from aesara import function, gradient
 import numpy as np
-import theano.tensor as T
-import theano
+
 
 class RnaDecay(object):
 	""" RnaDecay """
@@ -21,14 +16,12 @@ class RnaDecay(object):
 		self._buildRnaDecayData(raw_data, sim_data)
 
 	def _buildRnaDecayData(self, raw_data, sim_data):
-		self.mrna_index = 2
-		self.rrna_index = 3
-		self.trna_index = 4
-		self.rtrna_index = 5
-
-		self.endoRnaseIds = [x["endoRnase"].encode("utf-8") for x in raw_data.endoRnases]
-		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRnases])
-		self.StatsFit = {
+		_ = sim_data  # unused
+		self.endoRNase_ids = [
+			x['endoRnase'] + sim_data.getter.get_compartment_tag(x['endoRnase'])
+			for x in raw_data.endoRNases]
+		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRNases])
+		self.stats_fit = {
 				'LossKm': 0.,
 				'LossKmOpt': 0.,
 				'RnegKmOpt': 0.,
@@ -41,56 +34,22 @@ class RnaDecay(object):
 			}
 
 		# store Residuals re-scaled (sensitivity analysis "alpha")
-		self.SensitivityAnalysisAlphaResidual = {}
-		self.SensitivityAnalysisAlphaRegulariNeg = {}
+		self.sensitivity_analysis_alpha_residual = {}
+		self.sensitivity_analysis_alpha_regular_i_neg = {}
 
 		# store Km's and Residuals re-scaled (sensitivity analysis "kcat EndoRNases")
-		self.SensitivityAnalysisKcat = {}
-		self.SensitivityAnalysisKcat_ResIni = {}
-		self.SensitivityAnalysisKcat_ResOpt = {}
+		self.sensitivity_analysis_kcat = {}
+		self.sensitivity_analysis_kcat_res_ini = {}
+		self.sensitivity_analysis_kcat_res_opt = {}
 
 		# store Km's from first-order RNA decay
-		self.KmFirstOrderDecay = []
+		self.Km_first_order_decay = []
 
 		# store convergence of non-linear Km's (G(km))
-		self.KmConvergence = []
+		self.Km_convergence = []
 
 
-		self.TargetEndoRNasesFullMRNA = np.zeros(len(self.endoRnaseIds))
-		self.TargetEndoRNasesFullTRNA = np.zeros(len(self.endoRnaseIds))
-		self.TargetEndoRNasesFullRRNA = np.zeros(len(self.endoRnaseIds))
-
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG10856-MONOMER[p]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG10857-MONOMER[c]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("G7175-MONOMER[c]")] = 0
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG10859-MONOMER[i]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG11299-MONOMER[c]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG10860-MONOMER[c]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG10861-MONOMER[c]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("G7365-MONOMER[c]")] = self.mrna_index
-		self.TargetEndoRNasesFullMRNA[self.endoRnaseIds.index("EG10862-MONOMER[c]")] = self.mrna_index
-
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG10856-MONOMER[p]")] = self.trna_index
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG10857-MONOMER[c]")] = 0
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("G7175-MONOMER[c]")] = 1
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG10859-MONOMER[i]")] = self.trna_index
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG11299-MONOMER[c]")] = 0
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG10860-MONOMER[c]")] = self.trna_index
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG10861-MONOMER[c]")] = self.trna_index
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("G7365-MONOMER[c]")] = self.trna_index
-		self.TargetEndoRNasesFullTRNA[self.endoRnaseIds.index("EG10862-MONOMER[c]")] = self.trna_index
-
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10856-MONOMER[p]")] = self.rrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10857-MONOMER[c]")] = self.rtrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("G7175-MONOMER[c]")] = 0
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10859-MONOMER[i]")] = self.rrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG11299-MONOMER[c]")] = self.rtrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10860-MONOMER[c]")] = self.rrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10861-MONOMER[c]")] = self.rrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("G7365-MONOMER[c]")] = self.rrna_index
-		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10862-MONOMER[c]")] = self.rrna_index
-
-	def kmLossFunction(self, vMax, rnaConc, kDeg, isEndoRnase, alpha):
+	def km_loss_function(self, vMax, rnaConc, kDeg, isEndoRnase, alpha):
 		'''
 		Generates the functions used for estimating the per-RNA affinities (Michaelis-Menten
 		constants) to the endoRNAses.
@@ -133,7 +92,7 @@ class RnaDecay(object):
 		The root finder, provided with L, will attempt to make each element of L as close to zero
 		as possible, and therefore minimize both R and Rneg.
 
-		The third-party package Theano is used to create the functions and find an analytic
+		The third-party package Aesara (formerly Theano) creates the functions and finds an analytic
 		expression for the Jacobian.
 
 		Parameters
@@ -180,16 +139,11 @@ class RnaDecay(object):
 		TODO (John): Why is this needed?  It seems redundant.
 		TODO (John): How do we know this weight is sufficient?
 
-		All of the outputs are Theano functions, and take a 1-D array of Michaelis-Menten constants
+		All of the outputs are Aesara functions, and take a 1-D array of Michaelis-Menten constants
 		as their sole inputs.  All of the functions return a 1-D array, with the exception of the
 		Jacobians, which return matrices.
 
 		TODO (John): Remove the redundant outputs.
-
-		TODO (John): Look into removing Theano, since it is no longer maintained.  We could use
-		another package with similar functionality (analytic differentiation on algebraic
-		functions), or replace the Theano operations with hand-computed solutions (difficult, as
-		the Jacobian is probably very complicated).
 
 		TODO (John): Consider redesigning this as an objective minimization problem rather than a
 		root finding problem.
@@ -222,16 +176,16 @@ class RnaDecay(object):
 		LossFunction = T.log(T.exp(residual) + T.exp(alpha * regularization)) - T.log(2)
 		LossFunction_aux = T.log(T.exp(residual_aux) + T.exp(alpha * regularization)) - T.log(2)
 
-		J = theano.gradient.jacobian(LossFunction, km)
-		J_aux = theano.gradient.jacobian(LossFunction_aux, km)
-		Jacob = theano.function([km], J)
-		Jacob_aux = theano.function([km], J_aux)
-		L = theano.function([km], LossFunction)
-		L_aux = theano.function([km], LossFunction_aux)
-		Rneg = theano.function([km], regularizationNegativeNumbers)
-		R = theano.function([km], residual)
-		Lp = theano.function([km], J)
-		Lp_aux = theano.function([km], J_aux)
-		R_aux = theano.function([km], residual_aux)
+		J = gradient.jacobian(LossFunction, km)
+		J_aux = gradient.jacobian(LossFunction_aux, km)
+		Jacob = function([km], J)
+		Jacob_aux = function([km], J_aux)
+		L = function([km], LossFunction)
+		L_aux = function([km], LossFunction_aux)
+		Rneg = function([km], regularizationNegativeNumbers)
+		R = function([km], residual)
+		Lp = function([km], J)
+		Lp_aux = function([km], J_aux)
+		R_aux = function([km], residual_aux)
 
 		return L, Rneg, R, Lp, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux

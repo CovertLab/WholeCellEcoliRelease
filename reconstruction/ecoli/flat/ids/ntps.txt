@@ -1,4 +1,0 @@
-ATP
-CTP
-GTP
-UTP

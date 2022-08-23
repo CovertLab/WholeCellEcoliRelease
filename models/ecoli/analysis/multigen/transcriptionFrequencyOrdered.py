@@ -1,170 +1,120 @@
 """
 Plots frequency of observing at least 1 transcript during a cell's life.
-
-@author: Heejo Choi
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/31/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-USE_CACHE = False
 N_GENES_TO_PLOT = -1
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
+		allDir = self.ap.get_cells()
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
-		essentialRnas = validation_data.essentialGenes.essentialRnas
+		essential_cistrons = validation_data.essential_genes.essential_cistrons
 
-		# Get mRNA data
+		# Get mRNA cistron data
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
-		mRnaIndexes = np.where(isMRna)[0]
+		cistron_ids = sim_data.process.transcription.cistron_data["id"]
+		is_mRNA = sim_data.process.transcription.cistron_data['is_mRNA']
+		mRNA_cistron_indexes = np.where(is_mRNA)[0]
+		mRNA_cistron_ids = np.array([cistron_ids[x] for x in mRNA_cistron_indexes])
 
-		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
-		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
+		# Get whether or not mRNAs were transcribed
+		time = []
+		transcribedBool = []
+		simulatedSynthProbs = []
+		transcriptionEvents = []
+		for gen, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-		if not USE_CACHE:
-			# Get whether or not mRNAs were transcribed
-			time = []
-			transcribedBool = []
-			simulatedSynthProbs = []
-			transcriptionEvents = []
-			for gen, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
 
-				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rna_synth_prob_per_cistron")[:, mRNA_cistron_indexes], axis = 0)
+			simulatedSynthProbs.append(simulatedSynthProb)
 
-				rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-				simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
-				rnaSynthProb.close()
-				simulatedSynthProbs.append(simulatedSynthProb)
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_cistron_counts")
+			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
+			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
+			transcribedBool.append(mRnasTranscribed)
 
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				moleculeIds = bulkMolecules.readAttribute("objectNames")
-				mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
-				moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-				bulkMolecules.close()
-				moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
-				mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
-				transcribedBool.append(mRnasTranscribed)
+			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+			rnaInitEvent = rnapDataReader.readColumn("rna_init_event_per_cistron")[:, mRNA_cistron_indexes]
 
-				rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-				rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")[:, mRnaIndexes]
-				rnapDataReader.close()
+			if gen == 0:
+				transcriptionEvents = (rnaInitEvent != 0)
+			else:
+				transcriptionEvents = np.vstack((transcriptionEvents, (rnaInitEvent != 0)))
 
-				if gen == 0:
-					transcriptionEvents = (rnaInitEvent != 0)
-				else:
-					transcriptionEvents = np.vstack((transcriptionEvents, (rnaInitEvent != 0)))
+		time = np.array(time)
+		transcribedBool = np.array(transcribedBool)
+		simulatedSynthProbs = np.array(simulatedSynthProbs)
 
-			time = np.array(time)
-			transcribedBool = np.array(transcribedBool)
-			simulatedSynthProbs = np.array(simulatedSynthProbs)
+		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
+		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
+		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
+		mRNA_cistron_ids_ordered = mRNA_cistron_ids[indexingOrder]
 
-			indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
-			transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
-			simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
-			transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
-			mRnaIdsOrdered = mRnaIds[indexingOrder]
+		alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
+		neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
+		sometimesPresentIndexes = np.array([x for x in np.arange(len(transcribedBoolOrdered)) if x not in alwaysPresentIndexes and x not in neverPresentIndexes])
+		colors = np.repeat("g", len(transcribedBoolOrdered))
+		colors[alwaysPresentIndexes] = "b"
+		colors[neverPresentIndexes] = "r"
 
-			alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
-			neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
-			sometimesPresentIndexes = np.array([x for x in np.arange(len(transcribedBoolOrdered)) if x not in alwaysPresentIndexes and x not in neverPresentIndexes])
-			colors = np.repeat("g", len(transcribedBoolOrdered))
-			colors[alwaysPresentIndexes] = "b"
-			colors[neverPresentIndexes] = "r"
+		# Assemble data
+		alwaysTranscriptionEvents_E = []
+		alwaysTranscriptionEvents_N = []
+		for i in alwaysPresentIndexes:
+			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
+			if transcriptionEventsOrdered[:, i].sum() == 0:
+				v = [-1]
 
-			# Assemble data
-			alwaysTranscriptionEvents_E = []
-			alwaysTranscriptionEvents_N = []
-			alwaysId_E = []
-			alwaysId_N = []
-			for i in alwaysPresentIndexes:
-				v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
-				if transcriptionEventsOrdered[:, i].sum() == 0:
-					v = [-1]
+			if mRNA_cistron_ids_ordered[i] in essential_cistrons:
+				alwaysTranscriptionEvents_E.append(v)
+			else:
+				alwaysTranscriptionEvents_N.append(v)
 
-				if mRnaIdsOrdered[i] in essentialRnas:
-					alwaysTranscriptionEvents_E.append(v)
-				else:
-					alwaysTranscriptionEvents_N.append(v)
-			
-			neverTranscriptionEvents_E = []
-			neverTranscriptionEvents_N = []
-			for i in neverPresentIndexes:
-				v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
-				if transcriptionEventsOrdered[:, i].sum() == 0:
-					v = [-1]
-				
-				if mRnaIdsOrdered[i] in essentialRnas:
-					neverTranscriptionEvents_E.append(v)
-				else:
-					neverTranscriptionEvents_N.append(v)
+		neverTranscriptionEvents_E = []
+		neverTranscriptionEvents_N = []
+		for i in neverPresentIndexes:
+			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
+			if transcriptionEventsOrdered[:, i].sum() == 0:
+				v = [-1]
+
+			if mRNA_cistron_ids_ordered[i] in essential_cistrons:
+				neverTranscriptionEvents_E.append(v)
+			else:
+				neverTranscriptionEvents_N.append(v)
 
 
-			sometimesTranscriptionEvents_E = []
-			sometimesTranscriptionEvents_N = []
-			for i in sometimesPresentIndexes:
-				v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
-				if transcriptionEventsOrdered[:, i].sum() == 0:
-					v = [-1]
-				
-				if mRnaIdsOrdered[i] in essentialRnas:
-					sometimesTranscriptionEvents_E.append(v)
-				else:
-					sometimesTranscriptionEvents_N.append(v)
+		sometimesTranscriptionEvents_E = []
+		sometimesTranscriptionEvents_N = []
+		for i in sometimesPresentIndexes:
+			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
+			if transcriptionEventsOrdered[:, i].sum() == 0:
+				v = [-1]
 
-			cPickle.dump({
-				"time": time, 
-				"always_E": alwaysTranscriptionEvents_E,
-				"always_N": alwaysTranscriptionEvents_N, 
-				"never_E": neverTranscriptionEvents_E, 
-				"never_N": neverTranscriptionEvents_N,
-				"sometimes_E": sometimesTranscriptionEvents_E,
-				"sometimes_N": sometimesTranscriptionEvents_N,
-				"transcriptionFrequency": transcribedBoolOrdered,
-				"colors": colors,
-				"id": mRnaIdsOrdered,
-				}, open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "wb"))
-
-		if USE_CACHE:
-			D = cPickle.load(open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "r"))
-			time = D["time"]
-			alwaysTranscriptionEvents_E = D["always_E"]
-			alwaysTranscriptionEvents_N = D["always_N"]
-			neverTranscriptionEvents_E = D["never_E"]
-			neverTranscriptionEvents_N = D["never_N"]
-			sometimesTranscriptionEvents_E = D["sometimes_E"]
-			sometimesTranscriptionEvents_N = D["sometimes_N"]
-			transcribedBoolOrdered = D["transcriptionFrequency"]
-			colors = D["colors"]
-			mRnaIdsOrdered = D["id"]
+			if mRNA_cistron_ids_ordered[i] in essential_cistrons:
+				sometimesTranscriptionEvents_E.append(v)
+			else:
+				sometimesTranscriptionEvents_N.append(v)
 
 		# Plot
 		blue = [0, 0, 1]
@@ -183,14 +133,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		scatterAxis.set_title("Frequency of observing at least 1 transcript per generation\n(Genes ordered by simulated synthesis probability)", fontsize = 10)
 		scatterAxis.set_xlim([-1, len(transcribedBoolOrdered)])
 		scatterAxis.set_ylim([-0.1, 1.1])
-		scatterAxis.tick_params(top = "off")
-		scatterAxis.tick_params(right = "off")
+		scatterAxis.tick_params(top=False, right=False)
 		scatterAxis.tick_params(which = 'both', direction = 'out', labelsize = 8)
 
 		histAxis.hist(transcribedBoolOrdered, bins = len(allDir) + 1, orientation = 'horizontal', color = "k", alpha = 0.5)
 		histAxis.set_xscale("log")
 		histAxis.spines["right"].set_visible(False)
-		histAxis.tick_params(right = "off")
+		histAxis.tick_params(right=False)
 		histAxis.tick_params(which = 'both', direction = 'out', labelsize = 8)
 		histAxis.text(histAxis.get_xlim()[1] * 1.5, 0, "%s genes\n(%0.1f%%)" % (len(neverTranscriptionEvents_N) + len(neverTranscriptionEvents_E), 100. * (len(neverTranscriptionEvents_N) + len(neverTranscriptionEvents_E)) / float(len(transcribedBoolOrdered))), fontsize = 10, verticalalignment = "top")
 		histAxis.text(histAxis.get_xlim()[1] * 1.5, 1, "%s genes\n(%0.1f%%)" % (len(alwaysTranscriptionEvents_N) + len(alwaysTranscriptionEvents_E), 100. * (len(alwaysTranscriptionEvents_N) + len(alwaysTranscriptionEvents_E)) / float(len(transcribedBoolOrdered))), fontsize = 10, verticalalignment = "bottom")
@@ -201,7 +150,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		alwaysAxis.set_ylabel("Always present", fontsize = 10)
 		alwaysAxis.set_title("Transcription initiation events", fontsize = 10)
 		alwaysAxis.set_yticks([])
-		alwaysAxis.tick_params(top = "off")
+		alwaysAxis.tick_params(top=False)
 		alwaysAxis.tick_params(which = 'both', direction = 'out', labelsize = 8)
 		alwaysAxis.set_xlim([0, time[-1] / 3600.])
 		alwaysAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(alwaysTranscriptionEvents_E) + len(alwaysTranscriptionEvents_N)])])
@@ -211,7 +160,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sometimesAxis.eventplot(sometimesTranscriptionEvents_N + sometimesTranscriptionEvents_E, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [green] * len(sometimesTranscriptionEvents_N) + [gray] * len(sometimesTranscriptionEvents_E))
 		sometimesAxis.set_ylabel("Sub-generational", fontsize = 10)
 		sometimesAxis.set_yticks([])
-		sometimesAxis.tick_params(top = "off")
+		sometimesAxis.tick_params(top=False)
 		sometimesAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(sometimesTranscriptionEvents_E) + len(sometimesTranscriptionEvents_N)])])
 		sometimesAxis.tick_params(which = 'both', direction = 'out', labelsize = 8)
 		sometimesAxis.text(sometimesAxis.get_xlim()[1] * 1.02, len(sometimesTranscriptionEvents_N) * 0.5, "%s\nnon-essential\ngenes" % len(alwaysTranscriptionEvents_N), fontsize = 10, verticalalignment = "center")
@@ -221,14 +170,16 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		neverAxis.set_ylabel("Never present", fontsize = 10)
 		neverAxis.set_xlabel("Time (hour)", fontsize = 10)
 		neverAxis.set_yticks([])
-		neverAxis.tick_params(top = "off")
+		neverAxis.tick_params(top=False)
 		neverAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(neverTranscriptionEvents_E) + len(neverTranscriptionEvents_N)])])
 		neverAxis.tick_params(which = 'both', direction = 'out', labelsize = 8)
 		neverAxis.text(neverAxis.get_xlim()[1] * 1.02, len(neverTranscriptionEvents_N) * 0.5, "%s\nnon-essential\ngenes" % len(neverTranscriptionEvents_N), fontsize = 10, verticalalignment = "center")
 		neverAxis.text(neverAxis.get_xlim()[1] * 1.02, len(neverTranscriptionEvents_N) + len(neverTranscriptionEvents_E) * 0.5, "%s essential\ngenes" % len(neverTranscriptionEvents_E), fontsize = 10, verticalalignment = "center")
 
 		plt.subplots_adjust(wspace = 0.4, hspace = 0.4, right = 0.83, bottom = 0.05, left = 0.07, top = 0.95)
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+		# Only save .png - vectorized formats (.pdf and .svg) are extremely slow
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata, extension='.png', dpi=600)
 		plt.close("all")
 
 

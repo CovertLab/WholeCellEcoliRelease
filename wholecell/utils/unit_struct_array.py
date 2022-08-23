@@ -1,26 +1,25 @@
-#!/usr/bin/env python
-
 """
 UnitStructArray
 
 Wraps Numpy struct arrays using Pint units. Will assure that correct units are
 being used while loading constants.
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/31/2014
 """
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
+from typing import Dict, Optional
 import unum
 
 from wholecell.utils import units as units_pkg
 
-# TODO: Write test!
 class UnitStructArray(object):
-	"""UnitStructArray"""
+	"""Wraps Numpy structured arrays using Pint units. Will assure that correct
+	units are being used while loading constants.
+	"""
 
 	def __init__(self, struct_array, units):
+		# type: (np.ndarray, Dict[str, Optional[str]]) -> None
 		self._validate(struct_array, units)
 
 		self.struct_array = struct_array
@@ -35,14 +34,14 @@ class UnitStructArray(object):
 		elif set([x[0] for x in struct_array.dtype.descr]) != set(units.keys()):
 			s += 'Struct array fields do not match unit fields!\n'
 		if len(s):
-			raise Exception, s
+			raise Exception(s)
 
 	def _field(self, fieldname):
 		if not units_pkg.hasUnit(self.units[fieldname]):
-			if self.units[fieldname] == None:
+			if self.units[fieldname] is None:
 				return self.struct_array[fieldname]
 			else:
-				raise Exception, 'Field has incorrect units or unitless designation!\n'
+				raise Exception('Field has incorrect units or unitless designation!\n')
 		else:
 			return self.units[fieldname] * self.struct_array[fieldname]
 
@@ -67,19 +66,19 @@ class UnitStructArray(object):
 			try:
 				self.units[key].matchUnits(value)
 			except unum.IncompatibleUnitsError:
-				raise Exception, 'Units do not match!\n'
-				
+				raise Exception('Units do not match!\n')
+
 			self.struct_array[key] = value.asNumber()
 			self.units[key] = units_pkg.getUnit(value)
 
 		elif type(value) == list or type(value) == np.ndarray:
 			if units_pkg.hasUnit(self.units[key]):
-				raise Exception, 'Units do not match! Quantity has units your input does not!\n'
+				raise Exception('Units do not match! Quantity has units your input does not!\n')
 			self.struct_array[key] = value
 			self.units[key] = None
 
 		else:
-			raise Exception, 'Cant assign data-type other than unum datatype or list/numpy array!\n'
+			raise Exception("Can't assign data-type other than unum datatype or list/numpy array!\n")
 
 	def __len__(self):
 		return len(self.struct_array)

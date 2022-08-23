@@ -1,114 +1,51 @@
 """
 Plots the histograms of the copy number of each protein at each generation for
 multiple-seed simulations.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/20/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from itertools import izip, cycle
+from itertools import cycle
+from six.moves import cPickle, range, zip
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
-from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils.filepath import makedirs
 from models.ecoli.analysis import cohortAnalysisPlot
+from wholecell.io.tablereader import TableReader
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils import units
 
 # Number of proteins sampled for Plot 1
-PROTEIN_SAMPLE_COUNT = 50
+PROTEIN_SAMPLE_COUNT = 10
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		# Check if the given variant directory exists
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory."
-
-		# Make plotOut directory if none exists
-		makedirs(plotOutDir)
-
 		# Get paths for all cell simulations in each seed
-		ap = AnalysisPaths(variantDir, cohort_plot = True)
-		n_seed = ap.n_seed
-		n_generation = ap.n_generation
+		n_seed = self.ap.n_seed
+		n_generation = self.ap.n_generation
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
-			print "Skipping -- proteinCopyNumberDistribution only runs for simulations with multiple seeds."
+			print("Skipping -- proteinCopyNumberDistribution only runs for simulations with multiple seeds.")
 			return
 
 		# Divide simulations by generation number
 		sim_dirs_grouped_by_gen = []
 		for gen_idx in range(n_generation):
-			sim_dirs_grouped_by_gen.append(ap.get_cells(generation = [gen_idx]))
+			sim_dirs_grouped_by_gen.append(self.ap.get_cells(generation = [gen_idx]))
 
-		# Load simDataFile
-		sim_data = cPickle.load(open(simDataFile))
-
-		# Get IDs for complex of proteins and constituent protein monomers,
-		# and IDs for only the complexed proteins
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complex = sim_data.process.complexation.ids_complexes
-
-		# Get IDs for complex of proteins and small molecules, and associated
-		# protein monomers and small molecules, and IDs for only the complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complex = sim_data.process.equilibrium.ids_complexes
-
-		# Get IDs for all protein monomers
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+		# Load simDataFile and get constants
+		sim_data = cPickle.load(open(simDataFile, 'rb'))
+		cell_density = sim_data.constants.cell_density
+		ids_translation = sim_data.process.translation.monomer_data["id"]
 		n_proteins = len(ids_translation)
 
-		# Get data for proteins in ribosomes
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
-		ids_ribosome_subunit = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
-
-		# Get data for proteins in RNAP
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
-		ids_rnap_subunit = data_rnap["subunitIds"].tolist()
-
-		# Get all monomer stoichiometric matrices for protein complexes
-		# These matrices will be used to dissociate complexes into its constituent
-		# monomer proteins
-		complex_stoich = sim_data.process.complexation.stoichMatrixMonomers()
-		equilibrium_stoich = sim_data.process.equilibrium.stoichMatrixMonomers()
-		ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"], data_30s["subunitStoich"]))
-		rnap_subunit_stoich = data_rnap["subunitStoich"]
-
-		# Get cell density constant
-		cell_density = sim_data.constants.cellDensity
-
-		# Load simData from first simulation to extract indices
+		# Load simData from first simulation
 		simOutDir = os.path.join(sim_dirs_grouped_by_gen[0][0], "simOut")
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		# Read molecule IDs and cache "ID: index" in a dictionary
-		molecule_ids = bulkMolecules.readAttribute("objectNames")
-		molecule_dict = {mol: i for i, mol in enumerate(molecule_ids)}
-
-		# Get indices from IDs of protein-protein complexes and constituent monomers
-		idx_complexation = np.array([molecule_dict[x] for x in ids_complexation])
-		idx_complexation_complex = np.array([molecule_dict[x] for x in ids_complexation_complex])
-
-		# Get indices from IDs of protein-small molecule complexes and constituent monomers
-		idx_equilibrium = np.array([molecule_dict[x] for x in ids_equilibrium])
-		idx_equilibrium_complex = np.array([molecule_dict[x] for x in ids_equilibrium_complex])  # Only complexes
-
-		# Get indices from IDs of protein monomers, and proteins from ribosomes and RNAPs
-		idx_translation = np.array([molecule_dict[x] for x in ids_translation])
-		idx_ribosome_subunit = np.array([molecule_dict[x] for x in ids_ribosome_subunit])
-		idx_rnap_subunit = np.array([molecule_dict[x] for x in ids_rnap_subunit])
 
 		# Get mass data and calculate initial cell volume (used as standard volume
 		# when normalizing protein counts)
@@ -120,16 +57,17 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		np.random.seed(21)
 
 		# Extract protein counts from all simData
-		protein_counts = np.zeros((n_generation, n_seed, n_proteins), dtype=np.int)
+		protein_counts = np.zeros((n_generation, n_seed, n_proteins), dtype=int)
 
 		for gen_idx, simDirs in enumerate(sim_dirs_grouped_by_gen):
 			for seed_idx, simDir in enumerate(simDirs):
 
 				simOutDir = os.path.join(simDir, "simOut")
 
-				# Get BulkMolecule and time data
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+				# Read counts of protein monomers at chosen timepoint
+				monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+				counts = monomerCounts.readColumn("monomerCounts")
+				time = monomerCounts.readColumn("time")
 
 				# Pick out random timepoint
 				idx_timepoint = np.random.randint(0, high=len(time))
@@ -141,37 +79,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				# Calculate cell volume chosen timepoint
 				cell_volume = cellMass[idx_timepoint]/cell_density
 
-				# Read counts of all bulk molecules at chosen timepoint
-				bulkCounts = bulkMolecules.readColumn("counts")[idx_timepoint, :]
-				bulkCounts = bulkCounts[np.newaxis, :]  # Convert to column vector
-
-				# Load unique molecule data for RNAP and ribosomes
-				# Note: Inactive ribosomes and RNA polymerases are accounted for
-				# in molecule counts in Complexes, not UniqueMoleculeCounts
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				idx_ribosome = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				idx_rnap = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				n_active_ribosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[idx_timepoint, idx_ribosome]
-				n_active_rnap = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[idx_timepoint, idx_rnap]
-
-				# Dissociate all complexes
-				# Stoichiometric matrices are in dtype float64 - needs casting to integers
-				complex_monomer_counts = np.dot(np.negative(bulkCounts[:, idx_complexation_complex]), complex_stoich.T)
-				equilibrium_monomer_counts = np.dot(np.negative(bulkCounts[:, idx_equilibrium_complex]), equilibrium_stoich.T)
-				bulkCounts[:, idx_complexation] += complex_monomer_counts.astype(np.int)
-				bulkCounts[:, idx_equilibrium] += equilibrium_monomer_counts.astype(np.int)
-
-				# Add subunits from RNAP and ribosomes
-				n_ribosome_subunit = n_active_ribosome*ribosome_subunit_stoich[np.newaxis, :]
-				n_rnap_subunit = n_active_rnap*rnap_subunit_stoich[np.newaxis, :]
-				bulkCounts[:, idx_ribosome_subunit] += n_ribosome_subunit.astype(np.int)
-				bulkCounts[:, idx_rnap_subunit] += n_rnap_subunit.astype(np.int)
-
 				# Read bulkCounts at selected timepoint, and normalize
-				bulkCounts_normalized = bulkCounts*(expected_initial_volume/cell_volume)
+				normalized_counts = counts[idx_timepoint, :]*(expected_initial_volume/cell_volume)
 
 				# Get protein monomer counts for calculations now that all complexes are dissociated
-				protein_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[:, idx_translation]
+				protein_counts[gen_idx, seed_idx, :] = normalized_counts
 
 		# Calculate statistics
 		protein_counts_mean_over_seed = protein_counts.mean(axis=1)
@@ -184,7 +96,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Plot 1: Histograms of average protein counts and individual protein
 		# counts for each generation
 		fig = plt.figure()
-		fig.set_size_inches(5*n_generation, 5*(PROTEIN_SAMPLE_COUNT + 1))
+		fig.set_size_inches(4*n_generation, 4*(PROTEIN_SAMPLE_COUNT + 1))
 		gs = gridspec.GridSpec(PROTEIN_SAMPLE_COUNT + 1, n_generation)
 		tick_params_plot1 = {"which": "both", "direction": "out", "top": False, "right": False}
 
@@ -227,7 +139,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Plot histogram for each generation
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				seed_counts = protein_counts[gen_idx, :, idx_sampled_protein]
 
 				# The weights rescale histogram such that all columns sum to one
@@ -252,7 +164,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Go back and reset y axis upper limit
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				ax.set_ylim([0, 1.1*max_bin_prob])
 
 		fig.tight_layout()
@@ -303,7 +215,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ylim_plot3 = [1e-5, 1e3]
 
 		# Plot for each generation
-		for (gen_idx, color) in izip(range(n_generation), cycle('bmyk')):
+		for (gen_idx, color) in zip(range(n_generation), cycle('bmyk')):
 			ax = plt.subplot(gs[gen_idx, 0])
 			ax.scatter(protein_counts_mean_over_seed[gen_idx, :], protein_counts_noise_over_seed[gen_idx, :], s=10, color=color, marker='o', lw=0)
 			ax.set_xlabel(r"Mean protein count ($\mu$)")
@@ -317,7 +229,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Compare plots between first and last generations
 		ax = plt.subplot(gs[-1, 0])
-		for (gen_idx, color) in izip([0, n_generation - 1], ['b', 'k']):
+		for (gen_idx, color) in zip([0, n_generation - 1], ['b', 'k']):
 			ax.scatter(protein_counts_mean_over_seed[gen_idx, :], protein_counts_noise_over_seed[gen_idx, :],
 				s=10, alpha=0.3, color=color, marker='o', label="Generation %d" % (gen_idx,), lw=0)
 

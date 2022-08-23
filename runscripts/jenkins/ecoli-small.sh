@@ -1,9 +1,6 @@
 set -e
 
-module load wcEcoli/sherlock2
-pyenv local wcEcoli-paper
+source runscripts/jenkins/setup-environment.sh
 
-make clean
-make compile
-
-PYTHONPATH=$PWD:$PYTHONPATH nosetests -a 'smalltest' --with-xunit --with-coverage --cover-package=wholecell --cover-xml
+pytest --cov=wholecell --cov-report xml --junitxml=unittests.xml
+mypy

@@ -1,0 +1,3 @@
+Files:
+- regulation.tsv: originally regevents.dat file provided by Peter Karp
+- leu-lrp-regulation.tsv: curated from EcoCyc to differentiate between Leu-Lrp complex and Lrp (which can be inhibited by Leu) regulation. `regulation.tsv` does not distinguish between the forms but the regulation will have roughly opposite effects (eg. activation by Leu-Lrp will lead to high expression with high Leu but activation by Lrp (inhibited by Leu) will lead to low expression with high Leu). Lrp regulation in `regulation.tsv` not included in `leu-lrp-regulation.tsv` can be assumed to be Lrp (inhibited by Leu).

@@ -1,115 +1,86 @@
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 import time
 import os
 import shutil
 import sys
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
+
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
-from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
+from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
+from runscripts.metrics.behavior_metrics.metrics_pickle import (
+	get_metrics_data_dict
+)
+
 
 @explicit_serialize
-class FitSimDataTask(FireTaskBase):
+class FitSimDataTask(FiretaskBase):
 
 	_fw_name = "FitSimDataTask"
-	required_params = ["fit_level", "input_data", "output_data"]
-	optional_params = [
-		"sim_out_dir",
+	required_params = [
+		"cached",
+		"debug",
+		"input_data",
+		"output_data",
+		"cpus",
 		"disable_ribosome_capacity_fitting",
 		"disable_rnapoly_capacity_fitting",
-		"variable_elongation_transcription",
-		"variable_elongation_translation",
-		"rnapoly_activity_fitting",
-		"mrna_half_life_fitting",
-		"max_rnap_activity",
-		"flat_elongation_transcription",
-		"flat_elongation_translation",
-		"adjust_rna_and_protein_parameters",
-		"adjust_rnase_expression",
-		"disable_measured_protein_deg",
-		"alternate_mass_fraction_protein",
-		"alternate_mass_fraction_rna",
-		"alternate_mass_fraction_mrna",
-		"alternate_r_protein_degradation",
-		"alternate_rna_seq",
-		"alternate_rna_half_life",
-		"alternate_translation_efficiency",
-		"alternate_ribosome_activity",
-		"disable_rnap_fraction_increase",
-		"disable_ribosome_activity_fix",
-		"save_cell_specs",
-		"cell_specs_file",
-		"write_translation_efficiencies"
-		]
+		"output_metrics_data",
+	]
+	optional_params = [
+		'load_intermediate',
+		'save_intermediates',
+		'intermediates_directory',
+		"cached_data",
+		"sim_out_dir",
+		'variable_elongation_transcription',
+		'variable_elongation_translation',
+	]
+
+	def _get_default(self, key):
+		return self.get(key, DEFAULT_SIMULATION_KWARGS[key])
 
 	def run_task(self, fw_spec):
+		print("{}: Calculating sim_data parameters".format(time.ctime()))
 
-		print "%s: Creating/Fitting sim_data (Level %d)" % (time.ctime(), self["fit_level"])
+		if self["cached"]:
+			try:
+				shutil.copyfile(self["cached_data"], self["output_data"])
+				with open(self["output_data"], "rb") as f:
+					sim_data = cPickle.load(f)
+				self.save_metrics_data(sim_data)
+				mod_time = time.ctime(os.path.getctime(self["cached_data"]))
+				print("Copied sim data from cache (last modified {})".format(mod_time))
+				return
+			except Exception as exc:
+				print("Warning: Could not copy cached sim data due to"
+					  " exception ({}). Running Parca.".format(exc))
 
-		if self["fit_level"] == 1:
-			if self["cached"]:
-				try:
-					shutil.copyfile(self["cached_data"], self["output_data"])
-					mod_time = time.ctime(os.path.getctime(self["cached_data"]))
-					print "Copied sim data from cache (modified %s)" % (mod_time,)
-					return
-				except Exception as exc:
-					print ("Warning: could not copy cached sim data due to"
-						   " exception (%s), running fitter") % (exc,)
+		cpus = self["cpus"]
 
-			if self["cpus"] > 1:
-				print ("Warning: running fitter in parallel with %i processes -"
-					   " ensure there are enough cpus_per_task allocated" % (self["cpus"],))
+		with open(self["input_data"], "rb") as f:
+			raw_data = cPickle.load(f)
 
-			with open(self["input_data"], "rb") as f:
-				raw_data = cPickle.load(f)
+		sim_data = fitSimData_1(
+			raw_data, cpus=cpus, debug=self["debug"],
+			load_intermediate=self.get('load_intermediate', None),
+			save_intermediates=self.get('save_intermediates', False),
+			intermediates_directory=self.get('intermediates_directory', ''),
+			variable_elongation_transcription=self._get_default('variable_elongation_transcription'),
+			variable_elongation_translation=self._get_default('variable_elongation_translation'),
+			disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
+			disable_rnapoly_capacity_fitting=self['disable_rnapoly_capacity_fitting'],
+		)
 
-			options = dict(
-				cpus=self["cpus"],
-				debug=self["debug"],
-				disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
-				disable_rnapoly_capacity_fitting=self['disable_rnapoly_capacity_fitting'],
-				flat_elongation_transcription=not self['variable_elongation_transcription'],
-				flat_elongation_translation=not self['variable_elongation_translation'],
-				rnapoly_activity_fitting=self['rnapoly_activity_fitting'],
-				mrna_half_life_fitting=self['mrna_half_life_fitting'],
-				max_rnap_activity=self['max_rnap_activity'],
-				adjust_rna_and_protein_parameters=self['adjust_rna_and_protein_parameters'],
-				adjust_rnase_expression=self['adjust_rnase_expression'],
-				disable_measured_protein_deg=self['disable_measured_protein_deg'],
-				alternate_mass_fraction_protein=self['alternate_mass_fraction_protein'],
-				alternate_mass_fraction_rna=self['alternate_mass_fraction_rna'],
-				alternate_mass_fraction_mrna=self['alternate_mass_fraction_mrna'],
-				alternate_r_protein_degradation=self['alternate_r_protein_degradation'],
-				alternate_rna_seq=self['alternate_rna_seq'],
-				alternate_rna_half_life=self['alternate_rna_half_life'],
-				alternate_translation_efficiency=self['alternate_translation_efficiency'],
-				alternate_ribosome_activity=self['alternate_ribosome_activity'],
-				disable_rnap_fraction_increase=self['disable_rnap_fraction_increase'],
-				disable_ribosome_activity_fix=self['disable_ribosome_activity_fix'],
-				write_translation_efficiencies=self['write_translation_efficiencies'])
+		sys.setrecursionlimit(4000)  # limit found manually
+		with open(self["output_data"], "wb") as f:
+			cPickle.dump(sim_data, f, protocol=cPickle.HIGHEST_PROTOCOL)
+		self.save_metrics_data(sim_data)
 
-			sim_data, cell_specs = fitSimData_1(
-				raw_data,
-				options)
-
-			sys.setrecursionlimit(4000) #limit found manually
-			with open(self["output_data"], "wb") as f:
-				cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
-
-			if self["save_cell_specs"]:
-				with open(self["cell_specs_file"], "wb") as f:
-					cPickle.dump(cell_specs, f, protocol = cPickle.HIGHEST_PROTOCOL)
-
-		# TODO: Get rid of this if not used
-		if self["fit_level"] == 2:
-			with open(self["input_data"], "rb") as f:
-				sim_data = cPickle.load(f)
-
-			fitSimData_2(sim_data, self["sim_out_dir"])
-
-			with open(self["output_data"], "wb") as f:
-				cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
+	def save_metrics_data(self, sim_data):
+		metrics_data = get_metrics_data_dict(sim_data)
+		with open(self["output_metrics_data"], "wb") as f:
+			cPickle.dump(
+				metrics_data, f, protocol=cPickle.HIGHEST_PROTOCOL)

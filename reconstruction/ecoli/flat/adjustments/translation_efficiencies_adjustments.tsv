@@ -1,0 +1,6 @@
+# Adjustments to get protein expression for certain enzymes required for metabolism
+"name"	"value"	"units"	"_source"	"_comments"
+"ADCLY-MONOMER[c]"	5		"fit_sim_data_1.py"	"pabC, aminodeoxychorismate lyase"
+"EG12438-MONOMER[c]"	5		"fit_sim_data_1.py"	"menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase"
+"EG12298-MONOMER[p]"	5		"fit_sim_data_1.py"	"yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability"
+"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]"	5		"fit_sim_data_1.py"	"atoB; This RNA is fit for the anaerobic condition viability"

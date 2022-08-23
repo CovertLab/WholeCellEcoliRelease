@@ -5,8 +5,8 @@ and/or genetic perturbations for the TF to be active or inactive.
 
 Modifies:
 	sim_data.condition
-	sim_data.external_state.environment.nutrients_time_series_label
-	sim_data.external_state.environment.nutrients_time_series
+	sim_data.external_state.current_timeline_id
+	sim_data.external_state.saved_timelines
 	sim_data.genetic_perturbations
 
 Expected variant indices (dependent on length of sim_data.tfToActiveInactiveConds):
@@ -14,6 +14,8 @@ Expected variant indices (dependent on length of sim_data.tfToActiveInactiveCond
 	1+: modify condition for one transcription factor
 		(odd values will be active TF, even values will be inactive TF)
 """
+
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -23,17 +25,14 @@ CONTROL_OUTPUT = dict(
 	)
 
 
-def tfActivityTotalIndices(sim_data):
-	nNutrientTimeSeries = len(sim_data.tfToActiveInactiveConds)
-	return (2 * nNutrientTimeSeries + 1)
-
-def tfActivity(sim_data, index):
-	nTfActivityTimeSeries = tfActivityTotalIndices(sim_data)
+def tf_activity(sim_data, index):
+	nNutrientTimeSeries = len(sim_data.tf_to_active_inactive_conditions)
+	nTfActivityTimeSeries = (2 * nNutrientTimeSeries + 1)
 
 	if index % nTfActivityTimeSeries == 0:
 		return CONTROL_OUTPUT, sim_data
 
-	tfList = ["basal (no TF)"] + sorted(sim_data.tfToActiveInactiveConds)
+	tfList = ["basal (no TF)"] + sorted(sim_data.tf_to_active_inactive_conditions)
 	tf = tfList[(index + 1) // 2]
 	if index % 2 == 1:
 		tfStatus = "active"
@@ -42,17 +41,17 @@ def tfActivity(sim_data, index):
 
 	sim_data.condition = tf + "__" + tfStatus
 
-	sim_data.external_state.environment.nutrients_time_series_label = tf + "__" + tfStatus
-	sim_data.external_state.environment.nutrients_time_series[sim_data.external_state.environment.nutrients_time_series_label] = []
-	sim_data.external_state.environment.nutrients_time_series[sim_data.external_state.environment.nutrients_time_series_label].append((
+	sim_data.external_state.current_timeline_id = tf + "__" + tfStatus
+	sim_data.external_state.saved_timelines[sim_data.external_state.environment.current_timeline_id] = []
+	sim_data.external_state.saved_timelines[sim_data.external_state.environment.current_timeline_id].append((
 		0.0,
-		sim_data.tfToActiveInactiveConds[tf][tfStatus + " nutrients"]
+		sim_data.tf_to_active_inactive_conditions[tf][tfStatus + " nutrients"]
 		))
 
 	sim_data.genetic_perturbations = {}
 	for rnaId in sim_data.conditions[sim_data.condition]["perturbations"]:
-		rnaIdx = np.where(sim_data.process.transcription.rnaData["id"] == rnaId)[0]
-		sim_data.genetic_perturbations[rnaId] = sim_data.process.transcription.rnaSynthProb[sim_data.condition][rnaIdx]
+		rnaIdx = np.where(sim_data.process.transcription.rna_data["id"] == rnaId)[0]
+		sim_data.genetic_perturbations[rnaId] = sim_data.process.transcription.rna_synth_prob[sim_data.condition][rnaIdx]
 
 	return dict(
 		shortName = "{}_phenotype".format(tf + "__" + tfStatus),

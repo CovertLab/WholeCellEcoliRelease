@@ -1,0 +1,3 @@
+"id"	"common_name"	"genes"	"left_end_pos"	"right_end_pos"	"direction"	"_comments"
+"TU0-6512"	"rplKAJL"	["EG10873", "EG10871", "EG10864", "EG10872"]	4178354	4180925	"+"	"Truncated to allow for decoupled transcription of rpl and rpo genes"
+"TU00335"	"rplJL"	["EG10871", "EG10873"]	4179623	4180925	"+"	"Truncated to allow for decoupled transcription of rpl and rpo genes"

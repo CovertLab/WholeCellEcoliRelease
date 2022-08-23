@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+# Maintain proper environment for wcm
+
+"$(git rev-parse --git-path hooks)/wcm-env-check.sh"

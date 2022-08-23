@@ -1,21 +1,12 @@
 #!/usr/bin/env python
 
-"""
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 7/19/2013
-"""
-
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
-import warnings
 
-import numpy as np
-import numpy.testing as npt
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
+from six.moves import zip
 
-import nose.plugins.attrib as noseAttrib
 
 # TODO: test all solvers
 
@@ -71,12 +62,10 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 		pass
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_instantiation(self):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_standard_IDs(self):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
@@ -91,7 +80,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_standard_noInput(self):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
@@ -111,7 +99,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 				self.assertAlmostEqual(0, change)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_standard(self):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
@@ -141,7 +128,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 				self.assertAlmostEqual(20, change)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_homeostatic_noInitial(self):
 		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
@@ -177,7 +163,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 				self.assertAlmostEqual(20, change)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_homeostatic_atObjective(self):
 		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
@@ -213,7 +198,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 				self.assertAlmostEqual(0, change)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_homeostatic_belowObjective(self):
 		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
@@ -249,7 +233,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 				self.assertAlmostEqual(10, change)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_homeostatic_singleBelowObjective(self):
 		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
@@ -285,7 +268,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 				self.assertAlmostEqual(0, change)
 
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_homeostatic_singleAboveObjective(self):
 		fba = FluxBalanceAnalysis(
 			**_testTargetMolecules

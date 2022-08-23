@@ -1,16 +1,16 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
-from matplotlib import pyplot as plt
 import itertools
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
+from matplotlib import pyplot as plt
+from six.moves import zip
 
+from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.analysis.analysis_tools import exportFigure
-from models.ecoli.analysis import variantAnalysisPlot
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import constants
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
@@ -33,26 +33,21 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					"DNA\nmass"
 					]
 
-		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
-
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-		all_cells = ap.get_cells()
+		all_cells = self.ap.get_cells()
 
 		# Build a mapping from variant id to color
 		idToColor = {}
-		for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
+		for idx, (cell_id, color) in enumerate(zip(all_cells, itertools.cycle(COLORS_LARGE))):
 			idToColor[idx] = color
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 		currentMaxTime = 0
 		for cellIdx, simDir in enumerate(all_cells):
-			with open(os.path.join(simDir[:-32],'metadata','short_name')) as f:
-				variant_name = [line for line in f][0]
+			variant_dir = os.path.join(simDir, '..', '..', '..')
+			with open(os.path.join(variant_dir, constants.METADATA_DIR, 'short_name')) as f:
+				variant_name = list(f)[0]
 
 			simOutDir = os.path.join(simDir, "simOut")
 
@@ -68,7 +63,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				if cellCycleTime > currentMaxTime:
 					currentMaxTime = cellCycleTime
 
-				axesList[massIdx].set_xlim(0, currentMaxTime*ap.n_generation*1.1)
+				axesList[massIdx].set_xlim(0, currentMaxTime*self.ap.n_generation*1.1)
 				axesList[massIdx].set_ylabel(cleanNames[massIdx] + " (fg)")
 
 		for idx, axes in enumerate(axesList):

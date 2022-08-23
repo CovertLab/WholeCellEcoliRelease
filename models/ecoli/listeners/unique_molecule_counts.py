@@ -1,17 +1,11 @@
-#!/usr/bin/env python
-
 """
 UniqueMoleculeCounts
-
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/10/2014
 """
 
 # TODO: move to the wholecell package & write interface such that it will
 # function without requiring the state (will save an empty file)
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -38,27 +32,25 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(UniqueMoleculeCounts, self).allocate()
 
-		# TODO: add interface to unique objects container
 		self.uniqueMoleculeCounts = np.zeros(
-			len(self.uniqueMolecules.container._names),
+			len(self.uniqueMolecules.container.objectNames()),
 			np.int64
 			)
 
 
 	def update(self):
-		# TODO: add interface to unique objects container
-
-		for i in xrange(self.uniqueMoleculeCounts.size):
-			self.uniqueMoleculeCounts[i] = (
-				self.uniqueMolecules.container._collections[i]["_entryState"]
-				== self.uniqueMolecules.container._entryActive
-				).sum()
+		self.uniqueMoleculeCounts = self.uniqueMolecules.container.counts()
 
 
 	def tableCreate(self, tableWriter):
+		objectNames = self.uniqueMolecules.container.objectNames()
+		subcolumns = {
+			'uniqueMoleculeCounts': 'objectNames'}
+
 		tableWriter.writeAttributes(
-			uniqueMoleculeIds = self.uniqueMolecules.container._names
-			)
+			uniqueMoleculeIds = self.uniqueMolecules.container.objectNames(),
+			objectNames = objectNames,
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):

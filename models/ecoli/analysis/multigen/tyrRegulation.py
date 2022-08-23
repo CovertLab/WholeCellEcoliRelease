@@ -1,47 +1,41 @@
 """
 Plot tyr regulation
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-
-		allDirs = ap.get_cells()
+		allDirs = self.ap.get_cells()
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
-		cellDensity = sim_data.constants.cellDensity
+		nAvogadro = sim_data.constants.n_avogadro
+		cellDensity = sim_data.constants.cell_density
 
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-162"][0]
+		# Get list of TF and transcription unit IDs from first simOut directory
+		simOutDir = os.path.join(allDirs[0], "simOut")
+		rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
+
+		tyrRIndex = tf_ids.index("MONOMER0-162")
+		tyrA_cistron_id = "EG11039_RNA"
+		tyrA_rna_indexes = sim_data.process.transcription.cistron_id_to_rna_indexes(
+			tyrA_cistron_id)
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -59,13 +53,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			cellMass = units.fg * massReader.readColumn("cellMass")
 			proteinMass = units.fg * massReader.readColumn("proteinMass")
 
-
-			massReader.close()
-
 			# Load data from bulk molecules
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+
+			# Load data from RnaSynthProb listener
+			rna_synth_prob_reader = TableReader(
+				os.path.join(simOutDir, "RnaSynthProb"))
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape(
+				(-1, len(rna_ids), len(tf_ids)))
 
 			# Get the concentration of intracellular phe
 			pheId = ["PHE[c]"]
@@ -86,9 +84,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrRInactiveCounts = bulkMoleculeCounts[:, tyrRInactiveIndex].reshape(-1)
 
 			# Get the promoter-bound status of the tyrA gene
-			tyrATfBoundId = ["EG11039_RNA__MONOMER0-162"]
-			tyrATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tyrATfBoundId])
-			tyrATfBoundCounts = bulkMoleculeCounts[:, tyrATfBoundIndex].reshape(-1)
+			tyrATfBoundCounts = n_bound_TF_per_TU[:, tyrA_rna_indexes, tyrRIndex].reshape(-1)
 
 			# Get the amount of monomeric tyrA
 			tyrAProteinId = ["CHORISMUTPREPHENDEHYDROG-MONOMER[c]"]
@@ -99,29 +95,25 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in tyrAComplexId])
 			tyrAComplexCounts = bulkMoleculeCounts[:, tyrAComplexIndex].reshape(-1)
 
-			bulkMoleculesReader.close()
-
 			tyrAProteinTotalCounts = tyrAProteinCounts + 2 * tyrAComplexCounts
 
 			# Compute the tyrA mass in the cell
-			tyrAMw = sim_data.getter.getMass(tyrAProteinId)
+			tyrAMw = sim_data.getter.get_masses(tyrAProteinId)
 			tyrAMass = 1. / nAvogadro * tyrAProteinTotalCounts * tyrAMw
-
 
 			# Compute the proteome mass fraction
 			proteomeMassFraction = tyrAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 			# Get the tyrA synthesis probability
 			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-
-			rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
-			tyrASynthProbId = ["EG11039_RNA[c]"]
-			tyrASynthProbIndex = np.array([rnaIds.index(x) for x in tyrASynthProbId])
-			tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tyrASynthProbIndex].reshape(-1)
+			cistron_ids = rnaSynthProbReader.readAttribute("cistron_ids")
+			tyrA_cistron_synth_prob_id = ["EG11039_RNA"]
+			tyrA_cistron_synth_prob_index = np.array([
+				cistron_ids.index(x) for x in tyrA_cistron_synth_prob_id])
+			tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[
+				:, tyrA_cistron_synth_prob_index].reshape(-1)
 
 			tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
-
-			rnaSynthProbReader.close()
 
 			# Calculate total tyrR - active, inactive and bound
 			tyrRTotalCounts = tyrRActiveCounts + tyrRInactiveCounts + tyrRBound
@@ -133,7 +125,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrASynthProbMA = np.convolve(tyrASynthProb, np.ones(width) / width, mode = "same")
 
 			##############################################################
-			ax = plt.subplot(6, 1, 1)
+			ax = self.subplot(6, 1, 1)
 			ax.plot(time, pheConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("Internal PHE Conc. [uM]", fontsize = 6)
 
@@ -148,7 +140,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 2)
+			ax = self.subplot(6, 1, 2)
 			ax.plot(time, tyrRActiveCounts)
 			ax.plot(time, tyrRInactiveCounts)
 			ax.plot(time, tyrRTotalCounts)
@@ -166,7 +158,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 3)
+			ax = self.subplot(6, 1, 3)
 			ax.plot(time, tyrATfBoundCounts, color = "b")
 			ax.plot(time, tyrATfBoundCountsMA, color = "g")
 			plt.ylabel("TyrR Bound To tyrA Promoter", fontsize = 6)
@@ -182,7 +174,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 4)
+			ax = self.subplot(6, 1, 4)
 			ax.plot(time, tyrASynthProb, color = "b")
 			ax.plot(time, tyrASynthProbMA, color = "g")
 			plt.ylabel("tyrA Synthesis Prob.", fontsize = 6)
@@ -198,7 +190,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 5)
+			ax = self.subplot(6, 1, 5)
 			ax.plot(time, tyrAProteinTotalCounts, color = "b")
 			plt.ylabel("TyrA Counts", fontsize = 6)
 
@@ -214,7 +206,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			##############################################################
-			ax = plt.subplot(6, 1, 6)
+			ax = self.subplot(6, 1, 6)
 			ax.plot(time / 3600., proteomeMassFraction, color = "b")
 			plt.ylabel("TyrA Mass Fraction of Proteome", fontsize = 6)
 

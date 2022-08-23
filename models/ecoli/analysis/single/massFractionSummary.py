@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -8,19 +8,32 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
-from wholecell.utils.sparkline import whitePadSparklineAxis
+from six.moves import zip
+
+
+COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
+	[228,26,28],
+	[55,126,184],
+	[77,175,74],
+	[152,78,163],
+	[255,127,0],
+	[255,255,51],
+	[166,86,40],
+	[247,129,191]
+	]
+
+COLORS = [
+	[colorValue/255. for colorValue in color]
+	for color in COLORS_256
+	]
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 
+		cell = mass.readColumn("dryMass")
 		protein = mass.readColumn("proteinMass")
 		tRna = mass.readColumn("tRnaMass")
 		rRna = mass.readColumn("rRnaMass")
@@ -28,51 +41,38 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		dna = mass.readColumn("dnaMass")
 		smallMolecules = mass.readColumn("smallMoleculeMass")
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		initialTime = main_reader.readAttribute("initialTime")
+		t = (main_reader.readColumn("time") - initialTime) / 60.
 
 		masses = np.vstack([
-			protein/protein[0],
-			rRna/rRna[0],
-			tRna/tRna[0],
-			mRna/mRna[0],
-			dna/dna[0],
-			smallMolecules/smallMolecules[0],
+			protein,
+			rRna,
+			tRna,
+			mRna,
+			dna,
+			smallMolecules,
 			]).T
+		fractions = (masses / cell[:, None]).mean(axis=0)
 
-		massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA", "Small Mol."]
+		mass_labels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA", "Small Mol.s"]
+		legend = [
+			'{} ({:.3f})'.format(label, fraction)
+			for label, fraction in zip(mass_labels, fractions)
+			] + ['Total dry mass']
 
-		plt.figure(figsize = (2, 2.5))
+		plt.figure(figsize = (8.5, 11))
+		plt.gca().set_prop_cycle('color', COLORS)
 
-		ax = plt.gca()
-		ax.set_prop_cycle(plt.style.library['fivethirtyeight']['axes.prop_cycle'])
+		plt.plot(t, masses / masses[0, :], linewidth=2)
+		plt.plot(t, cell / cell[0], color='k', linestyle=':')
 
-		plt.plot(t / 60., masses, linewidth=1)
+		plt.title("Biomass components (average fraction of total dry mass in parentheses)")
 		plt.xlabel("Time (min)")
 		plt.ylabel("Mass (normalized by t = 0 min)")
-		plt.title("Biomass components")
-		plt.legend(massLabels, loc = "best")
-		plt.axhline(2, linestyle='--', color='k')
+		plt.legend(legend, loc="best")
 
-		whitePadSparklineAxis(ax)
-
-		xticks = [0, t[-1] / 60]
-		yticks = [1, 2, 2.2]
-		ax.set_xlim(xticks)
-		ax.set_ylim((yticks[0], yticks[-1]))
-		ax.set_xticks(xticks)
-		ax.set_yticks(yticks)
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-
-		ax.set_xlabel("")
-		ax.set_ylabel("")
-		ax.set_title("")
-		ax.set_xticklabels([])
-		ax.set_yticklabels([])
-		ax.legend_.remove()
-
-		exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
 		plt.close("all")
 
 

@@ -1,7 +1,7 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -13,19 +13,14 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Amino acid IDs
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		aaIDs = sim_data.moleculeGroups.aaIDs
+		aaIDs = sim_data.molecule_groups.amino_acids
 
 		# Amino acid exchanges fluxes
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 		fba_results = TableReader(os.path.join(simOutDir, "FBAResults"))
 		externalExchangeFluxes = fba_results.readColumn("externalExchangeFluxes")
 		externalMoleculeIDs = fba_results.readAttribute("externalMoleculeIDs")

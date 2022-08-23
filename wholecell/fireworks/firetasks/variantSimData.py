@@ -1,41 +1,39 @@
-import cPickle
-import time
+from __future__ import absolute_import, division, print_function
+
+from six.moves import cPickle
 import os
 import sys
 
-from fireworks import FireTaskBase, explicit_serialize
-from models.ecoli.sim.variants import nameToFunctionMapping
+from fireworks import FiretaskBase, explicit_serialize
+from models.ecoli.sim.variants import apply_variant
+import wholecell.utils.filepath as fp
+
 
 @explicit_serialize
-class VariantSimDataTask(FireTaskBase):
+class VariantSimDataTask(FiretaskBase):
 
 	_fw_name = "VariantSimDataTask"
 	required_params = [
-		"variant_function", "variant_index",
-		"input_sim_data", "output_sim_data",
-		"variant_metadata_directory",
+		"variant_function",
+		"variant_index",
+		"input_sim_data",
+		"output_sim_data",  # the output variant sim_data file (dir gets created)
+		"variant_metadata_directory",  # the output variant metadata directory
 		]
 
 	def run_task(self, fw_spec):
+		fp.makedirs(os.path.dirname(self["output_sim_data"]))
+		fp.makedirs(self["variant_metadata_directory"])
 
-		if self["variant_function"] not in nameToFunctionMapping:
-			raise Exception, "%s is not a valid variant function!" % self["variant_function"]
-
-		print "%s: Creating variant sim_data (Variant: %s Index: %d)" % (time.ctime(), self["variant_function"], self["variant_index"])
-
-		sim_data = cPickle.load(open(self["input_sim_data"], "rb"))
-
-		info, sim_data = nameToFunctionMapping[self["variant_function"]](sim_data, self["variant_index"])
-
-		print "Variant short name:", info["shortName"]
+		info, sim_data = apply_variant.apply_variant(
+			self["input_sim_data"],
+			self["variant_function"],
+			self["variant_index"])
 
 		sys.setrecursionlimit(4000)
 
-		cPickle.dump(
-			sim_data,
-			open(self["output_sim_data"], "wb"),
-			protocol = cPickle.HIGHEST_PROTOCOL
-			)
+		with open(self["output_sim_data"], "wb") as f:
+			cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
 
 		with open(os.path.join(self["variant_metadata_directory"], "short_name"), "w") as h:
 			h.write("%s\n" % info["shortName"])

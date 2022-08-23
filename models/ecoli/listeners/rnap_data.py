@@ -1,21 +1,16 @@
-#!/usr/bin/env python
-
 """
 RnapData
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/18/15
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 import wholecell.listeners.listener
+from models.ecoli.processes.transcript_elongation import get_mapping_arrays
+from six.moves import zip
 
 VERBOSE = False
-
 
 class RnapData(wholecell.listeners.listener.Listener):
 	""" RnapData """
@@ -31,70 +26,118 @@ class RnapData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RnapData, self).initialize(sim, sim_data)
 
-		self.nRnaSpecies = sim_data.process.transcription.rnaData['id'].size
-
-		# Logged quantities
-		self.registerLoggedQuantity(
-			"Fraction\nrnaps\nstalled",
-			"fractionStalled",
-			".3f"
-			)
+		self.rnaIds = sim_data.process.transcription.rna_data['id']
+		self.nRnaSpecies = self.rnaIds.size
+		self.cistron_ids = sim_data.process.transcription.cistron_data['id']
+		self.n_cistrons = self.cistron_ids.size
+		self.cistron_tu_mapping_matrix = sim_data.process.transcription.cistron_tu_mapping_matrix
+		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 
 	# Allocate memory
 	def allocate(self):
 		super(RnapData, self).allocate()
 
-		# Computed, saved attributes
-		self.stallingRateTotal = 0
-		self.stallingRateMean = 0
-		self.stallingRateStd = 0
-		self.fractionStalled = 0
-
 		# Attributes broadcast by the PolypeptideElongation process
-		self.rnapStalls = np.zeros(0, np.int64)
-		self.ntpCountInSequence = np.zeros(21, np.int64)
-		self.ntpCounts = np.zeros(21, np.int64)
 		self.actualElongations = 0
-		self.expectedElongations = 0
 		self.didTerminate = 0
 		self.didInitialize = 0
 		self.terminationLoss = 0
 		self.rnaInitEvent = np.zeros(self.nRnaSpecies, np.int64)
+		self.rna_init_event_per_cistron = np.zeros(self.n_cistrons, np.int64)
+		self.didStall = 0
+
+		# Collisions with replisomes
+		self.n_total_collisions = 0
+		self.n_headon_collisions = 0
+		self.n_codirectional_collisions = 0
+		self.n_removed_ribosomes = 0
+
+		# Entries with variable lengths
+		self.active_rnap_coordinates = np.array([], np.int64)
+		self.active_rnap_domain_indexes = np.array([], np.int32)
+		self.active_rnap_unique_indexes = np.array([], np.int64)
+		self.active_rnap_n_bound_ribosomes = np.array([], np.int64)
+		self.headon_collision_coordinates = np.array([], np.int64)
+		self.codirectional_collision_coordinates = np.array([], np.int64)
+
 
 	def update(self):
-		if self.rnapStalls.size:
-			# TODO: divide rates by time step length
-			self.stallingRateTotal = self.rnapStalls.sum()
-			self.stallingRateMean = self.rnapStalls.mean()
-			self.stallingRateStd = self.rnapStalls.std()
-			self.fractionStalled = (self.rnapStalls > 0).mean()
+		active_rnaps = self.uniqueMolecules.container.objectsInCollection(
+			'active_RNAP')
+		RNAs = self.uniqueMolecules.container.objectsInCollection('RNA')
+		active_ribosomes = self.uniqueMolecules.container.objectsInCollection('active_ribosome')
 
-		else:
-			self.stallingRateTotal = 0
-			self.stallingRateMean = 0
-			self.stallingRateStd = 0
-			self.fractionStalled = 0
+		# Read coordinates of all active RNAPs
+		coordinates, domain_indexes, RNAP_unique_indexes = active_rnaps.attrs(
+			"coordinates", "domain_index", "unique_index")
+		self.active_rnap_coordinates = coordinates
+		self.active_rnap_domain_indexes = domain_indexes
+		self.active_rnap_unique_indexes = RNAP_unique_indexes
+
+		RNA_RNAP_index, is_full_transcript, RNA_unique_indexes = RNAs.attrs(
+			'RNAP_index', 'is_full_transcript', 'unique_index')
+		is_partial_transcript = np.logical_not(is_full_transcript)
+		partial_RNA_RNAP_indexes = RNA_RNAP_index[is_partial_transcript]
+		partial_RNA_unique_indexes = RNA_unique_indexes[is_partial_transcript]
+
+		ribosome_RNA_index = active_ribosomes.attr('mRNA_index')
+
+		RNA_index_counts = dict(
+			zip(*np.unique(ribosome_RNA_index, return_counts=True)))
+
+		partial_RNA_to_RNAP_mapping, _ = get_mapping_arrays(
+			partial_RNA_RNAP_indexes, RNAP_unique_indexes)
+
+		self.active_rnap_n_bound_ribosomes = np.array(
+			[RNA_index_counts.get(partial_RNA_unique_indexes[i], 0)
+				for i in partial_RNA_to_RNAP_mapping])
+
+		# Calculate hypothetical RNA initiation events per cistron
+		self.rna_init_event_per_cistron = self.cistron_tu_mapping_matrix.dot(
+			self.rnaInitEvent)
 
 
 	def tableCreate(self, tableWriter):
-		pass
+		subcolumns = {
+			'rnaInitEvent': 'rnaIds',
+			'rna_init_event_per_cistron': 'cistron_ids',
+			}
+
+		tableWriter.writeAttributes(
+			rnaIds = list(self.rnaIds),
+			cistron_ids = list(self.cistron_ids),
+			subcolumns = subcolumns)
+
+		tableWriter.set_variable_length_columns(
+			'active_rnap_coordinates',
+			'active_rnap_domain_indexes',
+			'active_rnap_unique_indexes',
+			'active_rnap_n_bound_ribosomes',
+			'headon_collision_coordinates',
+			'codirectional_collision_coordinates',
+			)
 
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			stallingRateTotal = self.stallingRateTotal,
-			stallingRateMean = self.stallingRateMean,
-			stallingRateStd = self.stallingRateStd,
-			fractionStalled = self.fractionStalled,
-			ntpCountInSequence = self.ntpCountInSequence,
-			ntpCounts = self.ntpCounts,
+			active_rnap_coordinates=self.active_rnap_coordinates,
+			active_rnap_domain_indexes=self.active_rnap_domain_indexes,
+			active_rnap_unique_indexes=self.active_rnap_unique_indexes,
+			active_rnap_n_bound_ribosomes=self.active_rnap_n_bound_ribosomes,
 			actualElongations = self.actualElongations,
-			expectedElongations = self.expectedElongations,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
+			didStall = self.didStall,
 			terminationLoss = self.terminationLoss,
 			rnaInitEvent = self.rnaInitEvent,
+			rna_init_event_per_cistron = self.rna_init_event_per_cistron,
+			n_total_collisions=self.n_total_collisions,
+			n_headon_collisions=self.n_headon_collisions,
+			n_codirectional_collisions=self.n_codirectional_collisions,
+			n_removed_ribosomes=self.n_removed_ribosomes,
+			headon_collision_coordinates=self.headon_collision_coordinates,
+			codirectional_collision_coordinates=self.codirectional_collision_coordinates,
 			)

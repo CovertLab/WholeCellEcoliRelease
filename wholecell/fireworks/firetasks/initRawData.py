@@ -1,21 +1,28 @@
-import cPickle
+from __future__ import absolute_import, division, print_function
+
+from six.moves import cPickle
 import time
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from wholecell.utils.constants import DEFAULT_OPERON_OPTION
+
 
 @explicit_serialize
-class InitRawDataTask(FireTaskBase):
+class InitRawDataTask(FiretaskBase):
 
 	_fw_name = "InitRawDataTask"
 	required_params = ["output"]
+	optional_params = ['operons']
 
 	def run_task(self, fw_spec):
-		print "%s: Instantiating raw_data" % (time.ctime(),)
+		operon_option = self.get('operons') or DEFAULT_OPERON_OPTION
+		print(f"{time.ctime()}: Instantiating raw_data with operons={operon_option}")
 
-		raw_data = KnowledgeBaseEcoli()
+		raw_data = KnowledgeBaseEcoli(
+			operons_on=(operon_option == 'on'))
 
-		print "%s: Saving raw_data" % (time.ctime(),)
+		print(f"{time.ctime()}: Saving raw_data")
 
 		with open(self["output"], "wb") as f:
 			cPickle.dump(raw_data, f, protocol = cPickle.HIGHEST_PROTOCOL)

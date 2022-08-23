@@ -1,0 +1,37 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Energy requirements of cell maintenance}
+As was the case in our \textit{M. genitalium} simulations, and in many flux balance analysis models, not all of the energy consumed by metabolic pathways, macromolecular polymerization, or other growth and non-growth associated processes is accounted for explicitly in our \emph{E. coli} model. This is primarily due to a lack of experimental data and/or knowledge accounting for its usage.  Similar to the \textit{M. genitalium} model, we have incorporated reactions in the metabolic model with two parameters, Growth Associated Maintenance (GAM) and Non-Growth Associated Maintenance (NGAM), which modulate energy consumption associated with growth and cell maintenance.
+
+
+\begin{table}[h!]
+\hspace{12pt} \textbf{Associated data} \\\\
+ \begin{tabular}{c c c c c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+Growth associated maintenance & GAM & mmol ATP/g DCW & 59.81 & \cite{feist2007genome} \\
+Non-growth associated maintenance & NGAM & mmol ATP/g DCW/h & 8.39 & \cite{feist2007genome} \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for energy requirements of cell maintenance]{Table of parameters for energy requirements of cell maintenance.}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

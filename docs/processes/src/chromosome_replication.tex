@@ -1,0 +1,152 @@
+\documentclass[12pt]{article}
+\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+\usepackage{float}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm
+\textheight 21cm
+\footskip 1.0cm
+
+\begin{document}
+
+\baselineskip24pt
+
+\paragraph{Chromosome replication}
+
+\subparagraph{Model implementation.}
+Chromosome replication occurs through three steps that are implemented in the \texttt{ChromosomeFormation} and \texttt{ChromosomeElongation} processes. First, a round of replication is initiated at a fixed cell mass per origin of replication and generally occurs once per cell cycle (see Algorithm~\ref{replication_init_algorithm}). This is in contrast to the DnaA based mechanistic model included in the \textit{M. genitalium} model but allows for stable replication over multiple generations and in different growth conditions. Second, replication forks are elongated up to the maximal expected elongation rate, dNTP resource limitations, and template strand sequence but elongation does not take into account the action of topoisomerases or the enzymes in the replisome (see Algorithm~\ref{dna_replication_elongation_algorithm}). Finally, replication forks terminate once they reach the end of their template strand and the chromosome immediately decatenates forming two separate chromosome molecules  (see Algorithm~\ref{dna_replication_termination_algorithm}).\\
+
+
+\begin{algorithm}[H]
+\caption{DNA replication initiation}
+\label{replication_init_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+
+  \Input{$m_{cell}$ cell mass}
+  \Input{$m_{critical}$ critical initiation mass}
+  \Input{$n_{origin}$ number of origins of replication}
+  \Input{$n_{fork,f}$ number of replication forks on forward strand}
+  \Input{$n_{fork,r}$ number of replication forks on reverse strand}
+  \Input{$C$ length of C period}
+  \Input{$D$ length of D period}
+
+  \If{$\frac{m_{cell}}{n_{origin}} > m_{critical}$}{
+    $n_{fork,f} = n_{fork,f} + n_{origin}$\\
+    $n_{fork,r} = n_{fork,r} + n_{origin}$\\
+    $n_{origin} = 2 \cdot n_{origin}$\\
+  }
+
+  \Result{When cell mass is larger than critical initiation mass $m_c$ another round of replication is initiated with correct number of replication forks}
+\end{algorithm}
+
+\newpage
+
+\begin{algorithm}[H]
+\caption{DNA replication elongation}
+\label{dna_replication_elongation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{all}{all}
+
+  \Input{$e$ maximal elongation rate of replication fork}
+    \Input{$p_i$ position of forks on chromosome where $i = 1$ \KwTo $n_{fork}$}
+  \Input{$\Delta t$ length of current time step}
+    \Input{$c_{dNTP,j}$ counts of dNTP where $j = 1$ \KwTo $4$ for dCTP, dGTP, dATP, dTTP}
+  \Input{$L_k$ total length of each strand of chromosome from origin to terminus where $k = 1$ \KwTo $4$ for forward/complement and reverse/complement.}
+    \For{each replication fork $i$ on sequence $k$}{
+      \textbf{1.} Based on replication fork position $p_i$ and maximal elongation rate $e$ determine ``stop condition'' ($s_i$) for replication fork assuming no dNTP limitation.\\
+      \-\hspace{1cm} $s_i = $ \min{$p_i + e \cdot \Delta t$, $L_k$}\\
+        Stop condition is either maximal elongation rate scaled by the time step or the full length of sequence (i.e. the fork will terminate in this time step).\\
+
+      \textbf{2.} Derive sequence between replication fork position ($p_i$) and stop condition ($s_i$).
+
+  \textbf{3.} Based on derived sequence calculate the number of dNTPs required to polymerize sequence $c^{req}_{dNTP,i}$.\\
+
+    \textbf{4.} Elongate up to limits:\\
+    \eIf{\all{$c^{req}_{dNTP,i} < c_{dNTP,j}$}}{
+      Update the position of each replication fork to stop position\\
+      \-\hspace{1cm} $p_i = s_i$
+    }
+    {
+      Attempt to equally elongate each replication fork update position of each fork to maximal position given the limitation of $c_{dNTP,j}$.
+    }
+
+    \textbf{5.} Update counts of $c_{dNTP,j}$ to reflect polymerization usage.
+    }
+
+    \Result{Each replication fork is elongated up to the limit of available sequence, elongation rate, or dNTP limitation}
+\end{algorithm}
+\vspace{1cm}
+\begin{algorithm}[H]
+\caption{DNA replication termination}
+\label{dna_replication_termination_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{push}{push}
+
+  \Input{$p_i$ position of forks on chromosome where $i = 1$ \KwTo $n_{fork}$}
+  \Input{$L_k$ total length of each strand of chromosome from origin to terminus where $k = 1$ \KwTo $4$ for forward/complement and reverse/complement}
+    \Input{$d_{queue}$ a double ended queue data structure that stores time(s) cell division should be triggered}
+    \Input{$D$ D-period of cell cycle (time between completion of chromosome replication and cell division)}
+    \Input{$t$ Current simulation time}
+
+  \For{each replication fork i on strand k}{
+      \If{$p_i == L_k$}{
+      \textbf{1.} Delete replication fork\\
+      \textbf{2.} Divide remaining replication forks and origins of replication appropriately across the two new chromosome molecules\\
+      \textbf{3.} Calculate time cell should trigger division based on current time of chromosome termination and push onto queue data structure\\
+            \-\hspace{1cm} $d_{queue}$.\push{$t + D$}
+      }
+    }
+\Result{Replication forks that have terminated are removed. A new chromosome molecule is created separating all remaining replication forks. Timer for D-period is started.}
+\end{algorithm}
+
+\vspace{12pt}
+\textbf{Associated data}
+
+\begin{table}[h!]
+ \begin{tabular}{c c c c c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+Chromosome sequence & - & - & - & \cite{Blattner:1997wl} \\
+Replication fork elongation rate & $e$ & nt/s & 967 & \cite{Bremer:1996uj} \\
+Mass per origin at DNA replication initiation$^{(1)}$ & $m_{critical}$ & origin/fg & [600,975] & \cite{Donachie:1968vp} \\
+C period & $C$ & min & 40 & \cite{Neidhardt:1990tna} \\
+D period & $D$ & min & 20 & \cite{Neidhardt:1990tna} \\
+
+ \hline
+\end{tabular}
+\caption[Table of parameters for chromosome replication]{Table of parameters for chromosome replication process. \\
+$^{(1)}$600 is used for anaerobic conditions where the cell mass is lower and was fit to achieve the appropriate D period. All other growth conditions use 975.
+}
+\end{table}
+
+
+\begin{table}[H]
+\hspace{12pt} \textbf{Associated files} \\
+ \begin{center}
+ \scriptsize
+ \begin{tabular}{c c c}
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{chromosome\_formation.py} & process \\
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{chromosome\_replication.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{replication.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{genes.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{sequence.fasta} & raw data \\
+ \hline
+\end{tabular}
+\end{center}
+\caption[Table of files for chromosome replication]{Table of files for chromosome replication.}
+\end{table}
+
+\newpage
+
+\label{sec:references}
+\bibliographystyle{plain}
+\bibliography{references}
+
+
+\end{document}

@@ -4,15 +4,13 @@ Runs all single analysis plots for a given variant of a given sim.
 Run with '-h' for command line help.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.analysisSingle import AnalysisSingleTask
 from wholecell.utils import constants
-from wholecell.utils import filepath
 
 
 class AnalysisSingle(AnalysisBase):
@@ -30,20 +28,18 @@ class AnalysisSingle(AnalysisBase):
 		parser.add_argument('-d', '--daughter', type=int, default=0,
 			help='The daughter number (int). The value will get formatted as'
 				 ' a subdirectory name like "000000". Default = 0.')
+		self.define_range_options(parser, 'variant', 'seed', 'generation')
 
-	def parse_args(self):
-		args = super(AnalysisSingle, self).parse_args()
+	def update_args(self, args):
+		super(AnalysisSingle, self).update_args(args)
 
 		args.seed_str = '%06d' % (args.seed,)
 		args.gen_str = 'generation_%06d' % (args.generation,)
 		args.daughter_str = '%06d' % (args.daughter,)
 
 		metadata = args.metadata
-		metadata['analysis_type'] = 'single'
 		metadata['seed'] = args.seed_str
 		metadata['gen'] = args.gen_str
-
-		return args
 
 	def run(self, args):
 		sim_path = args.sim_path
@@ -53,9 +49,10 @@ class AnalysisSingle(AnalysisBase):
 
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
 		input_dir = os.path.join(input_variant_directory, dirs, 'simOut')
-		sim_data_modified = os.path.join(input_variant_directory, 'kb',
-			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		output_dir = filepath.makedirs(input_variant_directory, dirs, 'plotOut')
+		sim_data_modified = os.path.join(input_variant_directory,
+			constants.VKB_DIR, constants.SERIALIZED_SIM_DATA_MODIFIED)
+		output_dir = os.path.join(input_variant_directory, dirs,
+			constants.PLOTOUT_DIR)
 
 		task = AnalysisSingleTask(
 			input_results_directory=input_dir,
@@ -63,9 +60,9 @@ class AnalysisSingle(AnalysisBase):
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
 			metadata=args.metadata,
-			plots_to_run=args.plot,
 			output_filename_prefix=args.output_prefix,
-		)
+			**self.select_analysis_keys(args)
+			)
 		task.run_task({})
 
 
