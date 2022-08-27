@@ -114,5 +114,4 @@ out/20220822.164908__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_med
 
 ## Table S1
 python models/ecoli/analysis/parca/mRNA_transcript_table.py \
-out/20220822.165041__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media \
-out/20220822.164908__SET_A_8_gens_128_seeds_operons_off_with_glucose_minimal_media
+out/20220822.165041__SET_E_8_gens_128_seeds_operons_on_with_glucose_minimal_media

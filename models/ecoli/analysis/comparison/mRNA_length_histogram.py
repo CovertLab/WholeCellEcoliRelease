@@ -50,6 +50,18 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 		weighted_mean1 = lengths1.dot(mean_counts1) / mean_counts1.sum()
 		weighted_mean2 = lengths2.dot(mean_counts2) / mean_counts2.sum()
 
+		m1 = (mean_counts1 > 0).sum()
+		m2 = (mean_counts2 > 0).sum()
+
+		weighted_std1 = np.sqrt(
+			mean_counts1.dot((lengths1 - weighted_mean1)**2) /
+			((m1 - 1) / m1 * mean_counts1.sum())
+			)
+		weighted_std2 = np.sqrt(
+			mean_counts2.dot((lengths2 - weighted_mean2)**2) /
+			((m2 - 1) / m2 * mean_counts2.sum())
+			)
+
 		fig = plt.figure(figsize=FIGSIZE)
 		ax = fig.add_subplot(1, 1, 1)
 
@@ -57,11 +69,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		ax.hist(
 			lengths1, bins=bins, weights=mean_counts1, alpha=0.5,
-			label=f'reference (mean: {weighted_mean1:.1f})')
+			label=f'reference (mean: {weighted_mean1:.1f} $\pm$ {weighted_std1:.1f})')
 		ax.axvline(weighted_mean1, ls='--', lw=2, c='C0')
 		ax.hist(
 			lengths2, bins=bins, weights=mean_counts2, alpha=0.5,
-			label=f'input (mean: {weighted_mean2:.1f})')
+			label=f'input (mean: {weighted_mean2:.1f}  $\pm$ {weighted_std2:.1f}))')
 		ax.axvline(weighted_mean2, ls='--', lw=2, c='C1')
 		ax.legend(prop={'size': 6})
 
