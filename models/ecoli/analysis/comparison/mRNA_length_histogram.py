@@ -69,11 +69,11 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		ax.hist(
 			lengths1, bins=bins, weights=mean_counts1, alpha=0.5,
-			label=f'reference (mean: {weighted_mean1:.1f} $\pm$ {weighted_std1:.1f})')
+			label=f'reference ({weighted_mean1:.1f} $\pm$ {weighted_std1:.1f})')
 		ax.axvline(weighted_mean1, ls='--', lw=2, c='C0')
 		ax.hist(
 			lengths2, bins=bins, weights=mean_counts2, alpha=0.5,
-			label=f'input (mean: {weighted_mean2:.1f}  $\pm$ {weighted_std2:.1f}))')
+			label=f'input ({weighted_mean2:.1f}  $\pm$ {weighted_std2:.1f}))')
 		ax.axvline(weighted_mean2, ls='--', lw=2, c='C1')
 		ax.legend(prop={'size': 6})
 
