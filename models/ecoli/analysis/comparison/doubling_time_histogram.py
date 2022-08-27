@@ -21,7 +21,6 @@ from wholecell.utils import units
 
 FIGSIZE = (4, 4)
 DOUBLING_TIME_BOUNDS_MINUTES = [20, 180]
-XLIM = [20, 100]
 N_BINS = 32
 
 
@@ -48,10 +47,19 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 				except (TableReaderError, IndexError):
 					continue
 
-			return doubling_times_minutes
+			return np.array(doubling_times_minutes)
 
 		dt1 = read_sims(ap1)
 		dt2 = read_sims(ap2)
+
+		# Exclude sims that hit time limit
+		dt1 = dt1[dt1 < 180]
+		dt2 = dt2[dt2 < 180]
+
+		if np.any(dt2 > 100):
+			xlim = [20, 180]
+		else:
+			xlim = [20, 100]
 
 		fig = plt.figure(figsize=FIGSIZE)
 		ax = fig.add_subplot(1, 1, 1)
@@ -64,13 +72,13 @@ class Plot(comparisonAnalysisPlot.ComparisonAnalysisPlot):
 
 		ax.hist(
 			dt1, bins=bins, alpha=0.5,
-			label=f'reference ({np.mean(dt1):.1f} $\pm$ {np.std(dt1):.1f})')
+			label=f'reference (n={len(dt1)}, {np.mean(dt1):.1f} $\pm$ {np.std(dt1):.1f})')
 		ax.hist(
 			dt2, bins=bins, alpha=0.5,
-			label=f'input ({np.mean(dt2):.1f} $\pm$ {np.std(dt2):.1f})')
+			label=f'input (n={len(dt2)}, {np.mean(dt2):.1f} $\pm$ {np.std(dt2):.1f})')
 		ax.legend(prop={'size': 8})
 
-		ax.set_xlim(*XLIM)
+		ax.set_xlim(*xlim)
 
 		ax.set_xlabel('Doubling time (min)')
 		ax.spines["top"].set_visible(False)
