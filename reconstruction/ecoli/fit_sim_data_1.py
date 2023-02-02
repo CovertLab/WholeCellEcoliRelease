@@ -8,10 +8,12 @@ TODO: functionalize so that values are not both set and returned from some metho
 import binascii
 import functools
 import itertools
+import io
 import os
 import time
 import traceback
 from typing import Callable, List
+import json
 
 from arrow import StochasticSystem
 from cvxpy import Variable, Problem, Minimize, norm
@@ -22,8 +24,10 @@ import six
 from six.moves import cPickle, range, zip
 
 from reconstruction.ecoli.initialization import create_bulk_container
+from reconstruction.ecoli.knowledge_base_raw import FLAT_DIR
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+from wholecell.io import tsv
 from wholecell.utils import filepath, parallelization, units
 from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
 
@@ -80,6 +84,9 @@ def fitSimData_1(raw_data, **kwargs):
 			is not fit to protein synthesis demands
 		disable_rnapoly_capacity_fitting (bool) - if True, RNA polymerase
 			expression is not fit to protein synthesis demands
+		optimize_trna_charging_kinetics (bool) - if True, tRNA charging
+			kinetics are optimized, and its results replace the kinetics
+			data stored at trna_charging_kinetics.tsv and in sim_data
 	"""
 
 	sim_data = SimulationDataEcoli()
@@ -99,6 +106,7 @@ def fitSimData_1(raw_data, **kwargs):
 	sim_data, cell_specs = adjust_promoters(sim_data, cell_specs, **kwargs)
 	sim_data, cell_specs = set_conditions(sim_data, cell_specs, **kwargs)
 	sim_data, cell_specs = final_adjustments(sim_data, cell_specs, **kwargs)
+	sim_data, cell_specs = optimize_trna_charging_kinetics(sim_data, cell_specs, raw_data, **kwargs)
 
 	if sim_data is None:
 		raise ValueError('sim_data is not specified.  Check that the'
@@ -276,7 +284,9 @@ def fit_condition(sim_data, cell_specs, cpus=1, **kwargs):
 		nutrients = sim_data.conditions[condition_label]["nutrients"]
 		if nutrients not in sim_data.translation_supply_rate:
 			sim_data.translation_supply_rate[nutrients] = cell_specs[condition_label]["translation_aa_supply"]
-
+		if nutrients not in sim_data.codon_read_rate:
+			sim_data.codon_read_rate[nutrients] = (
+				cell_specs[condition_label]["codon_read_rate"])
 	return sim_data, cell_specs
 
 @save_state
@@ -393,6 +403,140 @@ def final_adjustments(sim_data, cell_specs, **kwargs):
 	sim_data.process.transcription.set_ppgpp_kinetics_parameters(average_basal_container, sim_data.constants)
 
 	return sim_data, cell_specs
+
+@save_state
+def optimize_trna_charging_kinetics(sim_data, cell_specs, raw_data, **kwargs):
+	'''
+	Calculates, stores, and writes tRNA synthetase kinetic parameters
+	that have been optimized to support the cell's protein synthesis
+	demand.
+
+	Calls:
+		optimize_trna_charging_kinetics: runs optimization protocol
+		_build_trna_charging_kinetics: adds attributes to the sim_data
+			object
+
+	Inputs:
+		sim_data (SimulationDataEcoli object): stores simulation
+			parameters
+		cell_specs (dict): stores cell mass, doubling time, metabolite
+			concentrations, synthesis probabilities of RNAs, and RNA
+			expression levels
+		raw_data (KnowledgeBaseEcoli object): stores raw data used for
+			calculating simulation parameters 
+
+	Returns:
+		sim_data (SimulationDataEcoli object): simulation parameters
+			updated with optimized tRNA synthetase kinetic parameters
+		cell_specs (dict): cell specs updated with optimized tRNA
+			synthetase kinetic parameters
+
+	Writes:
+		trna_charging_kinetics_solutions.tsv
+		trna_charging_kinetics_constants.tsv
+		trna_charging_kinetics.tsv
+
+	'''
+
+	# Note: If desired in the future, conditions can be expanded to
+	# all conditions by setting:
+	# sim_data.relation.conditions = sim_data.conditions
+	sim_data.relation.conditions = ['basal', 'with_aa']
+
+	if not kwargs['optimize_trna_charging_kinetics']:
+		return sim_data, cell_specs
+
+	# Optimize tRNA Charging kinetics
+	solutions, constants = sim_data.relation.optimize_trna_charging_kinetics(
+		sim_data, cell_specs)
+
+	# Record solutions
+	solutions_file = os.path.join(
+		FLAT_DIR,
+		'optimization',
+		'trna_charging_kinetics_solutions.tsv',
+		)
+
+	with io.open(solutions_file, 'wb') as f:
+		writer = tsv.writer(f, quotechar="'", lineterminator='\n')
+		writer.writerow([
+			f'# Created from running {os.path.basename(__file__)} with'
+			f' the --optimize_trna_charging_kinetics option, on {time.ctime()}.'])
+
+		for row in solutions:
+			writer.writerow(row)
+
+	# Record constants
+	constants_file = os.path.join(
+		FLAT_DIR,
+		'optimization',
+		'trna_charging_kinetics_constants.tsv',
+		)
+
+	with io.open(constants_file, 'wb') as f:
+		writer = tsv.writer(f, quotechar="'", lineterminator='\n')
+		writer.writerow([
+			f'# Created from running {os.path.basename(__file__)} with'
+			f' the --optimize_trna_charging_kinetics option, on {time.ctime()}.'])
+
+		for row in constants:
+			writer.writerow(row)
+
+	# Update sim_data
+	raw_data._load_tsv(FLAT_DIR, solutions_file)
+	raw_data._load_tsv(FLAT_DIR, constants_file)
+	sim_data.relation._build_trna_charging_kinetics(raw_data, sim_data)
+
+	# Record default solution
+	kinetics_file = os.path.join(FLAT_DIR, 'trna_charging_kinetics.tsv')
+
+	with io.open(kinetics_file, 'wb') as f:
+		writer = tsv.writer(f, quotechar="'", lineterminator='\n')
+		writer.writerow([
+			f'# Created from running {os.path.basename(__file__)} with'
+			f' the --optimize-trna-charging option, on {time.ctime()}.'])
+
+		# Write header
+		writer.writerow([
+			'"Synthetase"',
+			'"k_cat (1/units.s)"',
+			'"K_A (units.umol/units.L)"',
+			'"K_T"',
+			]
+			+ [f'"f {condition}"' for condition in sim_data.relation.conditions])
+
+		# Write kinetic parameters
+		for amino_acid in sim_data.molecule_groups.amino_acids:
+			if amino_acid == 'L-SELENOCYSTEINE[c]':
+				continue
+
+			synthetase = sim_data.relation.amino_acid_to_synthetase[amino_acid]
+			trnas = sim_data.relation.amino_acid_to_trnas[amino_acid]
+
+			k_cat = (sim_data.relation.synthetase_to_k_cat[synthetase]
+				).asNumber(1/units.s)
+			K_A = (sim_data.relation.synthetase_to_K_A[synthetase]
+				).asNumber(sim_data.relation.conc_unit)
+			K_T_dict = {trna: sim_data.relation.trna_to_K_T[trna].asNumber(
+				sim_data.relation.conc_unit) for trna in trnas}
+			f_basal_dict = {trna: sim_data.relation
+				.trna_condition_to_free_fraction[f'{trna}__basal']
+				for trna in trnas}
+			f_with_aa_dict = {trna: sim_data.relation
+				.trna_condition_to_free_fraction[f'{trna}__with_aa']
+				for trna in trnas}
+
+			writer.writerow([
+				f'"{synthetase}"',
+				k_cat,
+				K_A,
+				json.dumps(K_T_dict),
+				json.dumps(f_basal_dict),
+				json.dumps(f_with_aa_dict),
+				])
+
+	return sim_data, cell_specs
+
 
 def apply_updates(func, args, labels, dest, cpus):
 	# type: (Callable[..., dict], List[tuple], List[str], dict, int) -> None
@@ -892,7 +1036,7 @@ def fitCondition(sim_data, spec, condition):
 	spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
 
 	# Find the supply rates of amino acids to translation given doubling time
-	spec["translation_aa_supply"] = calculateTranslationSupply(
+	spec["translation_aa_supply"], spec["codon_read_rate"] = calculateTranslationSupply(
 											sim_data,
 											spec["doubling_time"],
 											spec["proteinMonomerAverageContainer"],
@@ -939,7 +1083,20 @@ def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDr
 	# Calculate required amino acid supply to translation to counter dilution
 	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
 
-	return translation_aa_supply
+	# Calculate required codon reading rate
+	# Assumes exponential growth: dN/dt = rN, where N is the
+	# concentration of codons read to create the initial proteome.
+	codon_counts = sim_data.relation.codon_counts
+	n_codons = np.sum(
+		codon_counts
+		* np.tile(proteinCounts[:, None], (1, codon_counts.shape[1])),
+		axis=0)
+	avgCellMassInit = avgCellDryMassInit / sim_data.mass.cell_dry_mass_fraction
+	volume = avgCellMassInit / sim_data.constants.cell_density
+	c_codons = 1 / nAvogadro / volume * n_codons
+	codon_read_rate = np.log(2) / doubling_time * c_codons
+
+	return translation_aa_supply, codon_read_rate
 
 # Sub-fitting functions
 

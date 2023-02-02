@@ -96,6 +96,12 @@ class ProteinDegradation(wholecell.processes.process.Process):
 			self.proteinDegSMatrix,
 			self.proteins.counts()
 			))
+
+		self.writeToListener(
+			'MonomerDegradationListener',
+			'monomers_degraded',
+			self.proteins.counts())
+
 		self.proteins.countsIs(0)
 
 	def _proteinDegRates(self):

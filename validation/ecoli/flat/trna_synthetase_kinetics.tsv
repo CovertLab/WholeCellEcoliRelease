@@ -1,0 +1,86 @@
+"Pubmed ID"	"Reaction ID"	"Enzyme ID"	"Substrate ID"	"k_cat (1/units.s)"	"k_M (units.umol/units.L)"	"Temperature"	"Notes"
+7918446	"ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	"ALAS-CPLX"	["L-ALPHA-ALANINE","ATP","ALA-tRNAs"]	[84,84,1.1]	[340,83,1.1]	37	"Most complete data for this amino acid system."
+8239663	"ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	"ALAS-CPLX"	["L-ALPHA-ALANINE","ATP","ALA-tRNAs"]	[99,99,1.5]	[300,140,2.4]		"Temperature not reported."
+10704215	"ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	"ALAS-CPLX"	["ALA-tRNAs"]	[0.2]	[1.5]	37	
+10889033	"ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	"ALAS-CPLX"	["ALA-tRNAs"]	[0.44]	[1.1]	37	
+16843487	"ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	"ALAS-CPLX"	["ALA-tRNAs"]	[2]	[]	37	"Temperature not reported; assumed 37 based on citation."
+20010690	"ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	"ALAS-CPLX"	["L-ALPHA-ALANINE"]	[1.2]	[50]	22	
+9748544	"ARGININE--TRNA-LIGASE-RXN"	"ARGS-MONOMER"	["ATP","ARG-tRNAs","ARG"]	[26, 26, 26]	[900,2.5,12]	37	"Most complete data for this amino acid system."
+11733016	"ARGININE--TRNA-LIGASE-RXN"	"ARGS-MONOMER"	["ARG-tRNAs"]	[17]	[1]	37	
+14672708	"ARGININE--TRNA-LIGASE-RXN"	"ARGS-MONOMER"	["ARG-tRNAs"]	[21.9]	[1.9]	37	"Temperature not reported; assumed 37 based on citation."
+14672708	"ARGININE--TRNA-LIGASE-RXN"	"ARGS-MONOMER"	["argU-tRNA"]	[21.9]	[1.9]	37	"Temperature not reported; assumed 37 based on citation."
+1544480	"ASPARAGINE--TRNA-LIGASE-RXN-ASN-tRNAs/ASN/ATP/PROTON//Charged-ASN-tRNAs/AMP/PPI.52."	"ASNS-CPLX"	["ASN","ATP"]	[1.6,1.3]	[32,76]	37	
+2009959	"ASPARAGINE--TRNA-LIGASE-RXN-ASN-tRNAs/ASN/ATP/PROTON//Charged-ASN-tRNAs/AMP/PPI.52."	"ASNS-CPLX"	["ASN","ATP"]	[1.6,1.3]	[32.3,76]	37	"Most complete data for this amino acid system."
+9171418	"ASPARTATE--TRNA-LIGASE-RXN"	"ASPS-CPLX"	["ASP-tRNAs","ATP","L-ASPARTATE"]	[18]	[0.6,90,60]	37	"Most complete data for this amino acid system."
+12766171	"ASPARTATE--TRNA-LIGASE-RXN"	"ASPS-CPLX"	["ASP-tRNAs"]	[0.55]	[0.08]	28	
+15096594	"ASPARTATE--TRNA-LIGASE-RXN"	"ASPS-CPLX"	["ASP","ASP-tRNAs"]	[6.8]	[22,0.2]		"Temperature not reported."
+15289581	"ASPARTATE--TRNA-LIGASE-RXN"	"ASPS-CPLX"	["ATP","L-ASPARTATE","ASP-tRNAs"]	[12,30,12]	[91,1300,0.5]	37	"Most complete data for this amino acid system."
+10215844	"ASPARTATE--TRNA-LIGASE-RXN"	"ASPS-CPLX"	["ASP-tRNAs"]	[2.1]	[1.7]	37	
+10860750	"CYSTEINE--TRNA-LIGASE-RXN"	"CYSS-MONOMER"	["CYS-tRNAs"]	[3.4]	[0.3]	37	
+12662918	"CYSTEINE--TRNA-LIGASE-RXN"	"CYSS-MONOMER"	["CYS-tRNAs","ATP","CYS"]	[0.9,91,79]	[0.35,290,22]	37	"Temperature not reported; assumed 37 based on citation. Most complete data."
+14679218	"CYSTEINE--TRNA-LIGASE-RXN"	"CYSS-MONOMER"	["CYS-tRNAs", "ATP", "CYS"]	[2.9,4.4,4.8]	[0.64,338,7.2]	30	
+15489861	"CYSTEINE--TRNA-LIGASE-RXN"	"CYSS-MONOMER"	["CYS-tRNAs"]	[2.46]	[1.16]	37	"Temperature not reported; assumed 37 based on citation."
+15882062	"CYSTEINE--TRNA-LIGASE-RXN"	"CYSS-MONOMER"	["CYS-tRNAs"]	[2.46]	[1.16]	37	"Values obtained from citation."
+16843487	"CYSTEINE--TRNA-LIGASE-RXN"	"CYSS-MONOMER"	["CYS","CYS-tRNAs"]	[2.9,2.5]	[22,1.2]	37	"Temperature not reported; assumed 37 based on citation."
+368055	"GLURS-RXN"	"GLURS-MONOMER"	["GLT-tRNAs","GLT","ATP"]	[3.4]	[0.08,100,180]	37	"Most complete data for this amino acid system."
+3003503	"GLURS-RXN"	"GLURS-MONOMER"	["GLT-tRNAs","GLT","ATP"]	[0.8]	[0.1,100,200]	37	"Most complete data for this amino acid system."
+4560497	"GLURS-RXN"	"GLURS-MONOMER"	["GLT","ATP","GLT-tRNAs"]	[0.3]	[5,40,0.3]	30	
+10215844	"GLURS-RXN"	"GLURS-MONOMER"	["GLT-tRNAs"]	[3]	[56]	37	
+6989402	"GLUTAMINE--TRNA-LIGASE-RXN"	"GLNS-MONOMER"	["GLN-tRNAs","ATP","GLN"]	[3.3]	[0.2,210,150]	37	"Most complete data for this amino acid system."
+9657697	"GLUTAMINE--TRNA-LIGASE-RXN"	"GLNS-MONOMER"	["GLN", "ATP"]	[2.62, 2.8]	[114, 110]	37	
+8692925	"GLUTAMINE--TRNA-LIGASE-RXN"	"GLNS-MONOMER"	["GLT-tRNAs"]	[2.8]	[214]	37	
+8601833	"GLUTAMINE--TRNA-LIGASE-RXN"	"GLNS-MONOMER"	["GLT-tRNAs"]	[3.83]	[0.27]	37	"Temperature not reported; assumed 37 based on citation."
+18477696	"GLUTAMINE--TRNA-LIGASE-RXN"	"GLNS-MONOMER"	["GLN"]	[3.2]	[260]		"Temperature reported as 'Ambient'."
+4594761	"GLYCINE--TRNA-LIGASE-RXN"	"GLYS-CPLX"	["GLY","ATP","GLY-tRNAs"]	[36.7]	[160,42,0.2]	37	"Most complete data for this amino acid system."
+9131996	"HISTIDINE--TRNA-LIGASE-RXN"	"HISS-CPLX"	["HIS-tRNAs", "HIS", "ATP"]	[2.6,142,120]	[1.4,30,890]	37	"Most complete data for this amino acid system."
+9266856	"HISTIDINE--TRNA-LIGASE-RXN"	"HISS-CPLX"	["HIS","ATP"]	[7,34]	[8,560]	37	
+14744140	"HISTIDINE--TRNA-LIGASE-RXN"	"HISS-CPLX"	["HIS-tRNAs"]	[2.04]	[0.34]	25	
+15751955	"HISTIDINE--TRNA-LIGASE-RXN"	"HISS-CPLX"	["HIS-tRNAs", "HIS", "ATP"]	[2.02,130,130]	[0.34,30,890]	37	"Most complete data for this amino acid system."
+16741232	"HISTIDINE--TRNA-LIGASE-RXN"	"HISS-CPLX"	["HIS-tRNAs", "HIS", "ATP"]	[1.71,130,130]	[0.34,30,890]	30	
+764868	"ISOLEUCINE--TRNA-LIGASE-RXN"	"ILES-MONOMER"	["ILE","ATP"]	[1.46,1.37]	[5.69,30]	25	
+7488160	"ISOLEUCINE--TRNA-LIGASE-RXN"	"ILES-MONOMER"	["ILE-tRNAs","ILE"]	[3.1,104]	[2.1,1.3]	37	
+7947832	"ISOLEUCINE--TRNA-LIGASE-RXN"	"ILES-MONOMER"	["ILE","ATP"]	[27.1,27.1]	[5.2,540]	25	
+8286369	"ISOLEUCINE--TRNA-LIGASE-RXN"	"ILES-MONOMER"	["ILE-tRNAs","ILE","ATP"]	[3.1,104, 104]	[2.1,1.3, 700]	37	
+8672449	"ISOLEUCINE--TRNA-LIGASE-RXN"	"ILES-MONOMER"	["ILE","ATP"]	[80.4,80.4]	[3.6,280]	37	"Most complete data for this amino acid system."
+10024478	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU","ATP","LEU-tRNAs"]	[3.4,4.2,3.9]	[15,260,1.6]		"Temperature not reported."
+10828991	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU","ATP","LEU-tRNAs"]	[3,3.6,2.9]	[15,280,1.5]	37	"Most complete data for this amino acid system."
+11170439	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU","ATP","LEU-tRNAs"]	[5.2,5.0,5.1]	[15,280,2.2]	37	"Most complete data for this amino acid system."
+12739900	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU","ATP","LEU-tRNAs"]	[5.1,4.9,5.0]	[15,260,2.5]	37	"Most complete data for this amino acid system."
+14705941	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU","LEU-tRNAs"]	[6.1,6.1]	[1.5,1.3]		"Most complete data for this amino acid system. Temperature not reported."
+15110746	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU","ATP","LEU-tRNAs"]	[5.1,5,5.1]	[20,240,2.6]	37	"Most complete data for this amino acid system."
+15723544	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU"]	[11]	[15]	37	
+17311409	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU-tRNAs"]	[0.12]	[0.7]		"Temperature not reported."
+17378584	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU-tRNAs"]	[29]	[13]	37	
+17407263	"LEUCINE--TRNA-LIGASE-RXN"	"LEUS-MONOMER"	["LEU-tRNAs"]	[9.6]	[0.73]		"Temperature not reported."
+9892648	"LYSINE--TRNA-LIGASE-RXN"	"LYSS-CPLX"	["LYS-tRNAs"]	[0.05533]	[1.9]	37	
+10387054	"LYSINE--TRNA-LIGASE-RXN"	"LYSS-CPLX"	["LYS"]	[6.1]	[2.7]	37	
+12766171	"LYSINE--TRNA-LIGASE-RXN"	"LYSS-CPLX"	["LYS-tRNAs"]	[3.6]	[3.4]	28	
+15362869	"LYSINE--TRNA-LIGASE-RXN"	"LYSS-CPLX"	["ATP","LYS"]	[3.4,1.8]	[12,2.6]	37	"Most complete data for this amino acid system."
+2126467	"METHIONINE--TRNA-LIGASE-RXN"	"METG-CPLX"	["Elongation-tRNAMet"]	[3.3]	[0.9]		"Temperature not reported."
+9607323	"RXN-16165"	"METG-CPLX"	["Initiation-tRNAmet"]	[6.85]	[1]	37	
+12390027	"RXN-16165"	"METG-CPLX"	["MET-tRNAs"]	[2.8]	[4.4]	25	
+21175197	"RXN-16165"	"METG-CPLX"	["MET-tRNAs","MET","ATP"]	[1,5.7,5.7]	[3.9,40,350]	25	"Most complete data for this amino acid system."
+"Jo, Y.J.; Lee, S.W.; Jo, M.K.; Lee, J.W.; Kang, M.K.; Yoon, J.H.; Kim, S. Methionine analogue probes functionally important residues in active site of methionyl-tRNA synthetase J. Biochem. Mol. Biol. 32 547-553 1999"	"RXN-16165"	"METG-CPLX"	["MET"]	[5.6]	[7900]	37	"Temperature not reported; assumed 37 based on citation."
+"Kiick, K.L.; Tirrell, D.A. Protein Engineering by In Vivo Incorporation of Non-Natural Amino Acids: Control of Incorporation of Methionine Analogues by Methionyl-tRNA Synthetase Tetrahedron 56 9487-9493 2000"	"RXN-16165"	"METG-CPLX"	["MET"]	[13.3]	[24.3]	25	
+15004015	"PHENYLALANINE--TRNA-LIGASE-RXN"	"PHES-CPLX"	["PHE"]	[3.52]	[20.2]	37	
+15526031	"PHENYLALANINE--TRNA-LIGASE-RXN"	"PHES-CPLX"	["PHE"]	[1.72]	[10.3]		"Temperature not reported."
+16866361	"PHENYLALANINE--TRNA-LIGASE-RXN"	"PHES-CPLX"	["PHE-tRNAs","PHE"]	[0.817,3.33]	[2.7,5.3]	37	"Most complete data for this amino acid system."
+20160120	"PHENYLALANINE--TRNA-LIGASE-RXN"	"PHES-CPLX"	["PHE"]	[199]	[2]	37	
+8003476	"PHENYLALANINE--TRNA-LIGASE-RXN"	"PHES-CPLX"	["ATP","PHE-tRNAs"]	[138,5.6]	[40,7]		"Temperature not reported."
+11408489	"PROLINE--TRNA-LIGASE-RXN"	"PROS-CPLX"	["PRO"]	[70]	[250]	37	"Most complete data for this amino acid system."
+12130657	"PROLINE--TRNA-LIGASE-RXN"	"PROS-CPLX"	["PRO"]	[14]	[290]	37	"Most complete data for this amino acid system."
+16864571	"PROLINE--TRNA-LIGASE-RXN"	"PROS-CPLX"	["PRO-tRNAs"]	[0.239]	[14.14]		"Temperature not reported."
+8065908	"SERINE--TRNA-LIGASE-RXN"	"SERS-CPLX"	["SER","ATP","SER-tRNAs"]	[0.34,0.35,2.6]	[64,0.068,0.56]	37	"Most complete data for this amino acid system."
+8031907	"THREONINE--TRNA-LIGASE-RXN"	"THRS-CPLX"	["THR-tRNAs"]	[0.53]	[0.05]	37	
+10881191	"THREONINE--TRNA-LIGASE-RXN"	"THRS-CPLX"	["THR"]	[36]	[110]	37	
+14690420	"THREONINE--TRNA-LIGASE-RXN"	"THRS-CPLX"	["THR","ATP"]	[90,90]	[201,267]	37	"Most complete data for this amino acid system."
+15507440	"THREONINE--TRNA-LIGASE-RXN"	"THRS-CPLX"	["THR"]	[33]	[110]	37	
+20160114	"THREONINE--TRNA-LIGASE-RXN"	"THRS-CPLX"	["THR-tRNAs", "ATP"]	[0.05,13]	[1.5,90]	37	
+8555191	"TRYPTOPHAN--TRNA-LIGASE-RXN"	"TRPS-CPLX"	["ATP","TRP", "TRP-tRNAs"]	[1.5,2,2]	[190,12.4,0.34]	37	"Most complete data for this amino acid system."
+12482597	"TRYPTOPHAN--TRNA-LIGASE-RXN"	"TRPS-CPLX"	["TRP","TRP-tRNAs"]	[150.6,13.9]	[16.81,0.62]		"Temperature not reported."
+8692925	"TRYPTOPHAN--TRNA-LIGASE-RXN"	"TRPS-CPLX"	["TRP-tRNAs"]	[4.8]	[3.9]	37	
+11006270	"TYROSINE--TRNA-LIGASE-RXN"	"TYRS-CPLX"	["TYR"]	[0.74]	[3.3]	30	
+12097643	"TYROSINE--TRNA-LIGASE-RXN"	"TYRS-CPLX"	["TYR"]	[12]	[5.3]	37	"Most complete data for this amino acid system."
+12475234	"VALINE--TRNA-LIGASE-RXN"	"VALS-MONOMER"	["VAL-tRNAs","VAL","ATP"]	[1.5,50,50]	[0.1,70,110]	25	
+14970394	"VALINE--TRNA-LIGASE-RXN"	"VALS-MONOMER"	["VAL"]	[13.9]	[4.3]	37	
+16843487	"VALINE--TRNA-LIGASE-RXN-VAL-tRNAs/VAL/ATP/PROTON//Charged-VAL-tRNAs/AMP/PPI.52."	"VALS-MONOMER"	["VAL-tRNAs"]	[4]	[]	37	"Temperature not reported; assumed 37 based on citation."

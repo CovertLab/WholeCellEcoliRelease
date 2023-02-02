@@ -43,6 +43,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.elongationsNonTerminatingHist = np.zeros(22, np.int64)
 		self.didTerminate = 0
 		self.didInitialize = 0
+		self.n_initialized = 0
 		self.terminationLoss = 0
 		self.effectiveElongationRate = 0.
 		self.rrn16S_produced = 0
@@ -56,6 +57,9 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.translationSupply = np.zeros(21, np.float64)
 		self.numTrpATerminated = 0.
 		self.probTranslationPerTranscript = np.zeros(self.nMonomers, np.float64)
+		self.n_terminated = np.zeros(self.nMonomers)
+		self.activationProb = 0
+		self.n_ribosomes_to_activate = 0
 
 		# Attributes computed by the listener
 		self.n_ribosomes_per_transcript = np.zeros(self.nMonomers, np.int64)
@@ -106,6 +110,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			elongationsNonTerminatingHist = self.elongationsNonTerminatingHist,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
+			n_initialized = self.n_initialized,
 			terminationLoss = self.terminationLoss,
 			effectiveElongationRate = self.effectiveElongationRate,
 			rrn16S_produced = self.rrn16S_produced,
@@ -121,4 +126,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			probTranslationPerTranscript = self.probTranslationPerTranscript,
 			n_ribosomes_per_transcript = self.n_ribosomes_per_transcript,
 			n_ribosomes_on_partial_mRNA_per_transcript = self.n_ribosomes_on_partial_mRNA_per_transcript,
+			n_terminated = self.n_terminated,
+			activationProb = self.activationProb,
+			n_ribosomes_to_activate = self.n_ribosomes_to_activate,
 			)

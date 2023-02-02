@@ -14,15 +14,18 @@ FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"amino_acid_growth_rates.tsv",
 	"amino_acid_growth_rates_dose_response.tsv",
+	"dong1996_table_5.tsv",
 	"dna_footprint_sizes.tsv",
 	"essential_genes.tsv",
 	"geneFunctions.tsv",
 	"houser2015_javier_table.tsv",
 	"li_protein_synthesis_rates_2014.tsv",
 	"macromolecular_growth_rate_modulation.tsv",
+	"jakubowski1984_table_3.tsv",
 	"schmidt2015_javier_table.tsv",
 	"taniguichi2010_table_6.tsv",
 	"toya_2010_central_carbon_fluxes.tsv",
+	"trna_synthetase_kinetics.tsv",
 	"wisniewski2014_supp2.tsv",
 	)
 

@@ -24,7 +24,9 @@ class ParcaTask(FiretaskBase):
 	required_params = [
 		'output_directory',  # e.g. 'out/manual/kb'
 		'ribosome_fitting',
-		'rnapoly_fitting']
+		'rnapoly_fitting',
+		'optimize_trna_charging_kinetics',
+		]
 	optional_params = [
 		'operons',
 		'load_intermediate',
@@ -33,7 +35,8 @@ class ParcaTask(FiretaskBase):
 		'cpus',
 		'debug',
 		'variable_elongation_transcription',
-		'variable_elongation_translation']
+		'variable_elongation_translation',
+		]
 
 	def _get_default(self, key):
 		return self.get(key, DEFAULT_SIMULATION_KWARGS[key])
@@ -69,7 +72,8 @@ class ParcaTask(FiretaskBase):
 				variable_elongation_transcription=self._get_default('variable_elongation_transcription'),
 				variable_elongation_translation=self._get_default('variable_elongation_translation'),
 				disable_ribosome_capacity_fitting=not self['ribosome_fitting'],
-				disable_rnapoly_capacity_fitting=not self['rnapoly_fitting']),
+				disable_rnapoly_capacity_fitting=not self['rnapoly_fitting'],
+				optimize_trna_charging_kinetics=self['optimize_trna_charging_kinetics']),
 
 			InitRawValidationDataTask(
 				output=raw_validation_data_file),

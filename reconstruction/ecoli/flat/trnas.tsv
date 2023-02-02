@@ -1,0 +1,47 @@
+# Dong, Nilsson, and Kurland. JMB 1996. Tables 1 (sequence), 2 (anticodon data), and 3 (molar ratio of tRNA to 16s rRNA).
+"tRNA"	"anticodon 5'-3'"	"0.4 doublings per hour"	"0.7 doublings per hour"	"1.07 doublings per hour"	"1.6 doublings per hour"	"2.5 doublings per hour"	"sequence 5'-3'"
+"Ala1B"	["UGC"]	0.65	0.54	0.46	0.44	0.40	
+"Ala2"	["GGC"]	0.12	0.10	0.08	0.08	0.07	
+"Arg2"	["ACG"]	0.95	0.67	0.50	0.60	0.49	
+"Arg3"	["CCG"]	0.13	0.12	0.05	0.06	0.04	
+"Arg4"	["UCU"]	0.17	0.11	0.09	0.08	0.07	
+"Arg5"	["CCU"]	0.08	0.07	0.05	0.06	0.04	
+"Asn"	["GUU"]	0.24	0.18	0.14	0.15	0.14	
+"Asp1"	["GUC"]	0.48	0.37	0.27	0.30	0.29	
+"Cys"	["GCA"]	0.32	0.22	0.17	0.18	0.14	
+"Gln1"	["UUG"]	0.15	0.12	0.12	0.08	0.08	
+"Gln2"	["CUG"]	0.18	0.14	0.11	0.13	0.12	
+"Glu2"	["UUC"]	0.94	0.71	0.54	0.61	0.56	
+"Gly1 + 2"	["CCC", "UCC"]	0.43	0.33	0.25	0.28	0.21	
+"Gly3"	["GCC"]	0.87	0.70	0.55	0.50	0.48	
+"His"	["GUG"]	0.13	0.10	0.09	0.08	0.08	
+"Ile1 + 2"	["GAU", "CAU"]	0.69	0.54	0.43	0.47	0.47	
+"Leu1"	["CAG"]	0.89	0.68	0.55	0.54	0.42	
+"Leu2"	["GAG"]	0.19	0.16	0.13	0.12	0.11	
+"Leu3"	["UAG"]	0.13	0.11	0.09	0.08	0.06	
+"Leu4"	["CAA"]	0.38	0.29	0.23	0.24	0.18	
+"Leu5"	["UAA"]	0.23	0.16	0.13	0.09	0.07	
+"Lys"	["UUU"]	0.38	0.31	0.24	0.22	0.20	
+"Met f1"	["CAU"]	0.24	0.22	0.19	0.16	0.19	
+"Met f2"	["CAU"]	0.14	0.10	0.08	0.09	0.07	
+"Met m"	["CAU"]	0.14	0.12	0.09	0.10	0.09	
+"Phe"	["GAA"]	0.21	0.17	0.14	0.12	0.10	
+"Pro1"	["CGG"]	0.18	0.11	0.11	0.07	0.05	
+"Pro2"	["GGG"]	0.14	0.12	0.07	0.10	0.07	
+"Pro3"	["UGG"]	0.12	0.09	0.07	0.06	0.05	
+"Sel-Cys"	["UCA"]	0.04	0.04	0.03	0.03	0.02	
+"Ser1"	["UGA"]	0.26	0.25	0.18	0.17	0.14	
+"Ser2"	["CGA"]	0.07	0.05	0.04	0.03	0.03	
+"Ser3"	["GCU"]	0.28	0.20	0.15	0.14	0.11	
+"Ser5"	["GGA"]	0.15	0.12	0.09	0.09	0.08	
+"Thr1"	["GGU"]	0.02	0.02	0.02	0.01	0.01	"CTG GGG ACC CCA CCC CT"
+"Thr2"	["CGU"]	0.11	0.09	0.07	0.07	0.06	
+"Thr3"	["GGU"]	0.22	0.17	0.13	0.12	0.11	"CTG CCG ACC TCA CCC TT"
+"Thr4"	["UGU"]	0.18	0.14	0.11	0.12	0.13	
+"Trp"	["CCA"]	0.19	0.13	0.11	0.10	0.10	
+"Tyr1"	["GUA"]	0.15	0.11	0.09	0.12	0.08	"TTC GAA GTC GAT GAC GGC AGA"
+"Tyr2"	["GUA"]	0.25	0.18	0.12	0.13	0.10	"TTC GAA GTC TGT GAC GGC AGA"
+"Val1"	["UAC"]	0.77	0.55	0.36	0.48	0.39	
+# Val1 "UAG" (codes for Leu) in the publication is likely a typo for "UAC"
+"Val2A"	["GAC"]	0.13	0.09	0.08	0.07	0.05	"CAC CGA CCC CCA CCA TGT CAA"
+"Val2B"	["GAC"]	0.13	0.11	0.09	0.09	0.08	"CAA CGA CCC CCA CCA TGT CAA"

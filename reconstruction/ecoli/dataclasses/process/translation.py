@@ -149,6 +149,10 @@ class Translation(object):
 				n_end_residue = seq[protein['cleavage_of_initial_methionine']]
 				deg_rate[i] = n_end_rule_deg_rates[n_end_residue]
 
+		cleavage_of_initial_methionine = np.zeros(len(all_proteins), dtype=np.bool)
+		for i, protein in enumerate(all_proteins):
+			cleavage_of_initial_methionine[i] = protein['cleavage_of_initial_methionine']
+
 		max_protein_id_length = max(
 			len(protein_id) for protein_id in protein_ids_with_compartments)
 		max_cistron_id_length = max(
@@ -162,6 +166,7 @@ class Translation(object):
 				('length', 'i8'),
 				('aa_counts', '{}i8'.format(n_amino_acids)),
 				('mw', 'f8'),
+				('cleavage_of_initial_methionine', 'bool'),
 				]
 			)
 
@@ -171,6 +176,7 @@ class Translation(object):
 		monomer_data['length'] = lengths
 		monomer_data['aa_counts'] = aa_counts
 		monomer_data['mw'] = mws
+		monomer_data['cleavage_of_initial_methionine'] = cleavage_of_initial_methionine
 
 		field_units = {
 			'id': None,
@@ -179,6 +185,7 @@ class Translation(object):
 			'length': units.aa,
 			'aa_counts': units.aa,
 			'mw': units.g / units.mol,
+			'cleavage_of_initial_methionine': None,
 			}
 
 		self.monomer_data = UnitStructArray(monomer_data, field_units)

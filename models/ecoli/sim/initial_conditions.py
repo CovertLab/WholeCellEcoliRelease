@@ -1,6 +1,6 @@
 import numpy as np
 
-from models.ecoli.processes.polypeptide_elongation import calculate_trna_charging, get_charging_params
+from models.ecoli.processes.polypeptide_elongation import calculate_steady_state_trna_charging, get_charging_params
 import reconstruction.ecoli.initialization as init
 from wholecell.sim.divide_cell import load_inherited_state
 
@@ -31,19 +31,21 @@ def calcInitialConditions(sim, sim_data):
 		randomState, massCoeff, sim._ppgpp_regulation, sim._trna_attenuation)
 	cell_mass = init.calculate_cell_mass(sim.internal_states)
 	init.initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, cell_mass,
-		randomState, sim._superhelical_density, sim._ppgpp_regulation, sim._trna_attenuation)
+		randomState, sim._superhelical_density, sim._ppgpp_regulation, sim._trna_attenuation, sim._kinetic_trna_charging)
 
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
-	if sim._trna_charging:
-		initialize_trna_charging(sim_data, sim.internal_states, sim._variable_elongation_translation)
+	if sim._kinetic_trna_charging:
+		initialize_kinetic_trna_charging(sim_data.condition, sim.internal_states['BulkMolecules'].container, sim_data, sim.internal_states)
+	elif sim._steady_state_trna_charging:
+		initialize_steady_state_trna_charging(sim_data, sim.internal_states, sim._variable_elongation_translation)
 
 	# Adjust small molecule concentrations again after other mass adjustments
 	# for more stable metabolism solution at beginning of sims
 	init.set_small_molecule_counts(bulkMolCntr, sim_data, media_id, import_molecules,
 		massCoeff, cell_mass=init.calculate_cell_mass(sim.internal_states))
 
-def initialize_trna_charging(sim_data, states, variable_elongation):
+def initialize_steady_state_trna_charging(sim_data, states, variable_elongation):
 	'''
 	Initializes charged tRNA from uncharged tRNA and amino acids
 
@@ -84,7 +86,7 @@ def initialize_trna_charging(sim_data, states, variable_elongation):
 
 	# Estimate initial charging state
 	charging_params = get_charging_params(sim_data, variable_elongation=variable_elongation)
-	fraction_charged, *_ = calculate_trna_charging(synthetase_conc, uncharged_trna_conc,
+	fraction_charged, *_ = calculate_steady_state_trna_charging(synthetase_conc, uncharged_trna_conc,
 		charged_trna_conc, aa_conc, ribosome_conc, f, charging_params)
 
 	# Update counts of tRNA to match charging
@@ -93,6 +95,40 @@ def initialize_trna_charging(sim_data, states, variable_elongation):
 	uncharged_trna_counts = total_trna_counts - charged_trna_counts
 	charged_trna.countsIs(charged_trna_counts)
 	uncharged_trna.countsIs(uncharged_trna_counts)
+
+def initialize_kinetic_trna_charging(condition, bulk_molecules, sim_data, states):
+	'''
+	Initializes tRNAs involved in the KineticTrnaChargingModel.
+	'''
+	def get_f_free(trna, condition):
+		if trna == 'selC-tRNA[c]':
+			return 0.2 # Initialized to 80% charged
+
+		key = f'{trna}__{condition}'
+		if key not in sim_data.relation.trna_condition_to_free_fraction:
+			key = f'{trna}__basal'
+		return sim_data.relation.trna_condition_to_free_fraction[key]
+
+	# Molecules
+	rna_data = sim_data.process.transcription.rna_data
+	free_trnas = rna_data['id'][rna_data['is_tRNA']]
+	charged_trnas = sim_data.process.transcription.charged_trna_names
+
+	# Fraction free
+	f_free = [get_f_free(trna, condition) for trna in free_trnas]
+
+	# Views
+	free_view = bulk_molecules.countsView(free_trnas)
+	charged_view = bulk_molecules.countsView(charged_trnas)
+
+	# Distribute tRNA counts
+	n_total = free_view.counts() + charged_view.counts()
+	n_free = np.round(f_free * n_total)
+	n_charged = n_total - n_free
+
+	# Update bulk molecules
+	free_view.countsIs(n_free)
+	charged_view.countsIs(n_charged)
 
 def setDaughterInitialConditions(sim, sim_data):
 	'''Calculate the initial conditions for a new cell from state inherited

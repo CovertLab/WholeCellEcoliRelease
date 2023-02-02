@@ -63,7 +63,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, media_id, import_molecules, r
 		initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, cell_mass, randomState,
-		superhelical_density, ppgpp_regulation, trna_attenuation):
+		superhelical_density, ppgpp_regulation, trna_attenuation, kinetic_trna_charging):
 	# Initialize counts of full chromosomes
 	initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data)
 
@@ -81,7 +81,7 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, cell
 		initialize_chromosomal_segments(uniqueMolCntr, sim_data)
 
 	# Initialize activate ribosomes
-	initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+	initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState, kinetic_trna_charging)
 
 def calculate_cell_mass(states):
 	"""
@@ -1021,7 +1021,8 @@ def initialize_chromosomal_segments(uniqueMolCntr, sim_data):
 		)
 
 
-def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState,
+	kinetic_trna_charging):
 	"""
 	Activate ribosomes as unique molecules, and distribute them along lengths
 	of mRNAs, while decreasing counts of unactivated ribosomal subunits (30S
@@ -1037,6 +1038,10 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	translationEfficiencies = normalize(
 		sim_data.process.translation.translation_efficiencies_by_monomer)
 	aaWeightsIncorporated = sim_data.process.translation.translation_monomer_weights
+	if kinetic_trna_charging:
+		proteinSequences = sim_data.relation.codon_sequences
+		aaWeightsIncorporated = sim_data.relation.residue_weights_by_codon
+
 	endWeight = sim_data.process.translation.translation_end_weight
 	cistron_lengths = sim_data.process.transcription.cistron_data['length'].asNumber(units.nt)
 	TU_ids = sim_data.process.transcription.rna_data['id']
