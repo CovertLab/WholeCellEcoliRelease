@@ -1,6 +1,6 @@
 # Whole Cell Model - *Escherichia coli*
 
-**Notice:** This repository contains a **release snapshot** of the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli). In contrast, our working repository is under continuous development so please contact us before embarking on any changes that you want to contribute. We do **not** plan to merge Pull Requests into this repository except documentation and installation fixes.
+**Notice:** This repository contains **previous release snapshots** of the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli). For the most recent versions of the *E. coli* whole-cell model that are undergoing active development, please visit the [wcEcoli](https://github.com/CovertLab/wcEcoli) and the [vivarium-ecoli](https://github.com/CovertLab/vivarium-ecoli) repositories. This repository should only be used for the purpose of replicating model outputs generated for previous publications listed below. We do **not** plan to merge Pull Requests into this repository except documentation and installation fixes.
 
 You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com).
 
