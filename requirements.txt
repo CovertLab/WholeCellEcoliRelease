@@ -183,4 +183,4 @@ typing_extensions==4.0.1
 urllib3==1.25.9
 wcwidth==0.2.5
 websocket-client==0.57.0
-Werkzeug==1.0.1
+Werkzeug==2.2.3
