@@ -12,7 +12,12 @@
         }
     ],
 
-    "license": "https://github.com/CovertLab/WholeCellEcoliRelease/blob/master/LICENSE.md",
+    "license": [
+        {
+            "id": "cc-by-nc-4.0",
+            "url": "https://github.com/CovertLab/WholeCellEcoliRelease/blob/master/LICENSE.md"
+        }
+    ],
 
     "title": "Whole-cell modeling of E. coli confirms that in vitro tRNA aminoacylation measurements are insufficient to support cell growth and predicts a positive feedback mechanism regulating arginine biosynthesis"
 }
