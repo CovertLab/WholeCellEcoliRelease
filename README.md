@@ -4,7 +4,6 @@
 
 You can reach us at [WholeCellTeam](mailto:wholecellteam@lists.stanford.edu).
 
-<<<<<<< HEAD
 This repository contains code for the following publications:
 - [Simultaneous cross-evaluation of heterogeneous _E. coli_ datasets via mechanistic simulation](https://science.sciencemag.org/content/369/6502/eaav3751.full) published in _Science_, 24 July 2020. ([Release](https://github.com/CovertLab/WholeCellEcoliRelease/releases/tag/v1.0))
 - [The _E. coli_ whole-cell modeling project](https://journals.asm.org/doi/10.1128/ecosalplus.ESP-0001-2020) published in _EcoSal Plus_, 9 July 2021.
