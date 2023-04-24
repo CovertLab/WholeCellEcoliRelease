@@ -21,6 +21,9 @@ from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growth_rate_dependent_parameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
+from wholecell.utils import units
+from Bio.Seq import reverse_complement
+
 __all__ = [
 	'KnowledgeBaseEcoli', 'GetterFunctions', 'MoleculeGroups', 'MoleculeIds',
 	'Constants', 'InternalState', 'Process', 'Mass', 'GrowthRateParameters',
@@ -42,6 +45,7 @@ class ValidationDataEcoli(object):
 
 		self._add_dna_footprint_sizes(validation_data_raw)
 		self._add_amino_acid_growth_rates(validation_data_raw)
+		self._add_trna_synthetase_kinetics(validation_data_raw, knowledge_base_raw)
 
 	def _add_dna_footprint_sizes(self, validation_data_raw):
 		"""
@@ -92,6 +96,141 @@ class ValidationDataEcoli(object):
 				}
 		self.amino_acid_dose_dependent_growth_rates = rates
 
+	def _add_trna_synthetase_kinetics(self, validation_data_raw,
+			knowledge_base_raw):
+
+		# Curated tRNA synthetase kinetic measurements
+		self.trna_synthetase_kinetics = {}
+		for row in validation_data_raw.trna_synthetase_kinetics:
+
+			# Only include measurements at 37C
+			if row['Temperature'] != 37:
+				continue
+
+			synthetase = f'{row["Enzyme ID"]}[c]'
+
+			if synthetase not in self.trna_synthetase_kinetics:
+				self.trna_synthetase_kinetics[synthetase] = {}
+
+			for i, substrate in enumerate(row['Substrate ID']):
+				substrate += '[c]'
+
+				if substrate not in self.trna_synthetase_kinetics[synthetase]:
+					self.trna_synthetase_kinetics[synthetase][substrate] = {
+						'k_cat': [],
+						'k_M': [],
+						}
+
+				if i < len(row['k_cat']):
+					self.trna_synthetase_kinetics[synthetase][substrate]\
+						['k_cat'].append(row['k_cat'][i])
+
+				if i < len(row['k_M']):
+					self.trna_synthetase_kinetics[synthetase][substrate]\
+						['k_M'].append(row['k_M'][i])
+
+		# Jakubowski and Goldman 1984, Table 3
+		self.jakubowski1984 = {}
+		for row in validation_data_raw.jakubowski1984_table_3:
+			amino_acid = f'{row["Amino Acid"]}[c]'
+			self.jakubowski1984[amino_acid] = {}
+
+			for key in row.keys():
+				if key == 'Amino Acid':
+					continue
+				self.jakubowski1984[amino_acid][key] = row[key]
+
+		################################################################
+		# Dong, Nilsson, and Kurland. 1996. Table 5.
+
+		# This dict is generated in
+		# reconstruction/ecoli/dataclasses/growth_rate_dependent_parameters.py
+		# and described here manually since tRNA sequences cannot be
+		# accessed from validation_data.
+		# Todo: consider storing the Kurland_to_WCM dict dynamically
+		# from growth_rate_dependent_parameters.py, then retrieving it
+		# here.
+		Kurland_to_WCM = {
+			'Ala1B': ['alaT-tRNA[c]', 'alaU-tRNA[c]', 'alaV-tRNA[c]'],
+			'Ala2': ['alaW-tRNA[c]', 'alaX-tRNA[c]'],
+			'Arg2': ['argQ-tRNA[c]', 'argV-tRNA[c]', 'argY-tRNA[c]', 'argZ-tRNA[c]'],
+			'Arg3': ['argX-tRNA[c]'],
+			'Arg4': ['argU-tRNA[c]'],
+			'Arg5': ['argW-tRNA[c]'],
+			'Asn': ['asnT-tRNA[c]', 'asnU-tRNA[c]', 'asnV-tRNA[c]', 'RNA0-304[c]'],
+			'Asp1': ['aspT-tRNA[c]', 'aspU-tRNA[c]', 'aspV-tRNA[c]'],
+			'Cys': ['cysT-tRNA[c]'],
+			'Gln1': ['glnU-tRNA[c]', 'glnW-tRNA[c]'],
+			'Gln2': ['glnV-tRNA[c]', 'glnX-tRNA[c]'],
+			'Glu2': ['gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]', 'gltW-tRNA[c]'],
+			'Gly1 + 2': ['glyU-tRNA[c]', 'glyT-tRNA[c]'],
+			'Gly3': ['glyV-tRNA[c]', 'glyW-tRNA[c]', 'glyX-tRNA[c]', 'glyY-tRNA[c]'],
+			'His': ['hisR-tRNA[c]'],
+			'Ile1 + 2': ['ileT-tRNA[c]', 'ileU-tRNA[c]', 'ileV-tRNA[c]', 'ileX-tRNA[c]', 'RNA0-305[c]'],
+			'Leu1': ['leuP-tRNA[c]', 'leuQ-tRNA[c]', 'leuT-tRNA[c]', 'leuV-tRNA[c]'],
+			'Leu2': ['leuU-tRNA[c]'],
+			'Leu3': ['leuW-tRNA[c]'],
+			'Leu4': ['leuX-tRNA[c]'],
+			'Leu5': ['leuZ-tRNA[c]'],
+			'Lys': ['lysT-tRNA[c]', 'lysV-tRNA[c]', 'lysW-tRNA[c]', 'RNA0-301[c]', 'RNA0-302[c]', 'RNA0-303[c]'],
+			'Met f1': ['RNA0-306[c]', 'metY-tRNA[c]', 'metZ-tRNA[c]', 'metW-tRNA[c]'],
+			'Met f2': ['RNA0-306[c]', 'metY-tRNA[c]', 'metZ-tRNA[c]', 'metW-tRNA[c]'],
+			'Met m': ['metT-tRNA[c]', 'metU-tRNA[c]'],
+			'Phe': ['pheU-tRNA[c]', 'pheV-tRNA[c]'],
+			'Pro1': ['proK-tRNA[c]'],
+			'Pro2': ['proL-tRNA[c]'],
+			'Pro3': ['proM-tRNA[c]'],
+			'Sel-Cys': ['selC-tRNA[c]'],
+			'Ser1': ['serT-tRNA[c]'],
+			'Ser2': ['serU-tRNA[c]'],
+			'Ser3': ['serV-tRNA[c]'],
+			'Ser5': ['serW-tRNA[c]', 'serX-tRNA[c]'],
+			'Thr1': ['thrV-tRNA[c]'],
+			'Thr2': ['thrW-tRNA[c]'],
+			'Thr3': ['thrT-tRNA[c]'],
+			'Thr4': ['thrU-tRNA[c]'],
+			'Trp': ['trpT-tRNA[c]'],
+			'Tyr1': ['tyrT-tRNA[c]', 'tyrV-tRNA[c]'],
+			'Tyr2': ['tyrU-tRNA[c]'],
+			'Val1': ['valT-tRNA[c]', 'valU-tRNA[c]', 'valX-tRNA[c]', 'valY-tRNA[c]', 'RNA0-300[c]'],
+			'Val2A': ['valW-tRNA[c]'],
+			'Val2B': ['valV-tRNA[c]'],
+			}
+
+		# Distribute Kurland measurements to WCM tRNAs
+		keys = list(validation_data_raw.dong1996_table_5[0].keys())
+		for key in ['tRNA', "anticodon 5'-3'", "sequence 5'-3'"]:
+			i = keys.index(key)
+			_ = keys.pop(i)
+
+		trna_growth_rates = []
+		for key in keys:
+			assert 'doublings per hour' in key
+			growth_rate = float(key.split('doublings')[0])
+			trna_growth_rates.append(growth_rate)
+
+		trna_ids = []
+		for row in knowledge_base_raw.rnas:
+			if row['type'] != 'tRNA':
+				continue
+			trna_ids.append(f'{row["id"]}[c]')
+
+		trna_data = np.zeros((len(trna_ids), len(trna_growth_rates)))
+		for row in validation_data_raw.dong1996_table_5:
+			trnas = Kurland_to_WCM[row['tRNA']]
+			n = len(trnas)
+			data = np.array([row[f'{x} doublings per hour']
+				for x in trna_growth_rates]) / n
+
+			for trna in trnas:
+				row = trna_ids.index(trna)
+				trna_data[row, :] += data
+
+		self.dong1996 = dict(zip(trna_ids, trna_data))
+		self.dong1996.update({
+			'growth_rates': 1 / units.h * np.array(trna_growth_rates)})
+
+		return
 
 class Protein(object):
 	""" Protein """

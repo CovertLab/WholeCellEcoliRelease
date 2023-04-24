@@ -11,7 +11,7 @@ import unum
 
 from wholecell.utils import fitting, units
 import six
-
+from Bio.Seq import reverse_complement
 
 NORMAL_CRITICAL_MASS = 975 * units.fg
 SLOW_GROWTH_FACTOR = 1.2  # adjustment for smaller cells
@@ -377,16 +377,151 @@ class Mass(object):
 		return doubling_time
 
 	def _build_trna_data(self, raw_data, sim_data):
-		growth_rate_unit = units.getUnit(raw_data.trna_data.trna_growth_rates[0]['growth rate'])
+		'''
+		Parses tRNA data from Dong, Nilsson, and Kurland, JMB 1996,
+		Table 3 (molar ratio of tRNA to 16s rRNA) into tRNA molecules
+		represented in the whole-cell model (WCM).
+		'''
 
-		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trna_data.trna_growth_rates])
+		# Get data header
+		keys = list(raw_data.trnas[0].keys())
+		for key in ['tRNA', "anticodon 5'-3'", "sequence 5'-3'"]:
+			i = keys.index(key)
+			_ = keys.pop(i)
 
-		trna_ratio_to_16SrRNA_by_growth_rate = []
-		for gr in self._trna_growth_rates: # This is a little crazy...
-			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data.trna_data, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
-		self._trna_ratio_to_16SrRNA_by_growth_rate = np.array(trna_ratio_to_16SrRNA_by_growth_rate)
+		# Parse growth rates
+		trna_growth_rates = []
+		for key in keys:
+			assert 'doublings per hour' in key
+			growth_rate = float(key.split('doublings')[0])
+			trna_growth_rates.append(growth_rate)
+		self._trna_growth_rates = 1 / units.h * np.array(trna_growth_rates)
 
-		self._trna_ids = [x['rna id'] for x in raw_data.trna_data.trna_ratio_to_16SrRNA_0p4]
+		# Map anticodons to tRNAs
+		WCM_anticodon_to_trnas = {}
+		trna_ids = []
+		for row in raw_data.rnas:
+			if row['type'] != 'tRNA':
+				continue
+
+			trna = f'{row["id"]}[c]'
+			trna_ids.append(trna)
+
+			if row['anticodon'] not in WCM_anticodon_to_trnas:
+				WCM_anticodon_to_trnas[row['anticodon']] = []
+
+			WCM_anticodon_to_trnas[row['anticodon']].append(trna)
+
+		# Identify Kurland tRNAs that have distinct measurements for the
+		# same anticodons (so their sequence should be consulted when
+		# mapping the Kurland measurements to WCM tRNA molecules).
+		Kurland_anticodon_to_trnas = {}
+		for row in raw_data.trnas:
+			anticodon = tuple(row["anticodon 5'-3'"])
+			trna = row['tRNA']
+			if anticodon not in Kurland_anticodon_to_trnas:
+				Kurland_anticodon_to_trnas[anticodon] = []
+			Kurland_anticodon_to_trnas[anticodon].append(trna)
+
+		consult_sequence = []
+		for key, value in Kurland_anticodon_to_trnas.items():
+			if len(value) > 1:
+				consult_sequence += value
+
+		# Assign Kurland tRNA measurements to WCM tRNAS, by:
+		# 1) 1-to-1 mapping of Kurland's to WCM's tRNAs. The tRNA
+		#    sequences are used to make some of these mappings.
+		# 2) Equal distribution of Kurland's tRNAs to WCM's tRNAs that
+		#    carry the same anticodon.
+		# 3) Methionine inititator tRNAs: sum Kurland's data for Met f1
+		#    and Met f2, then divide evenly into the 4 inititator tRNAs
+		#    modeled by the WCM.
+		Kurland_to_WCM = {}
+		Kurland_to_anticodons = {}
+		for row in raw_data.trnas:
+			probe = row['tRNA']
+			anticodons = row["anticodon 5'-3'"]
+			Kurland_to_anticodons[probe] = anticodons
+
+			# Initiator methionine tRNAs
+			if probe in ['Met f1', 'Met f2']:
+				trnas = sim_data.molecule_groups.initiator_trnas
+
+			# Elongator methionine tRNAs
+			elif probe == 'Met m':
+				trnas = sim_data.molecule_groups.elongator_trnas
+
+			# Isoleucine tRNAs (some of which have the same anticodon as
+			# methionine tRNAs, and so are manually described here)
+			elif probe == 'Ile1 + 2':
+				trnas = [
+					'ileT-tRNA[c]',
+					'ileU-tRNA[c]',
+					'ileV-tRNA[c]',
+					'ileX-tRNA[c]',
+					'RNA0-305[c]',
+					]
+
+			# Use the anticodon to match Kurland tRNAs to WCM tRNAs
+			else:
+				trnas = []
+				for anticodon in anticodons:
+					trnas += WCM_anticodon_to_trnas[anticodon]
+
+				# Consult the sequence to specify which WCM tRNA(s)
+				# match(es) this Kurland tRNA
+				if probe in consult_sequence:
+					WCM_sequences = sim_data.getter.get_sequences(
+						[trna.split('[c]')[0] for trna in trnas])
+
+					Kurland_sequence = row["sequence 5'-3'"]
+					Kurland_sequence = Kurland_sequence.replace(' ', '')
+					Kurland_sequence = Kurland_sequence.replace('T', 'U')
+
+					# Reverse complement
+					Kurland_sequence = reverse_complement(Kurland_sequence)
+
+					sequence_matched_trnas = []
+					for trna, sequence in zip(trnas, WCM_sequences):
+						if Kurland_sequence in sequence:
+							sequence_matched_trnas.append(trna)
+
+					trnas = sequence_matched_trnas
+
+			Kurland_to_WCM[probe] = trnas
+
+		# Unassigned Kurland tRNAs are assigned to remaining WCM tRNAs
+		assigned_trnas = [trna for trnas in Kurland_to_WCM.values() for trna in trnas]
+		for Kurland_trna, WCM_trnas in Kurland_to_WCM.items():
+			if len(WCM_trnas) > 0:
+				continue
+			anticodons = Kurland_to_anticodons[Kurland_trna]
+			trnas = []
+			for anticodon in anticodons:
+				trnas += WCM_anticodon_to_trnas[anticodon]
+
+			unassigned_trnas = []
+			for trna in trnas:
+				if trna not in assigned_trnas:
+					unassigned_trnas.append(trna)
+
+			Kurland_to_WCM[Kurland_trna] = unassigned_trnas
+
+		# Distribute Kurland measurements to WCM tRNAs
+		trna_data = np.zeros((len(trna_ids), len(trna_growth_rates)))
+		for row in raw_data.trnas:
+			trnas = Kurland_to_WCM[row['tRNA']]
+			n = len(trnas)
+			data = np.array([row[f'{x} doublings per hour']
+				for x in trna_growth_rates]) / n
+
+			for trna in trnas:
+				row = trna_ids.index(trna)
+				trna_data[row, :] += data
+
+		# Store as attributes
+		self._trna_ratio_to_16SrRNA_by_growth_rate = np.array(trna_data)
+		self._trna_ids = trna_ids
 
 	def get_trna_distribution(self, doubling_time):
 		assert type(doubling_time) == unum.Unum
@@ -395,8 +530,10 @@ class Mass(object):
 		growth_rate = growth_rate.asNumber(1/units.h)
 
 		trna_abundance_interpolation_functions = [
-			interpolate.interp1d(self._trna_growth_rates.asNumber(1/units.h), self._trna_ratio_to_16SrRNA_by_growth_rate[:,i])
-			for i in range(self._trna_ratio_to_16SrRNA_by_growth_rate.shape[1])]
+			interpolate.interp1d(
+				self._trna_growth_rates.asNumber(1/units.h),
+				self._trna_ratio_to_16SrRNA_by_growth_rate[i, :])
+			for i in range(self._trna_ratio_to_16SrRNA_by_growth_rate.shape[0])]
 
 		id_length = max(len(id_) for id_ in self._trna_ids)
 		abundance = np.zeros(

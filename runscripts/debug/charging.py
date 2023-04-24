@@ -20,7 +20,7 @@ import plotly.graph_objs as go
 import plotly.subplots
 
 from models.ecoli.processes.metabolism import CONC_UNITS as METABOLISM_CONC_UNITS
-from models.ecoli.processes.polypeptide_elongation import (calculate_trna_charging,
+from models.ecoli.processes.polypeptide_elongation import (calculate_steady_state_trna_charging,
 	CONC_UNITS, get_charging_params, get_charging_supply_function, get_ppgpp_params,
 	ppgpp_metabolite_changes)
 from wholecell.io.tablereader import TableReader
@@ -309,7 +309,7 @@ class ChargingDebug(scriptBase.ScriptBase):
 			)
 
 		# Calculate tRNA charging and resulting values
-		fraction_charged, v_rib, synthesis, imported, exported = calculate_trna_charging(
+		fraction_charged, v_rib, synthesis, imported, exported = calculate_steady_state_trna_charging(
 			self.synthetase_conc[timestep, :] * synthetase_adjustments,
 			uncharged_trna_conc,
 			charged_trna_conc,

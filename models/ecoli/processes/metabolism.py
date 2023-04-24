@@ -51,8 +51,9 @@ class Metabolism(wholecell.processes.process.Process):
 		metabolism = sim_data.process.metabolism
 
 		# Sim options
-		self.use_trna_charging = sim._trna_charging
-		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_trna_charging or getattr(metabolism, 'force_constant_ppgpp', False)
+		self.use_steady_state_trna_charging = sim._steady_state_trna_charging
+		self.use_kinetic_trna_charging = sim._kinetic_trna_charging
+		self.include_ppgpp = not sim._ppgpp_regulation or not self.use_steady_state_trna_charging or getattr(metabolism, 'force_constant_ppgpp', False)
 		self.mechanistic_aa_transport = sim._mechanistic_aa_transport
 
 		# Setup for variant that has a fixed change in ppGpp until a concentration is reached
@@ -99,9 +100,13 @@ class Metabolism(wholecell.processes.process.Process):
 			environment.current_media_id,
 			self.nutrientToDoublingTime["minimal"])
 		update_molecules = list(self.model.getBiomassAsConcentrations(doubling_time).keys())
-		if self.use_trna_charging:
+
+		if self.use_kinetic_trna_charging:
+			pass
+		elif self.use_steady_state_trna_charging:
 			update_molecules += [aa for aa in self.aa_names if aa not in self.aa_targets_not_updated]
 			update_molecules += list(self.linked_metabolites.keys())
+
 		if self.include_ppgpp:
 			update_molecules += [self.model.ppgpp_id]
 		self.conc_update_molecules = sorted(update_molecules)
@@ -161,7 +166,9 @@ class Metabolism(wholecell.processes.process.Process):
 			rp_ratio = self.readFromListener('Mass', 'rnaMass') / self.readFromListener('Mass', 'proteinMass')
 			conc_updates = self.model.getBiomassAsConcentrations(doubling_time, rp_ratio=rp_ratio)
 
-		if self.use_trna_charging:
+		if self.use_kinetic_trna_charging:
+			pass
+		elif self.use_steady_state_trna_charging:
 			conc_updates.update(self.update_amino_acid_targets(counts_to_molar))
 
 		## Converted from units to make reproduction from listener data

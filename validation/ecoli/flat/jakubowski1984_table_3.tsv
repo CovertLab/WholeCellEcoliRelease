@@ -1,0 +1,21 @@
+"Amino Acid"	"Aminoacyl-tRNA"	"Amino Acid Incorporation Rate into Proteins (1/units.s)"	"Turnover of aminoacyl-tRNAs (1/units.s)"	"Synthetase"	"Aminoacyl-tRNA:synthetase"	"Activity of synthetase in vivo (1/units.s)"	"Activity of synthetase in vitro (1/units.s)"	"Source of in vitro data"
+"L-ALPHA-ALANINE"	4000	13390	3.3					
+"ARG"	2480	6770	2.7	691	3.6	9.7	3.3	"Loftfield 1972"
+"ASN"	1230	2100	1.7					
+"L-ASPARTATE"	3670	15930	4.3					
+"CYS"	2000	4600	2.3					
+"GLN"	730	4980	6.8	1013	0.72	4.9	0.12	"Hoben et al. 1982"
+"GLT"	880	1730	2.0	873	1.0	2.0	4	"Loftfield 1972"
+"GLY"	4370	10210	2.3	682	6.4	14.7		
+"HIS"	1900	4030	2.1					
+"ILE"	4930	15270	3.1	1226	4.0	12.4	0.3	"Loftfield 1972"
+"LEU"	5330	20250	3.8	875	6.1	23.2	1	"Loftfield 1972"
+"LYS"	4300	11850	2.8	425	10.1	28.3	2.5	"Loftfield 1972"
+"MET"	4020	7630	1.9					
+"PHE"	1830	9950	5.4	992	1.85	10.0	1.7	"Loftfield 1972"
+"PRO"	2620	10030	3.8					
+"SER"	6270	51090	8.1					
+"THR"	4700	25210	5.4	527	8.9	48.0	0.2	"Loftfield 1972"
+"TRP"	790	3150	4.0					
+"TYR"	1030	1920	1.9					
+"VAL"	7910	14050	1.8	536	14.8	26.6	6	"Loftfield 1972"

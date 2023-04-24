@@ -5,7 +5,7 @@ sh runscripts/jenkins/fireworks-config.sh optional
 
 echo y | lpad reset
 
-DESC="No tRNA Charging" TRNA_CHARGING=0 N_GENS=8 \
+DESC="No tRNA Charging" STEADY_STATE_TRNA_CHARGING=0 N_GENS=8 \
   PARALLEL_PARCA=1 SINGLE_DAUGHTERS=1 COMPRESS_OUTPUT=1 RAISE_ON_TIME_LIMIT=1 \
   PLOTS=ACTIVE WC_ANALYZE_FAST=1 \
   python runscripts/fireworks/fw_queue.py

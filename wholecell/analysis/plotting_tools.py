@@ -57,6 +57,42 @@ COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
 with plt.style.context('seaborn-colorblind'):
 	COLORS_COLORBLIND = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
+# Labels
+_trna_to_label = {
+	'RNA0-300[c]': 'valZ',
+	'RNA0-301[c]': 'lysY',
+	'RNA0-302[c]': 'lysZ',
+	'RNA0-303[c]': 'lysQ',
+	'RNA0-304[c]': 'asnW',
+	'RNA0-305[c]': 'ileY',
+	'RNA0-306[c]': 'metV',
+	}
+def trna_to_label(trna_id):
+	return _trna_to_label.get(trna_id, trna_id[:4])
+
+amino_acid_to_label = {
+	'L-ALPHA-ALANINE[c]': 'Alanine',
+	'ARG[c]': 'Arginine',
+	'ASN[c]': 'Asparagine',
+	'L-ASPARTATE[c]': 'Aspartate',
+	'CYS[c]': 'Cysteine',
+	'GLT[c]': 'Glutamate',
+	'GLN[c]': 'Glutamine',
+	'GLY[c]': 'Glycine',
+	'HIS[c]': 'Histidine',
+	'ILE[c]': 'Isoleucine',
+	'LEU[c]': 'Leucine',
+	'LYS[c]': 'Lysine',
+	'MET[c]': 'Methionine',
+	'PHE[c]': 'Phenylalanine',
+	'PRO[c]': 'Proline',
+	'SER[c]': 'Serine',
+	'THR[c]': 'Threonine',
+	'TRP[c]': 'Tryptophan',
+	'TYR[c]': 'Tyrosine',
+	'VAL[c]': 'Valine',
+	}
+
 def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=None, plotCorrCoef=True, formatString='o'):
 	"""
 	Plot a scatterplot matrix (Splom) of data contained in arrayOfdataArrays,

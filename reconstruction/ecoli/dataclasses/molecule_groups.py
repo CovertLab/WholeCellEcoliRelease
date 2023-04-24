@@ -27,6 +27,19 @@ class MoleculeGroups(object):
 		polymerized_dntp_ids = [
 			POLYMERIZED_FRAGMENT_PREFIX + dntp_id for dntp_id in dntp_ids]
 
+		codon_ids = []
+		ntp_abbreviations = [ntp[0] for ntp in ntp_ids]
+		for nucleotide_0 in ntp_abbreviations:
+			for nucleotide_1 in ntp_abbreviations:
+				for nucleotide_2 in ntp_abbreviations:
+					codon = nucleotide_0 + nucleotide_1 + nucleotide_2
+
+					# Skip stop codons (except UGA, which codes for selenocysteine)
+					if codon in ['UAA', 'UAG']:
+						continue
+
+					codon_ids.append(codon)
+
 		molecule_groups = {
 			'amino_acids': aa_ids,
 			'ntps': ntp_ids,
@@ -36,6 +49,11 @@ class MoleculeGroups(object):
 			'polymerized_ntps': polymerized_ntp_ids,
 			'polymerized_dntps': polymerized_dntp_ids,
 			'polymerized_subunits': polymerized_aa_ids + polymerized_ntp_ids + polymerized_dntp_ids,
+
+			'codons': codon_ids,
+
+			'initiator_trnas': ['RNA0-306[c]', 'metY-tRNA[c]', 'metZ-tRNA[c]', 'metW-tRNA[c]'],
+			'elongator_trnas': ['metT-tRNA[c]', 'metU-tRNA[c]'],
 
 			# EG11508-MONOMER[c] (sra) is removed from the list because it is
 			# not essential and should have very low counts in rich media

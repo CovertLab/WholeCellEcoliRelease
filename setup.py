@@ -43,3 +43,14 @@ setup(
 	include_dirs = [np.get_include()],
 	# zip_safe = False  # see Cython docs, but it seems to need setuptools
 	)
+
+trna_charging_module = cythonize(
+	os.path.join("wholecell", "utils", "_trna_charging.pyx"),
+	# annotate=True, # emit an html file with annotated C code
+	)
+
+setup(
+	name = "tRNA Charging",
+	ext_modules = trna_charging_module,
+	include_dirs = [np.get_include()]
+	)

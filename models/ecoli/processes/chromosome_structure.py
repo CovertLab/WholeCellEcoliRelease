@@ -12,6 +12,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences
+from wholecell.utils import units
 from six.moves import zip
 
 
@@ -74,6 +75,18 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			self.chromosomal_segments = self.uniqueMoleculesView(
 				'chromosomal_segment')
 
+		# Listener
+		monomer_data = sim_data.process.translation.monomer_data
+		self.ribosome_profiling_molecules = {
+			'N-ACETYLTRANSFER-MONOMER[c]': 'argA',
+			}
+		self.ribosome_profiling_molecule_indexes = {}
+		self.ribosome_profiling_listener_sizes = {}
+		for molecule in self.ribosome_profiling_molecules.keys():
+			molecule_index = np.where(monomer_data['id'] == molecule)[0][0]
+			listener_size = int(1 + monomer_data['length'][molecule_index].asNumber(units.aa))
+			self.ribosome_profiling_molecule_indexes[molecule] = molecule_index
+			self.ribosome_profiling_listener_sizes[molecule] = listener_size
 
 	def calculateRequest(self):
 		# Request access to delete active RNAPs, RNAs, ribosomes, chromosomal
@@ -347,7 +360,26 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		n_removed_ribosomes = np.count_nonzero(removed_ribosomes_mask)
 
 		# Remove ribosomes that are bound to removed mRNA molecules
+		collision_removed_ribosomes = {}
+		for molecule, gene in self.ribosome_profiling_molecules.items():
+			listener_size = self.ribosome_profiling_listener_sizes[molecule]
+			collision_removed_ribosomes[gene] = np.zeros(listener_size)
+
 		if n_removed_ribosomes > 0:
+
+			(protein_indexes, peptide_lengths,) = self.active_ribosomes.attrs(
+				'protein_index', 'peptide_length')
+
+			for molecule, gene in self.ribosome_profiling_molecules.items():
+				molecule_index = self.ribosome_profiling_molecule_indexes[molecule]
+				ribosomes_removed = np.logical_and(
+					removed_ribosomes_mask,
+					protein_indexes == molecule_index,
+					)
+				if np.any(ribosomes_removed):
+					for position in peptide_lengths[np.where(ribosomes_removed)[0]]:
+						collision_removed_ribosomes[gene][position] += 1
+
 			self.active_ribosomes.delByIndexes(
 				np.where(removed_ribosomes_mask)[0])
 
@@ -384,6 +416,9 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.writeToListener(
 			'RnapData', 'n_removed_ribosomes', n_removed_ribosomes)
 
+		for molecule, gene in self.ribosome_profiling_molecules.items():
+			self.writeToListener('TrnaCharging', f'collision_removed_ribosomes_{gene}',
+				collision_removed_ribosomes[gene])
 
 		def get_replicated_motif_attributes(old_coordinates, old_domain_indexes):
 			"""
