@@ -4,6 +4,8 @@ This repository contains work to date on the [Covert Lab's](https://www.covert.s
 
 You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com).
 
+This repository contains code that accompanies the publication: "Whole-cell modeling of *E. coli* confirms that *in vitro* tRNA aminoacylation measurements are insufficient to support cell growth and predicts a positive feedback mechanism regulating arginine biosynthesis".
+
 
 ## Setup
 

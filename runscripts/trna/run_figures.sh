@@ -1,5 +1,8 @@
 # Scripts used to run analyses that generate the figures in paper:
-# todo
+# "Whole-cell modeling of E. coli confirms that in vitro tRNA
+# aminoacylation measurements are insufficient to support cell growth
+# and predicts a positive feedback mechanism regulating arginine
+# biosynthesis".
 
 # The simulations described in runscripts/paper/trna/run_simulations.sh
 # must be run prior to running the analyses in this file.
@@ -39,6 +42,9 @@ python models/ecoli/analysis/variant/trna_charging_validation.py sims
 python models/ecoli/analysis/variant/trna_charging_validation.py sims
 
 # Panel G
+python models/ecoli/analysis/variant/trna_charging_validation.py sims
+
+# Panel H
 python models/ecoli/analysis/parca/trna_synthetase_kcats.py sims
     
 
@@ -99,14 +105,34 @@ python models/ecoli/analysis/variant/argA_ribosome_terminations.py sims
 python models/ecoli/analysis/variant/argRS_kcat_impact.py sims
 
 
-# Figure S2
+## Figure S2
 python models/ecoli/analysis/cohort/trna_synthetase_distribution.py -v 1 sims
 
-# Figure S3
+
+## Figure S3
 python models/ecoli/analysis/variant/trna_synthetase_dynamic_range_sweep.py out
 
-# Figure S4
-python models/ecoli/analysis/cohort/trna_validation.py -v 0 sims
 
-# Figure S5
+## Figure S4
+# Panel A
 python models/ecoli/analysis/cohort/trna_forms.py -v 0 sims
+
+# Panel B
+python models/ecoli/analysis/cohort/trna_charged_fractions_validation.py -v 0 sims
+
+
+## Figure S5
+# Panel A
+python models/ecoli/analysis/cohort/premature_ribosome_termination.py -v 6 sims
+
+# Panel B
+python models/ecoli/analysis/cohort/premature_ribosome_termination.py -v 6 sims
+
+# Panel C
+python models/ecoli/analysis/variant/rare_arginine_codons_expression.py sims
+
+# Panel D
+python models/ecoli/analysis/variant/rare_arginine_codons_expression.py sims
+
+# Panel E
+python models/ecoli/analysis/variant/argA_codon_experiment.py sims
