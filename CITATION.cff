@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Choi"
+  given-names: "Heejo"
+  orcid: "https://orcid.org/0000-0002-2848-0267"
+- family-names: "Covert"
+  given-names: "Markus"
+  orcid: "https://orcid.org/0000-0002-5993-8912"
+title: "Whole-cell modeling of E. coli confirms that in vitro tRNA aminoacylation measurements are insufficient to support cell growth and predicts a positive feedback mechanism regulating arginine biosynthesis"
+version: v3.0.1
+doi: 10.5281/zenodo.7859480
+date-released: 2023-04-24
+url: "https://doi.org/10.5281/zenodo.7859480"
