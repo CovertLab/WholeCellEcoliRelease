@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/176616993.svg)](https://zenodo.org/badge/latestdoi/176616993)
+
 # Whole Cell Model - *Escherichia coli*
 
 This repository contains work to date on the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli), as well as some effort to create a framework for building whole cell models in general.
