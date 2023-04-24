@@ -66,6 +66,7 @@ user/*
 ######################
 /wholecell/utils/_build_sequences.c
 /wholecell/utils/_fastsums.c
+/wholecell/utils/_trna_charging.c
 /wholecell/utils/mc_complexation.c
 /wholecell/utils/polymerize.c
 
@@ -73,6 +74,7 @@ user/*
 ##################################
 /wholecell/utils/_build_sequences.html
 /wholecell/utils/_fastsums.html
+/wholecell/utils/_trna_charging.html
 /wholecell/utils/mc_complexation.html
 /wholecell/utils/polymerize.html
 

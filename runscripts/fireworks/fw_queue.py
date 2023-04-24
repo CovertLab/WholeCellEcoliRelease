@@ -92,12 +92,20 @@ Modeling options:
 	TRANSLATION_SUPPLY (int, "1"): if nonzero, the ribosome elongation rate is
 		limited by the condition specific rate of amino acid supply; otherwise
 		the elongation rate is set by condition
-	TRNA_CHARGING (int, "1"): if nonzero, tRNA charging reactions are modeled
+	STEADY_STATE_TRNA_CHARGING (int, "0"): if nonzero, tRNA charging reactions are modeled
 		and the ribosome elongation rate is set by the amount of charged tRNA
 		present.  This option will override TRANSLATION_SUPPLY in the simulation.
 	AA_SUPPLY_IN_CHARGING (int, "0"): if nonzero, amino acid supply function is
 		used during charging for more stable charging calculations.  Only has an
-		effect if TRNA_CHARGING option is used.
+		effect if STEADY_STATE_TRNA_CHARGING option is used.
+	KINETIC_TRNA_CHARGING (int, "1"): if nonzero, a Kinetic tRNA
+		Charging Model is used for tRNA charging. This option will
+		override TRANSLATION_SUPPLY, and STEADY_STATE_TRNA_CHARGING in
+		the simulation.
+	COARSE_KINETIC_ELONGATION (int, "0"): if nonzero, a Coarse Kinetic
+		tRNA Charging Model is used for tRNA charging. This option will
+		override TRANSLATION_SUPPLY, and STEADY_STATE_TRNA_CHARGING in
+		the simulation.
 	PPGPP_REGULATION (int, "0"): if nonzero, ppGpp concentration is determined
 		with kinetic equations
 	DISABLE_PPGPP_ELONGATION_INHIBITION (int, "0"): if nonzero, ppGpp inhibition
@@ -288,8 +296,10 @@ assert OPERONS in constants.EXTENDED_OPERON_OPTIONS, f'{OPERONS=} needs to be in
 VARIABLE_ELONGATION_TRANSCRIPTION = bool(int(get_environment("VARIABLE_ELONGATION_TRANSCRIPTION", DEFAULT_SIMULATION_KWARGS["variable_elongation_transcription"])))
 VARIABLE_ELONGATION_TRANSLATION = bool(int(get_environment("VARIABLE_ELONGATION_TRANSLATION", DEFAULT_SIMULATION_KWARGS["variable_elongation_translation"])))
 TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
-TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
+STEADY_STATE_TRNA_CHARGING = bool(int(get_environment("STEADY_STATE_TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["steady_state_trna_charging"])))
 AA_SUPPLY_IN_CHARGING = bool(int(get_environment("AA_SUPPLY_IN_CHARGING", DEFAULT_SIMULATION_KWARGS["aa_supply_in_charging"])))
+KINETIC_TRNA_CHARGING = bool(int(get_environment("KINETIC_TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["kinetic_trna_charging"])))
+COARSE_KINETIC_ELONGATION = bool(int(get_environment("COARSE_KINETIC_ELONGATION", DEFAULT_SIMULATION_KWARGS["coarse_kinetic_elongation"])))
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
 DISABLE_PPGPP_ELONGATION_INHIBITION = bool(int(get_environment("DISABLE_PPGPP_ELONGATION_INHIBITION", DEFAULT_SIMULATION_KWARGS["disable_ppgpp_elongation_inhibition"])))
 SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_SIMULATION_KWARGS["superhelical_density"])))
@@ -453,8 +463,10 @@ class WorkflowBuilder:
 			"variable_elongation_transcription": VARIABLE_ELONGATION_TRANSCRIPTION,
 			"variable_elongation_translation": VARIABLE_ELONGATION_TRANSLATION,
 			"translation_supply": TRANSLATION_SUPPLY,
-			"trna_charging": TRNA_CHARGING,
+			"steady_state_trna_charging": STEADY_STATE_TRNA_CHARGING,
 			"aa_supply_in_charging": AA_SUPPLY_IN_CHARGING,
+			"kinetic_trna_charging": KINETIC_TRNA_CHARGING,
+			"coarse_kinetic_elongation": COARSE_KINETIC_ELONGATION,
 			"ppgpp_regulation": PPGPP_REGULATION,
 			"disable_ppgpp_elongation_inhibition": DISABLE_PPGPP_ELONGATION_INHIBITION,
 			"superhelical_density": SUPERHELICAL_DENSITY,
@@ -736,8 +748,10 @@ class WorkflowBuilder:
 							variable_elongation_transcription=VARIABLE_ELONGATION_TRANSCRIPTION,
 							variable_elongation_translation=VARIABLE_ELONGATION_TRANSLATION,
 							translation_supply=TRANSLATION_SUPPLY,
-							trna_charging=TRNA_CHARGING,
+							steady_state_trna_charging=STEADY_STATE_TRNA_CHARGING,
 							aa_supply_in_charging=AA_SUPPLY_IN_CHARGING,
+							kinetic_trna_charging=KINETIC_TRNA_CHARGING,
+							coarse_kinetic_elongation=COARSE_KINETIC_ELONGATION,
 							ppgpp_regulation=PPGPP_REGULATION,
 							disable_ppgpp_elongation_inhibition=DISABLE_PPGPP_ELONGATION_INHIBITION,
 							superhelical_density=SUPERHELICAL_DENSITY,

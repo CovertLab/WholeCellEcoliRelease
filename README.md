@@ -4,10 +4,13 @@
 
 You can reach us at [WholeCellTeam](mailto:wholecellteam@lists.stanford.edu).
 
+<<<<<<< HEAD
 This repository contains code for the following publications:
 - [Simultaneous cross-evaluation of heterogeneous _E. coli_ datasets via mechanistic simulation](https://science.sciencemag.org/content/369/6502/eaav3751.full) published in _Science_, 24 July 2020. ([Release](https://github.com/CovertLab/WholeCellEcoliRelease/releases/tag/v1.0))
 - [The _E. coli_ whole-cell modeling project](https://journals.asm.org/doi/10.1128/ecosalplus.ESP-0001-2020) published in _EcoSal Plus_, 9 July 2021.
 - [An expanded whole-cell model of _E. coli_ links cellular physiology with mechanisms of growth rate control](https://www.nature.com/articles/s41540-022-00242-9) published in _npj Systems Biology and Applications_, 19 August 2022. ([Release](https://github.com/CovertLab/WholeCellEcoliRelease/releases/tag/v2.0))
+- Whole-cell modeling of *E. coli* confirms that *in vitro* tRNA aminoacylation measurements are insufficient to support cell growth and predicts a positive feedback mechanism regulating arginine biosynthesis.
+
 
 ## Setup
 

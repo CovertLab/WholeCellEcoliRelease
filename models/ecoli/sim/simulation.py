@@ -41,6 +41,8 @@ from models.ecoli.listeners.mRNA_counts import mRNACounts
 from models.ecoli.listeners.complexation_listener import ComplexationListener
 from models.ecoli.listeners.equilibrium_listener import EquilibriumListener
 from models.ecoli.listeners.dna_supercoiling import DnaSupercoiling
+from models.ecoli.listeners.trna_charging import TrnaCharging
+from models.ecoli.listeners.monomer_degradation_listener import MonomerDegradationListener
 
 from models.ecoli.sim.initial_conditions import calcInitialConditions
 from wholecell.sim.divide_cell import divide_cell
@@ -108,6 +110,8 @@ class EcoliSimulation(Simulation):
 		ComplexationListener,
 		EquilibriumListener,
 		DnaSupercoiling,
+		TrnaCharging,
+		MonomerDegradationListener,
 		)
 
 	_hookClasses = ()

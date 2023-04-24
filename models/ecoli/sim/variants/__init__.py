@@ -30,6 +30,8 @@ variants = [
 	'timelines',
 	'transcription_initiation_shuffle_params',
 	'translation_efficiencies_shuffle_params',
+	'trna_synthetase_kinetics',
+	'trna_synthetase_kinetics_test',
 	'wildtype',
 	]
 

@@ -1,0 +1,22 @@
+# max k_cat column only considered measurements performed at 37C
+"Synthetase"	"max k_cat (1/units.s)"
+"ALAS-CPLX[c]"	84
+"ARGS-MONOMER[c]"	26
+"ASNS-CPLX[c]"	1.6
+"ASPS-CPLX[c]"	30
+"CYSS-MONOMER[c]"	91
+"GLURS-MONOMER[c]"	3.4
+"GLNS-MONOMER[c]"	3.83
+"GLYS-CPLX[c]"	36.7
+"HISS-CPLX[c]"	142
+"ILES-MONOMER[c]"	104
+"LEUS-MONOMER[c]"	29
+"LYSS-CPLX[c]"	6.1
+"METG-CPLX[c]"	6.85
+"PHES-CPLX[c]"	199
+"PROS-CPLX[c]"	70
+"SERS-CPLX[c]"	2.6
+"THRS-CPLX[c]"	90
+"TRPS-CPLX[c]"	4.8
+"TYRS-CPLX[c]"	12
+"VALS-MONOMER[c]"	13.9

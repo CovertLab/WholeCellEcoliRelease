@@ -36,8 +36,10 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	dPeriodDivision = False,
 	growthRateNoise = False,
 	translationSupply = True,
-	trna_charging = True,
+	steady_state_trna_charging = False,
 	aa_supply_in_charging = False,
+	kinetic_trna_charging = True,
+	coarse_kinetic_elongation = False,
 	ppgpp_regulation = False,
 	disable_ppgpp_elongation_inhibition = False,
 	superhelical_density = False,
@@ -157,6 +159,27 @@ class Simulation():
 		filepath.makedirs(self._outputDir)
 
 		sim_data = self._simData
+
+		# Update simulation kwargs for trna_synthetase_kinetics variants
+		if hasattr(sim_data, 'trna_synthetase_kinetics_variant'):
+			if sim_data.trna_synthetase_kinetics_variant in [0, 3, 4, 5, 6]:
+				self._kinetic_trna_charging = True
+				self._coarse_kinetic_elongation = False
+				self._translationSupply = False
+				self._steady_state_trna_charging = False
+
+			elif sim_data.trna_synthetase_kinetics_variant == 1:
+				self._kinetic_trna_charging = False
+				self._coarse_kinetic_elongation = False
+				self._translationSupply = True
+				self._steady_state_trna_charging = False
+
+			elif sim_data.trna_synthetase_kinetics_variant == 2:
+				self._kinetic_trna_charging = False
+				self._coarse_kinetic_elongation = True
+				self._translationSupply = False
+				self._steady_state_trna_charging = False
+
 
 		# Initialize simulation from fit KB
 		self._initialize(sim_data)

@@ -36,8 +36,10 @@ METADATA_KEYS = (
 	'variable_elongation_transcription',
 	'variable_elongation_translation',
 	'translation_supply',
-	'trna_charging',
+	'steady_state_trna_charging',
 	'aa_supply_in_charging',
+	'kinetic_trna_charging',
+	'coarse_kinetic_elongation',
 	'ppgpp_regulation',
 	'disable_ppgpp_elongation_inhibition',
 	'superhelical_density',
@@ -55,7 +57,9 @@ PARCA_KEYS = (
 	'operons',
 	'cpus',
 	'variable_elongation_transcription',
-	'variable_elongation_translation')
+	'variable_elongation_translation',
+	'optimize_trna_charging_kinetics',
+	)
 
 SIM_KEYS = (
 	'timeline',
@@ -72,8 +76,10 @@ SIM_KEYS = (
 	'variable_elongation_transcription',
 	'variable_elongation_translation',
 	'translation_supply',
-	'trna_charging',
+	'steady_state_trna_charging',
 	'aa_supply_in_charging',
+	'kinetic_trna_charging',
+	'coarse_kinetic_elongation',
 	'ppgpp_regulation',
 	'disable_ppgpp_elongation_inhibition',
 	'superhelical_density',
@@ -401,6 +407,10 @@ class ScriptBase(metaclass=abc.ABCMeta):
 				 ' the other TFs at their input levels for faster Parca debugging.'
 				 ' DO NOT USE THIS FOR A MEANINGFUL SIMULATION.')
 
+		self.define_parameter_bool(parser, 'optimize_trna_charging_kinetics', False,
+			help='Optimize tRNA charging kinetic parameters, and replace the '
+				 'trna_charging_kinetics.tsv file.')
+
 	def define_sim_loop_options(self, parser, manual_script=False):
 		# type: (argparse.ArgumentParser, bool) -> None
 		"""Define options for running a series of sims."""
@@ -492,7 +502,7 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
 				 ' elongation rate is set by condition')
-		add_bool_option('trna_charging', 'trna_charging',
+		add_bool_option('steady_state_trna_charging', 'steady_state_trna_charging',
 			help='if true, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
@@ -500,6 +510,16 @@ class ScriptBase(metaclass=abc.ABCMeta):
 			help='if true, amino acid supply function is used during charging for'
 				 ' more stable charging calculations.'
 				 ' Only has an effect if --trna-charging option is used.')
+		add_bool_option('kinetic_trna_charging', 'kinetic_trna_charging',
+			help='if true, a Kinetic tRNA Charging Model is used for'
+				' tRNA charging. This option will override'
+				' --translation-supply, and --steady-state-trna-charging in'
+				' the simulation.')
+		add_bool_option('coarse_kinetic_elongation', 'coarse_kinetic_elongation',
+			help='if true, a Coarse Kinetic Model is used for'
+				' polypeptide elongation. This option will override'
+				' --translation-supply and --steady-state-trna-charging in'
+				' the simulation.')
 		add_bool_option('ppgpp_regulation', 'ppgpp_regulation',
 			help='if true, ppGpp concentration is determined with kinetic equations.')
 		add_bool_option('disable_ppgpp_elongation_inhibition', 'disable_ppgpp_elongation_inhibition',

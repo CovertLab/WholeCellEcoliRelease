@@ -33,8 +33,10 @@ class SimulationDaughterTask(FiretaskBase):
 		'variable_elongation_transcription',
 		'variable_elongation_translation',
 		"translation_supply",
-		"trna_charging",
+		"steady_state_trna_charging",
 		"aa_supply_in_charging",
+		"kinetic_trna_charging",
+		"coarse_kinetic_elongation",
 		"ppgpp_regulation",
 		"disable_ppgpp_elongation_inhibition",
 		"superhelical_density",
@@ -79,8 +81,10 @@ class SimulationDaughterTask(FiretaskBase):
 		options["translationSupply"] = self._get_default("translation_supply", "translationSupply")
 		options["variable_elongation_transcription"] = self._get_default("variable_elongation_transcription")
 		options["variable_elongation_translation"] = self._get_default("variable_elongation_translation")
-		options["trna_charging"] = self._get_default("trna_charging")
+		options["steady_state_trna_charging"] = self._get_default("steady_state_trna_charging")
 		options["aa_supply_in_charging"] = self._get_default("aa_supply_in_charging")
+		options["kinetic_trna_charging"] = self._get_default("kinetic_trna_charging")
+		options["coarse_kinetic_elongation"] = self._get_default("coarse_kinetic_elongation")
 		options["ppgpp_regulation"] = self._get_default("ppgpp_regulation")
 		options["disable_ppgpp_elongation_inhibition"] = self._get_default("disable_ppgpp_elongation_inhibition")
 		options["superhelical_density"] = self._get_default("superhelical_density")

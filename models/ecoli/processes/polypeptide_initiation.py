@@ -63,6 +63,19 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# Create view onto RNAs
 		self.RNAs = self.uniqueMoleculesView('RNA')
 
+		# Listener
+		monomer_data = sim_data.process.translation.monomer_data
+
+		self.ribosome_profiling_molecules = {
+			'N-ACETYLTRANSFER-MONOMER[c]': 'argA',
+			}
+		self.ribosome_profiling_molecule_indexes = {}
+		self.ribosome_profiling_number_of_ribosomes = {}
+		for molecule, gene in self.ribosome_profiling_molecules.items():
+			molecule_index = np.where(monomer_data['id'] == molecule)[0][0]
+			self.ribosome_profiling_molecule_indexes[molecule] = molecule_index
+			self.ribosome_profiling_number_of_ribosomes[gene] = []
+
 	def calculateRequest(self):
 		current_media_id = self._external_states['Environment'].current_media_id
 
@@ -147,6 +160,9 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		n_ribosomes_to_activate = np.int64(self.activationProb * inactiveRibosomeCount)
 
+		self.writeToListener("RibosomeData", "activationProb", self.activationProb)
+		self.writeToListener("RibosomeData", "n_ribosomes_to_activate", n_ribosomes_to_activate)
+
 		if n_ribosomes_to_activate == 0:
 			return
 
@@ -162,6 +178,10 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		positions_on_mRNA = np.empty(n_ribosomes_to_activate, np.int64)
 		nonzeroCount = (n_new_proteins > 0)
 		start_index = 0
+
+		ribosome_initiations_on_MOIs = {}
+		for molecule, gene in self.ribosome_profiling_molecules.items():
+			ribosome_initiations_on_MOIs[gene] = np.array([], dtype=np.int64)
 
 		for protein_index, counts in zip(
 				np.arange(n_new_proteins.size)[nonzeroCount],
@@ -199,6 +219,17 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 				cistron_start_positions, n_ribosomes_per_RNA
 				)
 
+			for molecule, gene in self.ribosome_profiling_molecules.items():
+				molecule_index = self.ribosome_profiling_molecule_indexes[molecule]
+
+				if protein_index == molecule_index:
+					identifier = mRNA_indexes[start_index:start_index + counts]
+
+					for x in identifier:
+						if x not in self.ribosome_profiling_number_of_ribosomes[gene]:
+							self.ribosome_profiling_number_of_ribosomes[gene].append(x)
+					ribosome_initiations_on_MOIs[gene] = identifier
+
 			start_index += counts
 
 		# Create active 70S ribosomes and assign their attributes
@@ -217,6 +248,10 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# Write number of initialized ribosomes to listener
 		self.writeToListener("RibosomeData", "didInitialize", n_new_proteins.sum())
 		self.writeToListener("RibosomeData", "probTranslationPerTranscript", proteinInitProb)
+
+		for molecule, gene in self.ribosome_profiling_molecules.items():
+			self.writeToListener('TrnaCharging', f'ribosome_initiation_{gene}',
+				ribosome_initiations_on_MOIs[gene])
 
 	def _calculateActivationProb(
 			self, fracActiveRibosome, proteinLengths, ribosomeElongationRates,
