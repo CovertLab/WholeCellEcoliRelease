@@ -152,7 +152,7 @@ platformdirs==2.4.0
 pluggy==0.13.1
 prompt-toolkit==3.0.5
 proto-plus==1.18.1
-protobuf==3.15.8
+protobuf==3.18.3
 ptyprocess==0.6.0
 py==1.9.0
 py-cpuinfo==7.0.0
