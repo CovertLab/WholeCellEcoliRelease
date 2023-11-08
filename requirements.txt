@@ -64,7 +64,7 @@ Equation==1.2.1
 FireWorks==1.9.7
 future==0.18.2
 ipdb==0.13.3
-ipython==7.16.1
+ipython==8.10.0
 line-profiler==3.0.2
 llvmlite==0.33.0
 matplotlib==3.2.2
