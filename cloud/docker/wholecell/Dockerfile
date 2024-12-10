@@ -43,7 +43,7 @@ ENV IMAGE_GIT_HASH="$git_hash" \
 	IMAGE_TIMESTAMP="$timestamp"
 
 LABEL application="Whole Cell Model of Escherichia coli" \
-    email="allencentercovertlab@gmail.com" \
+    email="wholecellteam@lists.stanford.edu" \
     license="https://github.com/CovertLab/WholeCellEcoliRelease/blob/master/LICENSE.md" \
     organization="Covert Lab at Stanford" \
     website="https://www.covert.stanford.edu/"

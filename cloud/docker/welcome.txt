@@ -1,7 +1,7 @@
 Welcome to the Stanford Covert Lab's Whole Cell Model of Escherichia coli!
 --------------------------------------------------------------------------
 
-You can reach us at allencentercovertlab@gmail.com
+You can reach us at wholecellteam@lists.stanford.edu
 
 For docs on how to run the model, see the README.md in the repository.
 
